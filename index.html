@@ -414,19 +414,7 @@
       /* Full-bleed calendar wrapper */
       .cal-wrapper { margin-inline: -4px; }
     }
-    /* ── מסך פתיחה ── */
-    #splashScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .5s ease,transform .5s ease}
-    #splashScreen.fade-out{opacity:0;transform:scale(1.04);pointer-events:none}
-    .splash-logo{font-size:48px;font-weight:900;color:var(--text);letter-spacing:-.02em;animation:splashPop .6s cubic-bezier(.34,1.56,.64,1) both}
-    .splash-logo span{color:var(--accent2)}
-    .splash-sub{font-size:14px;color:var(--muted);font-weight:700;opacity:0;animation:splashFadeIn .5s .4s ease both}
-    .splash-dots{display:flex;gap:7px;opacity:0;animation:splashFadeIn .4s .7s ease both}
-    .splash-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:splashBounce 1s .8s ease infinite alternate}
-    .splash-dot:nth-child(2){animation-delay:.95s;background:var(--accent2)}
-    .splash-dot:nth-child(3){animation-delay:1.1s;background:var(--faint)}
-    @keyframes splashPop{from{opacity:0;transform:scale(.7) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-    @keyframes splashFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes splashBounce{from{transform:translateY(0)}to{transform:translateY(-7px)}}
+    /* ── חלון מידע מהיר לאירוע/משימה בלוח שנה ── */
     .ev-popup{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);z-index:60;min-width:220px;max-width:300px;direction:rtl;text-align:right;animation:popIn .18s ease}
     @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
     .ev-popup-title{font-size:15px;font-weight:900;margin-bottom:6px;color:var(--text);line-height:1.3}
@@ -446,17 +434,6 @@
   </style>
 </head>
 <body data-theme="sky">
-
-  <!-- מסך פתיחה -->
-  <div id="splashScreen">
-    <div class="splash-logo">זרימת<span>משימות</span></div>
-    <div class="splash-sub">ניהול משימות חכם</div>
-    <div class="splash-dots">
-      <div class="splash-dot"></div>
-      <div class="splash-dot"></div>
-      <div class="splash-dot"></div>
-    </div>
-  </div>
 
   <section id="authView" class="auth">
     <div class="auth-box">
@@ -486,18 +463,17 @@
   <section id="appView" class="app hidden">
 	<button id="mobileMenu" class="btn icon mobile-menu" aria-label="פתח תפריט">☰</button>
   <!-- כפתור ערכת נושא — פינה שמאל עליון -->
-  <div style="position:fixed;top:12px;left:12px;z-index:44;display:flex;align-items:center;gap:8px">
-    <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow);border:1px solid var(--border);background:var(--card2)"></button>
-    <button id="briefBtn" type="button" title="סיכום השבוע" style="border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ Brief</button>
-  </div>
-  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.3</div>
+  <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="position:fixed;top:12px;left:12px;z-index:44;border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow)"></button>
+  <!-- כפתור Brief — ליד כפתור הערכת נושא -->
+  <button id="briefBtn" type="button" title="סיכום השבוע" style="position:fixed;top:12px;left:130px;z-index:44;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ Brief</button>
+  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.2</div>
   <div id="sidebarTab" title="פתח/סגור תפריט" aria-label="פתח תפריט">
     <svg viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg"><path d="M7 1L1 7l6 6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
   </div>
     <aside id="sidebar">
       <div class="sidebar-top">
         <div>
-          <div class="logo">זרימת<span>משימות</span></div>
+          <div class="logo">Task<span>Flow</span></div>
           <div id="userLabel" class="user"></div>
         </div>
         <button id="sidebarClose" class="btn icon sidebar-close" type="button" aria-label="סגור תפריט">×</button>
@@ -529,7 +505,7 @@
         </div>
         <div class="bar"><span id="globalBar" style="width:0%"></span></div>
         <button id="logoutBtn" class="btn danger" type="button" style="width:100%;margin-top:14px">התנתק</button>
-        <div style="margin-top:10px;text-align:center;font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em;opacity:.7">v2.3</div>
+        <div style="margin-top:10px;text-align:center;font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em;opacity:.7">v2.2</div>
       </div>
     </aside>
     <main>
@@ -667,15 +643,6 @@
     function uid(prefix){ return (prefix||"id") + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
     init();
-
-    // הסתר מסך פתיחה אחרי 1.4 שניות
-    setTimeout(() => {
-      const splash = document.getElementById("splashScreen");
-      if (splash) {
-        splash.classList.add("fade-out");
-        setTimeout(() => splash.remove(), 520);
-      }
-    }, 1400);
 
     function init(){
       wireBaseEvents();
@@ -2905,7 +2872,7 @@
           chip.style.background = (ev.color || state.accent) + "cc";
           chip.style.color = "#fff";
           chip.title = ev.title + " · " + ev.time + (ev.endTime ? "–"+ev.endTime : "");
-          chip.textContent = ev.title;
+          chip.textContent = ev.title + (ev.time ? " " + ev.time : "");
           chip.dataset.evid = ev.id;
           chip.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, ev, dk); };
           dayCol.append(chip);
@@ -4141,23 +4108,18 @@
       const content = $("briefContent");
       content.innerHTML = "";
 
-      // תיקון תאריכים: השתמש בתאריך מקומי ולא UTC
-      function localDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
-
-      const upcomingEvents = [];
-      const upcomingTasks = [];
+      const upcoming = [];
       for (let i = 0; i <= daysToSat; i++){
         const d = new Date(today); d.setDate(today.getDate() + i);
-        const dk = localDateKey(d);
+        const dk = d.toISOString().slice(0,10);
         const {tasks, events} = allCalItems(dk);
-        events.forEach(ev => upcomingEvents.push({type:"event", title:ev.title, date:d, dk, color:ev.color||state.accent, time:ev.time||null}));
-        tasks.forEach(t => upcomingTasks.push({type:"task", title:t.name, date:d, dk, color:t.color||state.accent, done:!!t.done}));
+        events.forEach(ev => upcoming.push({type:"event", title:ev.title, date:d, dk, color:ev.color||state.accent, time:ev.time||null}));
+        tasks.forEach(t => upcoming.push({type:"task", title:t.name, date:d, dk, color:t.color||state.accent, done:!!t.done}));
       }
 
-      const upcoming = [...upcomingEvents, ...upcomingTasks];
       const totalTasks = state.tasks.filter(t => !t.done).length;
-      const weekTasks = upcomingTasks.filter(x => !x.done).length;
-      const weekEvents = upcomingEvents.length;
+      const weekTasks = upcoming.filter(x => x.type==="task" && !x.done).length;
+      const weekEvents = upcoming.filter(x => x.type==="event").length;
 
       const stats = el("div","");
       stats.style.cssText = "display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px";
@@ -4177,63 +4139,42 @@
         return;
       }
 
-      // ── פונקציה לבניית section ––
-      function buildDaySection(itemList){
-        const byDay = {};
-        itemList.forEach(item => {
-          if (!byDay[item.dk]) byDay[item.dk] = {date: item.date, items: []};
-          byDay[item.dk].items.push(item);
-        });
-        Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).forEach(([dk, {date, items}]) => {
-          const dayCheck = new Date(date); dayCheck.setHours(0,0,0,0);
-          const isToday = dayCheck.getTime() === today.getTime();
-          const dayLabel = isToday ? "היום" : date.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"short"});
-          const section = el("div","");
-          section.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden";
-          const head = el("div","");
-          head.style.cssText = `padding:8px 14px;font-size:12px;font-weight:900;color:${isToday ? "var(--accent2)" : "var(--muted)"};background:var(--card2);border-bottom:1px solid var(--border)`;
-          head.textContent = dayLabel;
-          section.append(head);
-          items.forEach((item, idx) => {
-            const row = el("div","");
-            row.style.cssText = `display:flex;align-items:center;gap:10px;padding:9px 14px;${idx < items.length-1 ? "border-bottom:1px solid var(--border)" : ""}`;
-            const dot = el("div","");
-            dot.style.cssText = `width:8px;height:8px;border-radius:${item.type==="task"?"2px":"50%"};background:${item.color};flex:0 0 auto`;
-            const titleEl = el("div","");
-            titleEl.style.cssText = "flex:1;font-size:13px;font-weight:700;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
-            titleEl.textContent = item.title;
-            if (item.done) titleEl.style.opacity = ".45";
-            row.append(dot, titleEl);
-            if (item.time) {
-              const tEl = el("div","");
-              tEl.style.cssText = "font-size:11px;color:var(--faint);font-weight:800;white-space:nowrap;direction:ltr";
-              tEl.textContent = item.time;
-              row.append(tEl);
-            }
-            section.append(row);
-          });
-          content.append(section);
-        });
-      }
+      const byDay = {};
+      upcoming.forEach(item => {
+        if (!byDay[item.dk]) byDay[item.dk] = {date: item.date, items: []};
+        byDay[item.dk].items.push(item);
+      });
 
-      // ── אירועים ──
-      if (upcomingEvents.length > 0){
-        const evHeader = el("div","");
-        evHeader.style.cssText = "font-size:11px;font-weight:900;color:var(--accent2);letter-spacing:.06em;padding:4px 2px 2px;display:flex;align-items:center;gap:5px";
-        evHeader.innerHTML = `<span>📅</span> אירועים`;
-        content.append(evHeader);
-        buildDaySection(upcomingEvents);
-      }
-
-      // ── מטלות ──
-      const pendingTasks = upcomingTasks.filter(t => !t.done);
-      if (pendingTasks.length > 0){
-        const taskHeader = el("div","");
-        taskHeader.style.cssText = "font-size:11px;font-weight:900;color:var(--accent2);letter-spacing:.06em;padding:10px 2px 2px;display:flex;align-items:center;gap:5px";
-        taskHeader.innerHTML = `<span>✅</span> משימות לביצוע`;
-        content.append(taskHeader);
-        buildDaySection(pendingTasks);
-      }
+      Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).forEach(([dk, {date, items}]) => {
+        const dayCheck = new Date(date); dayCheck.setHours(0,0,0,0);
+        const isToday = dayCheck.getTime() === today.getTime();
+        const dayLabel = isToday ? "היום" : date.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"short"});
+        const section = el("div","");
+        section.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden";
+        const head = el("div","");
+        head.style.cssText = `padding:8px 14px;font-size:12px;font-weight:900;color:${isToday ? "var(--accent2)" : "var(--muted)"};background:var(--card2);border-bottom:1px solid var(--border)`;
+        head.textContent = dayLabel;
+        section.append(head);
+        items.forEach((item, idx) => {
+          const row = el("div","");
+          row.style.cssText = `display:flex;align-items:center;gap:10px;padding:9px 14px;${idx < items.length-1 ? "border-bottom:1px solid var(--border)" : ""}`;
+          const dot = el("div","");
+          dot.style.cssText = `width:8px;height:8px;border-radius:${item.type==="task"?"2px":"50%"};background:${item.color};flex:0 0 auto`;
+          const titleEl = el("div","");
+          titleEl.style.cssText = "flex:1;font-size:13px;font-weight:700;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+          titleEl.textContent = item.title;
+          if (item.done) titleEl.style.opacity = ".45";
+          row.append(dot, titleEl);
+          if (item.time) {
+            const tEl = el("div","");
+            tEl.style.cssText = "font-size:11px;color:var(--faint);font-weight:800;white-space:nowrap;direction:ltr";
+            tEl.textContent = item.time;
+            row.append(tEl);
+          }
+          section.append(row);
+        });
+        content.append(section);
+      });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
