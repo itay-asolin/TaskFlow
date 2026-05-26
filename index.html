@@ -963,30 +963,29 @@
         try{
           const intro = $("startupBriefIntro");
           const introContent = $("startupBriefContent");
+
           if (intro && introContent){
             renderBriefContent();
             introContent.innerHTML = $("briefContent").innerHTML;
+
             intro.style.display = "flex";
             document.body.style.overflow = "hidden";
 
-            setTimeout(() => {
-              document.body.style.overflow = "";
-            }, 6000);
-
             $("startupBriefDismiss").onclick = () => {
               intro.style.display = "none";
-                showToast("יאללה לעבודה 🚀");
               document.body.style.overflow = "";
+              showToast("יאללה לעבודה 🚀");
             };
 
             setTimeout(() => {
               if (intro.style.display !== "none"){
                 intro.style.display = "none";
                 document.body.style.overflow = "";
+                showToast("יאללה לעבודה 🚀");
               }
             }, 6500);
           }
-        }catch(e){}
+        } catch(e){}
       }, 900);
 
       
