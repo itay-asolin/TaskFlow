@@ -262,7 +262,7 @@
     .mg-day-head .day-date{font-size:18px;font-weight:900;color:var(--text);line-height:1.1}
     .mg-day-head.today .day-date{color:var(--accent2)}
     .mg-time-col{display:flex;flex-direction:column}
-    .mg-hour-label{height:48px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 6px 0 0;font-size:8.5px;font-weight:500;color:var(--faint);border-bottom:1px solid var(--border)}
+    .mg-hour-label{height:48px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 6px 0 0;font-size:10px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--border)}
     .mg-day-col{position:relative;border-left:1px solid var(--border)}
     .mg-slot{position:relative;cursor:pointer;transition:background .15s}
     .mg-slot-quarter{height:12px;border-bottom:1px solid rgba(42,43,61,.2)}
@@ -414,7 +414,19 @@
       /* Full-bleed calendar wrapper */
       .cal-wrapper { margin-inline: -4px; }
     }
-    /* ── חלון מידע מהיר לאירוע/משימה בלוח שנה ── */
+    /* ── מסך פתיחה ── */
+    #splashScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .5s ease,transform .5s ease}
+    #splashScreen.fade-out{opacity:0;transform:scale(1.04);pointer-events:none}
+    .splash-logo{font-size:48px;font-weight:900;color:var(--text);letter-spacing:-.02em;animation:splashPop .6s cubic-bezier(.34,1.56,.64,1) both}
+    .splash-logo span{color:var(--accent2)}
+    .splash-sub{font-size:14px;color:var(--muted);font-weight:700;opacity:0;animation:splashFadeIn .5s .4s ease both}
+    .splash-dots{display:flex;gap:7px;opacity:0;animation:splashFadeIn .4s .7s ease both}
+    .splash-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:splashBounce 1s .8s ease infinite alternate}
+    .splash-dot:nth-child(2){animation-delay:.95s;background:var(--accent2)}
+    .splash-dot:nth-child(3){animation-delay:1.1s;background:var(--faint)}
+    @keyframes splashPop{from{opacity:0;transform:scale(.7) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes splashFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes splashBounce{from{transform:translateY(0)}to{transform:translateY(-7px)}}
     .ev-popup{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);z-index:60;min-width:220px;max-width:300px;direction:rtl;text-align:right;animation:popIn .18s ease}
     @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
     .ev-popup-title{font-size:15px;font-weight:900;margin-bottom:6px;color:var(--text);line-height:1.3}
@@ -431,58 +443,20 @@
     span.flatpickr-weekday { color: var(--faint) !important; font-weight: 800 !important; }
     .flatpickr-day.selected { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; font-weight: bold; }
     .flatpickr-day:hover { background: var(--card2) !important; }
-  
-    /* Intro planning popup */
-    #startupBriefIntro{
-      position:fixed;
-      inset:0;
-      z-index:120;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.72);
-      backdrop-filter:blur(6px);
-    }
-    #startupBriefCard{
-      width:min(480px,92vw);
-      max-height:78vh;
-      overflow:auto;
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:22px;
-      box-shadow:var(--shadow);
-      padding:24px;
-      animation:introPop .35s ease;
-    }
-    @keyframes introPop{
-      from{opacity:0;transform:translateY(16px) scale(.95)}
-      to{opacity:1;transform:translateY(0) scale(1)}
-    }
-    #startupBriefCard h2{
-      margin:0 0 10px;
-      font-size:24px;
-      font-weight:900;
-    }
-    #startupBriefCard p{
-      color:var(--muted);
-      line-height:1.6;
-      margin:0 0 14px;
-    }
-    #startupBriefDismiss{
-      margin-top:16px;
-      width:100%;
-      border-radius:14px;
-      padding:12px;
-      font-weight:900;
-      border:0;
-      background:var(--accent);
-      color:#fff;
-      cursor:pointer;
-    }
-
-</style>
+  </style>
 </head>
 <body data-theme="sky">
+
+  <!-- מסך פתיחה -->
+  <div id="splashScreen">
+    <div class="splash-logo">זרימת<span>משימות</span></div>
+    <div class="splash-sub">ניהול משימות חכם</div>
+    <div class="splash-dots">
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+    </div>
+  </div>
 
   <section id="authView" class="auth">
     <div class="auth-box">
@@ -512,17 +486,18 @@
   <section id="appView" class="app hidden">
 	<button id="mobileMenu" class="btn icon mobile-menu" aria-label="פתח תפריט">☰</button>
   <!-- כפתור ערכת נושא — פינה שמאל עליון -->
-  <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="position:fixed;top:12px;left:12px;z-index:44;border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow)"></button>
-  <!-- כפתור Brief — ליד כפתור הערכת נושא -->
-  <button id="briefBtn" type="button" title="סיכום השבוע" style="position:fixed;top:12px;left:130px;z-index:44;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ תכנון שבועי</button>
-  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.4</div>
+  <div style="position:fixed;top:12px;left:12px;z-index:44;display:flex;align-items:center;gap:8px">
+    <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow);border:1px solid var(--border);background:var(--card2)"></button>
+    <button id="briefBtn" type="button" title="סיכום השבוע" style="border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ Brief</button>
+  </div>
+  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.3</div>
   <div id="sidebarTab" title="פתח/סגור תפריט" aria-label="פתח תפריט">
     <svg viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg"><path d="M7 1L1 7l6 6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
   </div>
     <aside id="sidebar">
       <div class="sidebar-top">
         <div>
-          <div class="logo">Task<span>Flow</span></div>
+          <div class="logo">זרימת<span>משימות</span></div>
           <div id="userLabel" class="user"></div>
         </div>
         <button id="sidebarClose" class="btn icon sidebar-close" type="button" aria-label="סגור תפריט">×</button>
@@ -554,7 +529,7 @@
         </div>
         <div class="bar"><span id="globalBar" style="width:0%"></span></div>
         <button id="logoutBtn" class="btn danger" type="button" style="width:100%;margin-top:14px">התנתק</button>
-        <div style="margin-top:10px;text-align:center;font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em;opacity:.7">v2.4</div>
+        <div style="margin-top:10px;text-align:center;font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em;opacity:.7">v2.3</div>
       </div>
     </aside>
     <main>
@@ -601,25 +576,12 @@
   <div id="briefPanel" style="display:none;position:fixed;left:12px;top:56px;width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 80px);overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);z-index:56;direction:rtl;text-align:right;transform:translateY(-18px) scale(.96);opacity:0;transition:transform .32s cubic-bezier(.34,1.3,.64,1),opacity .28s ease">
     <div style="padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div>
-        <div style="font-size:16px;font-weight:900;color:var(--text)">✨ תכנון שבועי שבועי</div>
+        <div style="font-size:16px;font-weight:900;color:var(--text)">✨ Brief שבועי</div>
         <div id="briefSubtitle" style="font-size:12px;color:var(--faint);margin-top:2px"></div>
       </div>
       <button id="briefClose" type="button" style="border:0;background:transparent;font-size:20px;color:var(--faint);cursor:pointer;padding:2px 6px;border-radius:8px;line-height:1">×</button>
     </div>
     <div id="briefContent" style="padding:16px 20px 20px;display:grid;gap:10px"></div>
-  </div>
-
-
-  <div id="startupBriefIntro">
-    <div id="startupBriefCard">
-      <h2>✨ תכנון שבועי</h2>
-      <p>
-        ברוך הבא 👋<br>
-        הנה כל מה שמחכה לך השבוע — משימות, פגישות ודברים חשובים לפי סדר הימים.
-      </p>
-      <div id="startupBriefContent" style="display:grid;gap:10px"></div>
-      <button id="startupBriefDismiss">יאללה לעבודה 🚀</button>
-    </div>
   </div>
 
   <div id="modalBack" class="modal-back hidden" role="dialog" aria-modal="true">
@@ -705,6 +667,15 @@
     function uid(prefix){ return (prefix||"id") + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
     init();
+
+    // הסתר מסך פתיחה אחרי 1.4 שניות
+    setTimeout(() => {
+      const splash = document.getElementById("splashScreen");
+      if (splash) {
+        splash.classList.add("fade-out");
+        setTimeout(() => splash.remove(), 520);
+      }
+    }, 1400);
 
     function init(){
       wireBaseEvents();
@@ -956,38 +927,7 @@
       // קשר כפתורי Brief
       $("briefBtn").onclick = openBrief;
       $("briefClose").onclick = closeBrief;
-      
       $("briefOverlay").onclick = closeBrief;
-
-      setTimeout(() => {
-        try{
-          const intro = $("startupBriefIntro");
-          const introContent = $("startupBriefContent");
-
-          if (intro && introContent){
-            renderBriefContent();
-            introContent.innerHTML = $("briefContent").innerHTML;
-
-            intro.style.display = "flex";
-            document.body.style.overflow = "hidden";
-
-            $("startupBriefDismiss").onclick = () => {
-              intro.style.display = "none";
-              document.body.style.overflow = "";
-              showToast("יאללה לעבודה 🚀");
-            };
-
-            setTimeout(() => {
-              if (intro.style.display !== "none"){
-                intro.style.display = "none";
-                document.body.style.overflow = "";
-                showToast("יאללה לעבודה 🚀");
-              }
-            }, 6500);
-          }
-        } catch(e){}
-      }, 900);
-
       
       render();
     }
@@ -2137,10 +2077,14 @@
           const { col: colIdx, totalCols, span: colSpan = 1 } = columns.get(ev.id) || { col: 0, totalCols: 1, span: 1 };
           const pct = 100 / totalCols;
           const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
+          // שורה ראשונה: שעה — שורה שניה: כותרת
+          const timeStr = el("span","");
+          timeStr.style.cssText = "font-size:9px;opacity:.85;font-weight:900;white-space:nowrap;letter-spacing:.01em";
+          timeStr.textContent = ev.time + (ev.endTime ? `–${ev.endTime}` : "");
           const titleStr = el("span","");
-          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:11px;line-height:1.25;flex:1;font-weight:900";
+          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:10.5px;line-height:1.3;flex:1";
           titleStr.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
-          chip.append(titleStr);
+          chip.append(timeStr, titleStr);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
           chip.style.left = `calc(${colIdx * pct}% + 3px)`;
           chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 3px)`;
@@ -2961,7 +2905,7 @@
           chip.style.background = (ev.color || state.accent) + "cc";
           chip.style.color = "#fff";
           chip.title = ev.title + " · " + ev.time + (ev.endTime ? "–"+ev.endTime : "");
-          chip.textContent = ev.title + (ev.time ? " " + ev.time : "");
+          chip.textContent = ev.title;
           chip.dataset.evid = ev.id;
           chip.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, ev, dk); };
           dayCol.append(chip);
@@ -4187,112 +4131,109 @@
     }
 
     function renderBriefContent(){
-      const today = new Date(); 
-      today.setHours(0,0,0,0);
-
+      const today = new Date(); today.setHours(0,0,0,0);
       const day = today.getDay();
       const daysToSat = (6 - day + 7) % 7 || 7;
-      const endOfWeek = new Date(today); 
-      endOfWeek.setDate(today.getDate() + daysToSat);
-
+      const endOfWeek = new Date(today); endOfWeek.setDate(today.getDate() + daysToSat);
       const fmt = d => d.toLocaleDateString("he-IL",{day:"numeric",month:"short"});
       $("briefSubtitle").textContent = `${fmt(today)} – ${fmt(endOfWeek)}`;
 
       const content = $("briefContent");
       content.innerHTML = "";
 
-      const grouped = {};
+      // תיקון תאריכים: השתמש בתאריך מקומי ולא UTC
+      function localDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
 
+      const upcomingEvents = [];
+      const upcomingTasks = [];
       for (let i = 0; i <= daysToSat; i++){
-        const d = new Date(today);
-        d.setDate(today.getDate() + i);
-
-        const localDate = new Date(d.getTime() - d.getTimezoneOffset()*60000);
-        const dk = localDate.toISOString().slice(0,10);
-
+        const d = new Date(today); d.setDate(today.getDate() + i);
+        const dk = localDateKey(d);
         const {tasks, events} = allCalItems(dk);
-
-        grouped[dk] = {
-          date: new Date(d),
-          tasks: tasks.filter(t => !t.done),
-          events
-        };
+        events.forEach(ev => upcomingEvents.push({type:"event", title:ev.title, date:d, dk, color:ev.color||state.accent, time:ev.time||null}));
+        tasks.forEach(t => upcomingTasks.push({type:"task", title:t.name, date:d, dk, color:t.color||state.accent, done:!!t.done}));
       }
 
-      Object.entries(grouped)
-        .sort(([,a],[,b]) => a.date - b.date)
-        .forEach(([dk,data]) => {
+      const upcoming = [...upcomingEvents, ...upcomingTasks];
+      const totalTasks = state.tasks.filter(t => !t.done).length;
+      const weekTasks = upcomingTasks.filter(x => !x.done).length;
+      const weekEvents = upcomingEvents.length;
 
-          if (!data.tasks.length && !data.events.length) return;
+      const stats = el("div","");
+      stats.style.cssText = "display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px";
+      [[weekEvents,"אירועים","📅"],[weekTasks,"משימות","✅"],[totalTasks,"סה״כ פתוחות","📋"]].forEach(([n,label,icon]) => {
+        const card = el("div","");
+        card.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center";
+        card.innerHTML = `<div style="font-size:16px">${icon}</div><div style="font-size:18px;font-weight:900;color:var(--text)">${n}</div><div style="font-size:10px;color:var(--faint);font-weight:800">${label}</div>`;
+        stats.append(card);
+      });
+      content.append(stats);
 
-          const isToday = data.date.toDateString() === today.toDateString();
+      if (upcoming.length === 0){
+        const empty2 = el("div","");
+        empty2.style.cssText = "text-align:center;padding:24px;color:var(--faint);font-size:13px";
+        empty2.textContent = "🎉 אין כלום עד סוף השבוע. תהנה!";
+        content.append(empty2);
+        return;
+      }
 
+      // ── פונקציה לבניית section ––
+      function buildDaySection(itemList){
+        const byDay = {};
+        itemList.forEach(item => {
+          if (!byDay[item.dk]) byDay[item.dk] = {date: item.date, items: []};
+          byDay[item.dk].items.push(item);
+        });
+        Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).forEach(([dk, {date, items}]) => {
+          const dayCheck = new Date(date); dayCheck.setHours(0,0,0,0);
+          const isToday = dayCheck.getTime() === today.getTime();
+          const dayLabel = isToday ? "היום" : date.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"short"});
           const section = el("div","");
           section.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden";
-
           const head = el("div","");
           head.style.cssText = `padding:8px 14px;font-size:12px;font-weight:900;color:${isToday ? "var(--accent2)" : "var(--muted)"};background:var(--card2);border-bottom:1px solid var(--border)`;
-
-          head.textContent = isToday
-            ? "היום"
-            : data.date.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"short"});
-
+          head.textContent = dayLabel;
           section.append(head);
-
-          if (data.events.length){
-            const label = el("div","");
-            label.style.cssText = "padding:8px 14px 4px;font-size:11px;font-weight:900;color:var(--accent2)";
-            label.textContent = "🤝 אירועים";
-            section.append(label);
-
-            data.events.forEach(ev => {
-              const row = el("div","");
-              row.style.cssText = "display:flex;align-items:center;gap:10px;padding:8px 14px";
-
-              const dot = el("div","");
-              dot.style.cssText = `width:8px;height:8px;border-radius:50%;background:${ev.color||state.accent};flex:0 0 auto`;
-
-              const title = el("div","");
-              title.style.cssText = "flex:1;font-size:13px;font-weight:700";
-              title.textContent = ev.title;
-
-              row.append(dot,title);
-
-              if (ev.time){
-                const time = el("div","");
-                time.style.cssText = "font-size:11px;color:var(--faint);direction:ltr";
-                time.textContent = ev.time;
-                row.append(time);
-              }
-
-              section.append(row);
-            });
-          }
-
-          if (data.tasks.length){
-            const label = el("div","");
-            label.style.cssText = "padding:8px 14px 4px;font-size:11px;font-weight:900;color:var(--warn)";
-            label.textContent = "✅ מטלות";
-            section.append(label);
-
-            data.tasks.forEach(task => {
-              const row = el("div","");
-              row.style.cssText = "display:flex;align-items:center;gap:10px;padding:8px 14px";
-
-              const dot = el("div","");
-              dot.style.cssText = `width:8px;height:8px;border-radius:2px;background:${task.color||state.accent};flex:0 0 auto`;
-
-              const title = el("div","");
-              title.style.cssText = "flex:1;font-size:13px;font-weight:700";
-              title.textContent = task.name;
-
-              row.append(dot,title);
-              section.append(row);
-            });
-          }
-
+          items.forEach((item, idx) => {
+            const row = el("div","");
+            row.style.cssText = `display:flex;align-items:center;gap:10px;padding:9px 14px;${idx < items.length-1 ? "border-bottom:1px solid var(--border)" : ""}`;
+            const dot = el("div","");
+            dot.style.cssText = `width:8px;height:8px;border-radius:${item.type==="task"?"2px":"50%"};background:${item.color};flex:0 0 auto`;
+            const titleEl = el("div","");
+            titleEl.style.cssText = "flex:1;font-size:13px;font-weight:700;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+            titleEl.textContent = item.title;
+            if (item.done) titleEl.style.opacity = ".45";
+            row.append(dot, titleEl);
+            if (item.time) {
+              const tEl = el("div","");
+              tEl.style.cssText = "font-size:11px;color:var(--faint);font-weight:800;white-space:nowrap;direction:ltr";
+              tEl.textContent = item.time;
+              row.append(tEl);
+            }
+            section.append(row);
+          });
           content.append(section);
         });
+      }
+
+      // ── אירועים ──
+      if (upcomingEvents.length > 0){
+        const evHeader = el("div","");
+        evHeader.style.cssText = "font-size:11px;font-weight:900;color:var(--accent2);letter-spacing:.06em;padding:4px 2px 2px;display:flex;align-items:center;gap:5px";
+        evHeader.innerHTML = `<span>📅</span> אירועים`;
+        content.append(evHeader);
+        buildDaySection(upcomingEvents);
+      }
+
+      // ── מטלות ──
+      const pendingTasks = upcomingTasks.filter(t => !t.done);
+      if (pendingTasks.length > 0){
+        const taskHeader = el("div","");
+        taskHeader.style.cssText = "font-size:11px;font-weight:900;color:var(--accent2);letter-spacing:.06em;padding:10px 2px 2px;display:flex;align-items:center;gap:5px";
+        taskHeader.innerHTML = `<span>✅</span> משימות לביצוע`;
+        content.append(taskHeader);
+        buildDaySection(pendingTasks);
+      }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
