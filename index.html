@@ -221,7 +221,7 @@
     .cal-week-day-head{text-align:center;font-size:12px;font-weight:900;padding:6px;border-radius:var(--rs);background:var(--card);border:1px solid var(--border)}
     .cal-week-day-head.today{background:rgba(109,93,252,.18);border-color:var(--accent)}
     .cal-day-col{position:relative;border:1px solid var(--border);border-radius:var(--rs);background:var(--card);min-height:840px}
-    .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:6px 8px;font-size:11.5px;font-weight:800;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:3px;line-height:1.35;min-height:28px}
+    .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:5px 7px;font-size:10px;font-weight:600;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:2px;line-height:1.2;min-height:24px}
     .cal-event.is-meeting{border-radius:6px 6px 6px 0}
     .cal-event.is-meeting::before{content:"";display:none}
     .cal-event:hover{opacity:.85;z-index:3}
@@ -512,11 +512,11 @@
   <section id="appView" class="app hidden">
 	<button id="mobileMenu" class="btn icon mobile-menu" aria-label="פתח תפריט">☰</button>
   <!-- כפתור ערכת נושא — פינה שמאל עליון -->
-  <div style="position:fixed;top:12px;left:12px;z-index:44;display:flex;align-items:center;gap:10px">
-    <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow);height:36px;display:flex;align-items:center"></button>
-    <button id="briefBtn" type="button" title="סיכום השבוע" style="height:36px;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ תכנון שבועי</button>
+  <div style="position:fixed;top:12px;left:12px;z-index:44;display:flex;align-items:center;gap:8px">
+    <button id="briefBtn" type="button" title="סיכום השבוע" style="height:34px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:4px 13px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✨ תכנון שבועי</button>
+    <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="background:transparent;border-radius:999px;padding:4px 10px;font-size:12px;height:34px;display:flex;align-items:center"></button>
   </div>
-  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.2</div>
+  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.4</div>
   <div id="sidebarTab" title="פתח/סגור תפריט" aria-label="פתח תפריט">
     <svg viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg"><path d="M7 1L1 7l6 6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
   </div>
@@ -555,7 +555,7 @@
         </div>
         <div class="bar"><span id="globalBar" style="width:0%"></span></div>
         <button id="logoutBtn" class="btn danger" type="button" style="width:100%;margin-top:14px">התנתק</button>
-        <div style="margin-top:10px;text-align:center;font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em;opacity:.7">v2.2</div>
+        <div style="margin-top:10px;text-align:center;font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em;opacity:.7">v2.4</div>
       </div>
     </aside>
     <main>
@@ -1108,6 +1108,14 @@
           if (remoteChange) notifySharedChange(changeText);
           sharedSnapshotReady = true;
         });
+
+        if (tasks.length){
+          const taskTitle = el("div","");
+          taskTitle.style.cssText = "font-size:11px;font-weight:900;color:var(--warn);margin:8px 0 2px";
+          taskTitle.textContent = "✅ מטלות";
+          block.appendChild(taskTitle);
+
+          tasks.forEach(item => {
         if (!options.silent) toast("התחברת לרשימה המשותפת");
         return listId;
       } catch (err) {
@@ -1985,7 +1993,8 @@
     function advDayCell(date, other, conflicts){
       const cell = el("div","day" + (other ? " other" : ""));
       cell.style.cursor = "pointer";
-      const today = new Date(); today.setHours(0,0,0,0);
+      const today = new Date();
+      today.setHours(0,0,0,0); today.setHours(0,0,0,0);
       const check = new Date(date); check.setHours(0,0,0,0);
       const isToday = today.getTime() === check.getTime();
       if (isToday) cell.classList.add("today");
@@ -2139,7 +2148,7 @@
           const pct = 100 / totalCols;
           const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
           const titleStr = el("span","");
-          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:12px;line-height:1.35;flex:1;font-weight:900;padding-top:2px";
+          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:10px;line-height:1.2;flex:1;font-weight:700";
           titleStr.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
           chip.append(titleStr);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
