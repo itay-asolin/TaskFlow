@@ -105,6 +105,12 @@
     .mini-day.other-month{opacity:.28}
     .mini-day.has-items::after{content:"";position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--accent2)}
     .mini-day.today::after{background:#fff}
+    .day.drag-drop-hover{
+      background:rgba(109,93,252,.18)!important;
+      border-color:var(--accent)!important;
+      box-shadow:inset 0 0 0 2px var(--accent)!important;
+    }
+    .day-task[draggable="true"]:hover{ opacity:1!important; box-shadow:0 2px 8px rgba(0,0,0,.25); }
     .day.drag-selecting{background:rgba(109,93,252,.18)!important;border-color:var(--accent)!important;user-select:none;}
     main{padding:24px;min-width:0}
     .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap}
@@ -271,7 +277,7 @@
     .mg-slot-hover-tip{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:5;pointer-events:none}
     .mg-slot:hover .mg-slot-hover-tip{display:flex}
     .mg-slot-tip-inner{background:var(--accent);color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 10px rgba(109,93,252,.4)}
-    .mg-event{position:absolute;left:2px;right:2px;border-radius:5px;padding:2px 5px;font-size:10px;font-weight:800;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;z-index:3;transition:opacity .15s}
+    .mg-event{position:absolute;left:2px;right:2px;border-radius:5px;padding:2px 4px;font-size:10px;font-weight:500;overflow:hidden;cursor:pointer;z-index:3;transition:opacity .15s;display:flex;flex-direction:column;gap:1px}
     .mg-event:hover{opacity:.82}
     .meetings-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px;color:var(--faint);font-size:13px}
     .drum-pickers{display:flex;gap:0;align-items:center;justify-content:center;margin:8px 0 4px;direction:ltr}
@@ -2076,6 +2082,7 @@
       grid.addEventListener("mousedown", (e) => {
         const dayEl = e.target.closest(".day:not(.other)");
         if (!dayEl || e.target.closest(".day-task") || e.target.closest(".day-more")) return;
+        if (e.target.closest("[draggable='true']")) return; // משימה גרורה — לא מתחיל יצירת אירוע
         const dateKey = dayEl.dataset.dateKey;
         if (!dateKey) return;
         isDraggingNew = true;
@@ -2208,6 +2215,17 @@
           item.style.background = itemData.color + "18";
           item.style.color = itemData.color;
           item.style.opacity = ".85";
+          item.style.cursor = "grab";
+          // drag-to-reschedule
+          item.draggable = true;
+          item.ondragstart = (e) => {
+            e.stopPropagation();
+            draggedTaskId = itemData.id;
+            item.style.opacity = ".4";
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", itemData.id);
+          };
+          item.ondragend = () => { item.style.opacity = ".85"; draggedTaskId = null; };
           // לחיצה על משימה — פתח חלון מידע
           const taskObj = filteredTasks().find(t => t.id === itemData.id);
           if (taskObj) item.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, taskObj, dateKey); };
@@ -2232,6 +2250,37 @@
         // דאבל-קליק — עבור לתצוגת יום
         state.calDate = dateKey; state.calView = "day"; render(); 
       };
+
+      // drop zone — קבלת משימה גרורה
+      if (!other) {
+        cell.ondragover = (e) => {
+          if (!draggedTaskId) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          cell.classList.add("drag-drop-hover");
+        };
+        cell.ondragleave = (e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            cell.classList.remove("drag-drop-hover");
+          }
+        };
+        cell.ondrop = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          cell.classList.remove("drag-drop-hover");
+          const tid = draggedTaskId || e.dataTransfer.getData("text/plain");
+          if (!tid) return;
+          const task = state.tasks.find(t => t.id === tid);
+          if (!task || task.due === dateKey) return;
+          const oldDate = task.due ? formatDateShort(task.due) : "ללא תאריך";
+          task.due = dateKey;
+          save();
+          render();
+          toast(`📅 הוזז ל-${formatDateShort(dateKey)}`);
+          draggedTaskId = null;
+        };
+      }
+
       return cell;
     }
 
@@ -3094,13 +3143,28 @@
           const chip = el("div","mg-event");
           chip.style.top = (top + Math.max(1, rawHeight * .015)) + "px";
           chip.style.height = height + "px";
-          chip.style.left = `calc(${colIdx * pct}% + 3px)`;
-          chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 3px)`;
+          chip.style.left = `calc(${colIdx * pct}% + 2px)`;
+          chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 2px)`;
           chip.style.width = "auto";
           chip.style.background = (ev.color || state.accent) + "cc";
           chip.style.color = "#fff";
+          chip.style.display = "flex";
+          chip.style.flexDirection = "column";
+          chip.style.gap = "1px";
+          chip.style.overflow = "hidden";
+          chip.style.padding = "2px 4px";
           chip.title = ev.title + " · " + ev.time + (ev.endTime ? "–"+ev.endTime : "");
-          chip.textContent = ev.title + (ev.time ? " " + ev.time : "");
+
+          const titleEl = document.createElement("span");
+          titleEl.style.cssText = "font-size:10px;font-weight:500;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block";
+          titleEl.textContent = ev.title;
+
+          const timeEl = document.createElement("span");
+          timeEl.style.cssText = "font-size:9px;font-weight:400;opacity:.85;line-height:1.2;white-space:nowrap;display:block;direction:ltr";
+          timeEl.textContent = ev.time + (ev.endTime ? "–"+ev.endTime : "");
+
+          chip.append(titleEl);
+          if (height > 28) chip.append(timeEl);
           chip.dataset.evid = ev.id;
           chip.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, ev, dk); };
           dayCol.append(chip);
