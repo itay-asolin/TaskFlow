@@ -180,7 +180,7 @@
     .day-head{display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0;margin-bottom:2px}
     .day-num{font-size:12px;font-weight:900;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s}
     .day-count{display:none}
-    .day-task{border-radius:4px;padding:2px 5px;font-size:10.5px;font-weight:700;white-space:normal;overflow:hidden;margin-top:1px;line-height:1.35;min-height:17px;display:flex;align-items:flex-start;word-break:break-word}
+    .day-task{border-radius:4px;padding:2px 5px;font-size:11px;font-weight:800;white-space:normal;overflow:hidden;margin-top:2px;line-height:1.4;min-height:21px;display:flex;align-items:flex-start;word-break:break-word;padding-top:3px;padding-bottom:3px}
     .day-task.is-meeting{border-radius:4px 4px 4px 0;border-right:3px solid currentColor;border-bottom:1px solid currentColor;padding-right:4px;font-weight:900;letter-spacing:.01em;position:relative}
     .day-task.is-meeting::after{content:"🤝";font-size:8px;position:absolute;bottom:1px;left:3px;opacity:.7}
     .day-more{border:0;background:transparent!important;color:var(--faint)!important;text-align:right;font-size:9.5px;font-weight:800;cursor:pointer;padding:0 2px;opacity:.8}
@@ -221,7 +221,7 @@
     .cal-week-day-head{text-align:center;font-size:12px;font-weight:900;padding:6px;border-radius:var(--rs);background:var(--card);border:1px solid var(--border)}
     .cal-week-day-head.today{background:rgba(109,93,252,.18);border-color:var(--accent)}
     .cal-day-col{position:relative;border:1px solid var(--border);border-radius:var(--rs);background:var(--card);min-height:840px}
-    .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:2px;line-height:1.3}
+    .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:6px 8px;font-size:11.5px;font-weight:800;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:3px;line-height:1.35;min-height:28px}
     .cal-event.is-meeting{border-radius:6px 6px 6px 0}
     .cal-event.is-meeting::before{content:"";display:none}
     .cal-event:hover{opacity:.85;z-index:3}
@@ -512,9 +512,10 @@
   <section id="appView" class="app hidden">
 	<button id="mobileMenu" class="btn icon mobile-menu" aria-label="פתח תפריט">☰</button>
   <!-- כפתור ערכת נושא — פינה שמאל עליון -->
-  <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="position:fixed;top:12px;left:12px;z-index:44;border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow)"></button>
-  <!-- כפתור Brief — ליד כפתור הערכת נושא -->
-  <button id="briefBtn" type="button" title="סיכום השבוע" style="position:fixed;top:12px;left:130px;z-index:44;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ תכנון שבועי</button>
+  <div style="position:fixed;top:12px;left:12px;z-index:44;display:flex;align-items:center;gap:10px">
+    <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow);height:36px;display:flex;align-items:center"></button>
+    <button id="briefBtn" type="button" title="סיכום השבוע" style="height:36px;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ תכנון שבועי</button>
+  </div>
   <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.2</div>
   <div id="sidebarTab" title="פתח/סגור תפריט" aria-label="פתח תפריט">
     <svg viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg"><path d="M7 1L1 7l6 6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
@@ -2138,7 +2139,7 @@
           const pct = 100 / totalCols;
           const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
           const titleStr = el("span","");
-          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:11px;line-height:1.25;flex:1;font-weight:900";
+          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:12px;line-height:1.35;flex:1;font-weight:900;padding-top:2px";
           titleStr.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
           chip.append(titleStr);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
@@ -4242,7 +4243,9 @@
         });
       });
 
-      Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).forEach(([dk, {date, items}]) => {
+      Object.entries(byDay)
+        .sort(([,a],[,b]) => new Date(a.date) - new Date(b.date))
+        .forEach(([dk, {date, items}]) => {
         const dayCheck = new Date(date); dayCheck.setHours(0,0,0,0);
         const isToday = dayCheck.getTime() === today.getTime();
         const dayLabel = isToday ? "היום" : date.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"short"});
