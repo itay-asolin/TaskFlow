@@ -431,56 +431,7 @@
     span.flatpickr-weekday { color: var(--faint) !important; font-weight: 800 !important; }
     .flatpickr-day.selected { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; font-weight: bold; }
     .flatpickr-day:hover { background: var(--card2) !important; }
-  
-    /* Intro planning popup */
-    #startupBriefIntro{
-      position:fixed;
-      inset:0;
-      z-index:120;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.72);
-      backdrop-filter:blur(6px);
-    }
-    #startupBriefCard{
-      width:min(480px,92vw);
-      max-height:78vh;
-      overflow:auto;
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:22px;
-      box-shadow:var(--shadow);
-      padding:24px;
-      animation:introPop .35s ease;
-    }
-    @keyframes introPop{
-      from{opacity:0;transform:translateY(16px) scale(.95)}
-      to{opacity:1;transform:translateY(0) scale(1)}
-    }
-    #startupBriefCard h2{
-      margin:0 0 10px;
-      font-size:24px;
-      font-weight:900;
-    }
-    #startupBriefCard p{
-      color:var(--muted);
-      line-height:1.6;
-      margin:0 0 14px;
-    }
-    #startupBriefDismiss{
-      margin-top:16px;
-      width:100%;
-      border-radius:14px;
-      padding:12px;
-      font-weight:900;
-      border:0;
-      background:var(--accent);
-      color:#fff;
-      cursor:pointer;
-    }
-
-</style>
+  </style>
 </head>
 <body data-theme="sky">
 
@@ -514,7 +465,7 @@
   <!-- כפתור ערכת נושא — פינה שמאל עליון -->
   <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="position:fixed;top:12px;left:12px;z-index:44;border-radius:999px;padding:5px 11px;font-size:12px;box-shadow:var(--shadow)"></button>
   <!-- כפתור Brief — ליד כפתור הערכת נושא -->
-  <button id="briefBtn" type="button" title="סיכום השבוע" style="position:fixed;top:12px;left:130px;z-index:44;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ תכנון שבועי</button>
+  <button id="briefBtn" type="button" title="סיכום השבוע" style="position:fixed;top:12px;left:130px;z-index:44;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;display:flex;align-items:center;gap:6px">✨ Brief</button>
   <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.2</div>
   <div id="sidebarTab" title="פתח/סגור תפריט" aria-label="פתח תפריט">
     <svg viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg"><path d="M7 1L1 7l6 6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
@@ -601,25 +552,12 @@
   <div id="briefPanel" style="display:none;position:fixed;left:12px;top:56px;width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 80px);overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);z-index:56;direction:rtl;text-align:right;transform:translateY(-18px) scale(.96);opacity:0;transition:transform .32s cubic-bezier(.34,1.3,.64,1),opacity .28s ease">
     <div style="padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div>
-        <div style="font-size:16px;font-weight:900;color:var(--text)">✨ תכנון שבועי שבועי</div>
+        <div style="font-size:16px;font-weight:900;color:var(--text)">✨ Brief שבועי</div>
         <div id="briefSubtitle" style="font-size:12px;color:var(--faint);margin-top:2px"></div>
       </div>
       <button id="briefClose" type="button" style="border:0;background:transparent;font-size:20px;color:var(--faint);cursor:pointer;padding:2px 6px;border-radius:8px;line-height:1">×</button>
     </div>
     <div id="briefContent" style="padding:16px 20px 20px;display:grid;gap:10px"></div>
-  </div>
-
-
-  <div id="startupBriefIntro">
-    <div id="startupBriefCard">
-      <h2>✨ תכנון שבועי</h2>
-      <p>
-        ברוך הבא 👋<br>
-        הנה כל מה שמחכה לך השבוע — משימות, פגישות ודברים חשובים לפי סדר הימים.
-      </p>
-      <div id="startupBriefContent" style="display:grid;gap:10px"></div>
-      <button id="startupBriefDismiss">יאללה לעבודה 🚀</button>
-    </div>
   </div>
 
   <div id="modalBack" class="modal-back hidden" role="dialog" aria-modal="true">
@@ -956,38 +894,7 @@
       // קשר כפתורי Brief
       $("briefBtn").onclick = openBrief;
       $("briefClose").onclick = closeBrief;
-      
       $("briefOverlay").onclick = closeBrief;
-
-      setTimeout(() => {
-        try{
-          const intro = $("startupBriefIntro");
-          const introContent = $("startupBriefContent");
-
-          if (intro && introContent){
-            renderBriefContent();
-            introContent.innerHTML = $("briefContent").innerHTML;
-
-            intro.style.display = "flex";
-            document.body.style.overflow = "hidden";
-
-            $("startupBriefDismiss").onclick = () => {
-              intro.style.display = "none";
-              document.body.style.overflow = "";
-              showToast("יאללה לעבודה 🚀");
-            };
-
-            setTimeout(() => {
-              if (intro.style.display !== "none"){
-                intro.style.display = "none";
-                document.body.style.overflow = "";
-                showToast("יאללה לעבודה 🚀");
-              }
-            }, 6500);
-          }
-        } catch(e){}
-      }, 900);
-
       
       render();
     }
@@ -2137,10 +2044,14 @@
           const { col: colIdx, totalCols, span: colSpan = 1 } = columns.get(ev.id) || { col: 0, totalCols: 1, span: 1 };
           const pct = 100 / totalCols;
           const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
+          // שורה ראשונה: שעה — שורה שניה: כותרת
+          const timeStr = el("span","");
+          timeStr.style.cssText = "font-size:9px;opacity:.85;font-weight:900;white-space:nowrap;letter-spacing:.01em";
+          timeStr.textContent = ev.time + (ev.endTime ? `–${ev.endTime}` : "");
           const titleStr = el("span","");
-          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:11px;line-height:1.25;flex:1;font-weight:900";
+          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:10.5px;line-height:1.3;flex:1";
           titleStr.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
-          chip.append(titleStr);
+          chip.append(timeStr, titleStr);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
           chip.style.left = `calc(${colIdx * pct}% + 3px)`;
           chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 3px)`;
@@ -4233,14 +4144,6 @@
         if (!byDay[item.dk]) byDay[item.dk] = {date: item.date, items: []};
         byDay[item.dk].items.push(item);
       });
-
-      Object.values(byDay).forEach(group => {
-        group.items.sort((a,b) => {
-          const ta = a.time || "99:99";
-          const tb = b.time || "99:99";
-          return ta.localeCompare(tb);
-        });
-
 
       Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).forEach(([dk, {date, items}]) => {
         const dayCheck = new Date(date); dayCheck.setHours(0,0,0,0);
