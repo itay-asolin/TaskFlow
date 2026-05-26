@@ -262,7 +262,7 @@
     .mg-day-head .day-date{font-size:18px;font-weight:900;color:var(--text);line-height:1.1}
     .mg-day-head.today .day-date{color:var(--accent2)}
     .mg-time-col{display:flex;flex-direction:column}
-    .mg-hour-label{height:48px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 6px 0 0;font-size:8.5px;font-weight:500;color:var(--faint);border-bottom:1px solid var(--border)}
+    .mg-hour-label{height:48px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 6px 0 0;font-size:7.5px;font-weight:400;color:var(--faint);border-bottom:1px solid var(--border)}
     .mg-day-col{position:relative;border-left:1px solid var(--border)}
     .mg-slot{position:relative;cursor:pointer;transition:background .15s}
     .mg-slot-quarter{height:12px;border-bottom:1px solid rgba(42,43,61,.2)}
@@ -478,6 +478,18 @@
       background:var(--accent);
       color:#fff;
       cursor:pointer;
+    }
+
+
+    .brief-warning{
+      background:rgba(239,68,68,.14);
+      border:1px solid rgba(239,68,68,.35);
+      color:#ffb4b4;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.5;
     }
 
 </style>
@@ -4242,7 +4254,7 @@
           if (data.events.length){
             const label = el("div","");
             label.style.cssText = "padding:8px 14px 4px;font-size:11px;font-weight:900;color:var(--accent2)";
-            label.textContent = "🤝 אירועים";
+            label.textContent = "🤝 אירועים השבוע";
             section.append(label);
 
             data.events.forEach(ev => {
@@ -4272,7 +4284,7 @@
           if (data.tasks.length){
             const label = el("div","");
             label.style.cssText = "padding:8px 14px 4px;font-size:11px;font-weight:900;color:var(--warn)";
-            label.textContent = "✅ מטלות";
+            label.textContent = "✅ מטלות והגשות";
             section.append(label);
 
             data.tasks.forEach(task => {
