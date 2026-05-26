@@ -111,6 +111,30 @@
       box-shadow:inset 0 0 0 2px var(--accent)!important;
     }
     .day-task[draggable="true"]:hover{ opacity:1!important; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+    .day-task.dragging{ opacity:.35!important; transform:scale(.96); }
+    /* Reschedule popup (long-press mobile) */
+    #reschedulePopup{
+      position:fixed;inset:0;z-index:80;display:none;
+      align-items:flex-end;justify-content:center;
+      background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    }
+    #reschedulePopup.show{ display:flex; }
+    #rescheduleCard{
+      width:min(420px,100vw);background:var(--surface);
+      border:1px solid var(--border);border-radius:22px 22px 0 0;
+      padding:20px 20px 32px;box-shadow:var(--shadow);
+      direction:rtl;text-align:right;
+      animation:slideUp .28s cubic-bezier(.34,1.2,.64,1);
+    }
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    #rescheduleCard h3{ margin:0 0 6px;font-size:17px;font-weight:900; }
+    #rescheduleCard p{ margin:0 0 14px;font-size:12px;color:var(--muted); }
+    #reschedulePicker{ width:100%;margin-bottom:12px; }
+    #rescheduleCancel{
+      width:100%;border:1px solid var(--border);background:var(--card2);
+      color:var(--muted);border-radius:12px;padding:10px;font-weight:800;
+      font-family:inherit;cursor:pointer;font-size:13px;
+    }
     .day.drag-selecting{background:rgba(109,93,252,.18)!important;border-color:var(--accent)!important;user-select:none;}
     main{padding:24px;min-width:0}
     .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap}
@@ -730,7 +754,17 @@
     </div>
   </div>
 
-  <!-- Today Alert -->
+  <!-- Reschedule popup (long-press / mobile) -->
+  <div id="reschedulePopup">
+    <div id="rescheduleCard">
+      <h3 id="rescheduleTitle">📅 העבר לתאריך</h3>
+      <p id="rescheduleSubtitle"></p>
+      <input id="reschedulePicker" class="date-input" type="text" placeholder="בחר תאריך" readonly />
+      <button id="rescheduleCancel">ביטול</button>
+    </div>
+  </div>
+
+
   <div id="todayAlert">
     <div id="todayAlertCard">
       <div class="alert-header">
@@ -814,7 +848,7 @@
     let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut;
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
-    let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null;
+    let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
 
@@ -2201,9 +2235,31 @@
             item.style.color = itemData.color;
           }
           if (itemData.isConflict) item.style.outline = "1.5px solid var(--danger)";
-          // לחיצה על אירוע — פתח חלון מידע
+          // drag (desktop) + long press (mobile) לאירוע
           const evObj = events.find(e => e.id === itemData.id);
-          if (evObj) item.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, evObj, dateKey); };
+          if (evObj) {
+            item.draggable = true;
+            item.style.cursor = "grab";
+            item.ondragstart = (e) => {
+              e.stopPropagation();
+              draggedEventId = evObj.id;
+              draggedTaskId = null;
+              item.classList.add("dragging");
+              e.dataTransfer.effectAllowed = "move";
+              e.dataTransfer.setData("text/plain", "ev:" + evObj.id);
+            };
+            item.ondragend = () => { item.classList.remove("dragging"); draggedEventId = null; };
+            // long press — mobile
+            addLongPress(item,
+              () => openReschedulePopup("event", evObj.id, evObj.date, evObj.title),
+              (e) => { e.stopPropagation(); showCalItemPopup(e, evObj, dateKey); }
+            );
+            // click (desktop only — not triggered after long press)
+            item.addEventListener("click", (e) => {
+              if (window.matchMedia("(pointer:coarse)").matches) return; // handled by long press
+              e.stopPropagation(); showCalItemPopup(e, evObj, dateKey);
+            });
+          }
         } else {
           // משימה: ✓ ברקע עדין
           const dot = el("span","");
@@ -2216,19 +2272,26 @@
           item.style.color = itemData.color;
           item.style.opacity = ".85";
           item.style.cursor = "grab";
-          // drag-to-reschedule
           item.draggable = true;
           item.ondragstart = (e) => {
             e.stopPropagation();
             draggedTaskId = itemData.id;
-            item.style.opacity = ".4";
+            draggedEventId = null;
+            item.classList.add("dragging");
             e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/plain", itemData.id);
+            e.dataTransfer.setData("text/plain", "task:" + itemData.id);
           };
-          item.ondragend = () => { item.style.opacity = ".85"; draggedTaskId = null; };
-          // לחיצה על משימה — פתח חלון מידע
+          item.ondragend = () => { item.classList.remove("dragging"); draggedTaskId = null; };
+          // long press (mobile) + click (desktop)
           const taskObj = filteredTasks().find(t => t.id === itemData.id);
-          if (taskObj) item.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, taskObj, dateKey); };
+          addLongPress(item,
+            () => openReschedulePopup("task", itemData.id, dateKey, itemData.title),
+            (e) => { e.stopPropagation(); if (taskObj) showCalItemPopup(e, taskObj, dateKey); }
+          );
+          item.addEventListener("click", (e) => {
+            if (window.matchMedia("(pointer:coarse)").matches) return;
+            e.stopPropagation(); if (taskObj) showCalItemPopup(e, taskObj, dateKey);
+          });
         }
         cell.append(item);
       });
@@ -2251,10 +2314,10 @@
         state.calDate = dateKey; state.calView = "day"; render(); 
       };
 
-      // drop zone — קבלת משימה גרורה
+      // drop zone — קבלת משימה/אירוע גרורים
       if (!other) {
         cell.ondragover = (e) => {
-          if (!draggedTaskId) return;
+          if (!draggedTaskId && !draggedEventId) return;
           e.preventDefault();
           e.dataTransfer.dropEffect = "move";
           cell.classList.add("drag-drop-hover");
@@ -2268,16 +2331,29 @@
           e.preventDefault();
           e.stopPropagation();
           cell.classList.remove("drag-drop-hover");
-          const tid = draggedTaskId || e.dataTransfer.getData("text/plain");
-          if (!tid) return;
-          const task = state.tasks.find(t => t.id === tid);
-          if (!task || task.due === dateKey) return;
-          const oldDate = task.due ? formatDateShort(task.due) : "ללא תאריך";
-          task.due = dateKey;
-          save();
-          render();
-          toast(`📅 הוזז ל-${formatDateShort(dateKey)}`);
-          draggedTaskId = null;
+          const raw = e.dataTransfer.getData("text/plain");
+          const isEvent = raw.startsWith("ev:");
+          const id = raw.replace(/^(ev:|task:)/, "") || (isEvent ? draggedEventId : draggedTaskId);
+
+          if (isEvent || draggedEventId) {
+            const evId = isEvent ? id : draggedEventId;
+            const ev = state.events.find(e => e.id === evId);
+            if (ev && ev.date !== dateKey) {
+              ev.date = dateKey;
+              save(); render();
+              toast(`📅 אירוע הוזז ל-${formatDateShort(dateKey)}`);
+            }
+            draggedEventId = null;
+          } else {
+            const tid = id || draggedTaskId;
+            const task = state.tasks.find(t => t.id === tid);
+            if (task && task.due !== dateKey) {
+              task.due = dateKey;
+              save(); render();
+              toast(`📅 הוזז ל-${formatDateShort(dateKey)}`);
+            }
+            draggedTaskId = null;
+          }
         };
       }
 
@@ -4406,6 +4482,70 @@
         alert.style.display = "none";
         document.body.style.overflow = "";
       };
+    }
+
+    // ── Reschedule popup (long-press / mobile) ──
+    let _rescheduleFp = null;
+    function openReschedulePopup(type, id, currentDate, label) {
+      const popup = $("reschedulePopup");
+      $("rescheduleTitle").textContent = "📅 העבר לתאריך";
+      $("rescheduleSubtitle").textContent = label || "";
+      popup.classList.add("show");
+      document.body.style.overflow = "hidden";
+
+      if (_rescheduleFp) _rescheduleFp.destroy();
+      _rescheduleFp = flatpickr($("reschedulePicker"), {
+        locale: "he",
+        dateFormat: "Y-m-d",
+        defaultDate: currentDate || null,
+        disableMobile: true,
+        onChange: (selectedDates, dateStr) => {
+          if (!dateStr) return;
+          closeReschedulePopup();
+          if (type === "task") {
+            const task = state.tasks.find(t => t.id === id);
+            if (task && task.due !== dateStr) {
+              task.due = dateStr; save(); render();
+              toast(`📅 הוזז ל-${formatDateShort(dateStr)}`);
+            }
+          } else if (type === "event") {
+            const ev = state.events.find(e => e.id === id);
+            if (ev && ev.date !== dateStr) {
+              ev.date = dateStr; save(); render();
+              toast(`📅 אירוע הוזז ל-${formatDateShort(dateStr)}`);
+            }
+          }
+        }
+      });
+      _rescheduleFp.open();
+      $("rescheduleCancel").onclick = closeReschedulePopup;
+      popup.onclick = (e) => { if (e.target === popup) closeReschedulePopup(); };
+    }
+
+    function closeReschedulePopup() {
+      $("reschedulePopup").classList.remove("show");
+      document.body.style.overflow = "";
+      if (_rescheduleFp) { _rescheduleFp.destroy(); _rescheduleFp = null; }
+    }
+
+    function addLongPress(elem, onLong, onTap, ms = 480) {
+      let timer = null, moved = false, triggered = false;
+      elem.addEventListener("touchstart", (e) => {
+        moved = false; triggered = false;
+        timer = setTimeout(() => {
+          triggered = true;
+          elem.classList.add("dragging");
+          navigator.vibrate?.(40);
+          onLong(e);
+        }, ms);
+      }, { passive: true });
+      elem.addEventListener("touchmove", () => { moved = true; clearTimeout(timer); }, { passive: true });
+      elem.addEventListener("touchend", (e) => {
+        clearTimeout(timer);
+        elem.classList.remove("dragging");
+        if (!triggered && !moved && onTap) onTap(e);
+      });
+      elem.addEventListener("touchcancel", () => { clearTimeout(timer); elem.classList.remove("dragging"); });
     }
 
 	function openBrief(){
