@@ -4303,9 +4303,8 @@
     function showTodayAlert(){
       const todayStr = toDateKey(new Date());
       const todayTasks = (state.tasks || []).filter(t => t.due === todayStr && !isDone(t));
-      const todayEvents = (state.events || []).filter(e => e.date === todayStr);
 
-      if (!todayTasks.length && !todayEvents.length) return; // אין כלום להיום
+      if (!todayTasks.length) return; // אין מטלות להיום
 
       const alert = $("todayAlert");
       const content = $("todayAlertContent");
@@ -4313,25 +4312,6 @@
 
       dateEl.textContent = new Date().toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
       content.innerHTML = "";
-
-      todayEvents.sort((a,b)=>(a.time||"").localeCompare(b.time||"")).forEach(ev => {
-        const item = document.createElement("div");
-        item.className = "alert-item is-event";
-        const dot = document.createElement("div");
-        dot.className = "alert-item-dot";
-        dot.style.background = ev.color || "#f97316";
-        const text = document.createElement("div");
-        text.className = "alert-item-text";
-        const name = document.createElement("div");
-        name.className = "alert-item-name";
-        name.textContent = "🤝 " + ev.title;
-        const meta = document.createElement("div");
-        meta.className = "alert-item-meta";
-        meta.textContent = ev.time ? `שעה: ${ev.time}` : "כל היום";
-        text.append(name, meta);
-        item.append(dot, text);
-        content.append(item);
-      });
 
       todayTasks.forEach(task => {
         const cat = state.cats.find(c => c.id === task.catId);
