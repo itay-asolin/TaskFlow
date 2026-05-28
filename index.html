@@ -173,8 +173,10 @@
     .drop{min-height:170px;padding:10px;display:flex;flex-direction:column;gap:10px}
     .drop.over{outline:2px dashed var(--accent);outline-offset:-8px}
     .task{background:var(--card);border:1px solid var(--border);border-right:4px solid var(--accent);border-radius:var(--rs);padding:12px}
+    .task,.card,.day-task,.agenda-row{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}
+    .task:hover,.cat-card:hover,.agenda-row:hover{transform:translateY(-1px)}
     .task[draggable="true"]{cursor:grab}
-    .task[draggable="true"]:active{cursor:grabbing}
+    .task[draggable="true"]:active{cursor:grabbing;transform:scale(.985)}
     .task-title{font-weight:800;line-height:1.35;word-break:break-word}
     .task-title.done{text-decoration:line-through;color:var(--faint)}
     .task-tools{display:flex;gap:5px;margin-inline-start:auto}
@@ -308,6 +310,43 @@
     .mg-event{position:absolute;left:2px;right:2px;border-radius:5px;padding:2px 4px;font-size:10px;font-weight:500;overflow:hidden;cursor:pointer;z-index:3;transition:opacity .15s;display:flex;flex-direction:column;gap:1px}
     .mg-event:hover{opacity:.82}
     .meetings-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px;color:var(--faint);font-size:13px}
+    .repeat-picker{border:1px solid var(--border);background:var(--card2);border-radius:var(--rs);padding:10px;margin-top:8px}
+    .repeat-picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .repeat-picker-title{font-size:12px;font-weight:800;color:var(--muted)}
+    .repeat-picker-clear{border:0;background:transparent;color:var(--faint);font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px}
+    .repeat-picker-clear:hover{background:var(--card);color:var(--text)}
+    .repeat-picker-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+    .repeat-picker-dayname{font-size:9px;font-weight:800;color:var(--faint);text-align:center}
+    .repeat-picker-day{border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:7px;min-height:34px;padding:3px 2px;font-size:11px;font-weight:700;display:grid;place-items:center;cursor:pointer}
+    .repeat-picker-day:hover{border-color:var(--accent);color:var(--accent2)}
+    .repeat-picker-day.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .repeat-picker-day.base{outline:2px solid var(--accent);outline-offset:-2px;color:var(--accent2)}
+    .repeat-picker-summary{font-size:11px;color:var(--faint);margin-top:8px;line-height:1.35}
+    .daily-focus-card{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--accent) 34%,var(--border));border-radius:var(--r);padding:14px 16px;margin-bottom:18px;box-shadow:var(--shadow);overflow:hidden}
+    .daily-focus-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .daily-focus-title{font-size:15px;font-weight:900;color:var(--accent2)}
+    .daily-focus-sub{font-size:11px;color:var(--faint);margin-top:2px}
+    .daily-focus-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .daily-focus-list{display:grid;gap:7px}
+    .daily-focus-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;background:color-mix(in srgb,var(--surface) 76%,transparent);border:1px solid var(--border);border-radius:9px;padding:8px 10px;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+    .daily-focus-item:hover{transform:translateX(-2px);border-color:var(--accent)}
+    .daily-focus-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--card);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:900}
+    .daily-focus-check.done{background:var(--green);border-color:var(--green)}
+    .daily-focus-name{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .daily-focus-meta{font-size:10px;color:var(--faint);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .daily-focus-empty{font-size:12px;color:var(--faint);padding:8px 2px}
+    #dailyAgendaOverlay{position:fixed;inset:0;z-index:125;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);padding:16px}
+    #dailyAgendaCard{width:min(680px,calc(100vw - 32px));max-height:86dvh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);padding:22px;direction:rtl;text-align:right;animation:briefPop .32s cubic-bezier(.34,1.3,.64,1)}
+    #dailyAgendaCard h2{margin:0 0 6px;font-size:23px;font-weight:900}
+    #dailyAgendaCard p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.55}
+    .daily-agenda-tools{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;margin-bottom:12px}
+    .daily-agenda-pool{display:grid;gap:7px;max-height:44vh;overflow:auto;padding-inline-end:2px}
+    .daily-agenda-option{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:center;border:1px solid var(--border);background:var(--card);border-radius:10px;padding:9px 10px;cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+    .daily-agenda-option:hover{transform:translateY(-1px);border-color:var(--accent)}
+    .daily-agenda-option.active{background:color-mix(in srgb,var(--accent) 16%,var(--card));border-color:var(--accent)}
+    .daily-agenda-mark{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-weight:900;color:transparent}
+    .daily-agenda-option.active .daily-agenda-mark{background:var(--accent);border-color:var(--accent);color:#fff}
+    .daily-agenda-footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
     .drum-pickers{display:flex;gap:0;align-items:center;justify-content:center;margin:8px 0 4px;direction:ltr}
     .drum-sep{font-size:28px;font-weight:900;color:var(--text);padding:0 4px;line-height:1;align-self:center}
     .drum-col{display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -608,6 +647,24 @@
     }
     #todayAlertDismiss:hover { background:rgba(239,68,68,.4); color:#fff; }
 
+    @media(min-width:821px){
+      #briefPanel{
+        width:min(640px,calc(100vw - 80px))!important;
+        max-height:calc(100vh - 120px)!important;
+        left:28px!important;
+        top:72px!important;
+      }
+      #startupBriefCard,#todayAlertCard{
+        width:min(680px,calc(100vw - 80px));
+        max-height:82vh;
+      }
+      #startupBriefContent,#todayAlertContent{
+        max-height:52vh;
+        overflow:auto;
+      }
+      #todayAlertCard .alert-header{justify-content:center}
+    }
+
 
     /* Mobile comfort layer */
     @media(max-width:820px){
@@ -796,9 +853,8 @@
         margin-top:auto;
         font-weight:900;
       }
-      .meetings-grid{
-        min-width:680px;
-      }
+      .week-block{overflow-x:auto}
+      .meetings-grid{min-width:680px}
       .cal-week,.cal-week-head{
         min-width:0;
         width:100%;
@@ -828,6 +884,10 @@
         border-radius:20px;
         padding:20px 16px;
       }
+      #dailyAgendaOverlay{align-items:flex-end;padding:10px 10px calc(10px + env(safe-area-inset-bottom))}
+      #dailyAgendaCard{width:100%;max-height:84dvh;border-radius:22px 22px 14px 14px;padding:20px 16px}
+      .daily-agenda-tools{grid-template-columns:1fr}
+      .daily-agenda-tools .btn{width:100%}
       #rescheduleCard{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
     }
 
@@ -1237,6 +1297,23 @@
     </div>
   </div>
 
+  <div id="dailyAgendaOverlay" role="dialog" aria-modal="true">
+    <div id="dailyAgendaCard">
+      <h2>☀️ אג׳נדה יומית</h2>
+      <p>בחר מה בא לך לקדם היום. זה לא חייב להיות עם דדליין, זה פשוט המיקוד של היום.</p>
+      <div class="daily-agenda-tools">
+        <input id="dailyAgendaSearch" type="search" placeholder="חפש משימה..." />
+        <button id="dailyAgendaSuggest" class="btn" type="button">בחר בשבילי</button>
+        <button id="dailyAgendaClear" class="btn" type="button">נקה</button>
+      </div>
+      <div id="dailyAgendaPool" class="daily-agenda-pool"></div>
+      <div class="daily-agenda-footer">
+        <button id="dailyAgendaSkip" class="btn" type="button">דלג להיום</button>
+        <button id="dailyAgendaSave" class="btn primary" type="button">קבע אג׳נדה</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modalBack" class="modal-back hidden" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-head">
@@ -1292,6 +1369,7 @@
       calView: "month",
       calDate: null,
       events: [],
+      dailyAgenda: { date: null, taskIds: [], skippedDate: null },
       filterTag: null,
       sortAll: "due",
       kanbanListMode: false,
@@ -1575,6 +1653,7 @@
       $("briefClose").onclick = closeBrief;
       
       $("briefOverlay").onclick = closeBrief;
+      $("dailyAgendaOverlay").onclick = (e) => { if (e.target === $("dailyAgendaOverlay")) closeDailyAgendaModal(); };
       startTaskReminderLoop();
 
       setTimeout(() => {
@@ -1583,7 +1662,7 @@
           const introContent = $("startupBriefContent");
 
           if (intro && introContent){
-            renderBriefContent();
+            renderBriefContent(false);
             introContent.innerHTML = $("briefContent").innerHTML;
 
             intro.style.display = "flex";
@@ -1592,8 +1671,7 @@
             const dismissBrief = () => {
               intro.style.display = "none";
               document.body.style.overflow = "";
-              // הצג התראת היום אחרי תכנון שבועי
-              showTodayAlert();
+              showTodayAlert(() => showDailyAgendaIfNeeded());
             };
 
             $("startupBriefDismiss").onclick = () => {
@@ -2232,7 +2310,7 @@
       agendaWrap.append(agendaHeader, agendaBody);
 
       const wrap = el("div");
-      wrap.append(agendaWrap, grid);
+      wrap.append(renderDailyFocusCard(false), agendaWrap, grid);
       $("content").replaceChildren(wrap);
     }
 
@@ -2871,7 +2949,7 @@
           const pct = 100 / totalCols;
           const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
           const titleStr = el("span","");
-          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:11px;line-height:1.25;flex:1;font-weight:900";
+          titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:10px;line-height:1.25;flex:1;font-weight:500";
           titleStr.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
           chip.append(titleStr);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
@@ -3005,15 +3083,10 @@
         const isConflict = (typeof conflicts !== "undefined") && conflicts.includes(ev.id);
         const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
 
-        // שורה 1: שעות
-        const timeRow = el("span","");
-        timeRow.style.cssText = "font-size:10px;opacity:.9;font-weight:900;white-space:nowrap;letter-spacing:.01em";
-        timeRow.textContent = ev.time + (ev.endTime ? ` – ${ev.endTime}` : "") + (durMin > 0 ? ` (${durMin}ד׳)` : "");
-        // שורה 2: כותרת
         const titleRow = el("span","");
-        titleRow.style.cssText = "font-size:13px;font-weight:900;overflow:hidden;word-break:break-word;white-space:normal;line-height:1.3;flex:1";
+        titleRow.style.cssText = "font-size:10px;font-weight:500;overflow:hidden;word-break:break-word;white-space:normal;line-height:1.25;flex:1";
         titleRow.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
-        chip.append(timeRow, titleRow);
+        chip.append(titleRow);
 
         chip.style.top = top+"px"; chip.style.height = height+"px";
         chip.style.left = `calc(${colIdx * pct}% + 3px)`;
@@ -3233,6 +3306,67 @@
       return { start: `${pad(h)}:${pad(m)}`, end: `${pad(Math.min(23, Math.floor((rounded+60)/60)))}:${pad((rounded+60)%60)}` };
     }
 
+    function dateKeysBetween(startKey, endKey){
+      if (!startKey || !endKey) return [];
+      const start = parseDate(startKey);
+      const end = parseDate(endKey);
+      if (end < start) return [];
+      const keys = [];
+      const d = new Date(start);
+      d.setDate(d.getDate() + 1);
+      while (d <= end) {
+        keys.push(toDateKey(d));
+        d.setDate(d.getDate() + 1);
+      }
+      return keys;
+    }
+
+    function repeatDatePicker(baseDateKey, preselected = []){
+      const selected = new Set(preselected.filter(Boolean));
+      const wrap = el("div","field");
+      wrap.append(el("label","", "חזרות באותה שעה"));
+      const box = el("div","repeat-picker");
+      const head = el("div","repeat-picker-head");
+      const title = el("div","repeat-picker-title", "בחר ימים נוספים");
+      const clear = el("button","repeat-picker-clear","נקה");
+      clear.type = "button";
+      head.append(title, clear);
+      const grid = el("div","repeat-picker-grid");
+      const summary = el("div","repeat-picker-summary");
+      box.append(head, grid, summary);
+      wrap.append(box);
+
+      function render(baseKey = $("evDate")?.value || baseDateKey || toDateKey(new Date())){
+        grid.replaceChildren();
+        ["א","ב","ג","ד","ה","ו","ש"].forEach(d => grid.append(el("div","repeat-picker-dayname",d)));
+        const base = parseDate(baseKey);
+        const first = new Date(base);
+        first.setDate(first.getDate() - first.getDay());
+        for (let i = 0; i < 35; i++) {
+          const d = new Date(first);
+          d.setDate(first.getDate() + i);
+          const dk = toDateKey(d);
+          const btn = el("button","repeat-picker-day" + (selected.has(dk) ? " active" : "") + (dk === baseKey ? " base" : ""), String(d.getDate()));
+          btn.type = "button";
+          btn.title = d.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
+          btn.disabled = dk === baseKey;
+          btn.onclick = () => {
+            if (selected.has(dk)) selected.delete(dk);
+            else selected.add(dk);
+            render(baseKey);
+          };
+          grid.append(btn);
+        }
+        summary.textContent = selected.size ? `ייווצרו ${selected.size + 1} מופעים כולל התאריך הראשי` : "לא נבחרו חזרות";
+      }
+
+      clear.onclick = () => { selected.clear(); render(); };
+      wrap.getSelectedDates = () => [...selected].sort();
+      wrap.refreshRepeatPicker = render;
+      render();
+      return wrap;
+    }
+
     function openEventModal(ev, dateKey, endDateKey, suggestedTime){
       const defTime = suggestedTime !== undefined ? suggestedTime : (ev ? ev.time || "" : roundToQuarter().start);
       const defEndTime = ev ? ev.endTime || "" : (suggestedTime ? (() => { const [h,m]=suggestedTime.split(":").map(Number); const e=(h*60+m+60); return String(Math.floor(Math.min(23*60+59,e)/60)).padStart(2,"0")+":"+String(e%60).padStart(2,"0"); })() : roundToQuarter().end);
@@ -3248,14 +3382,17 @@
         }
 
         form.append(field("כותרת","evTitle","text", ev?.title || ""));
-        const two = el("div","two");
-        two.append(field("תאריך","evDate","date", ev?.date || dateKey || ""));
-        two.append(field("תאריך סיום (אופציונלי)","evEndDate","date", ev?.endDate || endDateKey || ""));
-        form.append(two);
+        form.append(field("תאריך","evDate","date", ev?.date || dateKey || ""));
         const two2 = el("div","two");
         two2.append(field("שעת התחלה","evTime","time", defTime));
         two2.append(field("שעת סיום","evEndTime","time", defEndTime));
         form.append(two2);
+        let repeatPicker = null;
+        if (!ev) {
+          repeatPicker = repeatDatePicker(dateKey || toDateKey(new Date()), dateKeysBetween(dateKey, endDateKey));
+          form.append(repeatPicker);
+          $("evDate").addEventListener("change", () => repeatPicker.refreshRepeatPicker($("evDate").value));
+        }
         form.append(colorPicker(ev?.color || state.accent, "evColor"));
 
         if (ev) {
@@ -3306,7 +3443,7 @@
           const data = {
             title,
             date: $("evDate").value,
-            endDate: $("evEndDate").value,
+            endDate: "",
             time: $("evTime").value,
             endTime: $("evEndTime").value,
             color: document.querySelector("[name=evColor]:checked")?.value || state.accent,
@@ -3319,7 +3456,10 @@
               ev.editedOccurrence = true;
             }
           } else {
-            state.events.push({ id: uid("ev"), ...data });
+            const repeatDates = repeatPicker?.getSelectedDates?.() || [];
+            const seriesId = repeatDates.length ? uid("ser") : null;
+            state.events.push({ id: uid("ev"), ...(seriesId ? { seriesId } : {}), ...data });
+            repeatDates.forEach(date => state.events.push({ id: uid("ev"), seriesId, ...data, date }));
           }
           closeModal(); save(); render(); toast("נשמר");
         }));
@@ -4781,6 +4921,7 @@
       if (!task) return;
       if (!task.subs?.length) task.subs = [{ id: uid("s"), text: "בוצע", done: false }];
       const next = !isDone(task);
+      const wasDailyFocus = next && todayAgenda().taskIds.includes(task.id);
       task.subs.forEach(s => s.done = next);
       
       if (next) {
@@ -4817,6 +4958,11 @@
       }
       
       save(); render();
+      if (wasDailyFocus) {
+        setTimeout(() => {
+          if (confirm("יפה. להוסיף עוד מטלה למיקוד היומי?")) openDailyAgendaModal(true);
+        }, 250);
+      }
     }
 
     function toggleSub(taskId, subId){
@@ -4940,6 +5086,7 @@
         state.tasks = Array.isArray(data.tasks) ? data.tasks : state.tasks;
         state.events = Array.isArray(data.events) ? data.events : (state.events || []);
         state.collapsedSubs = data.collapsedSubs || state.collapsedSubs || {};
+        state.dailyAgenda = data.dailyAgenda || state.dailyAgenda || { date: null, taskIds: [], skippedDate: null };
       } else {
         if (Array.isArray(data.cats)) state.cats = data.cats;
         if (Array.isArray(data.tasks)) state.tasks = data.tasks;
@@ -4990,6 +5137,7 @@
         sortAll: s.sortAll || null,
         kanbanListMode: !!s.kanbanListMode,
         collapsedSubs: s.collapsedSubs || {},
+        dailyAgenda: s.dailyAgenda || { date: null, taskIds: [], skippedDate: null },
         cats: s.cats || [],
         tasks: s.tasks || [],
         events: s.events || []
@@ -5042,11 +5190,14 @@
     }
     function showToast(msg){ toast(msg); }
 
-    function showTodayAlert(){
+    function showTodayAlert(afterClose){
       const todayStr = toDateKey(new Date());
       const todayTasks = (state.tasks || []).filter(t => t.due === todayStr && !isDone(t));
 
-      if (!todayTasks.length) return; // אין מטלות להיום
+      if (!todayTasks.length) {
+        if (typeof afterClose === "function") afterClose();
+        return;
+      }
 
       const alert = $("todayAlert");
       const content = $("todayAlertContent");
@@ -5083,7 +5234,192 @@
       $("todayAlertDismiss").onclick = () => {
         alert.style.display = "none";
         document.body.style.overflow = "";
+        if (typeof afterClose === "function") afterClose();
       };
+    }
+
+    function ensureDailyAgenda(){
+      if (!state.dailyAgenda || typeof state.dailyAgenda !== "object") {
+        state.dailyAgenda = { date: null, taskIds: [], skippedDate: null };
+      }
+      if (!Array.isArray(state.dailyAgenda.taskIds)) state.dailyAgenda.taskIds = [];
+      return state.dailyAgenda;
+    }
+
+    function todayAgenda(){
+      const todayKey = toDateKey(new Date());
+      const agenda = ensureDailyAgenda();
+      if (agenda.date !== todayKey) {
+        return { date: todayKey, taskIds: [], skippedDate: agenda.skippedDate || null };
+      }
+      return agenda;
+    }
+
+    function dailyAgendaTasks(){
+      const agenda = todayAgenda();
+      return agenda.taskIds
+        .map(id => state.tasks.find(t => t.id === id))
+        .filter(t => t && !isDone(t));
+    }
+
+    function taskContext(task){
+      const cat = state.cats.find(c => c.id === task.catId);
+      const col = cat?.columns?.find(c => c.id === task.col);
+      return cat ? (col ? `${cat.name} › ${col.name}` : cat.name) : "";
+    }
+
+    function scoreAgendaTask(task){
+      let score = 0;
+      if (task.due) {
+        const info = dueInfo(task.due);
+        if (info?.cls === "late") score += 80;
+        else if (info?.label === "היום") score += 65;
+        else if (info?.cls === "soon") score += 45;
+        else score += 18;
+      }
+      if (task.est && Number(task.est) <= 30) score += 14;
+      if (task.tags?.length) score += 4;
+      return score;
+    }
+
+    function suggestedAgendaIds(){
+      return [...state.tasks]
+        .filter(t => !isDone(t))
+        .sort((a,b) => scoreAgendaTask(b) - scoreAgendaTask(a) || (a.due||"9999").localeCompare(b.due||"9999"))
+        .slice(0, Math.min(5, state.tasks.filter(t => !isDone(t)).length))
+        .map(t => t.id);
+    }
+
+    function showDailyAgendaIfNeeded(){
+      const todayKey = toDateKey(new Date());
+      const agenda = ensureDailyAgenda();
+      if (agenda.date === todayKey || agenda.skippedDate === todayKey) return;
+      if (!state.tasks.some(t => !isDone(t))) return;
+      openDailyAgendaModal(false);
+    }
+
+    function openDailyAgendaModal(force = true){
+      const overlay = $("dailyAgendaOverlay");
+      const pool = $("dailyAgendaPool");
+      const search = $("dailyAgendaSearch");
+      const agenda = ensureDailyAgenda();
+      const todayKey = toDateKey(new Date());
+      const openTaskIds = new Set(state.tasks.filter(t => !isDone(t)).map(t => t.id));
+      const selected = new Set(agenda.date === todayKey ? agenda.taskIds.filter(id => openTaskIds.has(id)) : suggestedAgendaIds().slice(0, 3));
+
+      function renderPool(){
+        const q = (search.value || "").trim().toLowerCase();
+        pool.replaceChildren();
+        const tasks = state.tasks
+          .filter(t => !isDone(t))
+          .filter(t => !q || [t.name, taskContext(t), ...(t.tags||[])].join(" ").toLowerCase().includes(q))
+          .sort((a,b) => selected.has(b.id) - selected.has(a.id) || scoreAgendaTask(b) - scoreAgendaTask(a));
+
+        if (!tasks.length) {
+          pool.append(el("div","daily-focus-empty","אין משימות פתוחות שמתאימות לחיפוש"));
+          return;
+        }
+
+        tasks.forEach(task => {
+          const opt = el("button","daily-agenda-option" + (selected.has(task.id) ? " active" : ""));
+          opt.type = "button";
+          const mark = el("span","daily-agenda-mark", selected.has(task.id) ? "✓" : "");
+          const text = el("span","");
+          const name = el("span","daily-focus-name", task.name);
+          const meta = el("span","daily-focus-meta", taskContext(task) + (task.due ? ` · ${formatDateShort(task.due)}` : ""));
+          text.append(name, meta);
+          opt.append(mark, text);
+          opt.onclick = () => {
+            if (selected.has(task.id)) selected.delete(task.id);
+            else selected.add(task.id);
+            renderPool();
+          };
+          pool.append(opt);
+        });
+      }
+
+      $("dailyAgendaSuggest").onclick = () => {
+        selected.clear();
+        suggestedAgendaIds().forEach(id => selected.add(id));
+        renderPool();
+      };
+      $("dailyAgendaClear").onclick = () => { selected.clear(); renderPool(); };
+      $("dailyAgendaSkip").onclick = () => {
+        state.dailyAgenda = { ...ensureDailyAgenda(), skippedDate: todayKey };
+        save(); closeDailyAgendaModal();
+        if (force) render();
+      };
+      $("dailyAgendaSave").onclick = () => {
+        state.dailyAgenda = { date: todayKey, taskIds: [...selected], skippedDate: null };
+        save(); closeDailyAgendaModal(); render();
+        toast(selected.size ? "אג׳נדה יומית נקבעה" : "אג׳נדה ריקה להיום");
+      };
+      search.oninput = renderPool;
+      search.value = "";
+      renderPool();
+      overlay.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeDailyAgendaModal(){
+      $("dailyAgendaOverlay").style.display = "none";
+      document.body.style.overflow = "";
+    }
+
+    function renderDailyFocusCard(compact = false){
+      const card = el("section","daily-focus-card");
+      const head = el("div","daily-focus-head");
+      const titleWrap = el("div","");
+      titleWrap.append(el("div","daily-focus-title","☀️ המיקוד היומי"));
+      titleWrap.append(el("div","daily-focus-sub","בחירה חופשית של מה לקדם היום, גם בלי דדליין"));
+      const actions = el("div","daily-focus-actions");
+      const edit = el("button","btn","ערוך");
+      edit.type = "button";
+      edit.onclick = () => openDailyAgendaModal(true);
+      actions.append(edit);
+      head.append(titleWrap, actions);
+      card.append(head);
+
+      const tasks = dailyAgendaTasks();
+      if (!tasks.length) {
+        const emptyText = todayAgenda().skippedDate === toDateKey(new Date()) ? "דילגת על אג׳נדה להיום" : "עוד לא נבחר מיקוד להיום";
+        const emptyLine = el("div","daily-focus-empty",emptyText);
+        card.append(emptyLine);
+        if (!compact) {
+          const start = el("button","btn primary","בחר מיקוד");
+          start.type = "button";
+          start.onclick = () => openDailyAgendaModal(true);
+          card.append(start);
+        }
+        return card;
+      }
+
+      const list = el("div","daily-focus-list");
+      tasks.forEach(task => {
+        const row = el("div","daily-focus-item");
+        row.draggable = true;
+        row.ondragstart = () => { draggedTaskId = task.id; row.style.opacity = ".45"; };
+        row.ondragend = () => { draggedTaskId = null; row.style.opacity = "1"; };
+        const check = el("button","daily-focus-check","✓");
+        check.type = "button";
+        check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
+        const text = el("div","");
+        text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task)));
+        const remove = el("button","mini","×");
+        remove.type = "button";
+        remove.title = "הסר מהאג׳נדה";
+        remove.onclick = (e) => {
+          e.stopPropagation();
+          const agenda = ensureDailyAgenda();
+          agenda.taskIds = agenda.taskIds.filter(id => id !== task.id);
+          save(); render();
+        };
+        row.append(check, text, remove);
+        row.onclick = (e) => showCalItemPopup(e, task, task.due || toDateKey(new Date()));
+        list.append(row);
+      });
+      card.append(list);
+      return card;
     }
 
     // ── Reschedule popup (long-press / mobile) ──
@@ -5162,7 +5498,7 @@
           panel.style.transform = "translateY(0) scale(1)";
         });
       });
-      renderBriefContent();
+      renderBriefContent(true);
     }
 
     function closeBrief(){
@@ -5177,7 +5513,7 @@
       }, 320);
     }
 
-    function renderBriefContent(){
+    function renderBriefContent(includeDailyFocus = true){
       const today = new Date(); 
       today.setHours(0,0,0,0);
 
@@ -5191,6 +5527,7 @@
 
       const content = $("briefContent");
       content.innerHTML = "";
+      if (includeDailyFocus) content.append(renderDailyFocusCard(true));
 
       // ────── חלק 1: אירועים לפי ימים ──────
       const eventsGrouped = {};
