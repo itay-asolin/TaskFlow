@@ -140,7 +140,11 @@
     .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap}
     h1{font-size:26px;line-height:1.1;margin:0;font-weight:900}
     .top p{margin:5px 0 0;color:var(--faint);font-size:13px}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    #topBarBtns{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+    #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
+    #briefBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+    #topBarBtns .theme-toggle{height:36px;min-height:36px;min-width:114px;padding:4px}
     .search{max-width:380px}
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow); transition: .2s;}
@@ -211,7 +215,7 @@
     .day-num{font-size:12px;font-weight:900;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s}
     .day-count{display:none}
     .day-task{border-radius:4px;padding:2px 5px;font-size:10.5px;font-weight:700;white-space:normal;overflow:hidden;margin-top:1px;line-height:1.35;min-height:17px;display:flex;align-items:flex-start;word-break:break-word}
-    .day-task.is-meeting{border-radius:4px 4px 4px 0;border-right:3px solid currentColor;border-bottom:1px solid currentColor;padding-right:4px;font-weight:900;letter-spacing:.01em;position:relative}
+    .day-task.is-meeting{border-radius:4px 4px 4px 0;border-right:3px solid currentColor;border-bottom:1px solid currentColor;padding-right:4px;font-weight:600;letter-spacing:0;position:relative}
     .day-task.is-meeting::after{content:"🤝";font-size:8px;position:absolute;bottom:1px;left:3px;opacity:.7}
     .day-more{border:0;background:transparent!important;color:var(--faint)!important;text-align:right;font-size:9.5px;font-weight:800;cursor:pointer;padding:0 2px;opacity:.8}
     
@@ -251,7 +255,7 @@
     .cal-week-day-head{text-align:center;font-size:12px;font-weight:900;padding:6px;border-radius:var(--rs);background:var(--card);border:1px solid var(--border)}
     .cal-week-day-head.today{background:rgba(109,93,252,.18);border-color:var(--accent)}
     .cal-day-col{position:relative;border:1px solid var(--border);border-radius:var(--rs);background:var(--card);min-height:840px}
-    .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:2px;line-height:1.3}
+    .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:500;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:2px;line-height:1.3}
     .cal-event.is-meeting{border-radius:6px 6px 6px 0}
     .cal-event.is-meeting::before{content:"";display:none}
     .cal-event:hover{opacity:.85;z-index:3}
@@ -397,7 +401,7 @@
         background: var(--surface);
         border-top: 1px solid var(--border);
         z-index: 44;
-        align-items: center;
+        align-items: stretch;
         justify-content: space-around;
         padding: 0 4px;
         box-shadow: 0 -4px 20px rgba(0,0,0,.25);
@@ -414,12 +418,16 @@
         color: var(--faint);
         font-size: 10px;
         font-weight: 800;
-        padding: 6px 10px;
+        padding: 8px 10px;
         border-radius: 10px;
         transition: color .18s, background .18s;
-        flex: 1;
+        flex: 1 1 0;
+        align-self: stretch;
+        min-height: 100%;
         cursor: pointer;
+        touch-action: manipulation;
       }
+      .bnav-btn > * { pointer-events: none; }
       .bnav-btn .bnav-icon { font-size: 20px; line-height: 1; }
       .bnav-btn.active { color: var(--accent2); }
       .bnav-btn.active .bnav-icon { 
@@ -705,11 +713,13 @@
         z-index:57;
       }
       #topBarBtns{
+        position:fixed;
         top:calc(10px + env(safe-area-inset-top))!important;
         left:10px!important;
         right:60px;
         justify-content:flex-start;
         max-width:calc(100vw - 78px);
+        z-index:44;
       }
       #topBarBtns button{
         height:34px!important;
@@ -721,14 +731,16 @@
       #briefBtn{max-width:92px}
       #versionBadge{display:none}
       #bottomNav{
-        height:calc(64px + env(safe-area-inset-bottom));
-        padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+        height:calc(72px + env(safe-area-inset-bottom));
+        padding:6px 6px calc(8px + env(safe-area-inset-bottom));
         gap:2px;
+        align-items:stretch;
         background:color-mix(in srgb,var(--surface) 94%,transparent);
       }
       .bnav-btn{
         min-width:0;
-        min-height:52px;
+        min-height:58px;
+        height:100%;
         padding:6px 3px;
         border-radius:14px;
       }
@@ -784,8 +796,13 @@
         margin-top:auto;
         font-weight:900;
       }
-      .cal-week,.cal-week-head,.meetings-grid{
+      .meetings-grid{
         min-width:680px;
+      }
+      .cal-week,.cal-week-head{
+        min-width:0;
+        width:100%;
+        grid-template-columns:30px repeat(7,minmax(0,1fr));
       }
       .day-view{min-width:0}
       .ev-popup{
@@ -992,8 +1009,9 @@
       .calendar-view .cal-add-event{max-width:58px}
       .calendar-view .cal-wrapper{
         max-height:calc(100dvh - 206px);
-        margin-inline:-10px;
-        padding-inline:10px;
+        margin-inline:-12px;
+        padding-inline:4px;
+        overflow-x:hidden;
       }
       .calendar-view .cal{
         min-height:calc(100dvh - 226px);
@@ -1027,16 +1045,17 @@
       .calendar-view .day-count{display:none}
       .calendar-view .cal-week,
       .calendar-view .cal-week-head{
-        min-width:620px;
-        grid-template-columns:32px repeat(7,minmax(80px,1fr));
+        min-width:0;
+        width:100%;
+        grid-template-columns:26px repeat(7,minmax(0,1fr));
       }
       .calendar-view .day-view{
         min-width:0;
         grid-template-columns:34px minmax(0,1fr);
       }
       .calendar-view .cal-week-day-head{
-        font-size:10px;
-        padding:4px 2px;
+        font-size:8.5px;
+        padding:3px 1px;
       }
       .calendar-view .cal-hour,
       .calendar-view .hour-label{
@@ -1045,8 +1064,9 @@
         padding:1px 2px 0;
       }
       .calendar-view .cal-event{
-        font-size:8.5px;
-        padding:1px 3px;
+        font-size:7.5px;
+        padding:1px 2px;
+        line-height:1.12;
       }
     }
 
@@ -1081,11 +1101,6 @@
 
   <section id="appView" class="app hidden">
 	<button id="mobileMenu" class="btn icon mobile-menu" aria-label="פתח תפריט">☰</button>
-  <!-- כפתורי עליון — ערכת נושא + תכנון שבועי -->
-  <div id="topBarBtns" style="position:fixed;top:10px;left:10px;z-index:44;display:flex;align-items:center;gap:6px">
-    <button id="themeToggleBtn" class="btn" type="button" title="מצב תצוגה" style="border-radius:999px;padding:4px 10px;font-size:11px;height:30px;opacity:0.75;transition:opacity .2s;box-shadow:0 2px 8px rgba(0,0,0,.25)"></button>
-    <button id="briefBtn" type="button" title="תכנון שבועי" style="height:30px;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);font-family:inherit;display:flex;align-items:center;gap:5px;opacity:0.75;transition:opacity .2s">✨ תכנון</button>
-  </div>
   <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.5</div>
   <div id="sidebarTab" title="פתח/סגור תפריט" aria-label="פתח תפריט">
     <svg viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg"><path d="M7 1L1 7l6 6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
@@ -1138,6 +1153,10 @@
         <div class="actions">
           <input id="searchBox" class="search" type="search" placeholder="חיפוש משימות..." />
           <button id="addBtn" class="btn primary" type="button">+ חדש</button>
+          <div id="topBarBtns">
+            <button id="themeToggleBtn" class="btn topbar-btn" type="button" title="מצב תצוגה"></button>
+            <button id="briefBtn" class="topbar-btn" type="button" title="תכנון שבועי">✨ תכנון</button>
+          </div>
         </div>
       </div>
       <div id="content"></div>
@@ -2349,16 +2368,16 @@
         wrap.append(tb);
       }
 
-      const tasks = filteredTasksWithTag().sort((a,b) => {
+      const tasks = filteredTasksWithTag().filter(t => !isDone(t)).sort((a,b) => {
         if (state.sortAll === "due") return (a.due||"9999").localeCompare(b.due||"9999");
         if (state.sortAll === "name") return a.name.localeCompare(b.name, "he");
         if (state.sortAll === "cat") return (a.catId||"").localeCompare(b.catId||"");
         return 0;
       });
-      $("pageSub").textContent = `${tasks.length} משימות`;
+      $("pageSub").textContent = `${tasks.length} משימות פתוחות`;
 
       const list = el("div","list");
-      if (!tasks.length) list.append(empty("אין משימות להצגה"));
+      if (!tasks.length) list.append(empty("אין משימות פתוחות להצגה"));
       tasks.forEach(task => {
         const row = taskRow(task);
         // הוסף breadcrumb (רשימה + עמודה) מתחת לשם המשימה ב"כל המשימות"
