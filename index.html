@@ -336,8 +336,6 @@
     .daily-focus-name{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .daily-focus-meta{font-size:10px;color:var(--faint);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .daily-focus-empty{font-size:12px;color:var(--faint);padding:8px 2px}
-    .daily-flow-item{border-right-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--surface))}
-    .daily-flow-status{border:0;background:color-mix(in srgb,var(--warn) 18%,var(--card));color:var(--warn);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;white-space:nowrap}
     .drag-ghost{position:fixed;z-index:160;pointer-events:none;max-width:min(280px,74vw);padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--accent);box-shadow:var(--shadow);color:var(--text);font-weight:900;opacity:.94;transform:translate(-50%,-50%) scale(.98)}
     #dailyAgendaOverlay{position:fixed;inset:0;z-index:125;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);padding:16px}
     #dailyAgendaCard{width:min(680px,calc(100vw - 32px));max-height:86dvh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);padding:22px;direction:rtl;text-align:right;animation:briefPop .32s cubic-bezier(.34,1.3,.64,1)}
@@ -1382,8 +1380,7 @@
       calView: "month",
       calDate: null,
       events: [],
-      flows: [],
-      dailyAgenda: { date: null, taskIds: [], flowIds: [], skippedDate: null, promptedDate: null },
+      dailyAgenda: { date: null, taskIds: [], skippedDate: null, promptedDate: null, punishedDate: null },
       filterTag: null,
       sortAll: "due",
       kanbanListMode: false,
@@ -1952,8 +1949,7 @@
             cats: payload.cats,
             tasks: payload.tasks,
             events: payload.events || [],
-            flows: payload.flows || [],
-            dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], flowIds: [], skippedDate: null, promptedDate: null }
+            dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], skippedDate: null, promptedDate: null, punishedDate: null }
           };
           meta = { name: activeList.name, state: sharedPayload, updatedAt: serverTimestamp(), updatedBy: user?.uid || null };
         } else {
@@ -1967,6 +1963,7 @@
     function render(){
       updateGreeting();
       applyTheme();
+      prepareDailyAgendaForToday(true);
       setupAgendaDropBubble();
       renderSidebarMiniCal();
       renderNav();
@@ -4598,60 +4595,6 @@
       });
     }
 
-    function openFlowModal(flow){
-      openModal(flow ? "עריכת זרימה" : "זרימה חדשה", "משהו שאתה מקדם בלי להפוך אותו למשימה קשיחה", (form) => {
-        form.append(field("מה אתה מקדם?","flowTitle","text", flow?.title || ""));
-        form.append(field("הערה קצרה","flowNote","textarea", flow?.note || ""));
-        const two = el("div","two");
-        two.append(field("תאריך","flowDate","date", flow?.date || toDateKey(new Date())));
-        const statusWrap = el("div","field");
-        statusWrap.append(el("label","","מצב"));
-        const status = el("select"); status.id = "flowStatus";
-        [["idea","רעיון"],["moving","בתנועה"],["stuck","תקוע"],["done","הושלם"]].forEach(([v,l]) => {
-          const opt = el("option","",l);
-          opt.value = v;
-          if ((flow?.status || "moving") === v) opt.selected = true;
-          status.append(opt);
-        });
-        statusWrap.append(status);
-        two.append(statusWrap);
-        form.append(two);
-        form.append(field("תגיות","flowTags","text", (flow?.tags || []).join(", ")));
-
-        if (flow) {
-          const del = el("button","btn danger","מחק זרימה");
-          del.type = "button";
-          del.onclick = () => {
-            state.flows = (state.flows || []).filter(f => f.id !== flow.id);
-            const agenda = ensureDailyAgenda();
-            agenda.flowIds = agenda.flowIds.filter(id => id !== flow.id);
-            closeModal(); save(); render(); toast("נמחק");
-          };
-          form.append(del);
-        }
-
-        form.append(footer(flow ? "שמור" : "הוסף למיקוד", () => {
-          const title = $("flowTitle").value.trim();
-          if (!title) return toast("צריך כותרת קצרה");
-          const data = {
-            title,
-            note: $("flowNote").value.trim(),
-            date: $("flowDate").value || toDateKey(new Date()),
-            status: $("flowStatus").value || "moving",
-            tags: $("flowTags").value.split(",").map(t => t.trim()).filter(Boolean)
-          };
-          if (flow) {
-            Object.assign(flow, data);
-          } else {
-            flow = { id: uid("fl"), createdAt: Date.now(), ...data };
-            state.flows = [...(state.flows || []), flow];
-          }
-          addFlowToDailyAgenda(flow.id, false);
-          closeModal(); save(); render(); toast("נוסף למיקוד הרך של היום");
-        }));
-      });
-    }
-
     function openModal(title, sub, build){
       $("modalTitle").textContent = title;
       $("modalSub").textContent = sub || "";
@@ -5168,14 +5111,12 @@
         state.cats = Array.isArray(data.cats) ? data.cats : state.cats;
         state.tasks = Array.isArray(data.tasks) ? data.tasks : state.tasks;
         state.events = Array.isArray(data.events) ? data.events : (state.events || []);
-        state.flows = Array.isArray(data.flows) ? data.flows : (state.flows || []);
         state.collapsedSubs = data.collapsedSubs || state.collapsedSubs || {};
         state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
       } else {
         if (Array.isArray(data.cats)) state.cats = data.cats;
         if (Array.isArray(data.tasks)) state.tasks = data.tasks;
         if (Array.isArray(data.events)) state.events = data.events;
-        if (Array.isArray(data.flows)) state.flows = data.flows;
         state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
         if (!state.cats.find(c => c.id === state.currentCatId)) {
           state.currentCatId = state.cats[0]?.id || null;
@@ -5185,10 +5126,9 @@
     }
 
     function normalizeDailyAgenda(agenda){
-      const base = { date: null, taskIds: [], flowIds: [], skippedDate: null, promptedDate: null };
+      const base = { date: null, taskIds: [], skippedDate: null, promptedDate: null, punishedDate: null };
       const next = agenda && typeof agenda === "object" ? { ...base, ...agenda } : base;
       next.taskIds = Array.isArray(next.taskIds) ? next.taskIds : [];
-      next.flowIds = Array.isArray(next.flowIds) ? next.flowIds : [];
       return next;
     }
 
@@ -5234,8 +5174,7 @@
         dailyAgenda: normalizeDailyAgenda(s.dailyAgenda),
         cats: s.cats || [],
         tasks: s.tasks || [],
-        events: s.events || [],
-        flows: s.flows || []
+        events: s.events || []
       };
       return stripUndefined(raw);
     }
@@ -5338,11 +5277,66 @@
       return state.dailyAgenda;
     }
 
+    function nextDateKey(dateKey){
+      const d = parseDate(dateKey);
+      d.setDate(d.getDate() + 1);
+      return toDateKey(d);
+    }
+
+    function todayDueTaskIds(todayKey = toDateKey(new Date())){
+      return (state.tasks || [])
+        .filter(t => !isDone(t) && t.due === todayKey)
+        .map(t => t.id);
+    }
+
+    function prepareDailyAgendaForToday(announce = false){
+      const todayKey = toDateKey(new Date());
+      const agenda = ensureDailyAgenda();
+      let changed = false;
+      const punished = [];
+
+      if (agenda.date && agenda.date !== todayKey && agenda.punishedDate !== agenda.date) {
+        const targetDate = nextDateKey(agenda.date) < todayKey ? todayKey : nextDateKey(agenda.date);
+        (agenda.taskIds || []).forEach(id => {
+          const task = state.tasks.find(t => t.id === id);
+          if (!task || isDone(task)) return;
+          task.due = targetDate;
+          task.agendaPenaltyDate = targetDate;
+          punished.push(task.name);
+          changed = true;
+        });
+        agenda.punishedDate = agenda.date;
+      }
+
+      if (agenda.date !== todayKey) {
+        agenda.date = todayKey;
+        agenda.taskIds = [];
+        agenda.skippedDate = null;
+        agenda.promptedDate = null;
+        changed = true;
+      }
+
+      todayDueTaskIds(todayKey).forEach(id => {
+        if (!agenda.taskIds.includes(id)) {
+          agenda.taskIds.push(id);
+          changed = true;
+        }
+      });
+
+      if (changed) save();
+      if (announce && punished.length) {
+        const label = punished.length === 1 ? `"${punished[0]}"` : `${punished.length} מטלות`;
+        toast(`עונש! ${label} נדחפה ליום הבא`);
+      }
+      return { changed, punished };
+    }
+
     function todayAgenda(){
+      prepareDailyAgendaForToday(false);
       const todayKey = toDateKey(new Date());
       const agenda = ensureDailyAgenda();
       if (agenda.date !== todayKey) {
-        return { ...agenda, date: todayKey, taskIds: [], flowIds: [] };
+        return { ...agenda, date: todayKey, taskIds: [] };
       }
       return agenda;
     }
@@ -5352,13 +5346,6 @@
       return agenda.taskIds
         .map(id => state.tasks.find(t => t.id === id))
         .filter(t => t && !isDone(t));
-    }
-
-    function dailyAgendaFlows(){
-      const agenda = todayAgenda();
-      return (agenda.flowIds || [])
-        .map(id => (state.flows || []).find(f => f.id === id))
-        .filter(f => f && f.status !== "done");
     }
 
     function taskContext(task){
@@ -5375,29 +5362,11 @@
       if (agenda.date !== todayKey) {
         agenda.date = todayKey;
         agenda.taskIds = [];
-        agenda.flowIds = [];
         agenda.skippedDate = null;
       }
       if (!agenda.taskIds.includes(taskId)) agenda.taskIds.push(taskId);
       save(); render();
       if (announce) toast(`"${task.name}" נוספה למיקוד היומי`);
-      return true;
-    }
-
-    function addFlowToDailyAgenda(flowId, announce = true){
-      const flow = (state.flows || []).find(f => f.id === flowId);
-      if (!flow || flow.status === "done") return false;
-      const todayKey = toDateKey(new Date());
-      const agenda = ensureDailyAgenda();
-      if (agenda.date !== todayKey) {
-        agenda.date = todayKey;
-        agenda.taskIds = [];
-        agenda.flowIds = [];
-        agenda.skippedDate = null;
-      }
-      if (!agenda.flowIds.includes(flowId)) agenda.flowIds.push(flowId);
-      save(); render();
-      if (announce) toast(`"${flow.title}" נוסף למיקוד היומי`);
       return true;
     }
 
@@ -5457,10 +5426,11 @@
     }
 
     function showDailyAgendaIfNeeded(){
+      prepareDailyAgendaForToday(false);
       const todayKey = toDateKey(new Date());
       const agenda = ensureDailyAgenda();
-      if (agenda.date === todayKey || agenda.skippedDate === todayKey || agenda.promptedDate === todayKey) return;
-      if (!state.tasks.some(t => !isDone(t)) && !(state.flows || []).some(f => f.status !== "done")) return;
+      if (agenda.taskIds.length || agenda.skippedDate === todayKey || agenda.promptedDate === todayKey) return;
+      if (!state.tasks.some(t => !isDone(t))) return;
       agenda.promptedDate = todayKey;
       save();
       openDailyAgendaModal(false);
@@ -5473,7 +5443,7 @@
       const agenda = ensureDailyAgenda();
       const todayKey = toDateKey(new Date());
       const openTaskIds = new Set(state.tasks.filter(t => !isDone(t)).map(t => t.id));
-      const selected = new Set(agenda.date === todayKey ? agenda.taskIds.filter(id => openTaskIds.has(id)) : suggestedAgendaIds().slice(0, 3));
+      const selected = new Set(agenda.date === todayKey && agenda.taskIds.length ? agenda.taskIds.filter(id => openTaskIds.has(id)) : suggestedAgendaIds().slice(0, 3));
 
       function renderPool(){
         const q = (search.value || "").trim().toLowerCase();
@@ -5541,19 +5511,15 @@
       titleWrap.append(el("div","daily-focus-title","☀️ המיקוד היומי"));
       titleWrap.append(el("div","daily-focus-sub","בחירה חופשית של מה לקדם היום, גם בלי דדליין"));
       const actions = el("div","daily-focus-actions");
-      const flowBtn = el("button","btn","זרימה");
-      flowBtn.type = "button";
-      flowBtn.onclick = () => openFlowModal();
       const edit = el("button","btn","ערוך");
       edit.type = "button";
       edit.onclick = () => openDailyAgendaModal(true);
-      actions.append(flowBtn, edit);
+      actions.append(edit);
       head.append(titleWrap, actions);
       card.append(head);
 
       const tasks = dailyAgendaTasks();
-      const flows = dailyAgendaFlows();
-      if (!tasks.length && !flows.length) {
+      if (!tasks.length) {
         const emptyText = todayAgenda().skippedDate === toDateKey(new Date()) ? "דילגת על אג׳נדה להיום" : "עוד לא נבחר מיקוד להיום";
         const emptyLine = el("div","daily-focus-empty",emptyText);
         card.append(emptyLine);
@@ -5567,30 +5533,6 @@
       }
 
       const list = el("div","daily-focus-list");
-      flows.forEach(flow => {
-        const row = el("div","daily-focus-item daily-flow-item");
-        const status = el("button","daily-flow-status", flow.status === "stuck" ? "תקוע" : flow.status === "idea" ? "רעיון" : "בתנועה");
-        status.type = "button";
-        status.onclick = (e) => {
-          e.stopPropagation();
-          flow.status = flow.status === "done" ? "moving" : "done";
-          save(); render();
-        };
-        const text = el("div","");
-        text.append(el("div","daily-focus-name",flow.title), el("div","daily-focus-meta", flow.note || (flow.tags || []).map(t => "#" + t).join(" ")));
-        const remove = el("button","mini","×");
-        remove.type = "button";
-        remove.title = "הסר מהמיקוד";
-        remove.onclick = (e) => {
-          e.stopPropagation();
-          const agenda = ensureDailyAgenda();
-          agenda.flowIds = agenda.flowIds.filter(id => id !== flow.id);
-          save(); render();
-        };
-        row.append(status, text, remove);
-        row.onclick = () => openFlowModal(flow);
-        list.append(row);
-      });
       tasks.forEach(task => {
         const row = el("div","daily-focus-item");
         row.draggable = true;
@@ -5600,7 +5542,8 @@
         check.type = "button";
         check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
         const text = el("div","");
-        text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task)));
+        const penalty = task.agendaPenaltyDate === toDateKey(new Date()) ? " · עונש!" : "";
+        text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task) + penalty));
         const remove = el("button","mini","×");
         remove.type = "button";
         remove.title = "הסר מהאג׳נדה";
