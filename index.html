@@ -6,9 +6,10 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="TaskFlow" />
+  <meta name="apple-mobile-web-app-title" content="☀️ TaskFlow" />
   <meta name="theme-color" content="#05121e" />
-  <title>TaskFlow</title>
+  <title>☀️ TaskFlow</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23051F33'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-size='38'%3E%E2%98%80%EF%B8%8F%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -335,6 +336,9 @@
     .daily-focus-name{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .daily-focus-meta{font-size:10px;color:var(--faint);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .daily-focus-empty{font-size:12px;color:var(--faint);padding:8px 2px}
+    .daily-flow-item{border-right-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--surface))}
+    .daily-flow-status{border:0;background:color-mix(in srgb,var(--warn) 18%,var(--card));color:var(--warn);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;white-space:nowrap}
+    .drag-ghost{position:fixed;z-index:160;pointer-events:none;max-width:min(280px,74vw);padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--accent);box-shadow:var(--shadow);color:var(--text);font-weight:900;opacity:.94;transform:translate(-50%,-50%) scale(.98)}
     #dailyAgendaOverlay{position:fixed;inset:0;z-index:125;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);padding:16px}
     #dailyAgendaCard{width:min(680px,calc(100vw - 32px));max-height:86dvh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);padding:22px;direction:rtl;text-align:right;animation:briefPop .32s cubic-bezier(.34,1.3,.64,1)}
     #dailyAgendaCard h2{margin:0 0 6px;font-size:23px;font-weight:900}
@@ -347,6 +351,10 @@
     .daily-agenda-mark{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-weight:900;color:transparent}
     .daily-agenda-option.active .daily-agenda-mark{background:var(--accent);border-color:var(--accent);color:#fff}
     .daily-agenda-footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
+    #agendaDropBubble{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120px) scale(.92);z-index:140;min-width:190px;min-height:62px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:9px;color:var(--text);font-weight:900;opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.34,1.3,.64,1),opacity .18s,border-color .16s,background .16s;backdrop-filter:blur(14px)}
+    #agendaDropBubble.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1)}
+    #agendaDropBubble.over{background:var(--accent);border-color:var(--accent);color:#fff;transform:translateX(-50%) translateY(-4px) scale(1.04)}
+    #agendaDropBubble .bubble-icon{font-size:22px;line-height:1}
     .drum-pickers{display:flex;gap:0;align-items:center;justify-content:center;margin:8px 0 4px;direction:ltr}
     .drum-sep{font-size:28px;font-weight:900;color:var(--text);padding:0 4px;line-height:1;align-self:center}
     .drum-col{display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -1314,6 +1322,11 @@
     </div>
   </div>
 
+  <div id="agendaDropBubble" aria-label="הוסף לאג׳נדה היומית">
+    <span class="bubble-icon">☀️</span>
+    <span>שחרר לאג׳נדה</span>
+  </div>
+
   <div id="modalBack" class="modal-back hidden" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-head">
@@ -1369,7 +1382,8 @@
       calView: "month",
       calDate: null,
       events: [],
-      dailyAgenda: { date: null, taskIds: [], skippedDate: null },
+      flows: [],
+      dailyAgenda: { date: null, taskIds: [], flowIds: [], skippedDate: null, promptedDate: null },
       filterTag: null,
       sortAll: "due",
       kanbanListMode: false,
@@ -1384,7 +1398,7 @@
     let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut;
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
-    let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null;
+    let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
     let taskReminderTimer = null;
@@ -1779,7 +1793,7 @@
         localStorage.setItem("taskflow_knownShared", JSON.stringify(_known));
         setActiveListPreference(activeList);
         let sharedSnapshotReady = false;
-        let lastSharedState = JSON.stringify({ cats: state.cats, tasks: state.tasks, events: state.events });
+        let lastSharedState = JSON.stringify({ cats: state.cats, tasks: state.tasks, events: state.events, dailyAgenda: state.dailyAgenda });
         unsub = onSnapshot(ref, (docSnap) => {
           if (!docSnap.exists()) return;
           const next = docSnap.data();
@@ -1937,7 +1951,9 @@
           const sharedPayload = {
             cats: payload.cats,
             tasks: payload.tasks,
-            events: payload.events || []
+            events: payload.events || [],
+            flows: payload.flows || [],
+            dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], flowIds: [], skippedDate: null, promptedDate: null }
           };
           meta = { name: activeList.name, state: sharedPayload, updatedAt: serverTimestamp(), updatedBy: user?.uid || null };
         } else {
@@ -1951,6 +1967,7 @@
     function render(){
       updateGreeting();
       applyTheme();
+      setupAgendaDropBubble();
       renderSidebarMiniCal();
       renderNav();
       $("searchBox").classList.toggle("hidden", !["all","kanban","calendar","meetings"].includes(state.currentView));
@@ -2185,7 +2202,13 @@
            tr.ondragstart = (e) => {
                e.stopPropagation();
                draggedTaskId = t.id;
+               e.dataTransfer?.setData("taskId", t.id);
+               showAgendaDropBubble();
            };
+           tr.ondragend = () => {
+               hideAgendaDropBubble();
+           };
+           enableAgendaPointerDrag(tr, t);
            tr.onclick = (e) => {
                e.stopPropagation();
                openTaskModal(t);
@@ -4239,6 +4262,11 @@
       card.ondragstart = (e) => {
           e.stopPropagation();
           draggedTaskId = task.id;
+          e.dataTransfer?.setData("taskId", task.id);
+          showAgendaDropBubble();
+      };
+      card.ondragend = () => {
+          hideAgendaDropBubble();
       };
       const top = el("div","row");
       top.style.alignItems = "flex-start";
@@ -4315,6 +4343,7 @@
               openTaskModal(task);
           }
       };
+      enableAgendaPointerDrag(card, task);
       
       return card;
     }
@@ -4565,6 +4594,60 @@
             await scheduleNotification(data.name, data.due);
           }
           closeModal(); save(); render(); toast("נשמר");
+        }));
+      });
+    }
+
+    function openFlowModal(flow){
+      openModal(flow ? "עריכת זרימה" : "זרימה חדשה", "משהו שאתה מקדם בלי להפוך אותו למשימה קשיחה", (form) => {
+        form.append(field("מה אתה מקדם?","flowTitle","text", flow?.title || ""));
+        form.append(field("הערה קצרה","flowNote","textarea", flow?.note || ""));
+        const two = el("div","two");
+        two.append(field("תאריך","flowDate","date", flow?.date || toDateKey(new Date())));
+        const statusWrap = el("div","field");
+        statusWrap.append(el("label","","מצב"));
+        const status = el("select"); status.id = "flowStatus";
+        [["idea","רעיון"],["moving","בתנועה"],["stuck","תקוע"],["done","הושלם"]].forEach(([v,l]) => {
+          const opt = el("option","",l);
+          opt.value = v;
+          if ((flow?.status || "moving") === v) opt.selected = true;
+          status.append(opt);
+        });
+        statusWrap.append(status);
+        two.append(statusWrap);
+        form.append(two);
+        form.append(field("תגיות","flowTags","text", (flow?.tags || []).join(", ")));
+
+        if (flow) {
+          const del = el("button","btn danger","מחק זרימה");
+          del.type = "button";
+          del.onclick = () => {
+            state.flows = (state.flows || []).filter(f => f.id !== flow.id);
+            const agenda = ensureDailyAgenda();
+            agenda.flowIds = agenda.flowIds.filter(id => id !== flow.id);
+            closeModal(); save(); render(); toast("נמחק");
+          };
+          form.append(del);
+        }
+
+        form.append(footer(flow ? "שמור" : "הוסף למיקוד", () => {
+          const title = $("flowTitle").value.trim();
+          if (!title) return toast("צריך כותרת קצרה");
+          const data = {
+            title,
+            note: $("flowNote").value.trim(),
+            date: $("flowDate").value || toDateKey(new Date()),
+            status: $("flowStatus").value || "moving",
+            tags: $("flowTags").value.split(",").map(t => t.trim()).filter(Boolean)
+          };
+          if (flow) {
+            Object.assign(flow, data);
+          } else {
+            flow = { id: uid("fl"), createdAt: Date.now(), ...data };
+            state.flows = [...(state.flows || []), flow];
+          }
+          addFlowToDailyAgenda(flow.id, false);
+          closeModal(); save(); render(); toast("נוסף למיקוד הרך של היום");
         }));
       });
     }
@@ -5085,17 +5168,28 @@
         state.cats = Array.isArray(data.cats) ? data.cats : state.cats;
         state.tasks = Array.isArray(data.tasks) ? data.tasks : state.tasks;
         state.events = Array.isArray(data.events) ? data.events : (state.events || []);
+        state.flows = Array.isArray(data.flows) ? data.flows : (state.flows || []);
         state.collapsedSubs = data.collapsedSubs || state.collapsedSubs || {};
-        state.dailyAgenda = data.dailyAgenda || state.dailyAgenda || { date: null, taskIds: [], skippedDate: null };
+        state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
       } else {
         if (Array.isArray(data.cats)) state.cats = data.cats;
         if (Array.isArray(data.tasks)) state.tasks = data.tasks;
         if (Array.isArray(data.events)) state.events = data.events;
+        if (Array.isArray(data.flows)) state.flows = data.flows;
+        state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
         if (!state.cats.find(c => c.id === state.currentCatId)) {
           state.currentCatId = state.cats[0]?.id || null;
         }
       }
       normalizeColumns();
+    }
+
+    function normalizeDailyAgenda(agenda){
+      const base = { date: null, taskIds: [], flowIds: [], skippedDate: null, promptedDate: null };
+      const next = agenda && typeof agenda === "object" ? { ...base, ...agenda } : base;
+      next.taskIds = Array.isArray(next.taskIds) ? next.taskIds : [];
+      next.flowIds = Array.isArray(next.flowIds) ? next.flowIds : [];
+      return next;
     }
 
     function normalizeColumns(){
@@ -5137,10 +5231,11 @@
         sortAll: s.sortAll || null,
         kanbanListMode: !!s.kanbanListMode,
         collapsedSubs: s.collapsedSubs || {},
-        dailyAgenda: s.dailyAgenda || { date: null, taskIds: [], skippedDate: null },
+        dailyAgenda: normalizeDailyAgenda(s.dailyAgenda),
         cats: s.cats || [],
         tasks: s.tasks || [],
-        events: s.events || []
+        events: s.events || [],
+        flows: s.flows || []
       };
       return stripUndefined(raw);
     }
@@ -5239,10 +5334,7 @@
     }
 
     function ensureDailyAgenda(){
-      if (!state.dailyAgenda || typeof state.dailyAgenda !== "object") {
-        state.dailyAgenda = { date: null, taskIds: [], skippedDate: null };
-      }
-      if (!Array.isArray(state.dailyAgenda.taskIds)) state.dailyAgenda.taskIds = [];
+      state.dailyAgenda = normalizeDailyAgenda(state.dailyAgenda);
       return state.dailyAgenda;
     }
 
@@ -5250,7 +5342,7 @@
       const todayKey = toDateKey(new Date());
       const agenda = ensureDailyAgenda();
       if (agenda.date !== todayKey) {
-        return { date: todayKey, taskIds: [], skippedDate: agenda.skippedDate || null };
+        return { ...agenda, date: todayKey, taskIds: [], flowIds: [] };
       }
       return agenda;
     }
@@ -5262,10 +5354,84 @@
         .filter(t => t && !isDone(t));
     }
 
+    function dailyAgendaFlows(){
+      const agenda = todayAgenda();
+      return (agenda.flowIds || [])
+        .map(id => (state.flows || []).find(f => f.id === id))
+        .filter(f => f && f.status !== "done");
+    }
+
     function taskContext(task){
       const cat = state.cats.find(c => c.id === task.catId);
       const col = cat?.columns?.find(c => c.id === task.col);
       return cat ? (col ? `${cat.name} › ${col.name}` : cat.name) : "";
+    }
+
+    function addTaskToDailyAgenda(taskId, announce = true){
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task || isDone(task)) return false;
+      const todayKey = toDateKey(new Date());
+      const agenda = ensureDailyAgenda();
+      if (agenda.date !== todayKey) {
+        agenda.date = todayKey;
+        agenda.taskIds = [];
+        agenda.flowIds = [];
+        agenda.skippedDate = null;
+      }
+      if (!agenda.taskIds.includes(taskId)) agenda.taskIds.push(taskId);
+      save(); render();
+      if (announce) toast(`"${task.name}" נוספה למיקוד היומי`);
+      return true;
+    }
+
+    function addFlowToDailyAgenda(flowId, announce = true){
+      const flow = (state.flows || []).find(f => f.id === flowId);
+      if (!flow || flow.status === "done") return false;
+      const todayKey = toDateKey(new Date());
+      const agenda = ensureDailyAgenda();
+      if (agenda.date !== todayKey) {
+        agenda.date = todayKey;
+        agenda.taskIds = [];
+        agenda.flowIds = [];
+        agenda.skippedDate = null;
+      }
+      if (!agenda.flowIds.includes(flowId)) agenda.flowIds.push(flowId);
+      save(); render();
+      if (announce) toast(`"${flow.title}" נוסף למיקוד היומי`);
+      return true;
+    }
+
+    function setupAgendaDropBubble(){
+      const bubble = $("agendaDropBubble");
+      if (!bubble || bubble.dataset.ready) return;
+      bubble.dataset.ready = "1";
+      bubble.ondragover = (e) => { e.preventDefault(); bubble.classList.add("over"); };
+      bubble.ondragleave = () => bubble.classList.remove("over");
+      bubble.ondrop = (e) => {
+        e.preventDefault();
+        const id = e.dataTransfer?.getData("taskId") || draggedTaskId;
+        bubble.classList.remove("over","show");
+        if (id) addTaskToDailyAgenda(id);
+        draggedTaskId = null;
+      };
+      bubble.onclick = () => {
+        if (draggedTaskId) addTaskToDailyAgenda(draggedTaskId);
+        draggedTaskId = null;
+        hideAgendaDropBubble();
+      };
+    }
+
+    function showAgendaDropBubble(){
+      const bubble = $("agendaDropBubble");
+      if (!bubble) return;
+      setupAgendaDropBubble();
+      bubble.classList.add("show");
+    }
+
+    function hideAgendaDropBubble(){
+      const bubble = $("agendaDropBubble");
+      if (!bubble) return;
+      bubble.classList.remove("show","over");
     }
 
     function scoreAgendaTask(task){
@@ -5293,8 +5459,10 @@
     function showDailyAgendaIfNeeded(){
       const todayKey = toDateKey(new Date());
       const agenda = ensureDailyAgenda();
-      if (agenda.date === todayKey || agenda.skippedDate === todayKey) return;
-      if (!state.tasks.some(t => !isDone(t))) return;
+      if (agenda.date === todayKey || agenda.skippedDate === todayKey || agenda.promptedDate === todayKey) return;
+      if (!state.tasks.some(t => !isDone(t)) && !(state.flows || []).some(f => f.status !== "done")) return;
+      agenda.promptedDate = todayKey;
+      save();
       openDailyAgendaModal(false);
     }
 
@@ -5345,12 +5513,12 @@
       };
       $("dailyAgendaClear").onclick = () => { selected.clear(); renderPool(); };
       $("dailyAgendaSkip").onclick = () => {
-        state.dailyAgenda = { ...ensureDailyAgenda(), skippedDate: todayKey };
+        state.dailyAgenda = { ...ensureDailyAgenda(), skippedDate: todayKey, promptedDate: todayKey };
         save(); closeDailyAgendaModal();
         if (force) render();
       };
       $("dailyAgendaSave").onclick = () => {
-        state.dailyAgenda = { date: todayKey, taskIds: [...selected], skippedDate: null };
+        state.dailyAgenda = { ...ensureDailyAgenda(), date: todayKey, taskIds: [...selected], skippedDate: null, promptedDate: todayKey };
         save(); closeDailyAgendaModal(); render();
         toast(selected.size ? "אג׳נדה יומית נקבעה" : "אג׳נדה ריקה להיום");
       };
@@ -5373,15 +5541,19 @@
       titleWrap.append(el("div","daily-focus-title","☀️ המיקוד היומי"));
       titleWrap.append(el("div","daily-focus-sub","בחירה חופשית של מה לקדם היום, גם בלי דדליין"));
       const actions = el("div","daily-focus-actions");
+      const flowBtn = el("button","btn","זרימה");
+      flowBtn.type = "button";
+      flowBtn.onclick = () => openFlowModal();
       const edit = el("button","btn","ערוך");
       edit.type = "button";
       edit.onclick = () => openDailyAgendaModal(true);
-      actions.append(edit);
+      actions.append(flowBtn, edit);
       head.append(titleWrap, actions);
       card.append(head);
 
       const tasks = dailyAgendaTasks();
-      if (!tasks.length) {
+      const flows = dailyAgendaFlows();
+      if (!tasks.length && !flows.length) {
         const emptyText = todayAgenda().skippedDate === toDateKey(new Date()) ? "דילגת על אג׳נדה להיום" : "עוד לא נבחר מיקוד להיום";
         const emptyLine = el("div","daily-focus-empty",emptyText);
         card.append(emptyLine);
@@ -5395,6 +5567,30 @@
       }
 
       const list = el("div","daily-focus-list");
+      flows.forEach(flow => {
+        const row = el("div","daily-focus-item daily-flow-item");
+        const status = el("button","daily-flow-status", flow.status === "stuck" ? "תקוע" : flow.status === "idea" ? "רעיון" : "בתנועה");
+        status.type = "button";
+        status.onclick = (e) => {
+          e.stopPropagation();
+          flow.status = flow.status === "done" ? "moving" : "done";
+          save(); render();
+        };
+        const text = el("div","");
+        text.append(el("div","daily-focus-name",flow.title), el("div","daily-focus-meta", flow.note || (flow.tags || []).map(t => "#" + t).join(" ")));
+        const remove = el("button","mini","×");
+        remove.type = "button";
+        remove.title = "הסר מהמיקוד";
+        remove.onclick = (e) => {
+          e.stopPropagation();
+          const agenda = ensureDailyAgenda();
+          agenda.flowIds = agenda.flowIds.filter(id => id !== flow.id);
+          save(); render();
+        };
+        row.append(status, text, remove);
+        row.onclick = () => openFlowModal(flow);
+        list.append(row);
+      });
       tasks.forEach(task => {
         const row = el("div","daily-focus-item");
         row.draggable = true;
@@ -5464,6 +5660,81 @@
       $("reschedulePopup").classList.remove("show");
       document.body.style.overflow = "";
       if (_rescheduleFp) { _rescheduleFp.destroy(); _rescheduleFp = null; }
+    }
+
+    function enableAgendaPointerDrag(elem, task){
+      if (!elem || elem.dataset.agendaPointerReady) return;
+      elem.dataset.agendaPointerReady = "1";
+      let timer = null, startX = 0, startY = 0, active = false, moved = false, ghost = null;
+
+      const moveGhost = (x, y) => {
+        if (!ghost) return;
+        ghost.style.left = x + "px";
+        ghost.style.top = y + "px";
+        const bubble = $("agendaDropBubble");
+        if (!bubble) return;
+        const r = bubble.getBoundingClientRect();
+        bubble.classList.toggle("over", x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+      };
+
+      const cleanup = (drop, x, y) => {
+        clearTimeout(timer);
+        timer = null;
+        elem.classList.remove("dragging");
+        if (ghost) ghost.remove();
+        ghost = null;
+        if (active && drop) {
+          const bubble = $("agendaDropBubble");
+          const r = bubble?.getBoundingClientRect();
+          if (r && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+            addTaskToDailyAgenda(task.id);
+            hideAgendaDropBubble();
+          } else {
+            hideAgendaDropBubble();
+          }
+        } else if (!draggedTaskId) {
+          hideAgendaDropBubble();
+        }
+        active = false;
+        draggedTaskId = null;
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("pointercancel", onCancel);
+      };
+
+      const onMove = (e) => {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (!active && Math.hypot(dx, dy) > 10) {
+          moved = true;
+          clearTimeout(timer);
+          return;
+        }
+        if (!active) return;
+        e.preventDefault();
+        moveGhost(e.clientX, e.clientY);
+      };
+      const onUp = (e) => cleanup(true, e.clientX, e.clientY);
+      const onCancel = () => cleanup(false, 0, 0);
+
+      elem.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "mouse" || e.target.closest("button,input,label,select,textarea")) return;
+        startX = e.clientX; startY = e.clientY; moved = false;
+        document.addEventListener("pointermove", onMove, { passive:false });
+        document.addEventListener("pointerup", onUp);
+        document.addEventListener("pointercancel", onCancel);
+        timer = setTimeout(() => {
+          if (moved) return;
+          active = true;
+          draggedTaskId = task.id;
+          elem.classList.add("dragging");
+          ghost = el("div","drag-ghost", task.name);
+          document.body.append(ghost);
+          showAgendaDropBubble();
+          moveGhost(startX, startY);
+          navigator.vibrate?.(35);
+        }, 520);
+      }, { passive:true });
     }
 
     function addLongPress(elem, onLong, onTap, ms = 480) {
