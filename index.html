@@ -336,6 +336,15 @@
     .daily-focus-name{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .daily-focus-meta{font-size:10px;color:var(--faint);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .daily-focus-empty{font-size:12px;color:var(--faint);padding:8px 2px}
+    .daily-focus-main{min-width:0;display:grid;gap:4px}
+    .daily-focus-tags{display:flex;gap:4px;flex-wrap:wrap}
+    .daily-focus-tag{display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:900;background:var(--card2);border:1px solid var(--border);color:var(--faint);white-space:nowrap}
+    .daily-focus-tag.must{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.34);color:var(--danger)}
+    .daily-focus-tag.manual{background:rgba(109,93,252,.14);border-color:rgba(109,93,252,.35);color:var(--accent2)}
+    .daily-focus-tag.carried{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.34);color:var(--warn)}
+    .daily-focus-tag.suggested{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.32);color:var(--green)}
+    .daily-focus-tools{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+    .daily-focus-tools .mini{background:var(--card2);border:1px solid var(--border);font-size:10px;font-weight:900;padding:3px 7px;white-space:nowrap}
     .drag-ghost{position:fixed;z-index:160;pointer-events:none;max-width:min(280px,74vw);padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--accent);box-shadow:var(--shadow);color:var(--text);font-weight:900;opacity:.94;transform:translate(-50%,-50%) scale(.98)}
     #dailyAgendaOverlay{position:fixed;inset:0;z-index:125;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);padding:16px}
     #dailyAgendaCard{width:min(680px,calc(100vw - 32px));max-height:86dvh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);padding:22px;direction:rtl;text-align:right;animation:briefPop .32s cubic-bezier(.34,1.3,.64,1)}
@@ -1380,7 +1389,7 @@
       calView: "month",
       calDate: null,
       events: [],
-      dailyAgenda: { date: null, taskIds: [], skippedDate: null, promptedDate: null },
+      dailyAgenda: { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
       filterTag: null,
       sortAll: "due",
       kanbanListMode: false,
@@ -1949,7 +1958,7 @@
             cats: payload.cats,
             tasks: payload.tasks,
             events: payload.events || [],
-            dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], skippedDate: null, promptedDate: null }
+            dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null }
           };
           meta = { name: activeList.name, state: sharedPayload, updatedAt: serverTimestamp(), updatedBy: user?.uid || null };
         } else {
@@ -5126,9 +5135,11 @@
     }
 
     function normalizeDailyAgenda(agenda){
-      const base = { date: null, taskIds: [], skippedDate: null, promptedDate: null };
+      const base = { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null };
       const next = agenda && typeof agenda === "object" ? { ...base, ...agenda } : base;
       next.taskIds = Array.isArray(next.taskIds) ? next.taskIds : [];
+      next.manualIds = Array.isArray(next.manualIds) ? next.manualIds : [];
+      next.deferredIds = Array.isArray(next.deferredIds) ? next.deferredIds : [];
       return next;
     }
 
@@ -5296,8 +5307,9 @@
         }
       });
 
+      const previousIds = [...new Set([...(agenda.taskIds || []), ...(agenda.deferredIds || [])])];
       const previousOpenAgendaIds = agenda.date && agenda.date !== todayKey
-        ? (agenda.taskIds || []).filter(id => {
+        ? previousIds.filter(id => {
             const task = state.tasks.find(t => t.id === id);
             if (!task || isDone(task)) return false;
             carried.push(task.name);
@@ -5308,8 +5320,11 @@
       if (agenda.date !== todayKey) {
         agenda.date = todayKey;
         agenda.taskIds = [...previousOpenAgendaIds];
+        agenda.deferredIds = [...previousOpenAgendaIds];
+        agenda.manualIds = [];
         agenda.skippedDate = null;
         agenda.promptedDate = null;
+        agenda.closedDate = null;
         changed = true;
       }
 
@@ -5342,13 +5357,64 @@
       const agenda = todayAgenda();
       return agenda.taskIds
         .map(id => state.tasks.find(t => t.id === id))
-        .filter(t => t && !isDone(t));
+        .filter(t => t && !isDone(t))
+        .sort((a,b) => agendaTaskRank(a) - agendaTaskRank(b) || scoreAgendaTask(b) - scoreAgendaTask(a));
+    }
+
+    function agendaTaskRank(task){
+      const todayKey = toDateKey(new Date());
+      if (task.due && task.due < todayKey) return 0;
+      if (task.due === todayKey) return 1;
+      const agenda = ensureDailyAgenda();
+      if ((agenda.deferredIds || []).includes(task.id)) return 2;
+      if ((agenda.manualIds || []).includes(task.id)) return 3;
+      return 4;
+    }
+
+    function agendaReason(task){
+      const todayKey = toDateKey(new Date());
+      if (task.due && task.due < todayKey) return { label: "באיחור", cls: "must" };
+      if (task.due === todayKey) return { label: "להיום", cls: "must" };
+      const agenda = ensureDailyAgenda();
+      if ((agenda.deferredIds || []).includes(task.id)) return { label: "נמשך מאתמול", cls: "carried" };
+      if ((agenda.manualIds || []).includes(task.id)) return { label: "נבחר ידנית", cls: "manual" };
+      return { label: "מומלץ", cls: "suggested" };
     }
 
     function taskContext(task){
       const cat = state.cats.find(c => c.id === task.catId);
       const col = cat?.columns?.find(c => c.id === task.col);
       return cat ? (col ? `${cat.name} › ${col.name}` : cat.name) : "";
+    }
+
+    function moveTaskInDailyAgenda(taskId, when = "tomorrow"){
+      const agenda = ensureDailyAgenda();
+      agenda.taskIds = agenda.taskIds.filter(id => id !== taskId);
+      agenda.manualIds = agenda.manualIds.filter(id => id !== taskId);
+      agenda.deferredIds = [...new Set([...(agenda.deferredIds || []), taskId])];
+      const task = state.tasks.find(t => t.id === taskId);
+      if (task) task.agendaMove = { when, at: Date.now() };
+      save(); render();
+      toast("נשמר למיקוד של מחר, בלי לשנות דדליין");
+    }
+
+    function setAgendaTaskMood(taskId, mood){
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      task.agendaMood = { mood, date: toDateKey(new Date()), at: Date.now() };
+      save(); render();
+      toast(mood === "started" ? "סומן שהתחלת" : "סומן שנתקעת");
+    }
+
+    function closeDailyAgendaDay(){
+      const agenda = ensureDailyAgenda();
+      const remaining = dailyAgendaTasks().filter(t => !isDone(t)).map(t => t.id);
+      agenda.taskIds = remaining;
+      agenda.deferredIds = [...new Set([...(agenda.deferredIds || []), ...remaining])];
+      agenda.closedDate = toDateKey(new Date());
+      agenda.promptedDate = agenda.closedDate;
+      save(); render();
+      toast(remaining.length ? `${remaining.length} פריטים ימשיכו איתך למחר` : "היום נסגר נקי");
     }
 
     function addTaskToDailyAgenda(taskId, announce = true){
@@ -5359,9 +5425,12 @@
       if (agenda.date !== todayKey) {
         agenda.date = todayKey;
         agenda.taskIds = [];
+        agenda.manualIds = [];
+        agenda.deferredIds = [];
         agenda.skippedDate = null;
       }
       if (!agenda.taskIds.includes(taskId)) agenda.taskIds.push(taskId);
+      if (!agenda.manualIds.includes(taskId)) agenda.manualIds.push(taskId);
       save(); render();
       if (announce) toast(`"${task.name}" נוספה למיקוד היומי`);
       return true;
@@ -5415,11 +5484,21 @@
     }
 
     function suggestedAgendaIds(){
-      return [...state.tasks]
-        .filter(t => !isDone(t))
-        .sort((a,b) => scoreAgendaTask(b) - scoreAgendaTask(a) || (a.due||"9999").localeCompare(b.due||"9999"))
-        .slice(0, Math.min(5, state.tasks.filter(t => !isDone(t)).length))
+      const agenda = ensureDailyAgenda();
+      const todayKey = toDateKey(new Date());
+      const must = state.tasks
+        .filter(t => !isDone(t) && t.due && t.due <= todayKey)
         .map(t => t.id);
+      const carried = (agenda.deferredIds || [])
+        .filter(id => state.tasks.some(t => t.id === id && !isDone(t)));
+      const selected = new Set([...must, ...carried]);
+      const room = Math.max(0, 5 - selected.size);
+      [...state.tasks]
+        .filter(t => !isDone(t) && !selected.has(t.id))
+        .sort((a,b) => scoreAgendaTask(b) - scoreAgendaTask(a) || (a.due||"9999").localeCompare(b.due||"9999"))
+        .slice(0, room)
+        .forEach(t => selected.add(t.id));
+      return [...selected];
     }
 
     function showDailyAgendaIfNeeded(){
@@ -5441,6 +5520,7 @@
       const todayKey = toDateKey(new Date());
       const openTaskIds = new Set(state.tasks.filter(t => !isDone(t)).map(t => t.id));
       const selected = new Set(agenda.date === todayKey && agenda.taskIds.length ? agenda.taskIds.filter(id => openTaskIds.has(id)) : suggestedAgendaIds().slice(0, 3));
+      const initialSelected = new Set(selected);
 
       function renderPool(){
         const q = (search.value || "").trim().toLowerCase();
@@ -5485,7 +5565,18 @@
         if (force) render();
       };
       $("dailyAgendaSave").onclick = () => {
-        state.dailyAgenda = { ...ensureDailyAgenda(), date: todayKey, taskIds: [...selected], skippedDate: null, promptedDate: todayKey };
+        const current = ensureDailyAgenda();
+        const selectedIds = [...selected];
+        const manualIds = selectedIds.filter(id => !initialSelected.has(id) && !todayDueTaskIds(todayKey).includes(id));
+        state.dailyAgenda = {
+          ...current,
+          date: todayKey,
+          taskIds: selectedIds,
+          manualIds: [...new Set([...(current.manualIds || []).filter(id => selected.has(id)), ...manualIds])],
+          deferredIds: (current.deferredIds || []).filter(id => selected.has(id)),
+          skippedDate: null,
+          promptedDate: todayKey
+        };
         save(); closeDailyAgendaModal(); render();
         toast(selected.size ? "אג׳נדה יומית נקבעה" : "אג׳נדה ריקה להיום");
       };
@@ -5508,10 +5599,13 @@
       titleWrap.append(el("div","daily-focus-title","☀️ המיקוד היומי"));
       titleWrap.append(el("div","daily-focus-sub","בחירה חופשית של מה לקדם היום, גם בלי דדליין"));
       const actions = el("div","daily-focus-actions");
+      const closeDay = el("button","btn","סגור יום");
+      closeDay.type = "button";
+      closeDay.onclick = closeDailyAgendaDay;
       const edit = el("button","btn","ערוך");
       edit.type = "button";
       edit.onclick = () => openDailyAgendaModal(true);
-      actions.append(edit);
+      actions.append(closeDay, edit);
       head.append(titleWrap, actions);
       card.append(head);
 
@@ -5538,8 +5632,24 @@
         const check = el("button","daily-focus-check","✓");
         check.type = "button";
         check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
-        const text = el("div","");
-        text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task)));
+        const text = el("div","daily-focus-main");
+        const reason = agendaReason(task);
+        const tags = el("div","daily-focus-tags");
+        tags.append(el("span","daily-focus-tag " + reason.cls, reason.label));
+        if (task.agendaMood?.date === toDateKey(new Date())) {
+          tags.append(el("span","daily-focus-tag", task.agendaMood.mood === "started" ? "התחלתי" : "נתקעתי"));
+        }
+        text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task)), tags);
+        const tools = el("div","daily-focus-tools");
+        const started = el("button","mini","התחלתי");
+        started.type = "button";
+        started.onclick = (e) => { e.stopPropagation(); setAgendaTaskMood(task.id, "started"); };
+        const stuck = el("button","mini","נתקעתי");
+        stuck.type = "button";
+        stuck.onclick = (e) => { e.stopPropagation(); setAgendaTaskMood(task.id, "stuck"); };
+        const tomorrow = el("button","mini","מחר");
+        tomorrow.type = "button";
+        tomorrow.onclick = (e) => { e.stopPropagation(); moveTaskInDailyAgenda(task.id, "tomorrow"); };
         const remove = el("button","mini","×");
         remove.type = "button";
         remove.title = "הסר מהאג׳נדה";
@@ -5547,9 +5657,12 @@
           e.stopPropagation();
           const agenda = ensureDailyAgenda();
           agenda.taskIds = agenda.taskIds.filter(id => id !== task.id);
+          agenda.manualIds = agenda.manualIds.filter(id => id !== task.id);
+          agenda.deferredIds = agenda.deferredIds.filter(id => id !== task.id);
           save(); render();
         };
-        row.append(check, text, remove);
+        tools.append(started, stuck, tomorrow, remove);
+        row.append(check, text, tools);
         row.onclick = (e) => showCalItemPopup(e, task, task.due || toDateKey(new Date()));
         list.append(row);
       });
