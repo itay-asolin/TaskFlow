@@ -1380,7 +1380,7 @@
       calView: "month",
       calDate: null,
       events: [],
-      dailyAgenda: { date: null, taskIds: [], skippedDate: null, promptedDate: null, punishedDate: null },
+      dailyAgenda: { date: null, taskIds: [], skippedDate: null, promptedDate: null },
       filterTag: null,
       sortAll: "due",
       kanbanListMode: false,
@@ -1949,7 +1949,7 @@
             cats: payload.cats,
             tasks: payload.tasks,
             events: payload.events || [],
-            dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], skippedDate: null, promptedDate: null, punishedDate: null }
+            dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], skippedDate: null, promptedDate: null }
           };
           meta = { name: activeList.name, state: sharedPayload, updatedAt: serverTimestamp(), updatedBy: user?.uid || null };
         } else {
@@ -5126,7 +5126,7 @@
     }
 
     function normalizeDailyAgenda(agenda){
-      const base = { date: null, taskIds: [], skippedDate: null, promptedDate: null, punishedDate: null };
+      const base = { date: null, taskIds: [], skippedDate: null, promptedDate: null };
       const next = agenda && typeof agenda === "object" ? { ...base, ...agenda } : base;
       next.taskIds = Array.isArray(next.taskIds) ? next.taskIds : [];
       return next;
@@ -5277,12 +5277,6 @@
       return state.dailyAgenda;
     }
 
-    function nextDateKey(dateKey){
-      const d = parseDate(dateKey);
-      d.setDate(d.getDate() + 1);
-      return toDateKey(d);
-    }
-
     function todayDueTaskIds(todayKey = toDateKey(new Date())){
       return (state.tasks || [])
         .filter(t => !isDone(t) && t.due === todayKey)
@@ -5293,24 +5287,27 @@
       const todayKey = toDateKey(new Date());
       const agenda = ensureDailyAgenda();
       let changed = false;
-      const punished = [];
+      const carried = [];
 
-      if (agenda.date && agenda.date !== todayKey && agenda.punishedDate !== agenda.date) {
-        const targetDate = nextDateKey(agenda.date) < todayKey ? todayKey : nextDateKey(agenda.date);
-        (agenda.taskIds || []).forEach(id => {
-          const task = state.tasks.find(t => t.id === id);
-          if (!task || isDone(task)) return;
-          task.due = targetDate;
-          task.agendaPenaltyDate = targetDate;
-          punished.push(task.name);
+      (state.tasks || []).forEach(task => {
+        if (task.agendaPenaltyDate !== undefined) {
+          delete task.agendaPenaltyDate;
           changed = true;
-        });
-        agenda.punishedDate = agenda.date;
-      }
+        }
+      });
+
+      const previousOpenAgendaIds = agenda.date && agenda.date !== todayKey
+        ? (agenda.taskIds || []).filter(id => {
+            const task = state.tasks.find(t => t.id === id);
+            if (!task || isDone(task)) return false;
+            carried.push(task.name);
+            return true;
+          })
+        : [];
 
       if (agenda.date !== todayKey) {
         agenda.date = todayKey;
-        agenda.taskIds = [];
+        agenda.taskIds = [...previousOpenAgendaIds];
         agenda.skippedDate = null;
         agenda.promptedDate = null;
         changed = true;
@@ -5324,11 +5321,11 @@
       });
 
       if (changed) save();
-      if (announce && punished.length) {
-        const label = punished.length === 1 ? `"${punished[0]}"` : `${punished.length} מטלות`;
-        toast(`עונש! ${label} נדחפה ליום הבא`);
+      if (announce && carried.length) {
+        const label = carried.length === 1 ? `"${carried[0]}"` : `${carried.length} מטלות`;
+        toast(carried.length === 1 ? `${label} נשארה באג׳נדה להמשך עבודה` : `${label} נשארו באג׳נדה להמשך עבודה`);
       }
-      return { changed, punished };
+      return { changed, carried };
     }
 
     function todayAgenda(){
@@ -5542,8 +5539,7 @@
         check.type = "button";
         check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
         const text = el("div","");
-        const penalty = task.agendaPenaltyDate === toDateKey(new Date()) ? " · עונש!" : "";
-        text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task) + penalty));
+        text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task)));
         const remove = el("button","mini","×");
         remove.type = "button";
         remove.title = "הסר מהאג׳נדה";
