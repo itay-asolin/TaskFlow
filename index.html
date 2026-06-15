@@ -187,15 +187,21 @@
     .col-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);font-weight:900}
     .drop{min-height:170px;padding:10px;display:flex;flex-direction:column;gap:10px}
     .drop.over{outline:2px dashed var(--accent);outline-offset:-8px}
-    .task{background:var(--card);border:1px solid var(--border);border-right:4px solid var(--accent);border-radius:var(--rs);padding:12px}
+    .task{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--card),var(--surface));border:1px solid var(--border);border-right:4px solid var(--accent);border-radius:var(--rs);padding:13px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+    .task::before{content:"";position:absolute;inset:0 4px auto 0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.28;pointer-events:none}
     .task,.card,.day-task,.agenda-row{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}
     .task:hover,.cat-card:hover,.agenda-row:hover{transform:translateY(-1px)}
+    .task:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--border));box-shadow:0 12px 30px rgba(0,0,0,.18)}
     .task[draggable="true"]{cursor:grab}
     .task[draggable="true"]:active{cursor:grabbing;transform:scale(.985)}
-    .task-title{font-weight:800;line-height:1.35;word-break:break-word}
+    .task-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start}
+    .task-title-wrap{min-width:0;display:grid;gap:5px}
+    .task-title{font-weight:900;line-height:1.35;word-break:break-word;color:var(--text)}
     .task-title.done{text-decoration:line-through;color:var(--faint)}
-    .task-tools{display:flex;gap:5px;margin-inline-start:auto}
-    .mini{border:0;background:transparent;color:var(--faint);padding:2px 5px;border-radius:5px}
+    .task-context,.all-breadcrumb{font-size:11px;color:var(--faint);font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .task-badge-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .task-tools{display:flex;gap:5px;margin-inline-start:auto;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:999px;padding:2px;align-self:start}
+    .mini{border:0;background:transparent;color:var(--faint);padding:3px 7px;border-radius:999px}
     .mini:hover{background:var(--card2);color:var(--text)}
     .check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:transparent;color:#fff;flex:0 0 auto}
     .check.done{background:var(--green);border-color:var(--green)}
@@ -215,7 +221,8 @@
     .bar{height:5px;background:var(--card2);border-radius:999px;overflow:hidden;margin-top:9px}
     .bar span{display:block;height:100%;background:var(--accent);border-radius:999px}
     .list{display:grid;gap:10px}
-    .task-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start}
+    .task-row{display:block}
+    .task-list-card{width:100%}
     
     /* Calendar fixes */
     .cal-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
@@ -745,17 +752,8 @@
       }
       .col-head{position:sticky;top:0;z-index:1;background:var(--surface)}
       .task{padding:12px 10px}
-      .task .row{gap:8px}
-      .task-tools{gap:2px}
-      .task-row{
-        grid-template-columns:auto minmax(0,1fr);
-        gap:8px;
-      }
-      .task-row .task-tools{
-        grid-column:2;
-        justify-content:flex-start;
-        margin-top:4px;
-      }
+      .task-top{grid-template-columns:auto minmax(0,1fr);gap:8px}
+      .task-tools{grid-column:2;justify-content:flex-start;margin-top:4px;width:max-content;max-width:100%}
       .chip,.tag,.est-badge,.repeat-badge{font-size:10px}
       .tags-bar,.sort-bar{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}
       .sort-bar select{min-width:128px}
@@ -2215,12 +2213,10 @@
         const cat = state.cats.find(c => c.id === task.catId);
         if (cat) {
           const col = cat.columns?.find(c => c.id === task.col);
-          const taskCard = row.firstChild;
-          const titleEl = taskCard?.querySelector(".task-title");
-          if (titleEl && !taskCard.querySelector(".all-breadcrumb")) {
+          const titleEl = row.querySelector(".task-title");
+          if (titleEl && !row.querySelector(".all-breadcrumb")) {
             const bc = document.createElement("div");
             bc.className = "all-breadcrumb";
-            bc.style.cssText = "font-size:10px;color:var(--faint);font-weight:700;margin-top:2px";
             bc.textContent = col ? `${cat.name} › ${col.name}` : cat.name;
             titleEl.after(bc);
           }
@@ -3956,12 +3952,11 @@
       card.ondragend = () => {
           hideAgendaDropBubble();
       };
-      const top = el("div","row");
-      top.style.alignItems = "flex-start";
+      const top = el("div","task-top");
       const check = el("button","check" + (isDone(task) ? " done" : ""), isDone(task) ? "✓" : "");
       check.type = "button"; check.ariaLabel = "סמן משימה"; check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
-      const titleWrap = el("div","");
-	  const title = el("div","task-title" + (isDone(task) ? " done" : ""), task.name);
+      const titleWrap = el("div","task-title-wrap");
+      const title = el("div","task-title" + (isDone(task) ? " done" : ""), task.name);
       titleWrap.append(title);
       
       const tools = el("div","task-tools");
@@ -3976,10 +3971,12 @@
       top.append(check, titleWrap, tools);
       card.append(top);
       const due = dueInfo(task.due);
-      if (due) card.append(dueChip(due));
-      if (task.est) card.append(el("div","est-badge", "⏱ " + task.est + " דק׳"));
+      const badgeRow = el("div","task-badge-row");
+      if (due) badgeRow.append(dueChip(due));
+      if (task.est) badgeRow.append(el("div","est-badge", "⏱ " + task.est + " דק׳"));
       const repeatLabels = {daily:"🔁 יומי",weekly:"🔁 שבועי",monthly:"🔁 חודשי"};
-      if (task.repeat && repeatLabels[task.repeat]) card.append(el("div","repeat-badge", repeatLabels[task.repeat]));
+      if (task.repeat && repeatLabels[task.repeat]) badgeRow.append(el("div","repeat-badge", repeatLabels[task.repeat]));
+      if (badgeRow.children.length) card.append(badgeRow);
       if (task.tags?.length) {
         const tagRow = el("div","task-tags");
         task.tags.forEach(tag => {
@@ -4036,15 +4033,8 @@
     }
 
     function taskRow(task){
-      const row = el("article","card task-row");
-      row.append(taskCard(task, false));
-      row.firstChild.style.boxShadow = "none";
-      row.firstChild.style.background = "transparent";
-      row.firstChild.style.borderTop = "0";
-      row.firstChild.style.borderBottom = "0";
-      row.firstChild.style.borderLeft = "0";
-      row.firstChild.style.padding = "0";
-      row.style.display = "block";
+      const row = taskCard(task, false);
+      row.classList.add("task-row", "task-list-card");
       return row;
     }
 
@@ -5358,41 +5348,96 @@
     }
 
     let _rescheduleFp = null;
-function openReschedulePopup(type, id, currentDate, label) {
+
+    function ensureReschedulePopup(){
+      let popup = $("reschedulePopup");
+      if (popup) return popup;
+
+      popup = el("div", "modal-back");
+      popup.id = "reschedulePopup";
+      popup.style.display = "none";
+
+      const modal = el("div", "modal");
+      modal.style.maxWidth = "360px";
+      const head = el("div", "modal-head");
+      const titleWrap = el("div", "");
+      titleWrap.append(el("h2", "", "שינוי תאריך"), el("div", "modal-sub", "בחר תאריך חדש"));
+      const closeBtn = el("button", "mini", "×");
+      closeBtn.id = "rescheduleCancel";
+      closeBtn.type = "button";
+      closeBtn.ariaLabel = "סגור";
+      head.append(titleWrap, closeBtn);
+
+      const picker = document.createElement("input");
+      picker.id = "reschedulePicker";
+      picker.type = "text";
+      picker.placeholder = "בחר תאריך";
+      picker.style.width = "100%";
+
+      modal.append(head, picker);
+      popup.append(modal);
+      document.body.append(popup);
+      return popup;
     }
-    function closeReschedulePopup() {}
+
+    function applyReschedule(type, id, dateStr){
+      if (!dateStr) return;
+      if (type === "task") {
+        const task = state.tasks.find(t => t.id === id);
+        if (task && task.due !== dateStr) {
+          task.due = dateStr; save(); render();
+          toast(`📅 הוזז ל-${formatDateShort(dateStr)}`);
+        }
+      } else if (type === "event") {
+        const ev = state.events.find(e => e.id === id);
+        if (ev && ev.date !== dateStr) {
+          ev.date = dateStr; save(); render();
+          toast(`📅 אירוע הוזז ל-${formatDateShort(dateStr)}`);
+        }
+      }
+    }
+
+    function openReschedulePopup(type, id, currentDate, label) {
+      const popup = ensureReschedulePopup();
+      const picker = $("reschedulePicker");
+      const title = popup.querySelector("h2");
+      if (title) title.textContent = label ? `שינוי תאריך: ${label}` : "שינוי תאריך";
+
+      popup.style.display = "grid";
+      popup.classList.add("show");
+      document.body.style.overflow = "hidden";
 
       if (_rescheduleFp) _rescheduleFp.destroy();
-      _rescheduleFp = flatpickr($("reschedulePicker"), {
-        locale: "he",
-        dateFormat: "Y-m-d",
-        defaultDate: currentDate || null,
-        disableMobile: true,
-        onChange: (selectedDates, dateStr) => {
-          if (!dateStr) return;
-          closeReschedulePopup();
-          if (type === "task") {
-            const task = state.tasks.find(t => t.id === id);
-            if (task && task.due !== dateStr) {
-              task.due = dateStr; save(); render();
-              toast(`📅 הוזז ל-${formatDateShort(dateStr)}`);
-            }
-          } else if (type === "event") {
-            const ev = state.events.find(e => e.id === id);
-            if (ev && ev.date !== dateStr) {
-              ev.date = dateStr; save(); render();
-              toast(`📅 אירוע הוזז ל-${formatDateShort(dateStr)}`);
-            }
+      if (window.flatpickr && picker) {
+        _rescheduleFp = flatpickr(picker, {
+          locale: "he",
+          dateFormat: "Y-m-d",
+          defaultDate: currentDate || null,
+          disableMobile: true,
+          onChange: (selectedDates, dateStr) => {
+            if (!dateStr) return;
+            closeReschedulePopup();
+            applyReschedule(type, id, dateStr);
           }
-        }
-      });
-      _rescheduleFp.open();
-      $("rescheduleCancel").onclick = closeReschedulePopup;
+        });
+        _rescheduleFp.open();
+      } else {
+        const dateStr = prompt("בחר תאריך חדש בפורמט YYYY-MM-DD", currentDate || toDateKey(new Date()));
+        closeReschedulePopup();
+        applyReschedule(type, id, dateStr);
+      }
+
+      const cancel = $("rescheduleCancel");
+      if (cancel) cancel.onclick = closeReschedulePopup;
       popup.onclick = (e) => { if (e.target === popup) closeReschedulePopup(); };
     }
 
     function closeReschedulePopup() {
-      $("reschedulePopup").classList.remove("show");
+      const popup = $("reschedulePopup");
+      if (popup) {
+        popup.classList.remove("show");
+        popup.style.display = "none";
+      }
       document.body.style.overflow = "";
       if (_rescheduleFp) { _rescheduleFp.destroy(); _rescheduleFp = null; }
     }
@@ -5714,3 +5759,4 @@ function openReschedulePopup(type, id, currentDate, label) {
   </script>
 </body>
 </html>
+
