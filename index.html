@@ -173,6 +173,21 @@
     .cat-peek-item::before {
       content: ""; display: block; width: 6px; height: 6px; border-radius: 50%; border: 2px solid var(--cat-color); flex: 0 0 auto;
     }
+    .cat-open-hint{display:none}
+    .cat-detail-hero{border:1px solid color-mix(in srgb,var(--cat-color,var(--accent)) 38%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,var(--cat-color,var(--accent)) 14%,var(--card)),var(--surface));border-radius:14px;padding:14px;margin-bottom:12px}
+    .cat-detail-name{font-size:20px;font-weight:900;line-height:1.2;margin-bottom:8px;word-break:break-word}
+    .cat-detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+    .cat-detail-stat{background:color-mix(in srgb,var(--surface) 82%,transparent);border:1px solid var(--border);border-radius:10px;padding:9px;text-align:center}
+    .cat-detail-stat strong{display:block;font-size:18px;line-height:1;color:var(--text)}
+    .cat-detail-stat span{display:block;font-size:10px;font-weight:900;color:var(--faint);margin-top:5px}
+    .cat-detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .cat-detail-actions .primary{grid-column:1/-1}
+    .cat-detail-list{display:grid;gap:8px;max-height:34vh;overflow:auto;padding-inline-end:2px}
+    .cat-detail-task{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 10px;cursor:pointer}
+    .cat-detail-task:hover{border-color:var(--cat-color,var(--accent))}
+    .cat-detail-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--cat-color,var(--accent))}
+    .cat-detail-task-name{font-size:13px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cat-detail-task-date{font-size:10px;font-weight:900;color:var(--faint);white-space:nowrap}
     .meta{font-size:12px;color:var(--faint)}
     .taskListHome{position:relative;z-index:3;margin-top:auto;min-height:42px;display:grid;gap:6px}
     .agenda-list{display:grid;gap:10px}
@@ -764,8 +779,26 @@
         box-shadow:0 8px 24px rgba(0,0,0,.18);
       }
       .grid{gap:12px}
-      .cat-card{padding:14px;min-height:340px}
-      .cat-title{font-size:16px}
+      .cat-card{
+        min-height:0;
+        padding:13px 13px 12px;
+        border-radius:14px;
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        gap:10px;
+        align-items:center;
+        box-shadow:0 8px 20px rgba(0,0,0,.14);
+      }
+      .cat-card::before{width:5px}
+      .cat-card:hover{transform:none;box-shadow:0 8px 20px rgba(0,0,0,.14)}
+      .cat-tools{position:static;grid-column:2;grid-row:1 / span 2;align-self:start;display:flex;gap:2px}
+      .cat-tools .mini{min-width:28px;min-height:28px;padding:0 6px;font-size:13px;background:transparent}
+      .cat-title{font-size:16px;margin:0 8px 0 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .cat-progress-wrap{grid-column:1/-1;margin:0 8px 0 0}
+      .cat-progress-stats{font-size:11px;margin-bottom:5px}
+      .cat-progress-bg{height:7px}
+      .cat-peek{display:none!important}
+      .cat-open-hint{display:inline-flex;align-items:center;justify-content:center;grid-column:1;justify-self:start;margin-right:8px;border:1px solid color-mix(in srgb,var(--cat-color) 38%,var(--border));background:color-mix(in srgb,var(--cat-color) 10%,var(--card2));color:var(--text);border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900}
       .cat-sun{width:116px;height:116px}
       .cat-orbit{width:68px;min-height:68px}
       .cat-orbit strong{font-size:17px}
@@ -2030,6 +2063,7 @@
         progBg.append(progFill);
         progWrap.append(progStats, progBg);
         card.append(progWrap);
+        card.append(el("span", "cat-open-hint", "פתח פרטים"));
 
         // Hover Peek Section (Interactive reveal)
         const peek = el("div", "cat-peek");
@@ -2055,7 +2089,9 @@
 
         // Click to open
         card.onclick = (e) => {
-          if (!e.target.closest('.cat-tools')) openCat(cat.id);
+          if (e.target.closest('.cat-tools')) return;
+          if (window.matchMedia("(max-width:820px)").matches) openCategoryDetailModal(cat.id);
+          else openCat(cat.id);
         };
 
         // Drag & Drop
@@ -4548,6 +4584,82 @@
         autoCloseSidebar();
       }
       render();
+    }
+
+    function openCategoryDetailModal(id){
+      const cat = state.cats.find(c => c.id === id);
+      if (!cat) return;
+      const allTasks = state.tasks.filter(t => t.catId === id);
+      const doneTasks = allTasks.filter(t => isDone(t));
+      const openTasks = allTasks.filter(t => !isDone(t));
+      const pct = allTasks.length ? Math.round((doneTasks.length / allTasks.length) * 100) : 0;
+      const catColor = cat.color || state.accent;
+
+      openModal(cat.name, "פרטי רשימה", (form) => {
+        form.style.setProperty("--cat-color", catColor);
+        const hero = el("div","cat-detail-hero");
+        hero.style.setProperty("--cat-color", catColor);
+        hero.append(el("div","cat-detail-name",cat.name));
+
+        const stats = el("div","cat-detail-stats");
+        [
+          [openTasks.length, "פתוחות"],
+          [doneTasks.length, "הושלמו"],
+          [pct + "%", "התקדמות"]
+        ].forEach(([value,label]) => {
+          const stat = el("div","cat-detail-stat");
+          stat.append(el("strong","",String(value)), el("span","",label));
+          stats.append(stat);
+        });
+
+        const progBg = el("div","cat-progress-bg");
+        const progFill = el("div","cat-progress-fill");
+        progFill.style.width = pct + "%";
+        progBg.append(progFill);
+        hero.append(stats, progBg);
+
+        const actions = el("div","cat-detail-actions");
+        const openBtn = el("button","btn primary","פתח רשימה");
+        openBtn.type = "button";
+        openBtn.onclick = () => { closeModal(); openCat(id); };
+        const editBtn = el("button","btn","ערוך");
+        editBtn.type = "button";
+        editBtn.onclick = () => { closeModal(); openCategoryModal(cat); };
+        const copyBtn = el("button","btn","שכפל");
+        copyBtn.type = "button";
+        copyBtn.onclick = () => { closeModal(); duplicateCategory(id); };
+        const deleteBtn = el("button","btn danger","מחק");
+        deleteBtn.type = "button";
+        deleteBtn.onclick = () => { closeModal(); deleteCategory(id); };
+        actions.append(openBtn, editBtn, copyBtn, deleteBtn);
+        hero.append(actions);
+        form.append(hero);
+
+        const upcomingTitle = el("div","cat-peek-title","משימות קרובות");
+        form.append(upcomingTitle);
+        const list = el("div","cat-detail-list");
+        const upcoming = openTasks
+          .slice()
+          .sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"))
+          .slice(0, 8);
+        if (!upcoming.length) {
+          list.append(el("div","meta","אין משימות פתוחות ברשימה הזו."));
+        } else {
+          upcoming.forEach(task => {
+            const row = el("button","cat-detail-task");
+            row.type = "button";
+            row.style.setProperty("--cat-color", task.color || catColor);
+            row.append(
+              el("span","cat-detail-dot"),
+              el("span","cat-detail-task-name",task.name),
+              el("span","cat-detail-task-date",task.due ? formatDateShort(task.due) : "בלי תאריך")
+            );
+            row.onclick = () => { closeModal(); openTaskModal(task); };
+            list.append(row);
+          });
+        }
+        form.append(list);
+      });
     }
 
     function openCat(id){
