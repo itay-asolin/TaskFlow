@@ -426,14 +426,26 @@
     .mobile-menu{display:none;position:fixed;top:14px;right:14px;z-index:45;box-shadow:var(--shadow)}
     
     @media(max-width:820px){
-      .shared-wheel{grid-template-columns:1fr;gap:10px;margin-inline:2px;padding:10px}
+      html,body{width:100%;max-width:100%;overflow-x:hidden}
+      #appView{width:100%;max-width:100%;overflow-x:hidden}
+      #topNav{display:none!important}
+      main{width:100%!important;max-width:none!important;margin:0!important;padding:14px 12px calc(92px + env(safe-area-inset-bottom))!important;overflow-x:hidden}
+      #content,.list,.grid{width:100%;max-width:100%;min-width:0}
+      .top{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px;padding-inline:0}
+      .top > div:first-child{padding-right:0!important;min-width:0}
+      .actions{display:grid;grid-template-columns:1fr auto;gap:8px;width:100%;min-width:0}
+      .actions .search{grid-column:1/-1;width:100%;max-width:none;min-width:0}
+      #addBtn{grid-column:1/-1;width:100%}
+      #topBarBtns{position:static!important;grid-column:1/-1;width:100%;max-width:none!important;display:grid;grid-template-columns:1fr 1fr;gap:8px;z-index:auto;left:auto!important;right:auto!important;top:auto!important}
+      #topBarBtns button,#themeToggleBtn,#briefBtn{width:100%;max-width:none!important;min-width:0!important}
+      .shared-wheel{grid-template-columns:1fr;gap:10px;margin:0 0 14px;padding:10px;width:100%;max-width:100%}
       .shared-wheel-controls{grid-template-columns:1fr 1fr}
       .shared-wheel-controls button{width:100%}
       .shared-wheel-actions{justify-content:flex-start}
       .meetings-grid{grid-template-columns:40px repeat(7,1fr)}
       .mg-hour-label{font-size:8px;padding:2px 3px 0 0}
       .app{flex-direction:column}
-      main{padding:50px 2px 80px}
+
       .mobile-menu{display:none!important}
       .mobile-menu.hidden{display:none!important}
       .top{align-items:stretch}
@@ -773,7 +785,10 @@
         min-height:300px;
       }
       .col-head{position:sticky;top:0;z-index:1;background:var(--surface)}
-      .task{padding:12px 10px}
+      .task{padding:12px 10px;width:100%;max-width:100%;min-width:0}
+      .task-list-card{width:100%;max-width:100%}
+      .list{gap:10px}
+      .card{width:100%;max-width:100%;min-width:0}
       .task-top{grid-template-columns:auto minmax(0,1fr);gap:8px}
       .task-tools{grid-column:2;justify-content:flex-start;margin-top:4px;width:max-content;max-width:100%}
       .chip,.tag,.est-badge,.repeat-badge{font-size:10px}
@@ -786,15 +801,7 @@
       .swatch{width:32px;height:32px}
       .nav{margin:0}
       .nav button{padding:11px 10px}
-      #topBarBtns{
-        position:fixed;
-        top:calc(10px + env(safe-area-inset-top))!important;
-        left:10px!important;
-        right:60px;
-        justify-content:flex-start;
-        max-width:calc(100vw - 78px);
-        z-index:44;
-      }
+
       #topBarBtns button{
         height:34px!important;
         min-height:34px;
@@ -5860,6 +5867,7 @@
   </script>
 </body>
 </html>
+
 
 
 
