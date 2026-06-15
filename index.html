@@ -71,73 +71,38 @@
     .show-pass{display:flex;align-items:center;gap:7px;margin-top:8px;color:var(--muted);font-size:12px;font-weight:700}
     .show-pass input{width:auto}
     .mode-note{font-size:12px;color:var(--faint);line-height:1.55;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:10px;margin-top:14px}
-    .app{display:flex;min-height:100vh;position:relative}
-    aside{position:sticky;top:0;height:100vh;width:270px;min-width:270px;background:var(--surface);border-left:1px solid var(--border);padding:18px;display:flex;flex-direction:column;overflow:auto;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s cubic-bezier(.4,0,.2,1),padding .28s cubic-bezier(.4,0,.2,1),opacity .28s;order:-1}
-    aside.collapsed{width:0;min-width:0;padding:0;overflow:hidden;opacity:0;pointer-events:none}
+    .app{display:flex;flex-direction:column;min-height:100vh;position:relative}
+
+    /* ── Top Nav (Desktop) ── */
+    #topNav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+    }
+    .top-nav-left { display: flex; align-items: center; gap: 16px; }
+    .top-nav-right { display: flex; align-items: center; gap: 16px; }
+    #topNav .logo { font-size: 24px; margin: 0; }
+    #topNav .nav {
+      margin: 0; display: flex; align-items: center; gap: 8px;
+    }
+    #topNav .nav button {
+      border: 1px solid transparent; background: transparent; color: var(--muted);
+      border-radius: 999px; padding: 9px 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: .2s;
+    }
+    #topNav .nav button:hover { background: var(--card); color: var(--text); }
+    #topNav .nav button.active { background: rgba(109,93,252,.14); color: var(--accent2); border-color: rgba(109,93,252,.35); }
+
     main{flex:1;min-width:0}
-    #sidebarTab{position:fixed;right:0;top:50%;transform:translateY(-50%);width:16px;height:64px;background:var(--accent);border-radius:8px 0 0 8px;z-index:40;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.5;transition:opacity .2s,width .2s}
-    #sidebarTab:hover{opacity:1;width:20px}
-    #sidebarTab.hidden{display:none!important}
-    #sidebarOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:52;transition:opacity .25s;pointer-events:none}
-    #sidebarOverlay.show{display:block;pointer-events:auto}
-    #sidebarTab svg{fill:#fff;width:8px;height:8px}
-    .user{font-size:12px;color:var(--faint);margin-top:2px;word-break:break-word}
-    .nav{margin:22px 0}
-    .nav button,.cat-btn{width:100%;border:1px solid transparent;background:transparent;color:var(--muted);border-radius:var(--rs);padding:9px 10px;margin-bottom:4px;text-align:right;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .nav button:hover,.cat-btn:hover{background:var(--card);border-color:var(--border);color:var(--text)}
-    .nav button.active,.cat-btn.active{background:rgba(109,93,252,.14);border-color:rgba(109,93,252,.35);color:var(--accent2)}
-    .cat-main{display:flex;align-items:center;gap:8px;min-width:0}
-    .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
-    .truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .count{font-size:11px;color:var(--faint);background:var(--card2);padding:1px 7px;border-radius:999px}
-    .side-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:14px}
-    /* Mini-calendar בסיידבר */
-    .mini-cal{margin:0 0 10px;border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;background:var(--card)}
-    .mini-cal-head{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--card2);border-bottom:1px solid var(--border)}
-    .mini-cal-title{font-size:11px;font-weight:900;color:var(--muted)}
-    .mini-cal-nav{border:0;background:transparent;color:var(--faint);cursor:pointer;padding:1px 4px;border-radius:4px;font-size:13px;line-height:1}
-    .mini-cal-nav:hover{color:var(--text);background:var(--card)}
-    .mini-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;padding:4px}
-    .mini-day-name{font-size:8.5px;font-weight:900;color:var(--faint);text-align:center;padding:2px 0}
-    .mini-day{font-size:10.5px;font-weight:700;text-align:center;padding:3px 1px;border-radius:4px;cursor:pointer;color:var(--muted);position:relative;line-height:1.3}
-    .mini-day:hover{background:var(--card2);color:var(--text)}
-    .mini-day.today{background:var(--accent);color:#fff;font-weight:900}
-    .mini-day.selected{outline:1.5px solid var(--accent);color:var(--accent2)}
-    .mini-day.other-month{opacity:.28}
-    .mini-day.has-items::after{content:"";position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--accent2)}
-    .mini-day.today::after{background:#fff}
-    .day.drag-drop-hover{
-      background:rgba(109,93,252,.18)!important;
-      border-color:var(--accent)!important;
-      box-shadow:inset 0 0 0 2px var(--accent)!important;
-    }
-    .day-task[draggable="true"]:hover{ opacity:1!important; box-shadow:0 2px 8px rgba(0,0,0,.25); }
-    .day-task.dragging{ opacity:.35!important; transform:scale(.96); }
-    /* Reschedule popup (long-press mobile) */
-    #reschedulePopup{
-      position:fixed;inset:0;z-index:80;display:none;
-      align-items:flex-end;justify-content:center;
-      background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
-    }
-    #reschedulePopup.show{ display:flex; }
-    #rescheduleCard{
-      width:min(420px,100vw);background:var(--surface);
-      border:1px solid var(--border);border-radius:22px 22px 0 0;
-      padding:20px 20px 32px;box-shadow:var(--shadow);
-      direction:rtl;text-align:right;
-      animation:slideUp .28s cubic-bezier(.34,1.2,.64,1);
-    }
-    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    #rescheduleCard h3{ margin:0 0 6px;font-size:17px;font-weight:900; }
-    #rescheduleCard p{ margin:0 0 14px;font-size:12px;color:var(--muted); }
-    #reschedulePicker{ width:100%;margin-bottom:12px; }
-    #rescheduleCancel{
-      width:100%;border:1px solid var(--border);background:var(--card2);
-      color:var(--muted);border-radius:12px;padding:10px;font-weight:800;
-      font-family:inherit;cursor:pointer;font-size:13px;
-    }
-    .day.drag-selecting{background:rgba(109,93,252,.18)!important;border-color:var(--accent)!important;user-select:none;}
-    main{padding:24px;min-width:0}
+    main{padding:24px;min-width:0; max-width: 1400px; margin: 0 auto; width: 100%;}
+    
     .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap}
     h1{font-size:26px;line-height:1.1;margin:0;font-weight:900}
     .top p{margin:5px 0 0;color:var(--faint);font-size:13px}
@@ -147,27 +112,39 @@
     #briefBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
     #topBarBtns .theme-toggle{height:36px;min-height:36px;min-width:114px;padding:4px}
     .search{max-width:380px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+    
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow); transition: .2s;}
-    .cat-card{position:relative;overflow:hidden;}
-    .cat-card.over{outline:2px dashed var(--accent); outline-offset: -2px;}
-    .cat-card:hover{border-color:var(--accent)}
-    .stripe{position:absolute;top:0;right:0;left:0;height:4px}
-    .cat-title{font-size:18px;font-weight:900;margin:4px 0 3px}
+    
+    /* Sun Orbit Category Cards */
+    .cat-card{position:relative;overflow:hidden;min-height:360px;padding:18px;display:flex;flex-direction:column;gap:14px;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 34%),var(--card)}
+    .cat-card.over{outline:2px dashed var(--accent);outline-offset:-2px}
+    .cat-card:hover{border-color:color-mix(in srgb,var(--accent) 70%,var(--border));box-shadow:0 18px 44px rgba(0,0,0,.24)}
+    .cat-card::before,.cat-card::after{content:"";position:absolute;inset:auto;border:1px solid color-mix(in srgb,var(--accent) 24%,transparent);border-radius:50%;pointer-events:none}
+    .cat-card::before{width:250px;height:250px;right:50%;top:58px;transform:translateX(50%)}
+    .cat-card::after{width:180px;height:180px;right:50%;top:93px;transform:translateX(50%);border-style:dashed;opacity:.72}
+    .cat-tools{position:relative;z-index:3;display:flex;justify-content:flex-end;gap:4px;min-height:34px}
+    .cat-solar{position:relative;z-index:2;min-height:222px;display:grid;place-items:center;margin-top:-2px}
+    .cat-sun{width:126px;height:126px;border-radius:50%;display:grid;place-items:center;text-align:center;padding:14px;background:radial-gradient(circle at 34% 26%,#fff8 0 14%,transparent 15%),linear-gradient(145deg,var(--cat-color),color-mix(in srgb,var(--cat-color) 58%,#111));box-shadow:0 0 0 10px color-mix(in srgb,var(--cat-color) 16%,transparent),0 18px 36px color-mix(in srgb,var(--cat-color) 32%,transparent);color:#fff;border:1px solid color-mix(in srgb,#fff 44%,var(--cat-color));overflow:hidden; cursor: pointer;}
+    .cat-sun-date{font-size:11px;font-weight:900;opacity:.88;line-height:1;margin-bottom:5px}
+    .cat-title{font-size:18px;font-weight:900;margin:0;line-height:1.2;max-width:106px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 12px rgba(0,0,0,.35)}
+    .cat-orbit{position:absolute;width:74px;min-height:74px;border-radius:50%;display:grid;place-items:center;text-align:center;padding:9px 7px;background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid color-mix(in srgb,var(--cat-color) 44%,var(--border));box-shadow:0 10px 24px rgba(0,0,0,.2);backdrop-filter:blur(10px)}
+    .cat-orbit strong{display:block;color:var(--text);font-size:20px;line-height:1;font-weight:900}
+    .cat-orbit span{display:block;color:var(--faint);font-size:9px;font-weight:900;margin-top:5px;white-space:nowrap;max-width:58px;overflow:hidden;text-overflow:ellipsis}
+    .cat-orbit:nth-child(2){top:6px;right:50%;transform:translateX(50%)}
+    .cat-orbit:nth-child(3){top:74px;right:calc(50% - 142px)}
+    .cat-orbit:nth-child(4){top:74px;right:calc(50% + 68px)}
+    .cat-orbit:nth-child(5){top:152px;right:50%;transform:translateX(50%)}
+
     .meta{font-size:12px;color:var(--faint)}
-    .cat-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}
-    .cat-stat{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;min-width:0}
-    .cat-stat strong{display:block;color:var(--text);font-size:18px;line-height:1;font-weight:900}
-    .cat-stat span{display:block;color:var(--faint);font-size:10px;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .taskListHome{position:relative;z-index:3;margin-top:auto;min-height:42px;display:grid;gap:6px}
     .agenda-list{display:grid;gap:10px}
     .agenda-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:var(--rs);border-right:4px solid var(--accent);min-width:0}
     .agenda-title{font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
     .agenda-date{display:inline-flex;align-items:center;gap:5px;color:var(--faint);font-size:12px;font-weight:900;white-space:nowrap;text-align:left;direction:ltr}
     .agenda-date.today{color:var(--danger);direction:rtl}
     .agenda-bang{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:rgba(239,68,68,.16);color:var(--danger);border:1px solid rgba(239,68,68,.38);font-size:12px;font-weight:900;line-height:1}
-    .pills{display:grid;grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:6px;margin-top:13px}
-    .pill{background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);padding:8px;text-align:center;color:var(--muted);font-size:11px;font-weight:700}
-    .pill strong{display:block;color:var(--text);font-size:18px}
+    
     .kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;align-items:start}
     .col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);min-height:230px;overflow:hidden}
     .col-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);font-weight:900}
@@ -222,7 +199,6 @@
     .day-task.is-meeting::after{content:"🤝";font-size:8px;position:absolute;bottom:1px;left:3px;opacity:.7}
     .day-more{border:0;background:transparent!important;color:var(--faint)!important;text-align:right;font-size:9.5px;font-weight:800;cursor:pointer;padding:0 2px;opacity:.8}
     
-    /* Settings fixes */
     .settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:20px;text-align:right;min-width:0}
     .settings .card{display:flex;flex-direction:column;gap:12px;min-width:0;overflow:hidden}
     .settings h3{margin:0 0 4px 0; font-size:18px;}
@@ -263,12 +239,10 @@
     .cal-event.is-meeting::before{content:"";display:none}
     .cal-event:hover{opacity:.85;z-index:3}
     .cal-event.conflict{outline:2px solid var(--danger)!important;outline-offset:-1px}
-    .conflict-badge{background:rgba(239,68,68,.18);color:var(--danger);font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;border:1px solid rgba(239,68,68,.35)}
     .day-col{position:relative;border:1px solid var(--border);border-radius:var(--rs);background:var(--card);min-height:840px}
     .hour-line{position:absolute;left:0;right:0;border-top:1px solid var(--border);height:0}
     .hour-label{height:56px;display:flex;align-items:flex-start;justify-content:flex-end;padding:4px 6px 0;font-size:10px;color:var(--faint);font-weight:700}
     .ics-section{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .event-form-modal input[type=time]{direction:ltr;text-align:left}
     .tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;border-radius:999px;padding:2px 7px;background:var(--card2);border:1px solid var(--border);color:var(--muted);cursor:pointer}
     .tag:hover{border-color:var(--accent);color:var(--accent2)}
     .tag.active-tag{background:rgba(109,93,252,.18);border-color:var(--accent);color:var(--accent2)}
@@ -388,23 +362,19 @@
     .toggle-switch input:checked + .toggle-track{background:var(--accent);border-color:var(--accent)}
     .toggle-switch input:checked + .toggle-track .toggle-thumb{right:calc(100% - 18px);background:#fff}
     .mobile-menu{display:none;position:fixed;top:14px;right:14px;z-index:45;box-shadow:var(--shadow)}
-    .sidebar-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-    .sidebar-close{flex:0 0 auto}
+    
     @media(max-width:820px){
       .meetings-grid{grid-template-columns:40px repeat(7,1fr)}
       .mg-hour-label{font-size:8px;padding:2px 3px 0 0}
       .app{flex-direction:column}
-      aside{position:fixed;right:0;top:0;bottom:0;width:min(86vw,320px)!important;min-width:0!important;padding:18px!important;overflow:auto!important;opacity:1!important;transform:translateX(110%);pointer-events:auto!important;z-index:55;transition:transform .28s cubic-bezier(.4,0,.2,1)}
-      aside.open{transform:translateX(0)!important}
       main{padding:50px 2px 80px}
-      .mobile-menu{display:inline-flex}
-      .mobile-menu.hidden{display:none}
-      .sidebar-close{display:none}
+      .mobile-menu{display:none!important}
+      .mobile-menu.hidden{display:none!important}
       .top{align-items:stretch}
       .actions{width:100%}
       .search{max-width:none;flex:1 1 160px}
       .grid{grid-template-columns:1fr;gap:14px}
-      .cat-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .cat-solar{min-height:220px}
       .agenda-row{grid-template-columns:1fr auto;padding:10px 12px}
       .agenda-title{font-size:13px}
       .cal-toolbar{display:grid;grid-template-columns:1fr;gap:6px;align-items:stretch}
@@ -488,17 +458,6 @@
         background: rgba(109,93,252,.18);
         border-radius: 8px;
         padding: 2px 8px;
-      }
-      /* Mobile menu button — move to top-left, smaller */
-      .mobile-menu {
-        top: 10px;
-        right: 10px;
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: var(--surface) !important;
-        border-color: var(--border) !important;
-        box-shadow: 0 2px 10px rgba(0,0,0,.3);
       }
       /* Tighter top bar */
       .top { margin-bottom: 10px; }
@@ -713,7 +672,7 @@
         border-radius:12px;
         box-shadow:0 8px 22px rgba(0,0,0,.22);
       }
-      .btn,.nav button,.cat-btn,input,select,textarea{min-height:42px}
+      .btn,.nav button,input,select,textarea{min-height:42px}
       .mini{
         min-width:32px;
         min-height:32px;
@@ -727,12 +686,12 @@
         box-shadow:0 8px 24px rgba(0,0,0,.18);
       }
       .grid{gap:12px}
-      .cat-card{padding:14px}
-      .cat-title{font-size:17px}
-      .cat-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-      .cat-stat{padding:7px 4px}
-      .cat-stat strong{font-size:16px}
-      .cat-stat span{font-size:9px}
+      .cat-card{padding:14px;min-height:340px}
+      .cat-title{font-size:16px}
+      .cat-sun{width:116px;height:116px}
+      .cat-orbit{width:68px;min-height:68px}
+      .cat-orbit strong{font-size:17px}
+      .cat-orbit span{font-size:8px;max-width:52px}
       .kanban{
         display:flex;
         gap:12px;
@@ -768,22 +727,8 @@
       .settings .btn{min-width:0}
       .swatches{grid-template-columns:repeat(6,34px)}
       .swatch{width:32px;height:32px}
-      aside{
-        width:min(88vw,340px)!important;
-        padding:calc(16px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom))!important;
-      }
-      .sidebar-top{position:sticky;top:0;background:var(--surface);z-index:2;padding-bottom:8px}
-      .nav{margin:14px 0}
-      .nav button,.cat-btn{padding:11px 10px}
-      #sidebarMiniCal{display:none}
-      #mobileMenu.mobile-menu{
-        top:calc(10px + env(safe-area-inset-top));
-        right:10px;
-        width:42px!important;
-        height:42px!important;
-        border-radius:14px;
-        z-index:57;
-      }
+      .nav{margin:0}
+      .nav button{padding:11px 10px}
       #topBarBtns{
         position:fixed;
         top:calc(10px + env(safe-area-inset-top))!important;
@@ -1175,49 +1120,29 @@
   </section>
 
   <section id="appView" class="app hidden">
-	<button id="mobileMenu" class="btn icon mobile-menu" aria-label="פתח תפריט">☰</button>
+	
+  <header id="topNav" class="top-nav">
+    <div class="top-nav-left">
+      <div class="logo">Task<span>Flow</span></div>
+      <div id="userLabel" class="user" style="font-size:12px; color:var(--faint);"></div>
+    </div>
+    <nav class="nav" aria-label="ניווט ראשי">
+      <button data-view="home" class="active" type="button"><span>🏠 רשימות</span></button>
+      <button data-view="all" type="button"><span>✅ משימות</span></button>
+      <button data-view="calendar" type="button"><span>📅 לוח שנה</span></button>
+      <button data-view="meetings" type="button"><span>🤝 פגישות</span></button>
+      <button data-view="settings" type="button"><span>⚙️ הגדרות</span></button>
+    </nav>
+    <div class="top-nav-right">
+      <button id="logoutBtnTop" class="btn danger" type="button">התנתק</button>
+    </div>
+    <div id="catNav" class="hidden"></div>
+    <div id="sharedNav" class="hidden"></div>
+    <div id="sidebarMiniCal" class="hidden"></div>
+  </header>
+
   <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.5</div>
-  <div id="sidebarTab" title="פתח/סגור תפריט" aria-label="פתח תפריט">
-    <svg viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg"><path d="M7 1L1 7l6 6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
-  </div>
-    <aside id="sidebar">
-      <div class="sidebar-top">
-        <div>
-          <div class="logo">Task<span>Flow</span></div>
-          <div id="userLabel" class="user"></div>
-        </div>
-        <button id="sidebarClose" class="btn icon sidebar-close" type="button" aria-label="סגור תפריט">×</button>
-      </div>
-      <nav class="nav" aria-label="ניווט ראשי">
-        <button data-view="home" class="active" type="button"><span>🏠 רשימות</span></button>
-        <button data-view="all" type="button"><span>✅ כל המשימות</span></button>
-        <button data-view="calendar" type="button"><span>📅 לוח שנה</span></button>
-        <button data-view="meetings" type="button"><span>🤝 פגישות ושיעורים</span></button>
-        <button data-view="settings" type="button"><span>⚙️ הגדרות</span></button>
-      </nav>
-      <div id="sidebarMiniCal"></div>
-      <div class="row" style="justify-content:space-between;margin-bottom:8px">
-        <strong style="font-size:12px;color:var(--faint)">רשימות</strong>
-        <button id="quickCat" class="btn icon" type="button" aria-label="רשימה חדשה">+</button>
-      </div>
-      <div id="catNav"></div>
-      <div id="sharedNav"></div>
-      <div class="side-bottom">
-        <div class="row" style="justify-content:space-between;margin-bottom:10px">
-          <span class="meta" style="font-size:12px">סגור צד אוטומטית</span>
-          <label class="toggle-switch" title="כשמופעל, הסיידבר נסגר אחרי בחירה">
-            <input type="checkbox" id="autoCollapseToggle" />
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-          </label>
-        </div>
-        <div class="row" style="justify-content:space-between">
-          <span class="meta">התקדמות כוללת</span><strong id="globalPct">0%</strong>
-        </div>
-        <div class="bar"><span id="globalBar" style="width:0%"></span></div>
-        <button id="logoutBtn" class="btn danger" type="button" style="width:100%;margin-top:14px">התנתק</button>
-        <div style="margin-top:10px;text-align:center;font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.06em;opacity:.7">v2.5</div>
-      </div>
-    </aside>
+
     <main>
       <div class="top">
         <div style="padding-right:8px">
@@ -1236,7 +1161,6 @@
       </div>
       <div id="content"></div>
     </main>
-    <!-- Bottom Nav Bar (mobile only) -->
     <nav id="bottomNav" aria-label="ניווט תחתון">
       <button class="bnav-btn active" data-bnav="home" type="button">
         <span class="bnav-icon">🏠</span>
@@ -1261,7 +1185,6 @@
     </nav>
   </section>
 
-  <!-- Brief Panel -->
   <div id="briefOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:55;opacity:0;transition:opacity .3s"></div>
   <div id="briefPanel" style="display:none;position:fixed;left:12px;top:56px;width:min(380px,calc(100vw - 24px));max-height:calc(100vh - 80px);overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);z-index:56;direction:rtl;text-align:right;transform:translateY(-18px) scale(.96);opacity:0;transition:transform .32s cubic-bezier(.34,1.3,.64,1),opacity .28s ease">
     <div style="padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -1287,7 +1210,6 @@
     </div>
   </div>
 
-  <!-- Reschedule popup (long-press / mobile) -->
   <div id="reschedulePopup">
     <div id="rescheduleCard">
       <h3 id="rescheduleTitle">📅 העבר לתאריך</h3>
@@ -1346,7 +1268,6 @@
       <form id="modalForm"></form>
     </div>
   </div>
-  <div id="sidebarOverlay"></div>
   <div id="toast" class="toast" aria-live="polite"></div>
   <div id="kbdHint" class="kbd-hint">
     <kbd>N</kbd> יצירה חדשה &nbsp; <kbd>Esc</kbd> סגור &nbsp; <kbd>?</kbd> עזרה
@@ -1468,11 +1389,11 @@
         }
       };
       $("localBtn").onclick = () => enterLocal();
-      $("logoutBtn").onclick = logout;
-      $("mobileMenu").onclick = () => setSidebarOpen(!isMobileSidebar() ? true : !$("sidebar").classList.contains("open"));
-      $("sidebarClose").onclick = () => setSidebarOpen(false);
+      
+      // Update logout functionality for the new top nav button
+      if($("logoutBtnTop")) $("logoutBtnTop").onclick = logout;
+      
       $("themeToggleBtn").onclick = () => {
-        // זוגות בהיר/כהה לפי משפחת צבע
         const pairs = {
           "sky": "light", "light": "sky",
           "forest": "green", "green": "forest",
@@ -1481,69 +1402,16 @@
         state.theme = pairs[state.theme] || (state.theme.endsWith("dark") ? "light" : "dark");
         save(); render();
       };
-      const isMobileSidebar = () => window.matchMedia("(max-width:820px)").matches;
 
-      // overlay לסגירה בלחיצה מחוץ לסיידבר (מובייל)
-      const sidebarOverlay = document.getElementById("sidebarOverlay");
-      sidebarOverlay.onclick = () => setSidebarOpen(false);
-
-      function updateSidebarUI(){
-        const mobile = isMobileSidebar();
-        const sidebar = $("sidebar");
-        const isOpen = mobile ? sidebar.classList.contains("open") : !sidebar.classList.contains("collapsed");
-        $("sidebarTab").classList.toggle("hidden", mobile || isOpen);
-        $("mobileMenu").classList.toggle("hidden", !mobile);
-        if (mobile) $("mobileMenu").textContent = isOpen ? "×" : "☰";
-        sidebarOverlay.classList.toggle("show", mobile && isOpen);
-      }
-
-      function setSidebarOpen(open){
-        const sidebar = $("sidebar");
-        if (isMobileSidebar()) {
-          sidebar.classList.toggle("open", open);
-          sidebar.classList.remove("collapsed");
-        } else {
-          sidebar.classList.toggle("collapsed", !open);
-          sidebar.classList.remove("open");
-          localStorage.setItem("taskflow_sidebar_collapsed", String(!open));
-        }
-        updateSidebarUI();
-      }
-
-      // שחזר מצב סיידבר ב-desktop
-      if (!isMobileSidebar() && localStorage.getItem("taskflow_sidebar_collapsed") === "true") {
-        $("sidebar").classList.add("collapsed");
-      }
-
-      $("sidebarTab").onclick = () => setSidebarOpen(true);
-      window.addEventListener("resize", () => {
-        if (!isMobileSidebar()) {
-          $("sidebar").classList.remove("open");
-          $("sidebar").classList.toggle("collapsed", localStorage.getItem("taskflow_sidebar_collapsed") === "true");
-        } else {
-          $("sidebar").classList.remove("collapsed");
-        }
-        updateSidebarUI();
-      });
-      updateSidebarUI();
       $("modalClose").onclick = closeModal;
       $("modalBack").onclick = (e) => { if (e.target === $("modalBack")) closeModal(); };
-      $("quickCat").onclick = () => openCategoryModal();
       $("addBtn").onclick = () => {
         if (state.currentView === "home") openCategoryModal();
         else if (state.currentView === "kanban") openTaskModal();
       };
       $("searchBox").oninput = (e) => { state.search = e.target.value.trim(); render(); };
-      const savedAC = localStorage.getItem("taskflow_autoCollapse");
-      if (savedAC !== null) state.autoCollapse = savedAC === "true";
-      $("autoCollapseToggle").checked = !!state.autoCollapse;
-      $("autoCollapseToggle").onchange = (e) => {
-        state.autoCollapse = e.target.checked;
-        localStorage.setItem("taskflow_autoCollapse", state.autoCollapse);
-      };
+      
       document.querySelectorAll(".nav button").forEach(btn => btn.onclick = () => navigate(btn.dataset.view));
-
-      // Bottom nav bar wiring
       document.querySelectorAll(".bnav-btn").forEach(btn => {
         btn.onclick = () => navigate(btn.dataset.bnav);
       });
@@ -1662,7 +1530,7 @@
     function showApp(label){
       $("authView").classList.add("hidden");
       $("appView").classList.remove("hidden");
-      $("userLabel").textContent = label || "";
+      if($("userLabel")) $("userLabel").textContent = label || "";
       
       if (state.currentView === "settings") {
         state.currentView = "home";
@@ -1734,8 +1602,6 @@
       activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
       setActiveListPreference(activeList);
 
-      // אל תאפס state כאן — handleAuthState כבר טען מ-localStorage
-      // רק אם state ריק לגמרי — טען
       if (!state.cats?.length && !state.tasks?.length) {
         loadLocal();
       }
@@ -1746,12 +1612,10 @@
 
       unsub = onSnapshot(userDoc, (docSnap) => {
         if (!docSnap.exists()) return;
-        // התעלם משינויים שמקורם בטאב הנוכחי (hasPendingWrites = שמירה שלנו עצמנו)
         if (docSnap.metadata.hasPendingWrites) return;
         const cloudData = docSnap.data();
         const cloudState = cloudData.state || {};
         const cloudTs = cloudData.updatedAt?.toMillis?.() || 0;
-        // בדוק אם הענן עדכני יותר מה-local
         let localTs = 0;
         try {
           const localRaw = localStorage.getItem(localKey);
@@ -1760,8 +1624,7 @@
             localTs = localParsed._savedAt || 0;
           }
         } catch {}
-        if (cloudTs <= localTs) return; // local עדכני יותר — לא נוגעים
-        // הענן עדכני יותר — מכשיר אחר שמר — טען את השינויים
+        if (cloudTs <= localTs) return;
         suppressSave = true;
         mergeState(cloudState, false);
         saveLocalWithTimestamp(cloudTs);
@@ -1902,7 +1765,6 @@
         const raw = localStorage.getItem(localKey);
         if (raw) {
           const data = JSON.parse(raw);
-          // אם האירועים נשמרו בנפרד (בגלל overflow) — מזג אותם חזרה
           const evRaw = localStorage.getItem(localKey + "_events");
           if (evRaw && (!data.events || !data.events.length)) {
             try { data.events = JSON.parse(evRaw); } catch {}
@@ -1930,7 +1792,6 @@
       const currentDoc = activeDoc;
 
       if (currentListType === "private" || !cloudReady) {
-        // נסה לשמור הכל — אם נגמר מקום, שמור בלי אירועים ושמור אירועים בנפרד
         const trySet = (key, val) => {
           try { localStorage.setItem(key, JSON.stringify(val)); return true; }
           catch(e) { return false; }
@@ -1938,12 +1799,10 @@
         const payloadWithTs = { ...payload, _savedAt: Date.now() };
         const ok = trySet(localKey, payloadWithTs);
         if (!ok) {
-          // localStorage מלא — שמור אירועים בנפרד ונתונים בלעדיהם
           const noEvents = { ...payloadWithTs, events: [] };
           trySet(localKey, noEvents);
           trySet(localKey + "_events", payload.events || []);
         } else {
-          // הצלחנו — נקה key עזר ישן אם קיים
           try { localStorage.removeItem(localKey + "_events"); } catch {}
         }
       }
@@ -1974,179 +1833,20 @@
       applyTheme();
       prepareDailyAgendaForToday(true);
       setupAgendaDropBubble();
-      renderSidebarMiniCal();
-      renderNav();
+      
+      document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === state.currentView));
+      document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === state.currentView));
+      
       $("searchBox").classList.toggle("hidden", !["all","kanban","calendar","meetings"].includes(state.currentView));
       $("addBtn").classList.toggle("hidden", state.currentView === "all" || state.currentView === "calendar" || state.currentView === "meetings" || state.currentView === "settings");
+      
       if (state.currentView === "home") renderHome();
       if (state.currentView === "kanban") renderKanban();
       if (state.currentView === "all") renderAll();
       if (state.currentView === "calendar") renderCalendar();
       if (state.currentView === "meetings") renderMeetings();
       if (state.currentView === "settings") renderSettings();
-      updateProgress();
       checkTaskReminders(false);
-    }
-
-    function renderSidebarMiniCal(){
-      const wrap = $("sidebarMiniCal");
-      if (!wrap) return;
-      if (!state.calDate) state.calDate = toDateKey(new Date());
-      const anchor = parseDate(state.calDate);
-      // אם אנחנו לא בלוח שנה — הצג את החודש הנוכחי
-      const displayDate = state.currentView === "calendar" ? anchor : new Date();
-      let miniYear = displayDate.getFullYear();
-      let miniMonth = displayDate.getMonth();
-
-      function buildMiniCal(year, month){
-        const mc = el("div","mini-cal");
-        const head = el("div","mini-cal-head");
-        const prev = el("button","mini-cal-nav","‹");
-        prev.type = "button";
-        prev.onclick = () => { month--; if(month<0){month=11;year--;} buildAndSet(year,month); };
-        const title = el("span","mini-cal-title",
-          new Date(year,month,1).toLocaleDateString("he-IL",{month:"long",year:"numeric"}));
-        const next = el("button","mini-cal-nav","›");
-        next.type = "button";
-        next.onclick = () => { month++; if(month>11){month=0;year++;} buildAndSet(year,month); };
-        head.append(prev, title, next);
-        mc.append(head);
-
-        const grid = el("div","mini-cal-grid");
-        ["א","ב","ג","ד","ה","ו","ש"].forEach(d => grid.append(el("div","mini-day-name",d)));
-
-        const first = new Date(year,month,1);
-        const last = new Date(year,month+1,0);
-        const todayKey = toDateKey(new Date());
-        const selectedKey = state.calDate;
-
-        // ימים מהחודש הקודם
-        for (let i=0; i<first.getDay(); i++){
-          const d = new Date(year,month, i-first.getDay()+1);
-          const dayEl = el("div","mini-day other-month", String(d.getDate()));
-          grid.append(dayEl);
-        }
-        for (let d=1; d<=last.getDate(); d++){
-          const date = new Date(year,month,d);
-          const dk = toDateKey(date);
-          const { tasks, events } = allCalItems(dk);
-          const hasItems = tasks.length + events.length > 0;
-          let cls = "mini-day";
-          if (dk === todayKey) cls += " today";
-          else if (dk === selectedKey) cls += " selected";
-          if (hasItems) cls += " has-items";
-          const dayEl = el("div", cls, String(d));
-          dayEl.onclick = () => {
-            state.calDate = dk;
-            if (state.currentView !== "calendar") { state.currentView = "calendar"; state.calView = "day"; }
-            else state.calView = "day";
-            render();
-          };
-          grid.append(dayEl);
-        }
-        mc.append(grid);
-        return mc;
-      }
-
-      function buildAndSet(y,m){
-        miniYear = y; miniMonth = m;
-        wrap.replaceChildren(buildMiniCal(y,m));
-      }
-
-      wrap.replaceChildren(buildMiniCal(miniYear, miniMonth));
-    }
-
-    function renderNav(){
-      document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === state.currentView));
-      document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === state.currentView));
-      const wrap = $("catNav");
-      wrap.replaceChildren();
-
-      if (activeList.type === "shared") {
-        const backBtn = el("button", "cat-btn", "← חזור למרחב הפרטי");
-        backBtn.style.color = "var(--accent2)";
-        backBtn.style.marginBottom = "10px";
-        backBtn.style.background = "rgba(109,93,252,.1)";
-        backBtn.onclick = () => { subscribePrivateList(); navigate("home"); };
-        wrap.append(backBtn);
-      }
-
-      state.cats.forEach(cat => {
-        const btn = el("button","cat-btn" + (state.currentCatId === cat.id && state.currentView === "kanban" ? " active" : ""));
-        btn.type = "button";
-        const main = el("span","cat-main");
-        const dot = el("span","dot"); dot.style.background = cat.color;
-        main.append(dot, el("span","truncate",cat.name));
-        const rightSide = el("span","row"); rightSide.style.cssText="gap:4px;align-items:center";
-        rightSide.append(el("span","count", String(state.tasks.filter(t => t.catId === cat.id).length)));
-        
-        const dup = el("button","mini","⧉"); dup.type="button"; dup.title="שכפל רשימה";
-        dup.style.cssText="font-size:13px;padding:2px 5px;border-radius:5px;";
-        dup.onclick = (e) => { e.stopPropagation(); duplicateCategory(cat.id); };
-
-        const pencil = el("button","mini","✎"); pencil.type="button"; pencil.title="ערוך רשימה";
-        pencil.style.cssText="font-size:13px;padding:2px 5px;border-radius:5px;";
-        pencil.onclick = (e) => { e.stopPropagation(); openCategoryModal(cat); };
-        
-        const trash = el("button","mini","🗑"); trash.type="button"; trash.title="מחק רשימה";
-        trash.style.cssText="font-size:13px;padding:2px 5px;border-radius:5px;";
-        trash.onclick = (e) => { e.stopPropagation(); deleteCategory(cat.id); };
-
-        rightSide.append(dup, pencil, trash);
-        btn.append(main, rightSide);
-        btn.onclick = () => openCat(cat.id);
-        wrap.append(btn);
-      });
-
-      const sharedWrap = $("sharedNav");
-      sharedWrap.replaceChildren();
-      const knownShared = JSON.parse(localStorage.getItem("taskflow_knownShared") || "[]");
-      
-      const hdr = el("div","shared-nav-header");
-      hdr.append(el("span","shared-nav-title","מרחבים משותפים"));
-      const addBtn2 = el("button","shared-nav-add","+");
-      addBtn2.title = "הצטרף עם קוד שיתוף";
-      addBtn2.onclick = joinSharedList;
-      hdr.append(addBtn2);
-      sharedWrap.append(hdr);
-
-      knownShared.forEach(item => {
-        const isActive = activeList.type === "shared" && activeList.id === item.id;
-        const btn = el("button","cat-btn shared" + (isActive ? " active" : ""));
-        btn.type = "button";
-        const main = el("span","cat-main");
-        const dot = el("span","dot"); 
-        dot.style.background = "transparent";
-        dot.style.border = "2px solid var(--accent)";
-        dot.style.boxSizing = "border-box";
-        
-        const kindStr = item.kind === "task" ? "משימה" : item.kind === "category" ? "רשימה" : "רשימה";
-        main.append(dot, el("span","truncate", `${kindStr}: ${item.name || item.id}`));
-        
-        const rightSide = el("span","row"); rightSide.style.cssText="gap:4px;align-items:center";
-        
-        const remove = el("button","mini","🗑"); remove.type="button"; remove.title="הסר שיתוף";
-        remove.style.cssText="font-size:13px;padding:2px 5px;border-radius:5px;";
-        remove.onclick = (e) => {
-          e.stopPropagation();
-          if(!confirm("להסיר את המרחב המשותף הזה מהתפריט שלך?")) return;
-          let known = JSON.parse(localStorage.getItem("taskflow_knownShared") || "[]");
-          known = known.filter(k => k.id !== item.id);
-          localStorage.setItem("taskflow_knownShared", JSON.stringify(known));
-          if (isActive) { subscribePrivateList(); navigate("home"); }
-          else renderNav();
-        };
-
-        rightSide.append(isActive ? el("span","count","פעיל") : el("span","count","↗"), remove);
-        btn.append(main, rightSide);
-        btn.onclick = async () => {
-          if (!isActive) {
-            await subscribeSharedList(item.id);
-            navigate("home");
-          }
-        };
-        sharedWrap.append(btn);
-      });
     }
 
     function renderHome(){
@@ -2159,70 +1859,53 @@
         $("pageSub").append(shareSpan);
       }
       $("addBtn").textContent = "רשימה חדשה";
+      
       const grid = el("div","grid");
       const todayStr = toDateKey(new Date());
       if (!state.cats.length) grid.append(empty("אין רשימות עדיין"));
+      
       state.cats.forEach(cat => {
         const card = el("article","card cat-card");
+        card.style.setProperty('--cat-color', cat.color || state.accent);
         
         if (activeList.type === "shared") {
           card.style.backgroundColor = state.accent + "1A";
           card.style.borderColor = state.accent;
         }
 
-        const stripe = el("div","stripe"); stripe.style.background = cat.color;
-        const tools = el("div","row"); tools.style.justifyContent = "flex-end";
+        const tools = el("div","cat-tools");
         const dup = tool("שכפל רשימה", "⧉", () => duplicateCategory(cat.id));
         const edit = tool("ערוך רשימה", "✎", () => openCategoryModal(cat));
         const del = tool("מחק רשימה", "🗑", () => deleteCategory(cat.id));
         tools.append(dup, edit, del);
-        card.append(stripe, tools, el("div","cat-title",cat.name));
         
+        card.append(tools);
+
+        // -- Solar/Orbit Design --
+        const solar = el("div","cat-solar");
+        
+        // Sun (Center)
+        const sun = el("div","cat-sun");
+        const d = new Date();
+        const dateStr = String(d.getDate()).padStart(2, '0') + "/" + String(d.getMonth()+1).padStart(2, '0');
+        sun.innerHTML = `<div class="cat-sun-date">${dateStr}</div><div class="cat-title">${cat.name}</div>`;
+        sun.onclick = (e) => { e.stopPropagation(); openCat(cat.id); };
+        solar.append(sun);
+        
+        // Orbits (Columns)
         const allCatTasks = state.tasks.filter(t => t.catId === cat.id);
         const columns = getColumns(cat);
-        const stats = el("div","cat-stats");
-        columns.forEach(col => {
+        columns.slice(0, 4).forEach((col, idx) => {
           const num = allCatTasks.filter(t => t.col === col.key && !isDone(t)).length;
-          const label = col.name;
-          const box = el("div","cat-stat");
-          box.append(el("strong","",String(num)), el("span","",label));
-          stats.append(box);
+          const orbit = el("div", "cat-orbit");
+          orbit.innerHTML = `<strong>${num}</strong><span>${col.name}</span>`;
+          orbit.onclick = (e) => { e.stopPropagation(); openCat(cat.id); };
+          solar.append(orbit);
         });
-        card.append(stats);
+        
+        card.append(solar);
 
-        // הוספת משימות גרירות ישירות למסך הבית
-        const taskList = el("div", "list");
-        taskList.style.marginTop = "12px";
-        taskList.style.minHeight = "40px"; // drop zone
-        
-        allCatTasks.filter(t => !isDone(t)).forEach(t => {
-           const tr = el("div", "day-task");
-           tr.textContent = "✓ " + t.name;
-           tr.style.background = "var(--card2)";
-           tr.style.border = "1px solid var(--border)";
-           tr.style.borderRight = `3px solid ${t.color || state.accent}`;
-           tr.style.padding = "8px";
-           tr.style.marginTop = "4px";
-           tr.style.cursor = "grab";
-           tr.draggable = true;
-           tr.ondragstart = (e) => {
-               e.stopPropagation();
-               draggedTaskId = t.id;
-               e.dataTransfer?.setData("taskId", t.id);
-               showAgendaDropBubble();
-           };
-           tr.ondragend = () => {
-               hideAgendaDropBubble();
-           };
-           enableAgendaPointerDrag(tr, t);
-           tr.onclick = (e) => {
-               e.stopPropagation();
-               openTaskModal(t);
-           };
-           taskList.append(tr);
-        });
-        
-        // יצירת אזור גרירה למשימות בין קטגוריות
+        // Interactive drop area
         card.ondragover = (e) => { e.preventDefault(); card.classList.add("over"); };
         card.ondragleave = () => card.classList.remove("over");
         card.ondrop = (e) => {
@@ -2231,24 +1914,22 @@
             const task = state.tasks.find(t => t.id === draggedTaskId);
             if (task && task.catId !== cat.id) {
                 task.catId = cat.id;
-                task.col = getColumns(cat)[0].key; // הכנס לעמודה הראשונה
+                task.col = getColumns(cat)[0].key;
                 save(); render();
             }
             draggedTaskId = null;
         };
 
-        card.append(taskList);
-        card.onclick = (e) => { if (!e.target.closest("button") && !e.target.closest(".day-task")) openCat(cat.id); };
         grid.append(card);
       });
 
-      // סנן משימות לשבוע הקרוב בלבד (היום + 7 ימים)
+      // Daily Agenda section
       const weekFromNow = new Date();
       weekFromNow.setDate(weekFromNow.getDate() + 7);
       const weekFromNowStr = toDateKey(weekFromNow);
       const agendaOpenTasks = state.tasks.filter(t => {
         if (isDone(t)) return false;
-        if (!t.due) return false; // משימות ללא תאריך לא מוצגות בסדר היום
+        if (!t.due) return false;
         return t.due >= todayStr && t.due <= weekFromNowStr;
       }).sort((a, b) => (a.due || "").localeCompare(b.due || ""));
       const todayEvents = (state.events||[]).filter(e => e.date === todayStr);
@@ -2318,7 +1999,6 @@
            titleWrap.style.cssText = "min-width:0;overflow:hidden";
            titleWrap.append(el("strong","agenda-title", t.name));
 
-           // שם הרשימה + העמודה
            const cat = state.cats.find(c => c.id === t.catId);
            if (cat) {
              const colName = cat.columns?.find(c => c.id === t.col)?.name;
@@ -2487,7 +2167,6 @@
       if (!tasks.length) list.append(empty("אין משימות פתוחות להצגה"));
       tasks.forEach(task => {
         const row = taskRow(task);
-        // הוסף breadcrumb (רשימה + עמודה) מתחת לשם המשימה ב"כל המשימות"
         const cat = state.cats.find(c => c.id === task.catId);
         if (cat) {
           const col = cat.columns?.find(c => c.id === task.col);
@@ -2561,7 +2240,6 @@
 
       const conflicts = detectConflicts();
 
-      // שורה שניה: היום + אירוע + חגים (קומפקטי במובייל)
       const secRow = el("div","cal-toolbar-secondary");
       secRow.append(todayBtn, addEvBtn, jewishBtn);
       toolbar.append(viewBtns, nav, secRow);
@@ -2598,7 +2276,6 @@
     }
 
     function allCalItems(dateKey){
-      // משימות מופיעות רק אם לא הושלמו כדי לא להעמיס על הלוח
       const tasks = filteredTasks().filter(t => t.due === dateKey && !isDone(t));
       const events = (state.events || []).filter(e => e.date === dateKey);
       return { tasks, events };
@@ -2614,10 +2291,8 @@
         end: Math.max(toMin(ev.time) + 30, toMin(ev.endTime || ev.time))
       }));
 
-      // בנה קבוצות של אירועים חופפים
       function overlaps(a, b){ return a.start < b.end && b.start < a.end; }
 
-      // מצא את כל הקבוצות המחוברות
       const visited = new Set();
       const groups = [];
       evs.forEach(ev => {
@@ -2636,9 +2311,8 @@
         groups.push(group);
       });
 
-      // לכל קבוצה — חלק לעמודות והקצה רוחב מקסימלי
       groups.forEach(group => {
-        const cols = []; // cols[i] = רשימת אירועים בעמודה i
+        const cols = []; 
         group.forEach(ev => {
           let placed = false;
           for (let ci = 0; ci < cols.length; ci++) {
@@ -2655,7 +2329,6 @@
         const totalCols = cols.length;
         cols.forEach((col, ci) => {
           col.forEach(ev => {
-            // בדוק כמה עמודות האירוע יכול לתפוס מ-ci קדימה
             let span = 1;
             for (let next = ci + 1; next < totalCols; next++) {
               const blocked = cols[next].some(other => overlaps(ev, other));
@@ -2683,7 +2356,6 @@
       for (let i=0; i<first.getDay(); i++) grid.append(advDayCell(new Date(anchor.getFullYear(), anchor.getMonth(), i-first.getDay()+1), true, conflicts));
       for (let d=1; d<=last.getDate(); d++) grid.append(advDayCell(new Date(anchor.getFullYear(), anchor.getMonth(), d), false, conflicts));
       
-      // גרירה ליצירת אירוע בלוח חודשי
       let dragStartDate = null;
       let dragEndDate = null;
       let isDraggingNew = false;
@@ -2691,7 +2363,7 @@
       grid.addEventListener("mousedown", (e) => {
         const dayEl = e.target.closest(".day:not(.other)");
         if (!dayEl || e.target.closest(".day-task") || e.target.closest(".day-more")) return;
-        if (e.target.closest("[draggable='true']")) return; // משימה גרורה — לא מתחיל יצירת אירוע
+        if (e.target.closest("[draggable='true']")) return; 
         const dateKey = dayEl.dataset.dateKey;
         if (!dateKey) return;
         isDraggingNew = true;
@@ -2707,10 +2379,8 @@
         if (!dayEl) return;
         const dateKey = dayEl.dataset.dateKey;
         if (!dateKey || dateKey === dragEndDate) return;
-        // הסר סימון קודם
         grid.querySelectorAll(".day.drag-selecting").forEach(d => d.classList.remove("drag-selecting"));
         dragEndDate = dateKey;
-        // סמן טווח
         const start = dragStartDate < dragEndDate ? dragStartDate : dragEndDate;
         const end   = dragStartDate < dragEndDate ? dragEndDate : dragStartDate;
         grid.querySelectorAll(".day:not(.other)").forEach(d => {
@@ -2744,16 +2414,14 @@
       const isToday = today.getTime() === check.getTime();
       if (isToday) cell.classList.add("today");
       const dateKey = toDateKey(date);
-      cell.dataset.dateKey = dateKey;  // ← חשוב לגרירה
+      cell.dataset.dateKey = dateKey;  
       const { tasks, events } = allCalItems(dateKey);
       const total = tasks.length + events.length;
 
-      // כותרת: מספר יום בלבד — ברור ונקי
       const dayHead = el("div","day-head");
       dayHead.style.marginBottom = "1px";
       const numEl = el("div","day-num", String(date.getDate()));
       dayHead.append(numEl);
-      // הצג מספר פריטים כשיש יותר מ-3
       if (total > 3) {
         const cnt = el("span","");
         cnt.style.cssText = "font-size:9px;color:var(--faint);font-weight:700;margin-right:3px";
@@ -2762,7 +2430,6 @@
       }
       cell.append(dayHead);
 
-      // מיין: אירועים לפי שעה קודם, אחר כך משימות
       const items = [
         ...events.map(ev => ({
           type:"event",
@@ -2783,11 +2450,9 @@
         }))
       ].sort((a,b) => a.time.localeCompare(b.time));
 
-      // הצג כמה שיותר פריטים בלי לחנוק את התא
       const maxShow = window.matchMedia("(max-width:820px)").matches ? 3 : 7;
       items.slice(0, maxShow).forEach(itemData => {
         const item = el("div","day-task" + (itemData.type==="event" && itemData.isMeeting ? " is-meeting" : ""));
-        // אירוע: עיגול צבעוני + כותרת + שעה אם יש
         if (itemData.type === "event") {
           const isMtg = itemData.isMeeting;
           const titleSpan = el("span","");
@@ -2810,7 +2475,6 @@
             item.style.color = itemData.color;
           }
           if (itemData.isConflict) item.style.outline = "1.5px solid var(--danger)";
-          // drag (desktop) + long press (mobile) לאירוע
           const evObj = events.find(e => e.id === itemData.id);
           if (evObj) {
             item.draggable = true;
@@ -2824,19 +2488,16 @@
               e.dataTransfer.setData("text/plain", "ev:" + evObj.id);
             };
             item.ondragend = () => { item.classList.remove("dragging"); draggedEventId = null; };
-            // long press — mobile
             addLongPress(item,
               () => openReschedulePopup("event", evObj.id, evObj.date, evObj.title),
               (e) => { e.stopPropagation(); showCalItemPopup(e, evObj, dateKey); }
             );
-            // click (desktop only — not triggered after long press)
             item.addEventListener("click", (e) => {
-              if (window.matchMedia("(pointer:coarse)").matches) return; // handled by long press
+              if (window.matchMedia("(pointer:coarse)").matches) return; 
               e.stopPropagation(); showCalItemPopup(e, evObj, dateKey);
             });
           }
         } else {
-          // משימה: ✓ ברקע עדין
           const dot = el("span","");
           dot.style.cssText = `display:inline-block;width:7px;height:7px;border-radius:2px;background:${itemData.color};flex:0 0 auto;margin-left:4px;opacity:.75`;
           const titleSpan = el("span","");
@@ -2857,7 +2518,6 @@
             e.dataTransfer.setData("text/plain", "task:" + itemData.id);
           };
           item.ondragend = () => { item.classList.remove("dragging"); draggedTaskId = null; };
-          // long press (mobile) + click (desktop)
           const taskObj = filteredTasks().find(t => t.id === itemData.id);
           addLongPress(item,
             () => openReschedulePopup("task", itemData.id, dateKey, itemData.title),
@@ -2871,7 +2531,6 @@
         cell.append(item);
       });
 
-      // "+X עוד" — לחיץ לתצוגת יום
       const more = total - maxShow;
       if (more > 0) {
         const moreEl = el("div","day-task day-more", `+${more} נוספים`);
@@ -2881,15 +2540,12 @@
 
       cell.onclick = (e) => { 
         if (e.target.closest(".day-task") || e.target.closest(".day-more")) return;
-        // לחיצה פשוטה על תא ריק — פתח אירוע חדש
         openEventModal(null, dateKey);
       };
       cell.ondblclick = (e) => { 
-        // דאבל-קליק — עבור לתצוגת יום
         state.calDate = dateKey; state.calView = "day"; render(); 
       };
 
-      // drop zone — קבלת משימה/אירוע גרורים
       if (!other) {
         cell.ondragover = (e) => {
           if (!draggedTaskId && !draggedEventId) return;
@@ -3007,7 +2663,6 @@
           chip.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, ev, dk); };
           col.append(chip);
         });
-        // משימות: כרצועה דקה בצבע למטה
         tasks.slice(0,4).forEach((t,i) => {
           const chip = el("div","cal-event");
           chip.textContent = "✓ " + t.name;
@@ -3038,7 +2693,6 @@
           const evId = e.dataTransfer.getData("evId");
           const ev = state.events.find(ev => ev.id === evId);
           if (!ev) return;
-          // חשב שעה לפי מיקום הנחיה
           const rect = col.getBoundingClientRect();
           const relY = e.clientY - rect.top;
           const mins = Math.round(relY / hourPx * 60 / 15) * 15;
@@ -3046,7 +2700,6 @@
           const m = mins % 60;
           const pad = n => String(n).padStart(2,"0");
           const newTime = `${pad(h)}:${pad(m)}`;
-          // חשב משך מקורי
           let dur = 60;
           if (ev.time && ev.endTime) {
             const [sh,sm] = ev.time.split(":").map(Number);
@@ -3064,12 +2717,10 @@
         grid.append(col);
       });
 
-      // קו "עכשיו" בעמודת היום הנוכחי
       const nowDate = new Date();
       const nowDk = toDateKey(nowDate);
       const nowMin = nowDate.getHours()*60 + nowDate.getMinutes();
       const nowTop = nowMin / 60 * hourPx;
-      // מצא את עמודת היום הנוכחי ב-grid
       const dayCols = grid.querySelectorAll(".cal-day-col");
       days.forEach((d,i) => {
         if (toDateKey(d) === nowDk && dayCols[i]) {
@@ -3140,7 +2791,6 @@
         chip.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, ev, dk); };
         col.append(chip);
       });
-      // drop על עמודת יום
       col.onclick = (e) => {
         if (e.target === col || e.target.classList.contains("hour-line")) {
           const rect = col.getBoundingClientRect();
@@ -3177,7 +2827,6 @@
         ev.date = dk; ev.time = newTime; ev.endTime = newEnd;
         save(); render(); toast(`"${ev.title}" הועבר ל-${newTime}`);
       };
-      // משימות ליום: כרטיסיות בצד
       tasks.forEach((t,i) => {
         const chip = el("div","cal-event");
         const cb = el("span","");
@@ -3196,7 +2845,6 @@
         chip.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, t, dk); };
         col.append(chip);
       });
-      // קו "עכשיו" בתצוגת יום אם זה היום
       const nowD = new Date();
       if (toDateKey(nowD) === dk) {
         const nowMin = nowD.getHours()*60 + nowD.getMinutes();
@@ -3221,16 +2869,14 @@
       const popup = el("div","ev-popup");
       popup.style.position = "fixed";
 
-      // כפתור סגירה
       const closeBtn = el("button","ev-popup-close","×");
       closeBtn.onclick = closeEvPopup;
       popup.append(closeBtn);
 
-      const isEvent = !!item.title; // events have .title, tasks have .name
+      const isEvent = !!item.title;
       const title = isEvent ? item.title : item.name;
       const color = item.color || state.accent;
 
-      // כותרת עם פס צבע
       const titleEl = el("div","ev-popup-title", title);
       titleEl.style.borderRight = `4px solid ${color}`;
       titleEl.style.paddingRight = "10px";
@@ -3278,7 +2924,6 @@
         actions.append(editBtn, delBtn);
         popup.append(actions);
       } else {
-        // משימה
         const cat = state.cats.find(c => c.id === item.catId);
         if (cat) {
           const catRow = el("div","ev-popup-meta");
@@ -3309,7 +2954,6 @@
       document.body.append(popup);
       _evPopup = popup;
 
-      // מיקום: מתחת ללחיצה, לא מחוץ למסך
       const rect = popup.getBoundingClientRect();
       let top = e.clientY + 8;
       let left = e.clientX - popup.offsetWidth / 2;
@@ -3319,7 +2963,6 @@
       popup.style.top = top + "px";
       popup.style.left = left + "px";
 
-      // סגירה בלחיצה מחוץ
       setTimeout(() => {
         document.addEventListener("click", closeEvPopup, { once: true });
       }, 0);
@@ -3591,7 +3234,6 @@
         .split("\n");
       let ev = null;
 
-      // המר תאריך+שעה UTC לשעון ישראל
       function utcToIsrael(dateStr, timeStr){
         const d = new Date(`${dateStr}T${timeStr}:00Z`);
         const date = d.toLocaleDateString("sv-SE", {timeZone:"Asia/Jerusalem"});
@@ -3651,7 +3293,6 @@
             const c = v.trim().replace(/[TZ]/g,"");
             if (c.length >= 8) {
               if (c.length >= 12 && !hasTZID) {
-                // UTC exdate — המר לתאריך ישראל
                 const r = utcToIsrael(`${c.slice(0,4)}-${c.slice(4,6)}-${c.slice(6,8)}`, `${c.slice(8,10)}:${c.slice(10,12)}`);
                 ev.exdates.push(r.date);
               } else {
@@ -3921,7 +3562,6 @@
       openModal("🤝 פגישה / שיעור חדש", dateStr, (form) => {
         form.className = "event-form-modal";
 
-        // שם + נושא
         form.append(field("שם / כותרת","meetName","text",""));
         const subjWrap = el("div","field");
         const subjLabel = el("label"); subjLabel.htmlFor = "meetSubj"; subjLabel.textContent = "נושא / סוג";
@@ -3930,13 +3570,10 @@
         subjWrap.append(subjLabel, subjSelect);
         form.append(subjWrap);
 
-        // מיקום
         form.append(field("מיקום (אופציונלי)","meetLocation","text",""));
 
-        // שמור כתובת מייל אחרונה
         const lastEmail = localStorage.getItem("taskflow_last_reminder_email") || "";
 
-        // תזכורת מייל
         const reminderWrap = el("div","field");
         reminderWrap.style.cssText = "border:1px solid var(--border);border-radius:var(--rs);padding:12px;background:var(--card2);margin-bottom:4px";
         const reminderTitle = el("div","");
@@ -3953,7 +3590,6 @@
         emailRow.append(emailLabel, emailInput);
         reminderWrap.append(emailRow);
 
-        // בחירת תזכורות
         const checkRow = el("div","row"); checkRow.style.cssText = "gap:10px;flex-wrap:wrap;margin-top:4px";
         const remOpts = [
           { id:"rem_day", label:"יום לפני", val:"day" },
@@ -4057,12 +3693,11 @@
           const newEvent = { 
             id: uid("ev"), title, date: dateKey, time: timeStr, endTime: endTimeStr, 
             color, source: "meeting", location,
-            isMeeting: true  // ← סמן כפגישה לצורך עיצוב שונה
+            isMeeting: true
           };
           state.events.push(newEvent);
           closeModal(); save(); render(); toast("הפגישה נוצרה ✓");
 
-          // שלח תזכורות מייל דרך mailto
           if (email) {
             const remDay  = document.getElementById("rem_day")?.checked;
             const remHour = document.getElementById("rem_hour")?.checked;
@@ -4121,6 +3756,7 @@
         return false;
       }
     }
+    
     async function joinSharedList(){
       if (!cloudReady || !user?.uid) return toast("צריך להתחבר כדי להצטרף לשיתוף");
       const code = prompt("הדבק קוד שיתוף:");
@@ -4257,6 +3893,7 @@
       line.style.cssText = "margin-top:4px;direction:ltr;text-align:right;font-weight:800;color:var(--accent2);word-break:break-all";
       return line;
     }
+    
     function taskCard(task, draggable){
       const cat = state.cats.find(c => c.id === task.catId);
       const card = el("article","task");
@@ -4312,7 +3949,6 @@
         const pct = Math.round(done / task.subs.length * 100);
         const bar = el("div","bar"); bar.append(Object.assign(el("span"), {style:`width:${pct}%`}));
 
-        // כותרת עם כפתור קיפול
         const isCollapsed = state.collapsedSubs?.[task.id] ?? false;
         const subsHeader = el("div","subs-header");
         subsHeader.style.cssText = "display:flex;align-items:center;gap:6px;margin-top:10px;cursor:pointer;user-select:none;padding:2px 0";
@@ -4407,6 +4043,7 @@
       box.append(row, el("div","meta","שלח את הקוד הזה למי שצריך לעבוד רק על המשימה הזו."));
       return box;
     }
+
     function sharedToggle(id, label, hint){
       const wrap = el("label","row");
       wrap.style.cssText = "align-items:flex-start;margin:2px 0 12px;color:var(--muted);font-size:12px;font-weight:800";
@@ -4419,6 +4056,7 @@
       wrap.append(input, text);
       return wrap;
     }
+
     function openCategoryModal(cat){
       openModal(cat ? "עריכת רשימה" : "רשימה חדשה", "", (form) => {
         form.append(field("שם הרשימה","catName","text",cat?.name || ""));
@@ -4751,14 +4389,14 @@
         $("sidebarTab")?.classList.remove("hidden");
       }
     }
+    
     function navigate(view){
       state.currentView = view;
       if (view !== "kanban") state.currentCatId = view === "home" ? null : state.currentCatId;
-      // סגור סיידבר במובייל בכל ניווט
       const isMobile = window.matchMedia("(max-width:820px)").matches;
       if (isMobile) {
         const sidebar = $("sidebar");
-        sidebar.classList.remove("open");
+        if (sidebar) sidebar.classList.remove("open");
         const overlay = document.getElementById("sidebarOverlay");
         if (overlay) overlay.classList.remove("show");
         const mobileMenu = $("mobileMenu");
@@ -4772,11 +4410,10 @@
     function openCat(id){
       state.currentCatId = id;
       state.currentView = "kanban";
-      // סגור סיידבר במובייל
       const isMobile = window.matchMedia("(max-width:820px)").matches;
       if (isMobile) {
         const sidebar = $("sidebar");
-        sidebar.classList.remove("open");
+        if(sidebar) sidebar.classList.remove("open");
         const overlay = document.getElementById("sidebarOverlay");
         if (overlay) overlay.classList.remove("show");
         const mobileMenu = $("mobileMenu");
@@ -4797,6 +4434,7 @@
       if (state.currentCatId === id) { state.currentCatId = null; state.currentView = "home"; }
       save(); render(); toastUndo(`"${cat.name}" נמחקה`);
     }
+    
 	function duplicateCategory(id){
       const cat = state.cats.find(c => c.id === id);
       if (!cat) return;
@@ -4819,6 +4457,7 @@
       
       save(); render(); toast(`הרשימה "${cat.name}" שוכפלה`);
     }
+    
     function deleteTask(id){
       const task = state.tasks.find(t => t.id === id);
       if (!task || !confirm(`למחוק את "${task.name}"?`)) return;
@@ -5042,6 +4681,7 @@
     }
 
     function activeCat(){ return state.cats.find(c => c.id === state.currentCatId); }
+    
     function getColumns(cat){
       if (!cat) return [];
       if (Array.isArray(cat.columns) && cat.columns.length) {
@@ -5049,6 +4689,7 @@
       }
       return [{key:"col1",id:"col1",name:cat.col1},{key:"col2",id:"col2",name:cat.col2},{key:"col3",id:"col3",name:cat.col3}].filter(c => c.name);
     }
+    
     function isDone(task){ return !!task.subs?.length && task.subs.every(s => s.done); }
 
     function filteredTasks(){
@@ -5087,8 +4728,8 @@
     function updateProgress(){
       const subs = state.tasks.flatMap(t => t.subs || []);
       const pct = subs.length ? Math.round(subs.filter(s => s.done).length / subs.length * 100) : 0;
-      $("globalPct").textContent = pct + "%";
-      $("globalBar").style.width = pct + "%";
+      if($("globalPct")) $("globalPct").textContent = pct + "%";
+      if($("globalBar")) $("globalBar").style.width = pct + "%";
     }
 
     function applyTheme(){
@@ -5096,7 +4737,6 @@
       document.documentElement.style.setProperty("--accent", state.accent || "#6d5dfc");
       if ($("themeToggleBtn")) {
         $("themeToggleBtn").classList.add("theme-toggle");
-        // זהה אם המצב הנוכחי "בהיר" — sky הוא כהה, light/green/white הם בהירים
         const lightThemes = ["light", "green", "white"];
         const isLight = lightThemes.includes(state.theme);
         const icon = isLight ? "🌙" : "☀️";
@@ -5157,7 +4797,6 @@
       });
     }
 
-    // מסנן undefined רקורסיבי — Firebase לא מקבל undefined
     function stripUndefined(obj) {
       if (Array.isArray(obj)) return obj.map(stripUndefined).filter(v => v !== undefined);
       if (obj !== null && typeof obj === "object") {
@@ -5192,47 +4831,50 @@
 
     function updateGreeting(){
       if (state.currentView !== "home") {
-        $("timeGreeting").style.display = "none";
+        if($("timeGreeting")) $("timeGreeting").style.display = "none";
         return;
       }
       
-      $("timeGreeting").style.display = "block";
-      const hour = new Date().getHours();
-      
-      if ($("timeGreeting").textContent && $("timeGreeting").dataset.hour == hour) return;
-      
-      let msgs = [];
-      
-      if (hour >= 6 && hour < 12) {
-        msgs = [
-          "בוקר טוב! המוח עוד בטעינה, אבל הכפתורים כבר עובדים. ☕",
-          "בוקר אור! היום מתחיל רשמית ברגע שסימנת משהו קטן ונראית עסוק.",
-          "בוקר טוב! בוא נעשה סדר לפני שהיום עושה לנו ספין על הראש."
-        ];
-      } else if (hour >= 12 && hour < 17) {
-        msgs = [
-          "צהריים! חצי יום עבר, וזה בדיוק הזמן להעמיד פנים שזה היה חלק מהתוכנית.",
-          "צהריים טובים! עוד כמה משימות ואתה יכול לקרוא לזה מומנטום בלי לצחוק.",
-          "אמצע היום: המקום שבו קפה, החלטות ואופטימיות מוגזמת נפגשים."
-        ];
-      } else if (hour >= 17 && hour < 22) {
-        msgs = [
-          "ערב טוב! זה השלב שבו היום מבקש סיכום, ואתה מגיש לו טיוטה.",
-          "השמש ירדה, אבל הרשימה עדיין עושה פרצוף של 'נו?'.",
-          "ערב טוב! זמן מצוין לסיים משהו קטן ולהתנהג כאילו זה היה כל התכנון."
-        ];
-      } else {
-        msgs = [
-          "לילה טוב! אם אתה עדיין כאן, לפחות נסדר את הכאוס עם תאורה נעימה.",
-          "השעה מאוחרת, הביטחון עצמי גבוה, והמשימות מנסות לנצל את זה.",
-          "זה הזמן שבו רעיונות מוזרים נראים הגיוניים. נשמור רק את הטובים."
-        ];
+      if($("timeGreeting")) {
+        $("timeGreeting").style.display = "block";
+        const hour = new Date().getHours();
+        
+        if ($("timeGreeting").textContent && $("timeGreeting").dataset.hour == hour) return;
+        
+        let msgs = [];
+        
+        if (hour >= 6 && hour < 12) {
+          msgs = [
+            "בוקר טוב! המוח עוד בטעינה, אבל הכפתורים כבר עובדים. ☕",
+            "בוקר אור! היום מתחיל רשמית ברגע שסימנת משהו קטן ונראית עסוק.",
+            "בוקר טוב! בוא נעשה סדר לפני שהיום עושה לנו ספין על הראש."
+          ];
+        } else if (hour >= 12 && hour < 17) {
+          msgs = [
+            "צהריים! חצי יום עבר, וזה בדיוק הזמן להעמיד פנים שזה היה חלק מהתוכנית.",
+            "צהריים טובים! עוד כמה משימות ואתה יכול לקרוא לזה מומנטום בלי לצחוק.",
+            "אמצע היום: המקום שבו קפה, החלטות ואופטימיות מוגזמת נפגשים."
+          ];
+        } else if (hour >= 17 && hour < 22) {
+          msgs = [
+            "ערב טוב! זה השלב שבו היום מבקש סיכום, ואתה מגיש לו טיוטה.",
+            "השמש ירדה, אבל הרשימה עדיין עושה פרצוף של 'נו?'.",
+            "ערב טוב! זמן מצוין לסיים משהו קטן ולהתנהג כאילו זה היה כל התכנון."
+          ];
+        } else {
+          msgs = [
+            "לילה טוב! אם אתה עדיין כאן, לפחות נסדר את הכאוס עם תאורה נעימה.",
+            "השעה מאוחרת, הביטחון עצמי גבוה, והמשימות מנסות לנצל את זה.",
+            "זה הזמן שבו רעיונות מוזרים נראים הגיוניים. נשמור רק את הטובים."
+          ];
+        }
+        
+        const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+        $("timeGreeting").textContent = randomMsg;
+        $("timeGreeting").dataset.hour = hour;
       }
-      
-      const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
-      $("timeGreeting").textContent = randomMsg;
-      $("timeGreeting").dataset.hour = hour;
     }
+    
     function showToast(msg){ toast(msg); }
 
     function showTodayAlert(afterClose){
@@ -5670,7 +5312,6 @@
       return card;
     }
 
-    // ── Reschedule popup (long-press / mobile) ──
     let _rescheduleFp = null;
     function openReschedulePopup(type, id, currentDate, label) {
       const popup = $("reschedulePopup");
@@ -5812,6 +5453,7 @@
 	function openBrief(){
       const overlay = $("briefOverlay");
       const panel = $("briefPanel");
+      if(!overlay || !panel) return;
       overlay.style.display = "block";
       panel.style.display = "block";
       requestAnimationFrame(() => {
@@ -5827,6 +5469,7 @@
     function closeBrief(){
       const overlay = $("briefOverlay");
       const panel = $("briefPanel");
+      if(!overlay || !panel) return;
       overlay.style.opacity = "0";
       panel.style.opacity = "0";
       panel.style.transform = "translateY(-18px) scale(.96)";
@@ -5846,13 +5489,13 @@
       endOfWeek.setDate(today.getDate() + daysToSat);
 
       const fmt = d => d.toLocaleDateString("he-IL",{day:"numeric",month:"short"});
-      $("briefSubtitle").textContent = `${fmt(today)} – ${fmt(endOfWeek)}`;
+      if($("briefSubtitle")) $("briefSubtitle").textContent = `${fmt(today)} – ${fmt(endOfWeek)}`;
 
       const content = $("briefContent");
+      if(!content) return;
       content.innerHTML = "";
       if (includeDailyFocus) content.append(renderDailyFocusCard(true));
 
-      // ────── חלק 1: אירועים לפי ימים ──────
       const eventsGrouped = {};
       for (let i = 0; i <= daysToSat; i++){
         const d = new Date(today);
@@ -5910,7 +5553,6 @@
         content.append(evSection);
       }
 
-      // ────── חלק 2: מטלות ממויינות לפי תאריך הגשה (לא מופרדות לימים) ──────
       const allWeekTasks = [];
       for (let i = 0; i <= daysToSat; i++){
         const d = new Date(today);
@@ -5989,12 +5631,6 @@
         $("briefOverlay").onclick = closeBrief;
       }
     });
-    // קשר אירועי Brief מייד (אם DOM כבר קיים)
-    if ($("briefBtn")) {
-      $("briefBtn").onclick = openBrief;
-      $("briefClose").onclick = closeBrief;
-      $("briefOverlay").onclick = closeBrief;
-    }
 
 	function emptyFun(){
       const msgs = [
@@ -6014,23 +5650,24 @@
     }
     function empty(text){ return el("div","empty",text); }
     function toast(msg){
+      if(!$("toast")) return;
       $("toast").textContent = msg;
       $("toast").classList.add("show");
       setTimeout(() => $("toast").classList.remove("show"), 2200);
     }
-    function showAuthError(msg){ $("authMsg").textContent = msg; }
+    function showAuthError(msg){ if($("authMsg")) $("authMsg").textContent = msg; }
     function authError(err){
       const code = err?.code || "";
       console.error("Firebase auth error", err);
       if (code.includes("invalid-credential")) return "האימייל או הסיסמה לא נכונים.";
       if (code.includes("email-already-in-use")) return "האימייל כבר רשום.";
       if (code.includes("operation-not-allowed")) return "Email/Password לא מופעל ב-Firebase Authentication.";
-      if (code.includes("unauthorized-domain")) return `הדומיין '${location.hostname}' לא מאושר ב-Firebase. כנס ל-Firebase Console → Authentication → Settings → Authorized domains והוסף אותו.`;
+      if (code.includes("unauthorized-domain")) return `הדומיין '${location.hostname}' לא מאושר ב-Firebase.`;
       if (code.includes("configuration-not-found")) return "הגדרת Authentication חסרה או לא הופעלה בפרויקט Firebase.";
       if (code.includes("invalid-email")) return "כתובת האימייל לא תקינה.";
       if (code.includes("weak-password")) return "הסיסמה חלשה מדי.";
       if (code.includes("network")) return "יש בעיית רשת זמנית.";
-      return `לא הצלחתי להתחבר. קוד שגיאה: ${code || "unknown"}. כתובת נוכחית: ${location.hostname || "file-local"}`;
+      return `לא הצלחתי להתחבר. קוד שגיאה: ${code || "unknown"}.`;
     }
   </script>
 </body>
