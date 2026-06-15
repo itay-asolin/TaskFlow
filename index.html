@@ -116,26 +116,63 @@
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow); transition: .2s;}
     
-    /* Sun Orbit Category Cards */
-    .cat-card{position:relative;overflow:hidden;min-height:360px;padding:18px;display:flex;flex-direction:column;gap:14px;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 34%),var(--card)}
-    .cat-card.over{outline:2px dashed var(--accent);outline-offset:-2px}
-    .cat-card:hover{border-color:color-mix(in srgb,var(--accent) 70%,var(--border));box-shadow:0 18px 44px rgba(0,0,0,.24)}
-    .cat-card::before,.cat-card::after{content:"";position:absolute;inset:auto;border:1px solid color-mix(in srgb,var(--accent) 24%,transparent);border-radius:50%;pointer-events:none}
-    .cat-card::before{width:250px;height:250px;right:50%;top:58px;transform:translateX(50%)}
-    .cat-card::after{width:180px;height:180px;right:50%;top:93px;transform:translateX(50%);border-style:dashed;opacity:.72}
-    .cat-tools{position:relative;z-index:3;display:flex;justify-content:flex-end;gap:4px;min-height:34px}
-    .cat-solar{position:relative;z-index:2;min-height:222px;display:grid;place-items:center;margin-top:-2px}
-    .cat-sun{width:126px;height:126px;border-radius:50%;display:grid;place-items:center;text-align:center;padding:14px;background:radial-gradient(circle at 34% 26%,#fff8 0 14%,transparent 15%),linear-gradient(145deg,var(--cat-color),color-mix(in srgb,var(--cat-color) 58%,#111));box-shadow:0 0 0 10px color-mix(in srgb,var(--cat-color) 16%,transparent),0 18px 36px color-mix(in srgb,var(--cat-color) 32%,transparent);color:#fff;border:1px solid color-mix(in srgb,#fff 44%,var(--cat-color));overflow:hidden; cursor: pointer;}
-    .cat-sun-date{font-size:11px;font-weight:900;opacity:.88;line-height:1;margin-bottom:5px}
-    .cat-title{font-size:18px;font-weight:900;margin:0;line-height:1.2;max-width:106px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 12px rgba(0,0,0,.35)}
-    .cat-orbit{position:absolute;width:74px;min-height:74px;border-radius:50%;display:grid;place-items:center;text-align:center;padding:9px 7px;background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid color-mix(in srgb,var(--cat-color) 44%,var(--border));box-shadow:0 10px 24px rgba(0,0,0,.2);backdrop-filter:blur(10px)}
-    .cat-orbit strong{display:block;color:var(--text);font-size:20px;line-height:1;font-weight:900}
-    .cat-orbit span{display:block;color:var(--faint);font-size:9px;font-weight:900;margin-top:5px;white-space:nowrap;max-width:58px;overflow:hidden;text-overflow:ellipsis}
-    .cat-orbit:nth-child(2){top:6px;right:50%;transform:translateX(50%)}
-    .cat-orbit:nth-child(3){top:74px;right:calc(50% - 142px)}
-    .cat-orbit:nth-child(4){top:74px;right:calc(50% + 68px)}
-    .cat-orbit:nth-child(5){top:152px;right:50%;transform:translateX(50%)}
+/* --- Modern Peek Cards --- */
+    .cat-card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .cat-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--cat-color);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25), 0 0 20px color-mix(in srgb, var(--cat-color) 20%, transparent);
+    }
+    .cat-card::before {
+      content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 4px;
+      background: var(--cat-color); transition: width 0.3s ease;
+    }
+    .cat-card:hover::before { width: 6px; }
+    
+    .cat-tools {
+      position: absolute; top: 12px; left: 12px; display: flex; gap: 4px; z-index: 3;
+    }
+    .cat-title {
+      font-size: 22px; font-weight: 900; margin: 0 12px 10px 0; line-height: 1.2;
+    }
+    
+    /* Progress Bar */
+    .cat-progress-wrap { margin-right: 12px; margin-top: auto; }
+    .cat-progress-stats {
+      display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-weight: 800; margin-bottom: 6px;
+    }
+    .cat-progress-bg {
+      height: 6px; background: var(--card2); border-radius: 999px; overflow: hidden;
+    }
+    .cat-progress-fill {
+      height: 100%; background: var(--cat-color); border-radius: 999px; transition: width 0.5s ease-out;
+    }
 
+    /* Hover Peek Section */
+    .cat-peek {
+      max-height: 0; opacity: 0; overflow: hidden; transition: all 0.35s ease; margin-right: 12px;
+    }
+    .cat-card:hover .cat-peek {
+      max-height: 180px; opacity: 1; margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 12px;
+    }
+    .cat-peek-title { font-size: 10px; color: var(--faint); font-weight: 900; margin-bottom: 8px; letter-spacing: 0.05em; }
+    .cat-peek-item {
+      display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; background: var(--card2); padding: 6px 10px; border-radius: 8px;
+    }
+    .cat-peek-item::before {
+      content: ""; display: block; width: 6px; height: 6px; border-radius: 50%; border: 2px solid var(--cat-color); flex: 0 0 auto;
+    }
     .meta{font-size:12px;color:var(--faint)}
     .taskListHome{position:relative;z-index:3;margin-top:auto;min-height:42px;display:grid;gap:6px}
     .agenda-list{display:grid;gap:10px}
@@ -1209,17 +1246,6 @@
       <button id="startupBriefDismiss">יאללה לעבודה 🚀</button>
     </div>
   </div>
-
-  <div id="reschedulePopup">
-    <div id="rescheduleCard">
-      <h3 id="rescheduleTitle">📅 העבר לתאריך</h3>
-      <p id="rescheduleSubtitle"></p>
-      <input id="reschedulePicker" class="date-input" type="text" placeholder="בחר תאריך" readonly />
-      <button id="rescheduleCancel">ביטול</button>
-    </div>
-  </div>
-
-
   <div id="todayAlert">
     <div id="todayAlertCard">
       <div class="alert-header">
@@ -1864,53 +1890,74 @@
       const todayStr = toDateKey(new Date());
       if (!state.cats.length) grid.append(empty("אין רשימות עדיין"));
       
-      state.cats.forEach(cat => {
+	state.cats.forEach(cat => {
         const card = el("article","card cat-card");
-        card.style.setProperty('--cat-color', cat.color || state.accent);
+        const catColor = cat.color || state.accent;
+        card.style.setProperty('--cat-color', catColor);
         
-        if (activeList.type === "shared") {
-          card.style.backgroundColor = state.accent + "1A";
-          card.style.borderColor = state.accent;
-        }
+        if (activeList.type === "shared") card.style.backgroundColor = state.accent + "1A";
 
+        // Tools
         const tools = el("div","cat-tools");
-        const dup = tool("שכפל רשימה", "⧉", () => duplicateCategory(cat.id));
-        const edit = tool("ערוך רשימה", "✎", () => openCategoryModal(cat));
-        const del = tool("מחק רשימה", "🗑", () => deleteCategory(cat.id));
-        tools.append(dup, edit, del);
-        
+        tools.append(
+          tool("שכפל רשימה", "⧉", () => duplicateCategory(cat.id)),
+          tool("ערוך רשימה", "✎", () => openCategoryModal(cat)),
+          tool("מחק רשימה", "🗑", () => deleteCategory(cat.id))
+        );
         card.append(tools);
 
-        // -- Solar/Orbit Design --
-        const solar = el("div","cat-solar");
-        
-        // Sun (Center)
-        const sun = el("div","cat-sun");
-        const d = new Date();
-        const dateStr = String(d.getDate()).padStart(2, '0') + "/" + String(d.getMonth()+1).padStart(2, '0');
-        sun.innerHTML = `<div class="cat-sun-date">${dateStr}</div><div class="cat-title">${cat.name}</div>`;
-        sun.onclick = (e) => { e.stopPropagation(); openCat(cat.id); };
-        solar.append(sun);
-        
-        // Orbits (Columns)
-        const allCatTasks = state.tasks.filter(t => t.catId === cat.id);
-        const columns = getColumns(cat);
-        columns.slice(0, 4).forEach((col, idx) => {
-          const num = allCatTasks.filter(t => t.col === col.key && !isDone(t)).length;
-          const orbit = el("div", "cat-orbit");
-          orbit.innerHTML = `<strong>${num}</strong><span>${col.name}</span>`;
-          orbit.onclick = (e) => { e.stopPropagation(); openCat(cat.id); };
-          solar.append(orbit);
-        });
-        
-        card.append(solar);
+        // Title
+        card.append(el("h3", "cat-title", cat.name));
 
-        // Interactive drop area
-        card.ondragover = (e) => { e.preventDefault(); card.classList.add("over"); };
-        card.ondragleave = () => card.classList.remove("over");
+        const allTasks = state.tasks.filter(t => t.catId === cat.id);
+        const doneTasks = allTasks.filter(t => isDone(t));
+        const openTasks = allTasks.filter(t => !isDone(t));
+        const pct = allTasks.length ? Math.round((doneTasks.length / allTasks.length) * 100) : 0;
+
+        // Progress Bar
+        const progWrap = el("div", "cat-progress-wrap");
+        const progStats = el("div", "cat-progress-stats");
+        progStats.innerHTML = `<span>${openTasks.length} פתוחות</span><span>${pct}% הושלמו</span>`;
+        const progBg = el("div", "cat-progress-bg");
+        const progFill = el("div", "cat-progress-fill");
+        progFill.style.width = pct + "%";
+        progBg.append(progFill);
+        progWrap.append(progStats, progBg);
+        card.append(progWrap);
+
+        // Hover Peek Section (Interactive reveal)
+        const peek = el("div", "cat-peek");
+        peek.append(el("div", "cat-peek-title", "משימות קרובות:"));
+        
+        // Get up to 3 upcoming tasks
+        const upcoming = openTasks
+          .sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"))
+          .slice(0, 3);
+
+        if (upcoming.length > 0) {
+          upcoming.forEach(t => {
+            const item = el("div", "cat-peek-item", t.name);
+            peek.append(item);
+          });
+        } else {
+          const emptyMsg = el("div", "meta");
+          emptyMsg.style.fontSize = "11px";
+          emptyMsg.textContent = "הכל נקי. זמן להפסקה קומית? ☕";
+          peek.append(emptyMsg);
+        }
+        card.append(peek);
+
+        // Click to open
+        card.onclick = (e) => {
+          if (!e.target.closest('.cat-tools')) openCat(cat.id);
+        };
+
+        // Drag & Drop
+        card.ondragover = (e) => { e.preventDefault(); card.style.borderColor = "var(--accent)"; };
+        card.ondragleave = () => { card.style.borderColor = "var(--border)"; };
         card.ondrop = (e) => {
             e.preventDefault();
-            card.classList.remove("over");
+            card.style.borderColor = "var(--border)";
             const task = state.tasks.find(t => t.id === draggedTaskId);
             if (task && task.catId !== cat.id) {
                 task.catId = cat.id;
@@ -1922,8 +1969,6 @@
 
         grid.append(card);
       });
-
-      // Daily Agenda section
       const weekFromNow = new Date();
       weekFromNow.setDate(weekFromNow.getDate() + 7);
       const weekFromNowStr = toDateKey(weekFromNow);
@@ -5313,12 +5358,9 @@
     }
 
     let _rescheduleFp = null;
-    function openReschedulePopup(type, id, currentDate, label) {
-      const popup = $("reschedulePopup");
-      $("rescheduleTitle").textContent = "📅 העבר לתאריך";
-      $("rescheduleSubtitle").textContent = label || "";
-      popup.classList.add("show");
-      document.body.style.overflow = "hidden";
+function openReschedulePopup(type, id, currentDate, label) {
+    }
+    function closeReschedulePopup() {}
 
       if (_rescheduleFp) _rescheduleFp.destroy();
       _rescheduleFp = flatpickr($("reschedulePicker"), {
