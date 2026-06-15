@@ -202,15 +202,23 @@
     .home-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 12px}
     .home-section-title strong{font-size:18px;font-weight:900}
     .home-section-title span{font-size:12px;font-weight:800;color:var(--faint)}
-    .home-secondary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+    .home-wrap{display:grid;gap:10px;margin-top:-8px}
+    .lists-wheel{position:relative;max-height:calc(100dvh - 300px);min-height:180px;overflow-y:auto;overflow-x:hidden;padding:2px 4px 10px;scroll-snap-type:y proximity;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;mask-image:linear-gradient(to bottom,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%)}
+    .lists-wheel::-webkit-scrollbar{width:6px}
+    .lists-wheel::-webkit-scrollbar-track{background:transparent}
+    .lists-wheel::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 55%,transparent);border-radius:999px}
+    .lists-wheel .grid{padding-block:12px}
+    .lists-wheel .cat-card{scroll-snap-align:center}
+    .home-secondary{display:grid;grid-template-columns:1fr minmax(260px,380px);gap:10px;margin-top:0}
     .home-secondary > *{min-width:0}
-    .shared-wheel.compact{grid-template-columns:1fr;margin:0;padding:10px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+    .shared-wheel.compact{grid-template-columns:1fr;margin:0;padding:10px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);max-width:100%;overflow:hidden}
     .shared-wheel.compact .shared-wheel-head{margin-bottom:7px}
     .shared-wheel.compact .shared-wheel-title{font-size:12px;color:var(--muted)}
-    .shared-wheel.compact .shared-wheel-actions .btn{min-height:28px;padding:4px 8px;font-size:10px}
+    .shared-wheel.compact .shared-wheel-actions{min-width:0;flex-wrap:nowrap;overflow:hidden}
+    .shared-wheel.compact .shared-wheel-actions .btn{min-height:28px;padding:4px 8px;font-size:10px;min-width:0;max-width:120px;overflow:hidden;text-overflow:ellipsis}
     .shared-wheel.compact .shared-wheel-stage{height:58px;border-radius:10px}
     .shared-wheel.compact .shared-wheel-stage::before,.shared-wheel.compact .shared-wheel-stage::after{display:none}
-    .shared-wheel.compact .shared-wheel-track{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:6px}
+    .shared-wheel.compact .shared-wheel-track{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:6px;max-width:100%}
     .shared-wheel.compact .shared-wheel-item{flex:0 0 170px;min-height:44px;padding:6px 8px;border-radius:9px}
     .shared-wheel.compact .shared-wheel-mark{width:24px;height:24px;border-radius:8px;font-size:13px}
     .shared-wheel.compact .shared-wheel-name{font-size:12px}
@@ -818,15 +826,19 @@
         box-shadow:0 8px 24px rgba(0,0,0,.18);
       }
       .grid{gap:12px}
+      .home-wrap{gap:8px;margin-top:-14px}
       .home-section-title{margin:2px 2px 10px}
       .home-section-title strong{font-size:16px}
       .home-section-title span{font-size:11px}
-      .home-secondary{grid-template-columns:1fr;gap:8px;margin-top:12px}
+      .lists-wheel{max-height:calc(100dvh - 286px);min-height:210px;padding-inline:1px;mask-image:linear-gradient(to bottom,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%)}
+      .lists-wheel .grid{padding-block:10px}
+      .home-secondary{grid-template-columns:1fr;gap:8px;margin-top:0}
       .shared-wheel.compact{padding:8px}
       .shared-wheel.compact .shared-wheel-head{margin-bottom:6px}
       .shared-wheel.compact .shared-wheel-actions .btn{min-height:26px}
       .shared-wheel.compact .shared-wheel-stage{height:52px}
-      .shared-wheel.compact .shared-wheel-item{flex-basis:152px;min-height:40px}
+      .shared-wheel.compact .shared-wheel-item{flex-basis:144px;min-height:40px}
+      .shared-wheel.compact .shared-wheel-meta{display:none}
       .cat-card{
         min-height:0;
         padding:13px 13px 12px;
@@ -1278,7 +1290,6 @@
       <button data-view="calendar" type="button"><span>📅 לוח שנה</span></button>
       <button data-view="meetings" type="button"><span>🤝 פגישות</span></button>
       <button data-view="settings" type="button"><span>⚙️ הגדרות</span></button>
-      <button id="sharedJumpBtn" type="button"><span>🔗 שיתופים</span></button>
     </nav>
     <div class="top-nav-right">
       <button id="logoutBtnTop" class="btn danger" type="button">התנתק</button>
@@ -1548,7 +1559,6 @@
       $("searchBox").oninput = (e) => { state.search = e.target.value.trim(); render(); };
       
       document.querySelectorAll(".nav button[data-view]").forEach(btn => btn.onclick = () => navigate(btn.dataset.view));
-      if ($("sharedJumpBtn")) $("sharedJumpBtn").onclick = () => { navigate("home"); setTimeout(() => $("sharedWheel")?.scrollIntoView({behavior:"smooth", block:"start"}), 40); };
       document.querySelectorAll(".bnav-btn").forEach(btn => {
         btn.onclick = () => navigate(btn.dataset.bnav);
       });
@@ -2059,7 +2069,7 @@
 
       requestAnimationFrame(() => {
         const active = track.querySelector(".shared-wheel-item.active") || track.querySelector(".shared-wheel-item");
-        active?.scrollIntoView({ block: "center" });
+        active?.scrollIntoView(compact ? { inline: "center", block: "nearest" } : { block: "center" });
       });
       return box;
     }
@@ -2203,7 +2213,7 @@
         } else {
           agendaBody.style.maxHeight = "170px";
           agendaBody.style.opacity = "1";
-          agendaBody.style.paddingBottom = "16px";
+          agendaBody.style.paddingBottom = "10px";
           agendaChevron.style.transform = "rotate(0deg)";
           localStorage.setItem("taskflow_agenda_collapsed", "false");
         }
@@ -2260,11 +2270,14 @@
         el("span","", `${state.cats.length} רשימות`)
       );
 
-      const secondary = el("div","home-secondary");
-      secondary.append(renderDailyFocusCard(true), agendaWrap, renderSharedWheel(true));
+      const listsWheel = el("div","lists-wheel");
+      listsWheel.append(grid);
 
-      const wrap = el("div");
-      wrap.append(listHead, grid, secondary);
+      const secondary = el("div","home-secondary");
+      secondary.append(renderDailyFocusCard(true), renderSharedWheel(true));
+
+      const wrap = el("div","home-wrap");
+      wrap.append(agendaWrap, listHead, listsWheel, secondary);
       $("content").replaceChildren(wrap);
     }
 
