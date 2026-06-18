@@ -785,14 +785,15 @@
 
     @media(min-width:821px){
       #briefPanel{
-        width:min(780px,calc(100vw - 80px))!important;
-        max-height:calc(100vh - 100px)!important;
+        width:min(960px,calc(100vw - 60px))!important;
+        max-height:calc(100vh - 60px)!important;
         left:50%!important;
-        top:72px!important;
-        transform:translateX(-50%) translateY(0) scale(1)!important;
+        top:50%!important;
+        transform:translate(-50%,-50%) scale(1)!important;
+        font-size:1.12em;
       }
       #briefPanel[style*="scale(.96)"]{
-        transform:translateX(-50%) translateY(-18px) scale(.96)!important;
+        transform:translate(-50%,-50%) scale(.96)!important;
       }
       #startupBriefCard,#todayAlertCard{
         width:min(680px,calc(100vw - 80px));
@@ -931,13 +932,15 @@
       .nav button{padding:11px 10px}
 
       #topBarBtns button{
-        height:34px!important;
-        min-height:34px;
+        height:42px!important;
+        min-height:42px;
         border-radius:999px!important;
-        opacity:.92!important;
+        opacity:1!important;
+        font-size:14px;
       }
-      #themeToggleBtn{max-width:none!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;border-radius:50%!important;overflow:hidden}
-      #briefBtn{max-width:none!important}
+      #themeToggleBtn{max-width:none!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:50%!important;overflow:hidden}
+      #themeToggleBtn .theme-icon{font-size:19px}
+      #briefBtn{max-width:none!important;font-size:14px;font-weight:900}
       #versionBadge{display:none}
       #bottomNav{
         height:calc(72px + env(safe-area-inset-bottom));
@@ -1026,10 +1029,11 @@
         right:auto!important;
         top:50%!important;
         bottom:auto!important;
-        width:calc(100vw - 16px)!important;
-        max-height:92dvh!important;
+        width:calc(100vw - 10px)!important;
+        max-height:95dvh!important;
         border-radius:22px;
         transform:translate(-50%,-50%) scale(1)!important;
+        font-size:1.08em;
       }
       #briefPanel[style*="scale(.96)"]{
         transform:translate(-50%,-50%) scale(.96)!important;
@@ -2391,7 +2395,7 @@
         // For true seamless infinite scroll, build a long track of repeated
         // cycles and walk a continuous virtual index that only ever
         // increments/decrements — never resets to 0, so it never jumps back.
-        const CYCLES = total >= 3 ? 7 : 1;
+        const CYCLES = total >= 3 ? 5 : 1;
         const MID_CYCLE = Math.floor(CYCLES / 2);
         const allItems = []; // {node, realIdx}
         for (let cyc = 0; cyc < CYCLES; cyc++) {
@@ -2480,7 +2484,9 @@
         }
 
         function updateCardHighlight() {
+          const WINDOW = 3;
           allItems.forEach(({ node }, slotIdx) => {
+            if (Math.abs(slotIdx - vCurrent) > WINDOW) return;
             const isCenter = slotIdx === vCurrent;
             // Never fully fade out — keep neighbors clearly visible (active-ish)
             node.style.opacity = isCenter ? "1" : "0.82";
@@ -2494,7 +2500,9 @@
           // currentOffset = the track's top offset (pre-negation) while dragging.
           // The viewport's center row is at 1*ROW_H. A slot is "centered" when
           // its own top (slotIdx*ROW_H) minus currentOffset equals 1*ROW_H.
+          const WINDOW = 3;
           allItems.forEach(({ node }, slotIdx) => {
+            if (Math.abs(slotIdx - vCurrent) > WINDOW) return;
             const slotTop = slotIdx * ROW_H;
             const distFromCenter = Math.abs((slotTop - currentOffset) - ROW_H);
             const t = Math.max(0, 1 - distFromCenter / ROW_H); // 1 at center, 0 one row away
@@ -5077,6 +5085,9 @@
         form.style.setProperty("--cat-color", catColor);
         const hero = el("div","cat-detail-hero");
         hero.style.setProperty("--cat-color", catColor);
+        hero.style.cursor = "pointer";
+        hero.title = "פתח את הרשימה";
+        hero.onclick = () => { closeModal(); openCat(id); };
         hero.append(el("div","cat-detail-name",cat.name));
 
         const stats = el("div","cat-detail-stats");
@@ -5095,13 +5106,6 @@
         progFill.style.width = pct + "%";
         progBg.append(progFill);
         hero.append(stats, progBg);
-
-        const actions = el("div","cat-detail-actions");
-        const openBtn = el("button","btn primary","פתח רשימה");
-        openBtn.type = "button";
-        openBtn.onclick = () => { closeModal(); openCat(id); };
-        actions.append(openBtn);
-        hero.append(actions);
         form.append(hero);
 
         const upcomingTitle = el("div","cat-peek-title","משימות קרובות");
