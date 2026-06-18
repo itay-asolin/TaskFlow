@@ -2218,89 +2218,122 @@
       }).sort((a, b) => (a.due || "").localeCompare(b.due || ""));
       const todayEvents = (state.events||[]).filter(e => e.date === todayStr);
 
-      const agendaWrap = el("div");
-      agendaWrap.style.cssText = "background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin: 0; box-shadow: 0 6px 18px rgba(0,0,0,.08); overflow: hidden;";
+      // === כרטיס מאוחד: סדר יום + מיקוד יומי ===
+      const unifiedCard = el("div","");
+      unifiedCard.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.1)";
 
-      const agendaHeader = el("div");
-      agendaHeader.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:10px 12px;cursor:pointer;user-select:none;";
-      const agendaTitle = el("span", "", `☀️ סדר יום · ${agendaOpenTasks.length + todayEvents.length}`);
-      agendaTitle.style.cssText = "font-size:12px;font-weight:900;color:var(--muted);";
-      const agendaChevron = el("span", "", "▾");
-      agendaChevron.style.cssText = "color:var(--faint);font-size:13px;transition:transform .2s;";
-      agendaHeader.append(agendaTitle, agendaChevron);
+      // Tab bar
+      const tabBar = el("div","");
+      tabBar.style.cssText = "display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)";
+      const tabAgenda = el("button","");
+      tabAgenda.type = "button";
+      tabAgenda.textContent = `☀️ סדר יום · ${agendaOpenTasks.length + todayEvents.length}`;
+      const tabFocus = el("button","");
+      tabFocus.type = "button";
+      tabFocus.textContent = "🎯 מיקוד יומי";
 
-      const agendaBody = el("div");
-      agendaBody.style.cssText = "padding: 0 12px 10px; overflow:hidden; transition: max-height .3s ease, opacity .25s ease; max-height: 170px; opacity: 1;";
+      const focusTasks = dailyAgendaTasks();
 
-      const agendaCollapsed = localStorage.getItem("taskflow_agenda_collapsed") !== "false";
-      if (agendaCollapsed) {
-        agendaBody.style.maxHeight = "0";
-        agendaBody.style.opacity = "0";
-        agendaBody.style.paddingBottom = "0";
-        agendaChevron.style.transform = "rotate(-90deg)";
+      function styleTab(btn, active) {
+        btn.style.cssText = `padding:10px 8px;font-size:12px;font-weight:900;border:none;cursor:pointer;transition:.18s;${
+          active
+            ? "background:var(--card);color:var(--accent2);border-bottom:2px solid var(--accent)"
+            : "background:var(--card2);color:var(--faint);border-bottom:2px solid transparent"
+        }`;
       }
 
-      agendaHeader.onclick = () => {
-        const isOpen = agendaBody.style.maxHeight !== "0px" && agendaBody.style.maxHeight !== "0";
-        if (isOpen) {
-          agendaBody.style.maxHeight = "0";
-          agendaBody.style.opacity = "0";
-          agendaBody.style.paddingBottom = "0";
-          agendaChevron.style.transform = "rotate(-90deg)";
-          localStorage.setItem("taskflow_agenda_collapsed", "true");
-        } else {
-          agendaBody.style.maxHeight = "170px";
-          agendaBody.style.opacity = "1";
-          agendaBody.style.paddingBottom = "10px";
-          agendaChevron.style.transform = "rotate(0deg)";
-          localStorage.setItem("taskflow_agenda_collapsed", "false");
-        }
-      };
+      let activeTab = localStorage.getItem("taskflow_home_tab") || "agenda";
 
+      const paneAgenda = el("div","");
+      paneAgenda.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
+      const paneFocus = el("div","");
+      paneFocus.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
+
+      // Fill agenda pane
       if (!agendaOpenTasks.length && !todayEvents.length) {
-        agendaBody.append(el("div", "meta", "אין משימות לשבוע הקרוב. 🎉 זמן לנשום!"));
+        paneAgenda.append(el("div","meta","אין משימות לשבוע הקרוב 🎉"));
       } else {
-        const scrollContainer = el("div");
-        scrollContainer.style.cssText = "max-height: 138px; overflow-y: auto; padding-left: 4px; scrollbar-width: thin; scrollbar-color: var(--accent) var(--card2);";
-        const list = el("div", "agenda-list");
+        const list = el("div","agenda-list");
         todayEvents.sort((a,b)=>(a.time||"").localeCompare(b.time||"")).forEach(ev => {
-           const row = el("div", "agenda-row");
-           row.style.borderRightColor = ev.color || state.accent;
-           row.style.cursor = "pointer";
-           row.append(el("strong", "agenda-title", ev.title), el("span", "agenda-date", ev.time ? ev.time : "כל היום"));
-           row.onclick = (e) => showCalItemPopup(e, ev, ev.date);
-           list.append(row);
+          const row = el("div","agenda-row");
+          row.style.borderRightColor = ev.color || state.accent;
+          row.style.cursor = "pointer";
+          row.append(el("strong","agenda-title",ev.title), el("span","agenda-date",ev.time||"כל היום"));
+          row.onclick = (e) => showCalItemPopup(e, ev, ev.date);
+          list.append(row);
         });
         agendaOpenTasks.forEach(t => {
-           const row = el("div", "agenda-row");
-           row.style.borderRightColor = t.color || state.accent;
-           row.style.cursor = "pointer";
-           const dateText = t.due ? formatDateShort(t.due) : "פתוחה";
-           const date = el("span", "agenda-date" + (t.due === todayStr ? " today" : ""), dateText);
-           if (t.due === todayStr) date.prepend(el("span","agenda-bang","!"));
-
-           const titleWrap = el("div","");
-           titleWrap.style.cssText = "min-width:0;overflow:hidden";
-           titleWrap.append(el("strong","agenda-title", t.name));
-
-           const cat = state.cats.find(c => c.id === t.catId);
-           if (cat) {
-             const colName = cat.columns?.find(c => c.id === t.col)?.name;
-             const breadcrumb = el("div","");
-             breadcrumb.style.cssText = "font-size:11px;font-weight:700;color:var(--faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
-             breadcrumb.textContent = colName ? `${cat.name}  ›  ${colName}` : cat.name;
-             titleWrap.append(breadcrumb);
-           }
-
-           row.append(titleWrap, date);
-           row.onclick = (e) => showCalItemPopup(e, t, t.due || todayStr);
-           list.append(row);
+          const row = el("div","agenda-row");
+          row.style.borderRightColor = t.color || state.accent;
+          row.style.cursor = "pointer";
+          const dateText = t.due ? formatDateShort(t.due) : "פתוחה";
+          const date = el("span","agenda-date"+(t.due===todayStr?" today":""),dateText);
+          if (t.due===todayStr) date.prepend(el("span","agenda-bang","!"));
+          const tw = el("div",""); tw.style.cssText = "min-width:0;overflow:hidden";
+          tw.append(el("strong","agenda-title",t.name));
+          const cat = state.cats.find(c=>c.id===t.catId);
+          if (cat) {
+            const colName = cat.columns?.find(c=>c.id===t.col)?.name;
+            const bc = el("div",""); bc.style.cssText = "font-size:11px;font-weight:700;color:var(--faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+            bc.textContent = colName ? `${cat.name} › ${colName}` : cat.name;
+            tw.append(bc);
+          }
+          row.append(tw, date);
+          row.onclick = (e) => showCalItemPopup(e, t, t.due||todayStr);
+          list.append(row);
         });
-        scrollContainer.append(list);
-        agendaBody.append(scrollContainer);
+        paneAgenda.append(list);
       }
 
-      agendaWrap.append(agendaHeader, agendaBody);
+      // Fill focus pane
+      if (!focusTasks.length) {
+        const emptyMsg = el("div","daily-focus-empty", todayAgenda().skippedDate===toDateKey(new Date()) ? "דילגת על אג׳נדה להיום" : "עוד לא נבחר מיקוד להיום");
+        const startBtn = el("button","btn primary","בחר מיקוד"); startBtn.type="button";
+        startBtn.style.cssText = "margin-top:8px;width:100%";
+        startBtn.onclick = () => openDailyAgendaModal(true);
+        paneFocus.append(emptyMsg, startBtn);
+      } else {
+        const focusList = el("div","daily-focus-list");
+        focusTasks.forEach(task => {
+          const row = el("div","daily-focus-item");
+          const check = el("button","daily-focus-check","✓"); check.type="button";
+          check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
+          const text = el("div","daily-focus-main");
+          const reason = agendaReason(task);
+          const tags = el("div","daily-focus-tags");
+          tags.append(el("span","daily-focus-tag "+reason.cls, reason.label));
+          text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task)), tags);
+          const tools = el("div","daily-focus-tools");
+          const tomorrow = el("button","mini","מחר"); tomorrow.type="button";
+          tomorrow.onclick = (e) => { e.stopPropagation(); moveTaskInDailyAgenda(task.id,"tomorrow"); };
+          const rm = el("button","mini","×"); rm.type="button";
+          rm.onclick = (e) => { e.stopPropagation(); const ag=ensureDailyAgenda(); ag.taskIds=ag.taskIds.filter(id=>id!==task.id); ag.manualIds=ag.manualIds.filter(id=>id!==task.id); ag.deferredIds=ag.deferredIds.filter(id=>id!==task.id); save(); render(); };
+          tools.append(tomorrow, rm);
+          row.append(check, text, tools);
+          row.onclick = (e) => showCalItemPopup(e, task, task.due||toDateKey(new Date()));
+          focusList.append(row);
+        });
+        const editFocusBtn = el("button","btn","✏️ ערוך מיקוד"); editFocusBtn.type="button";
+        editFocusBtn.style.cssText = "margin-top:8px;width:100%;font-size:11px";
+        editFocusBtn.onclick = () => openDailyAgendaModal(true);
+        paneFocus.append(focusList, editFocusBtn);
+      }
+
+      function switchTab(tab) {
+        activeTab = tab;
+        localStorage.setItem("taskflow_home_tab", tab);
+        styleTab(tabAgenda, tab==="agenda");
+        styleTab(tabFocus, tab==="focus");
+        paneAgenda.style.display = tab==="agenda" ? "" : "none";
+        paneFocus.style.display = tab==="focus" ? "" : "none";
+      }
+
+      tabAgenda.onclick = () => switchTab("agenda");
+      tabFocus.onclick = () => switchTab("focus");
+      tabBar.append(tabFocus, tabAgenda);
+      unifiedCard.append(tabBar, paneAgenda, paneFocus);
+      switchTab(activeTab);
+
 
       const listHead = el("div","home-section-title");
       listHead.append(
@@ -2323,7 +2356,7 @@
         // Measure card height after one frame, then set container
         requestAnimationFrame(() => {
           const cardH = cards[0] ? cards[0].offsetHeight : 120;
-          const containerH = cardH + 52; // visible peek of cards behind
+          const containerH = cardH + 44; // room for 3rd card peeking at ty:32
           grid.style.height = containerH + "px";
           grid.style.overflow = "visible";
 
@@ -2337,21 +2370,19 @@
             card.style.transition = "transform 0.32s cubic-bezier(.25,.8,.25,1), opacity 0.28s, box-shadow 0.25s";
           });
 
-          function applyWheel(idx) {
+        function applyWheel(idx) {
             current = ((idx % total) + total) % total;
             cards.forEach((card, i) => {
               const rel = ((i - current + total) % total);
               const styles = [
-                // front
+                // front — full width, full opacity
                 { z:10, tx:0,  ty:0,  scale:1,    opacity:1,   shadow:"0 14px 36px rgba(0,0,0,.32)", events:"auto"  },
-                // 2nd
-                { z:9,  tx:10, ty:14, scale:0.96, opacity:.88, shadow:"0 6px 18px rgba(0,0,0,.2)",  events:"auto"  },
-                // 3rd
-                { z:8,  tx:18, ty:26, scale:0.92, opacity:.62, shadow:"0 3px 10px rgba(0,0,0,.12)", events:"auto"  },
-                // 4th (barely visible)
-                { z:7,  tx:24, ty:36, scale:0.88, opacity:.32, shadow:"none",                        events:"none"  },
+                // 2nd — peek from below-right
+                { z:9,  tx:18, ty:18, scale:0.93, opacity:.82, shadow:"0 6px 18px rgba(0,0,0,.2)",   events:"auto"  },
+                // 3rd — further back
+                { z:8,  tx:32, ty:32, scale:0.86, opacity:.55, shadow:"0 3px 10px rgba(0,0,0,.12)",  events:"auto"  },
               ];
-              const s = rel < styles.length ? styles[rel] : { z:6, tx:28, ty:40, scale:0.85, opacity:0, shadow:"none", events:"none" };
+              const s = rel < styles.length ? styles[rel] : { z:6, tx:38, ty:40, scale:0.82, opacity:0, shadow:"none", events:"none" };
               card.style.zIndex = s.z;
               card.style.transform = `translate(${s.tx}px, ${s.ty}px) scale(${s.scale})`;
               card.style.opacity = s.opacity;
@@ -2406,10 +2437,10 @@
       }
 
       const secondary = el("div","home-secondary");
-      secondary.append(renderDailyFocusCard(true), renderSharedWheel(true));
+      secondary.append(renderSharedWheel(true));
 
       const wrap = el("div","home-wrap");
-      wrap.append(agendaWrap, listHead, listsWheel, secondary);
+      wrap.append(unifiedCard, listHead, listsWheel, secondary);
       $("content").replaceChildren(wrap);
     }
 
