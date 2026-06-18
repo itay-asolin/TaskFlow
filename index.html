@@ -887,7 +887,7 @@
       .cat-progress-stats{font-size:11px;margin-bottom:5px}
       .cat-progress-bg{height:7px}
       .cat-peek{display:none!important}
-      .cat-open-hint{display:inline-flex;align-items:center;justify-content:center;grid-column:1;justify-self:start;margin-right:8px;border:1px solid color-mix(in srgb,var(--cat-color) 38%,var(--border));background:color-mix(in srgb,var(--cat-color) 10%,var(--card2));color:var(--text);border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900}
+      .cat-open-hint{display:none}
       .cat-sun{width:116px;height:116px}
       .cat-orbit{width:68px;min-height:68px}
       .cat-orbit strong{font-size:17px}
@@ -1022,13 +1022,18 @@
         border-radius:18px;
       }
       #briefPanel{
-        left:4px!important;
-        right:4px!important;
-        top:auto!important;
-        bottom:calc(76px + env(safe-area-inset-bottom));
-        width:auto!important;
-        max-height:88dvh!important;
+        left:50%!important;
+        right:auto!important;
+        top:50%!important;
+        bottom:auto!important;
+        width:calc(100vw - 16px)!important;
+        max-height:92dvh!important;
         border-radius:22px;
+        transform:translate(-50%,-50%) scale(1)!important;
+      }
+      #briefPanel[style*="scale(.96)"]{
+        transform:translate(-50%,-50%) scale(.96)!important;
+        opacity:0;
       }
       #startupBriefCard,#todayAlertCard{
         width:calc(100vw - 20px);
@@ -2364,7 +2369,8 @@
         const origCards = [...grid.querySelectorAll(".cat-card")];
         const origOnclicks = origCards.map(c => c.onclick);
         const total = origCards.length;
-        let current = 0; // logical index (0..total-1)
+        let current = 0; // logical real index (0..total-1), derived from vCurrent
+        let vCurrent = 0; // continuous virtual slot index, only ever incremented/decremented
 
         // Reset grid to block
         grid.style.cssText = "padding:0;margin:0;gap:0;display:block;height:auto;overflow:visible";
@@ -2382,16 +2388,16 @@
         const slider = el("div","");
         slider.style.cssText = `overflow:hidden;position:relative;border-radius:14px;flex:1;min-width:0;height:${VIEWPORT_H}px`;
 
-        // For infinite loop, clone 1 before and 1 after (so 3 are always visible)
-        const PEEK = total >= 3 ? 1 : 0;
+        // For true seamless infinite scroll, build a long track of repeated
+        // cycles and walk a continuous virtual index that only ever
+        // increments/decrements — never resets to 0, so it never jumps back.
+        const CYCLES = total >= 3 ? 7 : 1;
+        const MID_CYCLE = Math.floor(CYCLES / 2);
         const allItems = []; // {node, realIdx}
-        for (let k = PEEK; k >= 1; k--) {
-          const idx = ((total - k) % total + total) % total;
-          allItems.push({ node: origCards[idx].cloneNode(true), realIdx: idx });
-        }
-        origCards.forEach((c, i) => allItems.push({ node: c, realIdx: i }));
-        for (let k = 0; k < PEEK; k++) {
-          allItems.push({ node: origCards[k % total].cloneNode(true), realIdx: k % total });
+        for (let cyc = 0; cyc < CYCLES; cyc++) {
+          origCards.forEach((c, i) => {
+            allItems.push({ node: cyc === 0 ? c : c.cloneNode(true), realIdx: i });
+          });
         }
 
         const track = el("div","");
@@ -2418,11 +2424,9 @@
 
           const origClick = origOnclicks[realIdx];
           node.onclick = (e) => {
-            const centerSlot = PEEK + current;
-            if (slotIdx !== centerSlot) {
+            if (slotIdx !== vCurrent) {
               e.stopPropagation();
-              const diff = slotIdx - centerSlot;
-              goTo(current + diff);
+              goTo(vCurrent + (slotIdx - vCurrent));
               return;
             }
             if (origClick) origClick.call(node, e);
@@ -2437,17 +2441,28 @@
 
         let isAnimating = false;
 
-        function getOffset(logicalIdx) {
-          // Center slot index = PEEK + logicalIdx. Centered means its top
-          // sits at 1*ROW_H from top of the 3-slot viewport (i.e. middle slot).
-          const slotIdx = PEEK + logicalIdx;
+        function offsetForSlot(slotIdx) {
           return slotIdx * ROW_H - ROW_H; // shift so center slot lands in middle row
         }
 
-        function goTo(logicalIdx, animate = true) {
+        function rewrapIfNeeded() {
+          if (CYCLES <= 1) return;
+          const cycleIdx = Math.floor(vCurrent / total);
+          if (cycleIdx <= 1 || cycleIdx >= CYCLES - 2) {
+            const shiftCycles = MID_CYCLE - cycleIdx;
+            vCurrent += shiftCycles * total;
+            track.style.transition = "none";
+            track.style.transform = `translateY(${-offsetForSlot(vCurrent)}px)`;
+            // force reflow so the next transitioned move doesn't animate from the old spot
+            void track.offsetHeight;
+          }
+        }
+
+        function goTo(newVCurrent, animate = true) {
           if (isAnimating && animate) return;
-          current = ((logicalIdx % total) + total) % total;
-          const offset = getOffset(current);
+          vCurrent = newVCurrent;
+          current = ((vCurrent % total) + total) % total;
+          const offset = offsetForSlot(vCurrent);
           track.style.transition = animate ? "transform 0.34s cubic-bezier(.25,.8,.25,1)" : "none";
           track.style.transform = `translateY(${-offset}px)`;
           updateDots();
@@ -2455,13 +2470,18 @@
 
           if (animate && total > 1) {
             isAnimating = true;
-            setTimeout(() => { isAnimating = false; }, 350);
+            setTimeout(() => {
+              isAnimating = false;
+              rewrapIfNeeded();
+            }, 350);
+          } else {
+            rewrapIfNeeded();
           }
         }
 
         function updateCardHighlight() {
           allItems.forEach(({ node }, slotIdx) => {
-            const isCenter = slotIdx === PEEK + current;
+            const isCenter = slotIdx === vCurrent;
             // Never fully fade out — keep neighbors clearly visible (active-ish)
             node.style.opacity = isCenter ? "1" : "0.82";
             node.style.transform = isCenter ? "scale(1)" : "scale(0.96)";
@@ -2490,7 +2510,7 @@
 
         // Swipe support (vertical) — follows finger live, then snaps to center
         let ty0 = 0, tx0 = 0, dragging = false, dragOffset = 0;
-        const baseOffset = () => getOffset(current);
+        const baseOffset = () => offsetForSlot(vCurrent);
 
         slider.addEventListener("touchstart", e => {
           tx0 = e.touches[0].clientX;
@@ -2520,11 +2540,11 @@
           dragging = false;
           const threshold = ROW_H * 0.22;
           if (dragOffset > threshold) {
-            goTo(current - 1);
+            goTo(vCurrent - 1);
           } else if (dragOffset < -threshold) {
-            goTo(current + 1);
+            goTo(vCurrent + 1);
           } else {
-            goTo(current); // snap back to center
+            goTo(vCurrent); // snap back to center
           }
         }, { passive: true });
 
@@ -2536,7 +2556,7 @@
           const b = el("button","",label);
           b.type = "button";
           b.style.cssText = "width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);flex:0 0 auto";
-          b.onclick = () => goTo(current + dir);
+          b.onclick = () => goTo(vCurrent + dir);
           return b;
         };
         const upBtn = mkArrow(-1, "▲");
@@ -2553,7 +2573,13 @@
         origCards.forEach((_, i) => {
           const dot = el("div","");
           dot.style.cssText = `width:7px;height:7px;border-radius:50%;background:${i===0?"var(--accent)":"var(--border)"};transition:background .25s,transform .2s;cursor:pointer;flex:0 0 auto`;
-          dot.onclick = () => goTo(i);
+          dot.onclick = () => {
+            // jump to nearest occurrence of real index i relative to vCurrent
+            const diff = (((i - current) % total) + total) % total;
+            const diffAlt = diff - total;
+            const shortest = Math.abs(diff) <= Math.abs(diffAlt) ? diff : diffAlt;
+            goTo(vCurrent + shortest);
+          };
           dots.append(dot);
         });
         function updateDots() {
@@ -2571,7 +2597,8 @@
         listsWheel.style.overflow = "hidden";
         listsWheel.style.touchAction = "pan-x";
 
-        goTo(0, false);
+        vCurrent = MID_CYCLE * total;
+        goTo(vCurrent, false);
       }
 
       const secondary = el("div","home-secondary");
