@@ -2470,24 +2470,61 @@
           });
         }
 
-        // Swipe support (vertical) — locked container, no rubber-banding
-        let ty0 = 0, tx0 = 0, swiping = false;
+        function updateLiveHighlight(currentOffset) {
+          // currentOffset = the track's top offset (pre-negation) while dragging.
+          // The viewport's center row is at 1*ROW_H. A slot is "centered" when
+          // its own top (slotIdx*ROW_H) minus currentOffset equals 1*ROW_H.
+          allItems.forEach(({ node }, slotIdx) => {
+            const slotTop = slotIdx * ROW_H;
+            const distFromCenter = Math.abs((slotTop - currentOffset) - ROW_H);
+            const t = Math.max(0, 1 - distFromCenter / ROW_H); // 1 at center, 0 one row away
+            const opacity = 0.82 + 0.18 * t;
+            const scale = 0.96 + 0.04 * t;
+            const brightness = 0.92 + 0.08 * t;
+            node.style.transition = "none";
+            node.style.opacity = opacity.toFixed(3);
+            node.style.transform = `scale(${scale.toFixed(3)})`;
+            node.style.filter = `brightness(${brightness.toFixed(3)})`;
+          });
+        }
+
+        // Swipe support (vertical) — follows finger live, then snaps to center
+        let ty0 = 0, tx0 = 0, dragging = false, dragOffset = 0;
+        const baseOffset = () => getOffset(current);
+
         slider.addEventListener("touchstart", e => {
           tx0 = e.touches[0].clientX;
           ty0 = e.touches[0].clientY;
-          swiping = false;
+          dragging = false;
+          dragOffset = 0;
+          track.style.transition = "none";
         }, { passive: true });
+
         slider.addEventListener("touchmove", e => {
-          const dx = Math.abs(e.touches[0].clientX - tx0);
-          const dy = Math.abs(e.touches[0].clientY - ty0);
-          if (dy > dx && dy > 8) { swiping = true; e.preventDefault(); }
+          const dx = e.touches[0].clientX - tx0;
+          const dy = e.touches[0].clientY - ty0;
+          if (!dragging) {
+            if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 6) dragging = true;
+            else return;
+          }
+          e.preventDefault();
+          // Rubber-band slightly past edges for non-looping single/double item case
+          dragOffset = dy;
+          const offset = baseOffset() - dragOffset;
+          track.style.transform = `translateY(${-offset}px)`;
+          updateLiveHighlight(offset);
         }, { passive: false });
-        slider.addEventListener("touchend", e => {
-          if (!swiping) return;
-          const dy = ty0 - e.changedTouches[0].clientY;
-          const dx = tx0 - e.changedTouches[0].clientX;
-          if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 24) {
-            goTo(dy > 0 ? current + 1 : current - 1);
+
+        slider.addEventListener("touchend", () => {
+          if (!dragging) return;
+          dragging = false;
+          const threshold = ROW_H * 0.22;
+          if (dragOffset > threshold) {
+            goTo(current - 1);
+          } else if (dragOffset < -threshold) {
+            goTo(current + 1);
+          } else {
+            goTo(current); // snap back to center
           }
         }, { passive: true });
 
