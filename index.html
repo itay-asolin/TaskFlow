@@ -781,10 +781,14 @@
 
     @media(min-width:821px){
       #briefPanel{
-        width:min(640px,calc(100vw - 80px))!important;
-        max-height:calc(100vh - 120px)!important;
-        left:28px!important;
+        width:min(780px,calc(100vw - 80px))!important;
+        max-height:calc(100vh - 100px)!important;
+        left:50%!important;
         top:72px!important;
+        transform:translateX(-50%) translateY(0) scale(1)!important;
+      }
+      #briefPanel[style*="scale(.96)"]{
+        transform:translateX(-50%) translateY(-18px) scale(.96)!important;
       }
       #startupBriefCard,#todayAlertCard{
         width:min(680px,calc(100vw - 80px));
@@ -1014,13 +1018,13 @@
         border-radius:18px;
       }
       #briefPanel{
-        left:10px!important;
-        right:10px!important;
+        left:4px!important;
+        right:4px!important;
         top:auto!important;
         bottom:calc(76px + env(safe-area-inset-bottom));
         width:auto!important;
-        max-height:70dvh!important;
-        border-radius:20px;
+        max-height:88dvh!important;
+        border-radius:22px;
       }
       #startupBriefCard,#todayAlertCard{
         width:calc(100vw - 20px);
@@ -2351,87 +2355,155 @@
       const listsWheel = el("div","lists-wheel");
       listsWheel.append(grid);
 
-      // Infinite circular stacked carousel (mobile only)
+      // Carousel: 3 cards visible, infinite loop, one step at a time (mobile)
       if (window.matchMedia("(max-width:820px)").matches && state.cats.length > 0) {
-        const cards = [...grid.querySelectorAll(".cat-card")];
-        const total = cards.length;
-        let current = 0;
+        const origCards = [...grid.querySelectorAll(".cat-card")];
+        const origOnclicks = origCards.map(c => c.onclick);
+        const total = origCards.length;
+        let current = 0; // logical index (0..total-1)
 
-        // Make grid a positioning context with fixed height
-        grid.style.cssText = "position:relative;padding:0;margin:0;gap:0;display:block";
+        // Reset grid to block
+        grid.style.cssText = "padding:0;margin:0;gap:0;display:block;height:auto;overflow:visible";
 
-        // Measure card height after one frame, then set container
-        requestAnimationFrame(() => {
-          const cardH = cards[0] ? cards[0].offsetHeight : 120;
-          const containerH = cardH + 44; // room for 3rd card peeking at ty:32
-          grid.style.height = containerH + "px";
-          grid.style.overflow = "visible";
+        // Build slider container
+        const slider = el("div","");
+        slider.style.cssText = "overflow:hidden;position:relative;border-radius:14px;margin-inline:-4px";
 
-          // Position all cards absolutely stacked
-          cards.forEach(card => {
-            card.style.position = "absolute";
-            card.style.top = "0";
-            card.style.left = "0";
-            card.style.right = "0";
-            card.style.width = "100%";
-            card.style.transition = "transform 0.32s cubic-bezier(.25,.8,.25,1), opacity 0.28s, box-shadow 0.25s";
-          });
+        // For infinite loop, clone first 2 and last 2 cards
+        // Layout: [clone-last][clone-last-1] ... [real-0]..[real-n] ... [clone-0][clone-1]
+        const PEEK = total >= 3 ? 1 : 0; // how many clones on each side
+        const allItems = []; // {node, realIdx}
+        // prefix clones
+        for (let k = PEEK; k >= 1; k--) {
+          const idx = ((total - k) % total + total) % total;
+          allItems.push({ node: origCards[idx].cloneNode(true), realIdx: idx });
+        }
+        // real items
+        origCards.forEach((c, i) => allItems.push({ node: c, realIdx: i }));
+        // suffix clones
+        for (let k = 0; k < PEEK; k++) {
+          allItems.push({ node: origCards[k % total].cloneNode(true), realIdx: k % total });
+        }
 
-        function applyWheel(idx) {
-            current = ((idx % total) + total) % total;
-            cards.forEach((card, i) => {
-              const rel = ((i - current + total) % total);
-              const styles = [
-                // front — full width, full opacity
-                { z:10, tx:0,  ty:0,  scale:1,    opacity:1,   shadow:"0 14px 36px rgba(0,0,0,.32)", events:"auto"  },
-                // 2nd — peek from below-right
-                { z:9,  tx:18, ty:18, scale:0.93, opacity:.82, shadow:"0 6px 18px rgba(0,0,0,.2)",   events:"auto"  },
-                // 3rd — further back
-                { z:8,  tx:32, ty:32, scale:0.86, opacity:.55, shadow:"0 3px 10px rgba(0,0,0,.12)",  events:"auto"  },
-              ];
-              const s = rel < styles.length ? styles[rel] : { z:6, tx:38, ty:40, scale:0.82, opacity:0, shadow:"none", events:"none" };
-              card.style.zIndex = s.z;
-              card.style.transform = `translate(${s.tx}px, ${s.ty}px) scale(${s.scale})`;
-              card.style.opacity = s.opacity;
-              card.style.boxShadow = s.shadow;
-              card.style.pointerEvents = s.events;
-            });
-            updateDots();
-          }
+        const track = el("div","");
+        track.style.cssText = "display:flex;will-change:transform";
 
-          applyWheel(0);
+        // Card width: each item ~34% so 3 are visible; gap via padding
+        const CARD_PCT = total === 1 ? 100 : total === 2 ? 50 : 34;
+        const GAP = 6; // px padding each side
 
-          // Swipe support
-          let ty0 = 0, tx0 = 0;
-          listsWheel.addEventListener("touchstart", e => {
-            ty0 = e.touches[0].clientY; tx0 = e.touches[0].clientX;
-          }, {passive:true});
-          listsWheel.addEventListener("touchend", e => {
-            const dy = ty0 - e.changedTouches[0].clientY;
-            const dx = tx0 - e.changedTouches[0].clientX;
-            if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 28) {
-              applyWheel(dy > 0 ? current + 1 : current - 1);
+        allItems.forEach(({ node, realIdx }, slotIdx) => {
+          node.style.position = "";
+          node.style.top = "";
+          node.style.left = "";
+          node.style.right = "";
+          node.style.width = "100%";
+          node.style.transition = "";
+          node.style.transform = "";
+          node.style.opacity = "1";
+          node.style.boxShadow = "";
+          node.style.pointerEvents = "auto";
+          node.style.zIndex = "";
+
+          const wrap = el("div","");
+          wrap.style.cssText = `flex:0 0 ${CARD_PCT}%;max-width:${CARD_PCT}%;padding:0 ${GAP}px;box-sizing:border-box`;
+
+          // Wire onclick for real items
+          const origClick = origOnclicks[realIdx];
+          node.onclick = (e) => {
+            // Find which real slot is "center" (current)
+            const centerSlot = PEEK + current;
+            if (slotIdx !== centerSlot) {
+              e.stopPropagation();
+              const diff = slotIdx - centerSlot;
+              goTo(current + diff);
+              return;
             }
-          }, {passive:true});
+            if (origClick) origClick.call(node, e);
+          };
 
-          // Tap behind cards to rotate forward
-          cards.forEach((card, i) => {
-            const origOnclick = card.onclick;
-            card.onclick = (e) => {
-              const rel = ((i - current + total) % total);
-              if (rel !== 0) { e.stopPropagation(); applyWheel(i); return; }
-              if (origOnclick) origOnclick.call(card, e);
-            };
-          });
+          wrap.append(node);
+          track.append(wrap);
         });
+
+        grid.replaceChildren(slider);
+        slider.append(track);
+
+        let isAnimating = false;
+
+        function getOffset(logicalIdx) {
+          // slot index of the current real item
+          const slotIdx = PEEK + logicalIdx;
+          // center it: offset so slotIdx is in the middle of 3 visible cards
+          const cardW = slider.offsetWidth * (CARD_PCT / 100);
+          // We want slot slotIdx to be centered = left edge at (visibleCenter - 0.5 cardW)
+          // visible area = slider.offsetWidth, showing 3 cards
+          // center of visible = slider.offsetWidth / 2
+          // left edge of center card = center - cardW/2
+          const leftEdge = slotIdx * cardW - (slider.offsetWidth / 2 - cardW / 2);
+          return leftEdge;
+        }
+
+        function goTo(logicalIdx, animate = true) {
+          if (isAnimating) return;
+          current = ((logicalIdx % total) + total) % total;
+          const offset = getOffset(current);
+          if (animate) {
+            track.style.transition = "transform 0.36s cubic-bezier(.25,.8,.25,1)";
+          } else {
+            track.style.transition = "none";
+          }
+          track.style.transform = `translateX(${-offset}px)`;
+          updateDots();
+          updateCardHighlight();
+
+          if (animate && total > 1) {
+            isAnimating = true;
+            // After animation, if we're at a clone zone, jump silently
+            setTimeout(() => {
+              isAnimating = false;
+            }, 370);
+          }
+        }
+
+        function updateCardHighlight() {
+          allItems.forEach(({ node }, slotIdx) => {
+            const isCenter = slotIdx === PEEK + current;
+            node.style.opacity = isCenter ? "1" : "0.72";
+            node.style.transform = isCenter ? "scale(1)" : "scale(0.93)";
+            node.style.transition = "opacity .3s, transform .3s";
+            node.style.filter = isCenter ? "" : "brightness(0.85)";
+          });
+        }
+
+        // Swipe support
+        let tx0 = 0, ty0 = 0, swiping = false;
+        slider.addEventListener("touchstart", e => {
+          tx0 = e.touches[0].clientX;
+          ty0 = e.touches[0].clientY;
+          swiping = false;
+        }, { passive: true });
+        slider.addEventListener("touchmove", e => {
+          const dx = Math.abs(e.touches[0].clientX - tx0);
+          const dy = Math.abs(e.touches[0].clientY - ty0);
+          if (dx > dy && dx > 8) swiping = true;
+        }, { passive: true });
+        slider.addEventListener("touchend", e => {
+          if (!swiping) return;
+          const dx = tx0 - e.changedTouches[0].clientX;
+          const dy = ty0 - e.changedTouches[0].clientY;
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 28) {
+            goTo(dx > 0 ? current + 1 : current - 1);
+          }
+        }, { passive: true });
 
         // Dot indicators
         const dots = el("div","");
-        dots.style.cssText = "display:flex;justify-content:center;gap:7px;padding:8px 0 2px";
-        cards.forEach((_, i) => {
+        dots.style.cssText = "display:flex;justify-content:center;gap:7px;padding:10px 0 2px";
+        origCards.forEach((_, i) => {
           const dot = el("div","");
           dot.style.cssText = `width:7px;height:7px;border-radius:50%;background:${i===0?"var(--accent)":"var(--border)"};transition:background .25s,transform .2s;cursor:pointer;flex:0 0 auto`;
-          dot.onclick = () => applyWheel(i);
+          dot.onclick = () => goTo(i);
           dots.append(dot);
         });
         function updateDots() {
@@ -2441,6 +2513,8 @@
           });
         }
         listsWheel.append(dots);
+
+        requestAnimationFrame(() => { goTo(0, false); });
       }
 
       const secondary = el("div","home-secondary");
