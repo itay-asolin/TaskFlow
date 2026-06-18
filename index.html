@@ -512,12 +512,12 @@
       #content,.list,.grid{width:100%;max-width:100%;min-width:0}
       .top{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding-inline:0}
       .top > div:first-child{padding-right:0!important;min-width:0;order:2}
-      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr 42px;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
+      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr 110px;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
       #topBarBtns button,#briefBtn{width:100%;max-width:none!important;min-width:0!important}
-      #themeToggleBtn{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:50%!important;padding:0!important;display:flex;align-items:center;justify-content:center}
-      #themeToggleBtn .theme-pill{padding:0;background:none;box-shadow:none}
-      #themeToggleBtn .theme-pill span:not(.theme-icon){display:none}
-      #themeToggleBtn .theme-icon{width:100%;height:100%;font-size:17px}
+      #themeToggleBtn{width:100%!important;height:38px!important;min-width:0!important;min-height:38px!important;border-radius:999px!important;padding:0 10px!important;display:flex;align-items:center;justify-content:center}
+      #themeToggleBtn .theme-pill{padding:0;background:none;box-shadow:none;display:flex;align-items:center;gap:6px;justify-content:center;width:100%}
+      #themeToggleBtn .theme-pill span:not(.theme-icon){display:inline;font-size:12px;font-weight:800}
+      #themeToggleBtn .theme-icon{width:auto;height:auto;font-size:15px;background:none}
       .actions{display:grid;grid-template-columns:1fr auto;gap:8px;width:100%;min-width:0;order:3}
       .actions .search{grid-column:1/-1;width:100%;max-width:none;min-width:0}
       #addBtn{grid-column:1/-1;width:100%}
@@ -786,7 +786,8 @@
     @media(min-width:821px){
       #briefPanel{
         width:min(960px,calc(100vw - 60px))!important;
-        max-height:calc(100vh - 60px)!important;
+        max-height:calc(100vh - 30px)!important;
+        height:calc(100vh - 30px);
         left:50%!important;
         top:50%!important;
         transform:translate(-50%,-50%) scale(1)!important;
@@ -932,15 +933,16 @@
       .nav button{padding:11px 10px}
 
       #topBarBtns button{
-        height:42px!important;
-        min-height:42px;
+        height:38px!important;
+        min-height:38px;
         border-radius:999px!important;
         opacity:1!important;
         font-size:14px;
+        padding-inline:16px!important;
       }
-      #themeToggleBtn{max-width:none!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:50%!important;overflow:hidden}
-      #themeToggleBtn .theme-icon{font-size:19px}
-      #briefBtn{max-width:none!important;font-size:14px;font-weight:900}
+      #themeToggleBtn{max-width:none!important;width:100%!important;height:38px!important;min-width:0!important;min-height:38px!important;border-radius:999px!important;overflow:hidden}
+      #themeToggleBtn .theme-icon{font-size:15px}
+      #briefBtn{max-width:none!important;font-size:14px;font-weight:900;letter-spacing:.2px}
       #versionBadge{display:none}
       #bottomNav{
         height:calc(72px + env(safe-area-inset-bottom));
@@ -1030,7 +1032,8 @@
         top:50%!important;
         bottom:auto!important;
         width:calc(100vw - 10px)!important;
-        max-height:95dvh!important;
+        max-height:98dvh!important;
+        height:98dvh;
         border-radius:22px;
         transform:translate(-50%,-50%) scale(1)!important;
         font-size:1.08em;
@@ -2422,6 +2425,8 @@
           node.style.zIndex = "";
           node.style.boxSizing = "border-box";
           node.style.overflow = "hidden";
+          node.style.willChange = "transform,opacity";
+          node.style.backfaceVisibility = "hidden";
 
           const wrap = el("div","");
           wrap.style.cssText = `flex:0 0 ${SLOT_H}px;height:${SLOT_H}px;margin-bottom:${GAP}px;box-sizing:border-box;display:flex`;
@@ -2456,7 +2461,7 @@
             const shiftCycles = MID_CYCLE - cycleIdx;
             vCurrent += shiftCycles * total;
             track.style.transition = "none";
-            track.style.transform = `translateY(${-offsetForSlot(vCurrent)}px)`;
+            track.style.transform = `translate3d(0,${-offsetForSlot(vCurrent)}px,0)`;
             // force reflow so the next transitioned move doesn't animate from the old spot
             void track.offsetHeight;
           }
@@ -2468,7 +2473,7 @@
           current = ((vCurrent % total) + total) % total;
           const offset = offsetForSlot(vCurrent);
           track.style.transition = animate ? "transform 0.34s cubic-bezier(.25,.8,.25,1)" : "none";
-          track.style.transform = `translateY(${-offset}px)`;
+          track.style.transform = `translate3d(0,${-offset}px,0)`;
           updateDots();
           updateCardHighlight();
 
@@ -2490,9 +2495,8 @@
             const isCenter = slotIdx === vCurrent;
             // Never fully fade out — keep neighbors clearly visible (active-ish)
             node.style.opacity = isCenter ? "1" : "0.82";
-            node.style.transform = isCenter ? "scale(1)" : "scale(0.96)";
+            node.style.transform = isCenter ? "translateZ(0) scale(1)" : "translateZ(0) scale(0.96)";
             node.style.transition = "opacity .3s, transform .3s";
-            node.style.filter = isCenter ? "" : "brightness(0.92)";
           });
         }
 
@@ -2508,11 +2512,9 @@
             const t = Math.max(0, 1 - distFromCenter / ROW_H); // 1 at center, 0 one row away
             const opacity = 0.82 + 0.18 * t;
             const scale = 0.96 + 0.04 * t;
-            const brightness = 0.92 + 0.08 * t;
             node.style.transition = "none";
             node.style.opacity = opacity.toFixed(3);
-            node.style.transform = `scale(${scale.toFixed(3)})`;
-            node.style.filter = `brightness(${brightness.toFixed(3)})`;
+            node.style.transform = `translateZ(0) scale(${scale.toFixed(3)})`;
           });
         }
 
@@ -2539,7 +2541,7 @@
           // Rubber-band slightly past edges for non-looping single/double item case
           dragOffset = dy;
           const offset = baseOffset() - dragOffset;
-          track.style.transform = `translateY(${-offset}px)`;
+          track.style.transform = `translate3d(0,${-offset}px,0)`;
           updateLiveHighlight(offset);
         }, { passive: false });
 
