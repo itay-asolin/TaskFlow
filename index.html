@@ -512,8 +512,12 @@
       #content,.list,.grid{width:100%;max-width:100%;min-width:0}
       .top{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding-inline:0}
       .top > div:first-child{padding-right:0!important;min-width:0;order:2}
-      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
-      #topBarBtns button,#themeToggleBtn,#briefBtn{width:100%;max-width:none!important;min-width:0!important}
+      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr 42px;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
+      #topBarBtns button,#briefBtn{width:100%;max-width:none!important;min-width:0!important}
+      #themeToggleBtn{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:50%!important;padding:0!important;display:flex;align-items:center;justify-content:center}
+      #themeToggleBtn .theme-pill{padding:0;background:none;box-shadow:none}
+      #themeToggleBtn .theme-pill span:not(.theme-icon){display:none}
+      #themeToggleBtn .theme-icon{width:100%;height:100%;font-size:17px}
       .actions{display:grid;grid-template-columns:1fr auto;gap:8px;width:100%;min-width:0;order:3}
       .actions .search{grid-column:1/-1;width:100%;max-width:none;min-width:0}
       #addBtn{grid-column:1/-1;width:100%}
@@ -932,8 +936,8 @@
         border-radius:999px!important;
         opacity:.92!important;
       }
-      #themeToggleBtn{max-width:112px;overflow:hidden}
-      #briefBtn{max-width:92px}
+      #themeToggleBtn{max-width:none!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;border-radius:50%!important;overflow:hidden}
+      #briefBtn{max-width:none!important}
       #versionBadge{display:none}
       #bottomNav{
         height:calc(72px + env(safe-area-inset-bottom));
@@ -2355,7 +2359,7 @@
       const listsWheel = el("div","lists-wheel");
       listsWheel.append(grid);
 
-      // Carousel: 3 cards visible, infinite loop, one step at a time (mobile)
+      // Carousel: 3 cards visible VERTICALLY, infinite loop, one step at a time (mobile)
       if (window.matchMedia("(max-width:820px)").matches && state.cats.length > 0) {
         const origCards = [...grid.querySelectorAll(".cat-card")];
         const origOnclicks = origCards.map(c => c.onclick);
@@ -2365,32 +2369,31 @@
         // Reset grid to block
         grid.style.cssText = "padding:0;margin:0;gap:0;display:block;height:auto;overflow:visible";
 
-        // Build slider container
-        const slider = el("div","");
-        slider.style.cssText = "overflow:hidden;position:relative;border-radius:14px;margin-inline:-4px";
+        // Build slider container (vertical)
+        const sliderOuter = el("div","");
+        sliderOuter.style.cssText = "display:flex;align-items:stretch;gap:6px";
 
-        // For infinite loop, clone first 2 and last 2 cards
-        // Layout: [clone-last][clone-last-1] ... [real-0]..[real-n] ... [clone-0][clone-1]
-        const PEEK = total >= 3 ? 1 : 0; // how many clones on each side
+        const slider = el("div","");
+        slider.style.cssText = "overflow:hidden;position:relative;border-radius:14px;flex:1;min-width:0";
+
+        // For infinite loop, clone 1 before and 1 after (so 3 are always visible)
+        const PEEK = total >= 3 ? 1 : 0;
         const allItems = []; // {node, realIdx}
-        // prefix clones
         for (let k = PEEK; k >= 1; k--) {
           const idx = ((total - k) % total + total) % total;
           allItems.push({ node: origCards[idx].cloneNode(true), realIdx: idx });
         }
-        // real items
         origCards.forEach((c, i) => allItems.push({ node: c, realIdx: i }));
-        // suffix clones
         for (let k = 0; k < PEEK; k++) {
           allItems.push({ node: origCards[k % total].cloneNode(true), realIdx: k % total });
         }
 
         const track = el("div","");
-        track.style.cssText = "display:flex;will-change:transform";
+        track.style.cssText = "display:flex;flex-direction:column;will-change:transform";
 
-        // Card width: each item ~34% so 3 are visible; gap via padding
+        // Card height: each item ~34% so 3 are visible vertically
         const CARD_PCT = total === 1 ? 100 : total === 2 ? 50 : 34;
-        const GAP = 6; // px padding each side
+        const GAP = 6; // px padding top/bottom
 
         allItems.forEach(({ node, realIdx }, slotIdx) => {
           node.style.position = "";
@@ -2398,6 +2401,7 @@
           node.style.left = "";
           node.style.right = "";
           node.style.width = "100%";
+          node.style.height = "100%";
           node.style.transition = "";
           node.style.transform = "";
           node.style.opacity = "1";
@@ -2406,12 +2410,10 @@
           node.style.zIndex = "";
 
           const wrap = el("div","");
-          wrap.style.cssText = `flex:0 0 ${CARD_PCT}%;max-width:${CARD_PCT}%;padding:0 ${GAP}px;box-sizing:border-box`;
+          wrap.style.cssText = `flex:0 0 ${CARD_PCT}%;max-height:${CARD_PCT}%;height:${CARD_PCT}%;padding:${GAP}px 0;box-sizing:border-box;display:flex`;
 
-          // Wire onclick for real items
           const origClick = origOnclicks[realIdx];
           node.onclick = (e) => {
-            // Find which real slot is "center" (current)
             const centerSlot = PEEK + current;
             if (slotIdx !== centerSlot) {
               e.stopPropagation();
@@ -2426,43 +2428,30 @@
           track.append(wrap);
         });
 
-        grid.replaceChildren(slider);
+        grid.replaceChildren(sliderOuter);
         slider.append(track);
 
         let isAnimating = false;
 
         function getOffset(logicalIdx) {
-          // slot index of the current real item
           const slotIdx = PEEK + logicalIdx;
-          // center it: offset so slotIdx is in the middle of 3 visible cards
-          const cardW = slider.offsetWidth * (CARD_PCT / 100);
-          // We want slot slotIdx to be centered = left edge at (visibleCenter - 0.5 cardW)
-          // visible area = slider.offsetWidth, showing 3 cards
-          // center of visible = slider.offsetWidth / 2
-          // left edge of center card = center - cardW/2
-          const leftEdge = slotIdx * cardW - (slider.offsetWidth / 2 - cardW / 2);
-          return leftEdge;
+          const cardH = slider.offsetHeight * (CARD_PCT / 100);
+          const topEdge = slotIdx * cardH - (slider.offsetHeight / 2 - cardH / 2);
+          return topEdge;
         }
 
         function goTo(logicalIdx, animate = true) {
           if (isAnimating) return;
           current = ((logicalIdx % total) + total) % total;
           const offset = getOffset(current);
-          if (animate) {
-            track.style.transition = "transform 0.36s cubic-bezier(.25,.8,.25,1)";
-          } else {
-            track.style.transition = "none";
-          }
-          track.style.transform = `translateX(${-offset}px)`;
+          track.style.transition = animate ? "transform 0.36s cubic-bezier(.25,.8,.25,1)" : "none";
+          track.style.transform = `translateY(${-offset}px)`;
           updateDots();
           updateCardHighlight();
 
           if (animate && total > 1) {
             isAnimating = true;
-            // After animation, if we're at a clone zone, jump silently
-            setTimeout(() => {
-              isAnimating = false;
-            }, 370);
+            setTimeout(() => { isAnimating = false; }, 370);
           }
         }
 
@@ -2470,13 +2459,13 @@
           allItems.forEach(({ node }, slotIdx) => {
             const isCenter = slotIdx === PEEK + current;
             node.style.opacity = isCenter ? "1" : "0.72";
-            node.style.transform = isCenter ? "scale(1)" : "scale(0.93)";
+            node.style.transform = isCenter ? "scale(1)" : "scale(0.94)";
             node.style.transition = "opacity .3s, transform .3s";
             node.style.filter = isCenter ? "" : "brightness(0.85)";
           });
         }
 
-        // Swipe support
+        // Swipe support (vertical)
         let tx0 = 0, ty0 = 0, swiping = false;
         slider.addEventListener("touchstart", e => {
           tx0 = e.touches[0].clientX;
@@ -2486,16 +2475,35 @@
         slider.addEventListener("touchmove", e => {
           const dx = Math.abs(e.touches[0].clientX - tx0);
           const dy = Math.abs(e.touches[0].clientY - ty0);
-          if (dx > dy && dx > 8) swiping = true;
+          if (dy > dx && dy > 8) swiping = true;
         }, { passive: true });
         slider.addEventListener("touchend", e => {
           if (!swiping) return;
           const dx = tx0 - e.changedTouches[0].clientX;
           const dy = ty0 - e.changedTouches[0].clientY;
-          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 28) {
-            goTo(dx > 0 ? current + 1 : current - 1);
+          if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 28) {
+            goTo(dy > 0 ? current + 1 : current - 1);
           }
         }, { passive: true });
+
+        // Up/Down arrow buttons
+        const arrowCol = el("div","");
+        arrowCol.style.cssText = "display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:2px 0;flex:0 0 auto";
+
+        const mkArrow = (dir, label) => {
+          const b = el("button","",label);
+          b.type = "button";
+          b.style.cssText = "width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);flex:0 0 auto";
+          b.onclick = () => goTo(current + dir);
+          return b;
+        };
+        const upBtn = mkArrow(-1, "▲");
+        const downBtn = mkArrow(1, "▼");
+        const spacer = el("div","");
+        spacer.style.cssText = "flex:1";
+        arrowCol.append(upBtn, spacer, downBtn);
+
+        sliderOuter.append(arrowCol, slider);
 
         // Dot indicators
         const dots = el("div","");
@@ -2513,6 +2521,12 @@
           });
         }
         listsWheel.append(dots);
+
+        // Fixed visible height so 3 cards show vertically
+        listsWheel.style.height = "min(62vh, 520px)";
+        listsWheel.style.maxHeight = "min(62vh, 520px)";
+        listsWheel.style.overflow = "hidden";
+        slider.style.height = "100%";
 
         requestAnimationFrame(() => { goTo(0, false); });
       }
