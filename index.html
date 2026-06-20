@@ -187,16 +187,6 @@
       content: ""; display: block; width: 6px; height: 6px; border-radius: 50%; border: 2px solid var(--cat-color); flex: 0 0 auto;
     }
     .cat-open-hint{display:none}
-    .cat-quick-add-btn{
-      position:absolute;bottom:12px;left:12px;
-      width:28px;height:28px;border-radius:50%;
-      border:1.5px solid color-mix(in srgb,var(--cat-color) 48%,var(--border));
-      background:color-mix(in srgb,var(--cat-color) 12%,var(--card2));
-      color:var(--cat-color);font-size:16px;font-weight:700;
-      display:grid;place-items:center;line-height:1;
-      cursor:pointer;transition:.18s;z-index:4;
-    }
-    .cat-quick-add-btn:hover{background:var(--cat-color);color:#fff;transform:scale(1.12)}
     .cat-detail-hero{border:1px solid color-mix(in srgb,var(--cat-color,var(--accent)) 38%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,var(--cat-color,var(--accent)) 14%,var(--card)),var(--surface));border-radius:14px;padding:14px;margin-bottom:12px}
     .cat-detail-name{font-size:20px;font-weight:900;line-height:1.2;margin-bottom:8px;word-break:break-word}
     .cat-detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
@@ -870,23 +860,21 @@
       .shared-wheel.compact .shared-wheel-meta{display:none}
       .cat-card{
         min-height:0;
-        padding:13px 13px 46px;
+        padding:13px;
         border-radius:14px;
-        display:grid;
-        grid-template-columns:minmax(0,1fr) auto;
-        gap:10px;
-        align-items:center;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
         box-shadow:0 8px 20px rgba(0,0,0,.14);
       }
       .cat-card::before{width:5px}
       .cat-card::after{width:32px;height:32px;left:16px;right:auto;bottom:14px}
       .cat-card:hover{transform:none;box-shadow:0 8px 20px rgba(0,0,0,.14)}
-      .cat-tools{position:absolute;top:6px;left:4px;grid-column:unset;grid-row:unset;display:flex;gap:6px}
-      .cat-quick-add-btn{bottom:8px;left:10px;width:34px;height:34px;font-size:17px}
-      .cat-tools .mini{min-width:36px;min-height:36px;padding:0;font-size:15px;background:var(--card2);border:1px solid var(--border)}
+      .cat-tools{position:static;display:flex;gap:8px;order:3;margin-top:2px}
+      .cat-tools .mini{flex:1;min-height:38px;font-size:14px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:4px}
       .cat-tools .mini:active{background:var(--accent);color:#fff;border-color:var(--accent)}
-      .cat-title{font-size:16px;margin:0 8px 0 0;padding-left:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .cat-progress-wrap{grid-column:1/-1;margin:0 8px 0 0}
+      .cat-title{font-size:16px;margin:0;padding-left:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;order:1}
+      .cat-progress-wrap{margin:0;order:2}
       .cat-progress-stats{font-size:11px;margin-bottom:5px}
       .cat-progress-bg{height:7px}
       .cat-peek{display:none!important}
@@ -2035,6 +2023,8 @@
       
       $("searchBox").classList.toggle("hidden", !["all","kanban","calendar","meetings"].includes(state.currentView));
       $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
+      $("content").style.removeProperty("--accent");
+      $("content").style.removeProperty("--accent2");
       
       if (state.currentView === "home") renderHome();
       if (state.currentView === "kanban") renderKanban();
@@ -2200,21 +2190,9 @@
         }
         card.append(peek);
 
-        // Plus button for quick task creation
-        const plusBtn = el("button","cat-quick-add-btn","＋");
-        plusBtn.type = "button";
-        plusBtn.title = "הוסף משימה לרשימה";
-        plusBtn.onclick = (e) => {
-          e.stopPropagation();
-          state.currentCatId = cat.id;
-          openQuickAddTask(cat);
-        };
-        card.append(plusBtn);
-
         // Click to open
         card.onclick = (e) => {
           if (e.target.closest('.cat-tools')) return;
-          if (e.target.closest('.cat-quick-add-btn')) return;
           if (window.matchMedia("(max-width:820px)").matches) openCategoryDetailModal(cat.id);
           else openCat(cat.id);
         };
@@ -2384,7 +2362,6 @@
       // Carousel: 3 cards visible VERTICALLY, infinite loop, one step at a time (mobile)
       if (window.matchMedia("(max-width:820px)").matches && state.cats.length > 0) {
         const origCards = [...grid.querySelectorAll(".cat-card")];
-        const origOnclicks = origCards.map(c => c.onclick);
         const total = origCards.length;
         let current = 0; // logical real index (0..total-1), derived from vCurrent
         let vCurrent = 0; // continuous virtual slot index, only ever incremented/decremented
@@ -2393,7 +2370,7 @@
         grid.style.cssText = "padding:0;margin:0;gap:0;display:block;height:auto;overflow:visible";
 
         // Fixed slot height in px — locked, predictable, no layout-dependent math
-        const SLOT_H = 134;
+        const SLOT_H = 156;
         const GAP = 8;
         const ROW_H = SLOT_H + GAP;
         const VIEWPORT_H = SLOT_H * 3 + GAP * 2; // exactly 3 slots tall
@@ -2441,14 +2418,25 @@
           const wrap = el("div","");
           wrap.style.cssText = `flex:0 0 ${SLOT_H}px;height:${SLOT_H}px;margin-bottom:${GAP}px;box-sizing:border-box;display:flex`;
 
-          const origClick = origOnclicks[realIdx];
+          // cloneNode never carries JS-assigned onclick handlers, so every
+          // clone's inner tool buttons + the card itself need fresh handlers
+          // wired directly to this slot's real category.
+          const slotCat = state.cats[realIdx];
+          const dupBtn = node.querySelector('.cat-tools .mini[title="שכפל רשימה"]');
+          const editBtn = node.querySelector('.cat-tools .mini[title="ערוך רשימה"]');
+          const delBtn = node.querySelector('.cat-tools .mini[title="מחק רשימה"]');
+          if (dupBtn) dupBtn.onclick = (e) => { e.stopPropagation(); duplicateCategory(slotCat.id); };
+          if (editBtn) editBtn.onclick = (e) => { e.stopPropagation(); openCategoryModal(slotCat); };
+          if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteCategory(slotCat.id); };
+
           node.onclick = (e) => {
             if (slotIdx !== vCurrent) {
               e.stopPropagation();
               goTo(vCurrent + (slotIdx - vCurrent));
               return;
             }
-            if (origClick) origClick.call(node, e);
+            if (e.target.closest(".cat-tools")) return;
+            openCategoryDetailModal(slotCat.id);
           };
 
           wrap.append(node);
@@ -2646,6 +2634,12 @@
       }      
       $("addBtn").textContent = "משימה חדשה";
 
+      // Tint this view's accent with the list's own color, so buttons,
+      // borders and highlights inside the list visually match it.
+      const catColorMain = cat.color || state.accent;
+      $("content").style.setProperty("--accent", catColorMain);
+      $("content").style.setProperty("--accent2", `color-mix(in srgb, ${catColorMain} 65%, white)`);
+
       const wrap = el("div");
 
       const topBar = el("div","row");
@@ -2656,7 +2650,10 @@
       kanbanBtn.onclick = () => { state.kanbanListMode = false; render(); };
       listBtn.onclick = () => { state.kanbanListMode = true; render(); };
       toggle.append(kanbanBtn, listBtn);
-      topBar.append(toggle);
+      const editCatBtn = el("button","btn","✎ ערוך רשימה");
+      editCatBtn.type = "button";
+      editCatBtn.onclick = () => openCategoryModal(cat);
+      topBar.append(toggle, editCatBtn);
       wrap.append(topBar);
 
       if (state.kanbanListMode) {
@@ -4697,6 +4694,11 @@
 
     function openCategoryModal(cat){
       openModal(cat ? "עריכת רשימה" : "רשימה חדשה", "", (form) => {
+        if (cat) {
+          const catColor = cat.color || state.accent;
+          $("modalBack").style.setProperty("--accent", catColor);
+          $("modalBack").style.setProperty("--accent2", `color-mix(in srgb, ${catColor} 65%, white)`);
+        }
         form.append(field("שם הרשימה","catName","text",cat?.name || ""));
 
         if (cat && activeList.type === "shared" && activeList.id) {
@@ -4944,6 +4946,8 @@
       $("modalSub").textContent = sub || "";
       const form = $("modalForm");
       form.replaceChildren();
+      $("modalBack").style.removeProperty("--accent");
+      $("modalBack").style.removeProperty("--accent2");
       build(form);
       form.onsubmit = (e) => e.preventDefault();
       $("modalBack").classList.remove("hidden");
@@ -5114,13 +5118,22 @@
       const catColor = cat.color || state.accent;
 
       openModal(cat.name, "פרטי רשימה", (form) => {
+        $("modalBack").style.setProperty("--accent", catColor);
+        $("modalBack").style.setProperty("--accent2", `color-mix(in srgb, ${catColor} 65%, white)`);
         form.style.setProperty("--cat-color", catColor);
         const hero = el("div","cat-detail-hero");
         hero.style.setProperty("--cat-color", catColor);
         hero.style.cursor = "pointer";
         hero.title = "פתח את הרשימה";
         hero.onclick = () => { closeModal(); openCat(id); };
-        hero.append(el("div","cat-detail-name",cat.name));
+        const heroTop = el("div",""); heroTop.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px";
+        heroTop.append(el("div","cat-detail-name",cat.name));
+        const editBtn = el("button","btn","✎ ערוך");
+        editBtn.type = "button";
+        editBtn.style.cssText = "flex:0 0 auto";
+        editBtn.onclick = (e) => { e.stopPropagation(); closeModal(); openCategoryModal(cat); };
+        heroTop.append(editBtn);
+        hero.append(heroTop);
 
         const stats = el("div","cat-detail-stats");
         [
