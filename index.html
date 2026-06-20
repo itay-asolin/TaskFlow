@@ -211,9 +211,9 @@
     .cat-detail-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--cat-color,var(--accent))}
     .cat-detail-task-name{font-size:13px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .cat-detail-task-date{font-size:10px;font-weight:900;color:var(--faint);white-space:nowrap}
-    .home-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 12px}
+    .home-section-title{display:flex;align-items:center;gap:10px;margin:4px 2px 12px}
     .home-section-title strong{font-size:18px;font-weight:900}
-    .home-section-title span{font-size:12px;font-weight:800;color:var(--faint)}
+    .home-section-title span{font-size:12px;font-weight:800;color:var(--faint);margin-inline-end:auto}
     .home-wrap{display:grid;gap:10px;margin-top:-8px}
     .lists-wheel{position:relative;max-height:calc(100dvh - 300px);min-height:180px;overflow-y:auto;overflow-x:hidden;padding:2px 8px 10px;scroll-snap-type:y proximity;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;mask-image:linear-gradient(to bottom,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);perspective:900px}
     .lists-wheel::-webkit-scrollbar{width:6px}
@@ -1521,6 +1521,7 @@
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
+    const RESET_UNDO_WINDOW_MS = 5 * 60 * 1000; // 5 minutes to undo a tasks reset
     let taskReminderTimer = null;
 
     const $ = (id) => document.getElementById(id);
@@ -2032,7 +2033,7 @@
       document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === state.currentView));
       
       $("searchBox").classList.toggle("hidden", !["all","kanban","calendar","meetings"].includes(state.currentView));
-      $("addBtn").classList.add("hidden");
+      $("addBtn").classList.toggle("hidden", !["home","kanban"].includes(state.currentView));
       
       if (state.currentView === "home") renderHome();
       if (state.currentView === "kanban") renderKanban();
@@ -2128,7 +2129,7 @@
     }
     function renderHome(){
       $("pageTitle").textContent = "רשימות";
-      $("pageSub").textContent = cloudReady ? "מסונכרן דרך Firebase" : "מצב מקומי במכשיר הזה";
+      $("pageSub").textContent = cloudReady ? "בחר רשימה או צור חדשה" : "מצב מקומי במכשיר הזה";
       if (activeList.type === "shared") {
         const shareSpan = el("span", "", ` | 🔗 קוד שיתוף: ${activeList.id} (לחץ להעתקה)`);
         shareSpan.style.cssText = "color:var(--accent2); font-weight:bold; cursor:pointer; margin-right:8px;";
@@ -2363,9 +2364,18 @@
 
 
       const listHead = el("div","home-section-title");
+      listHead.style.marginTop = "22px";
+      const listHeadLeft = el("div","");
+      listHeadLeft.style.cssText = "display:flex;align-items:center;gap:8px";
+      const newListBtn = el("button","btn primary","+ רשימה חדשה");
+      newListBtn.type = "button";
+      newListBtn.style.cssText = "font-size:12px;padding:7px 12px";
+      newListBtn.onclick = () => openCategoryModal();
+      listHeadLeft.append(el("strong","", "הרשימות שלך"));
       listHead.append(
-        el("strong","", "הרשימות שלך"),
-        el("span","", `${state.cats.length} רשימות`)
+        listHeadLeft,
+        el("span","", `${state.cats.length} רשימות`),
+        newListBtn
       );
 
       const listsWheel = el("div","lists-wheel");
@@ -2469,10 +2479,12 @@
 
         function goTo(newVCurrent, animate = true) {
           if (isAnimating && animate) return;
+          const distance = Math.abs(newVCurrent - vCurrent);
           vCurrent = newVCurrent;
           current = ((vCurrent % total) + total) % total;
           const offset = offsetForSlot(vCurrent);
-          track.style.transition = animate ? "transform 0.34s cubic-bezier(.25,.8,.25,1)" : "none";
+          const duration = animate ? Math.min(0.34 + (distance - 1) * 0.06, 0.6) : 0;
+          track.style.transition = animate ? `transform ${duration}s cubic-bezier(.25,.8,.25,1)` : "none";
           track.style.transform = `translate3d(0,${-offset}px,0)`;
           updateDots();
           updateCardHighlight();
@@ -2482,7 +2494,7 @@
             setTimeout(() => {
               isAnimating = false;
               rewrapIfNeeded();
-            }, 350);
+            }, duration * 1000 + 16);
           } else {
             rewrapIfNeeded();
           }
@@ -2548,14 +2560,11 @@
         slider.addEventListener("touchend", () => {
           if (!dragging) return;
           dragging = false;
-          const threshold = ROW_H * 0.22;
-          if (dragOffset > threshold) {
-            goTo(vCurrent - 1);
-          } else if (dragOffset < -threshold) {
-            goTo(vCurrent + 1);
-          } else {
-            goTo(vCurrent); // snap back to center
-          }
+          // Move by however many rows were actually dragged, not just one step.
+          // dragOffset > 0 means dragging downward (content moves down → goes to previous slot).
+          const rawSteps = dragOffset / ROW_H;
+          const steps = dragOffset > 0 ? Math.ceil(rawSteps - 0.28) : Math.floor(rawSteps + 0.28);
+          goTo(vCurrent - steps);
         }, { passive: true });
 
         // Up/Down arrow buttons
@@ -4427,9 +4436,13 @@
       const resetTasksBtn = el("button","btn danger","איפוס משימות");
       resetTasksBtn.type = "button"; 
       resetTasksBtn.onclick = () => {
-        if (!confirm("לאפס את כל המשימות? זה ימחק הכל.")) return;
-        state.cats = []; state.tasks = []; state.currentCatId = null; state.currentView = "home";
-        save(); render(); toast("המשימות אופסו");
+        if (!confirm("לאפס את כל המשימות? הרשימות עצמן יישארו. ניתן לבטל למשך כמה דקות.")) return;
+        const removedTasks = JSON.parse(JSON.stringify(state.tasks));
+        const removedAgenda = JSON.parse(JSON.stringify(state.dailyAgenda || null));
+        undoStack.push({ type:"tasksReset", tasks: removedTasks, dailyAgenda: removedAgenda, at: Date.now() });
+        state.tasks = [];
+        state.dailyAgenda = { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null };
+        save(); render(); toastUndo("המשימות אופסו (הרשימות נשארו)");
       };
       
       const resetCalBtn = el("button","btn danger","איפוס לוח שנה");
@@ -4442,6 +4455,23 @@
 
       backup.append(el("p","meta","מומלץ להוריד גיבוי מדי פעם, גם כשיש סנכרון."), el("div","row"));
       backup.lastChild.append(exportBtn, importBtn, resetTasksBtn, resetCalBtn);
+
+      const pendingReset = [...undoStack].reverse().find(a => a.type === "tasksReset");
+      if (pendingReset && Date.now() - pendingReset.at <= RESET_UNDO_WINDOW_MS) {
+        const minsLeft = Math.max(1, Math.ceil((RESET_UNDO_WINDOW_MS - (Date.now() - pendingReset.at)) / 60000));
+        const undoRow = el("div","row"); undoRow.style.marginTop = "10px";
+        const undoResetBtn = el("button","btn","↩️ בטל איפוס משימות אחרון");
+        undoResetBtn.type = "button";
+        undoResetBtn.onclick = () => {
+          const idx = undoStack.lastIndexOf(pendingReset);
+          if (idx !== -1) undoStack.splice(idx, 1);
+          state.tasks = pendingReset.tasks;
+          if (pendingReset.dailyAgenda) state.dailyAgenda = pendingReset.dailyAgenda;
+          save(); render(); toast("האיפוס בוטל, המשימות שוחזרו ✓");
+        };
+        undoRow.append(undoResetBtn, el("span","meta",`ניתן לבטל עוד כ-${minsLeft} דק׳`));
+        backup.append(undoRow);
+      }
       
       const icsBtn = el("button","btn","📅 ייבוא .ics");
       icsBtn.type = "button"; icsBtn.onclick = importIcs;
@@ -5225,6 +5255,12 @@
         state.cats.push(action.cat);
         state.tasks.push(...action.tasks);
         save(); render(); toast("המחיקה בוטלה ✓");
+      } else if (action.type === "tasksReset") {
+        const ageMs = Date.now() - (action.at || 0);
+        if (ageMs > RESET_UNDO_WINDOW_MS) { toast("חלף הזמן לביטול האיפוס"); return; }
+        state.tasks = action.tasks;
+        if (action.dailyAgenda) state.dailyAgenda = action.dailyAgenda;
+        save(); render(); toast("האיפוס בוטל, המשימות שוחזרו ✓");
       }
     }
 
