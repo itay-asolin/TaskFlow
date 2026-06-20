@@ -140,16 +140,6 @@
       background: var(--cat-color); transition: width 0.3s ease;
     }
     .cat-card:hover::before { width: 6px; }
-    .cat-card::after{
-      content:"";
-      position:absolute;
-      inset:auto 18px 18px auto;
-      width:42px;
-      height:42px;
-      border-radius:50%;
-      background:color-mix(in srgb,var(--cat-color) 12%,transparent);
-      pointer-events:none;
-    }
     
     .cat-tools {
       position: absolute; top: 12px; left: 12px; display: flex; gap: 4px; z-index: 3;
@@ -848,7 +838,7 @@
       .home-section-title{margin:2px 2px 10px}
       .home-section-title strong{font-size:16px}
       .home-section-title span{font-size:11px}
-      .lists-wheel{min-height:200px;padding:0 8px 8px;overflow:hidden;position:relative;mask-image:none}
+      .lists-wheel{min-height:200px;padding:0 8px;overflow:hidden;position:relative;mask-image:none;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 6%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--accent) 16%,var(--border));border-radius:14px;margin-top:10px}
       .lists-wheel .grid{padding-block:0;position:relative;display:block;overflow:visible}
       .lists-wheel .cat-card{position:relative;margin-bottom:0}
       .home-secondary{grid-template-columns:1fr;gap:8px;margin-top:0}
@@ -868,7 +858,6 @@
         box-shadow:0 8px 20px rgba(0,0,0,.14);
       }
       .cat-card::before{width:5px}
-      .cat-card::after{width:32px;height:32px;left:16px;right:auto;bottom:14px}
       .cat-card:hover{transform:none;box-shadow:0 8px 20px rgba(0,0,0,.14)}
       .cat-tools{position:static;display:flex;gap:8px;order:3;margin-top:2px}
       .cat-tools .mini{flex:1;min-height:38px;font-size:14px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:4px}
@@ -2342,12 +2331,14 @@
 
 
       const listHead = el("div","home-section-title");
-      listHead.style.marginTop = "22px";
+      listHead.style.cssText = "margin-top:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));border-radius:14px;padding:10px 14px;box-shadow:0 6px 18px rgba(0,0,0,.08)";
       const listHeadLeft = el("div","");
       listHeadLeft.style.cssText = "display:flex;align-items:center;gap:8px";
-      const newListBtn = el("button","btn primary","+ רשימה חדשה");
+      const newListBtn = el("button","","+ רשימה חדשה");
       newListBtn.type = "button";
-      newListBtn.style.cssText = "font-size:12px;padding:7px 12px";
+      newListBtn.style.cssText = "font-size:12px;font-weight:800;padding:8px 14px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#fff0));color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);transition:.18s";
+      newListBtn.onmouseenter = () => newListBtn.style.transform = "translateY(-1px)";
+      newListBtn.onmouseleave = () => newListBtn.style.transform = "";
       newListBtn.onclick = () => openCategoryModal();
       listHeadLeft.append(el("strong","", "הרשימות שלך"));
       listHead.append(
@@ -2377,7 +2368,7 @@
 
         // Build slider container (vertical)
         const sliderOuter = el("div","");
-        sliderOuter.style.cssText = `display:flex;align-items:stretch;gap:6px;height:${VIEWPORT_H}px`;
+        sliderOuter.style.cssText = `display:flex;align-items:stretch;height:${VIEWPORT_H}px`;
 
         const slider = el("div","");
         slider.style.cssText = `overflow:hidden;position:relative;border-radius:14px;flex:1;min-width:0;height:${VIEWPORT_H}px`;
@@ -2555,24 +2546,7 @@
           goTo(vCurrent - steps);
         }, { passive: true });
 
-        // Up/Down arrow buttons
-        const arrowCol = el("div","");
-        arrowCol.style.cssText = "display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:2px 0;flex:0 0 auto";
-
-        const mkArrow = (dir, label) => {
-          const b = el("button","",label);
-          b.type = "button";
-          b.style.cssText = "width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);flex:0 0 auto";
-          b.onclick = () => goTo(vCurrent + dir);
-          return b;
-        };
-        const upBtn = mkArrow(-1, "▲");
-        const downBtn = mkArrow(1, "▼");
-        const spacer = el("div","");
-        spacer.style.cssText = "flex:1";
-        arrowCol.append(upBtn, spacer, downBtn);
-
-        sliderOuter.append(arrowCol, slider);
+        sliderOuter.append(slider);
 
         // Dot indicators
         const dots = el("div","");
