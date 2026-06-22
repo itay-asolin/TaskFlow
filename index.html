@@ -124,8 +124,8 @@
 /* --- Modern Peek Cards --- */
     .cat-card {
       position: relative;
-      background: linear-gradient(135deg,color-mix(in srgb,var(--cat-color,#6d5dfc) 9%,var(--card)),var(--card));
-      border: 1px solid var(--border);
+      background: linear-gradient(135deg,color-mix(in srgb,var(--cat-color,#6d5dfc) 16%,var(--card)),var(--card));
+      border: 1px solid color-mix(in srgb, var(--cat-color, var(--border)) 30%, var(--border));
       border-radius: 14px;
       padding: 14px;
       overflow: hidden;
@@ -141,10 +141,10 @@
       box-shadow: 0 13px 28px rgba(0,0,0,0.18), 0 0 18px color-mix(in srgb, var(--cat-color) 14%, transparent);
     }
     .cat-card::before {
-      content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 4px;
+      content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 6px;
       background: var(--cat-color); transition: width 0.3s ease;
     }
-    .cat-card:hover::before { width: 6px; }
+    .cat-card:hover::before { width: 8px; }
     
     .cat-tools {
       position: absolute; top: 12px; left: 12px; display: flex; gap: 4px; z-index: 3;
@@ -153,6 +153,7 @@
     .cat-mark small{display:none}
     .cat-title {
       font-size: 17px; font-weight: 900; margin: 0 10px 10px 0; line-height: 1.2; padding-left:72px;
+      color: color-mix(in srgb, var(--cat-color, var(--text)) 55%, var(--text));
     }
     
     /* Progress Bar */
@@ -262,6 +263,9 @@
     .ok{background:rgba(34,197,94,.14);color:var(--green)}
     .soon{background:rgba(245,158,11,.16);color:var(--warn)}
     .late{background:rgba(239,68,68,.14);color:var(--danger)}
+    .chip.critical{box-shadow:0 0 0 1px var(--danger);animation:chip-pulse 1.8s ease-in-out infinite}
+    @keyframes chip-pulse{0%,100%{box-shadow:0 0 0 1px rgba(239,68,68,.5)}50%{box-shadow:0 0 0 1px rgba(239,68,68,1)}}
+    @media (prefers-reduced-motion: reduce){.chip.critical{animation:none;box-shadow:0 0 0 1.5px var(--danger)}}
     .subs{border-top:1px solid var(--border);padding-top:8px;display:grid;gap:3px;max-height:112px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
     .subs-header:hover span{color:var(--muted)}
     .subs-header .bar{flex:1;margin:0 0 0 6px}
@@ -427,6 +431,12 @@
     .daily-focus-card.compact .daily-focus-name{font-size:12px}
     .daily-focus-card.compact .daily-focus-meta,.daily-focus-card.compact .daily-focus-tags{display:none}
     .daily-focus-card.compact .daily-focus-empty{padding:4px 0;font-size:11px}
+    .daily-focus-progress-wrap{margin-bottom:10px}
+    .daily-focus-progress-stats{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:800;margin-bottom:5px}
+    .daily-focus-progress-bg{height:6px;background:var(--card2);border-radius:999px;overflow:hidden}
+    .daily-focus-progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .5s ease-out}
+    .daily-focus-event-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:8px 10px;background:color-mix(in srgb,var(--surface) 76%,transparent);border-radius:9px;border-right:3px solid var(--accent);margin-bottom:7px;cursor:pointer}
+    .daily-focus-event-row .daily-focus-name{font-size:12px}
     .drag-ghost{position:fixed;z-index:160;pointer-events:none;max-width:min(280px,74vw);padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--accent);box-shadow:var(--shadow);color:var(--text);font-weight:900;opacity:.94;transform:translate(-50%,-50%) scale(.98)}
     #dailyAgendaOverlay{position:fixed;inset:0;z-index:125;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);padding:16px}
     #dailyAgendaCard{width:min(680px,calc(100vw - 32px));max-height:86dvh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);padding:22px;direction:rtl;text-align:right;animation:briefPop .32s cubic-bezier(.34,1.3,.64,1)}
@@ -862,7 +872,7 @@
         gap:8px;
         box-shadow:0 8px 20px rgba(0,0,0,.14);
       }
-      .cat-card::before{width:5px}
+      .cat-card::before{width:6px}
       .cat-card:hover{transform:none;box-shadow:0 8px 20px rgba(0,0,0,.14)}
       .cat-tools{position:static;display:flex;gap:8px;order:3;margin-top:2px}
       .cat-tools .mini{flex:1;min-height:38px;font-size:14px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:4px}
@@ -1289,6 +1299,10 @@
     /* ── Swipe-to-action on task rows (mobile) ── */
     .task-swipe-wrap{position:relative;overflow:hidden;border-radius:12px}
     .task-swipe-actions{position:absolute;top:0;bottom:0;right:0;display:flex;align-items:stretch;width:108px;transform:translateX(100%);transition:transform .18s ease;z-index:2;border-radius:0 12px 12px 0;overflow:hidden}
+    .task-swipe-complete-actions{position:absolute;top:0;bottom:0;left:0;display:flex;align-items:stretch;width:88px;transform:translateX(-100%);transition:transform .18s ease;z-index:2;border-radius:12px 0 0 12px;overflow:hidden}
+    .swipe-btn-complete{background:var(--green);color:#fff;flex:1}
+    .task-swipe-wrap.swiped-complete .task-swipe-inner{transform:translateX(88px)}
+    .task-swipe-wrap.swiped-complete .task-swipe-complete-actions{transform:translateX(0)}
     .swipe-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:10px;font-weight:900;border:0;cursor:pointer;flex:1}
     .swipe-btn .swipe-icon{font-size:17px;line-height:1}
     .swipe-btn-edit{background:color-mix(in srgb,var(--accent) 85%,#000);color:#fff}
@@ -2147,7 +2161,16 @@
       
       const grid = el("div","grid");
       const todayStr = toDateKey(new Date());
-      if (!state.cats.length) grid.append(empty("אין רשימות עדיין"));
+      if (!state.cats.length) {
+        const firstRun = el("div","empty");
+        firstRun.append(el("div","","עדיין אין רשימות. בוא ניצור את הראשונה ✨"));
+        const firstRunBtn = el("button","btn primary","+ רשימה חדשה");
+        firstRunBtn.type = "button";
+        firstRunBtn.style.cssText = "margin-top:12px";
+        firstRunBtn.onclick = () => openCategoryModal();
+        firstRun.append(firstRunBtn);
+        grid.append(firstRun);
+      }
       
 	state.cats.forEach(cat => {
         const card = el("article","card cat-card");
@@ -2309,6 +2332,32 @@
       }
 
       // Fill focus pane
+      const agendaForProgress = ensureDailyAgenda();
+      const totalForToday = todayEvents.length + focusTasks.length + (agendaForProgress.completedToday || 0);
+      if (totalForToday > 0) {
+        const doneForToday = agendaForProgress.completedToday || 0;
+        const pct = Math.round((doneForToday / totalForToday) * 100);
+        const progWrap = el("div","daily-focus-progress-wrap");
+        const progStats = el("div","daily-focus-progress-stats");
+        progStats.innerHTML = `<span>${doneForToday}/${totalForToday} הושלם</span><span>${pct}%</span>`;
+        const progBg = el("div","daily-focus-progress-bg");
+        const progFill = el("div","daily-focus-progress-fill");
+        progFill.style.width = pct + "%";
+        progBg.append(progFill);
+        progWrap.append(progStats, progBg);
+        paneFocus.append(progWrap);
+      }
+
+      if (todayEvents.length) {
+        todayEvents.sort((a,b)=>(a.time||"").localeCompare(b.time||"")).forEach(ev => {
+          const row = el("div","daily-focus-event-row");
+          row.style.borderRightColor = ev.color || state.accent;
+          row.append(el("div","daily-focus-name",ev.title), el("span","daily-focus-meta",ev.time||"כל היום"));
+          row.onclick = (e) => showCalItemPopup(e, ev, ev.date);
+          paneFocus.append(row);
+        });
+      }
+
       if (!focusTasks.length) {
         const emptyMsg = el("div","daily-focus-empty", todayAgenda().skippedDate===toDateKey(new Date()) ? "דילגת על אג׳נדה להיום" : "עוד לא נבחר מיקוד להיום");
         const startBtn = el("button","btn primary","בחר מיקוד"); startBtn.type="button";
@@ -2788,7 +2837,7 @@
       $("pageSub").textContent = `${tasks.length} משימות פתוחות`;
 
       const list = el("div","list");
-      if (!tasks.length) list.append(empty("אין משימות פתוחות להצגה"));
+      if (!tasks.length) list.append(emptyFun());
       tasks.forEach(task => {
         const row = taskRow(task);
         const cat = state.cats.find(c => c.id === task.catId);
@@ -4658,11 +4707,23 @@
 
         actions.append(editBtn, delBtn);
 
+        const completeActions = document.createElement("div");
+        completeActions.className = "task-swipe-complete-actions";
+
+        const completeBtn = document.createElement("button");
+        completeBtn.className = "swipe-btn swipe-btn-complete";
+        completeBtn.type = "button";
+        completeBtn.innerHTML = isDone(task)
+          ? `<span class="swipe-icon">↩️</span><span>בטל</span>`
+          : `<span class="swipe-icon">✓</span><span>בוצע</span>`;
+        completeBtn.onclick = (e) => { e.stopPropagation(); wrap.classList.remove("swiped-complete"); toggleTask(task.id); };
+        completeActions.append(completeBtn);
+
         const inner = document.createElement("div");
         inner.className = "task-swipe-inner";
         inner.append(row);
 
-        wrap.append(actions, inner);
+        wrap.append(actions, completeActions, inner);
 
         let startX = 0, startY = 0, moved = false;
         inner.addEventListener("touchstart", e => {
@@ -4675,11 +4736,16 @@
           const dy = e.touches[0].clientY - startY;
           if (!moved && Math.abs(dy) > Math.abs(dx) + 5) return; // vertical scroll wins
           moved = true;
-          if (dx > 30 && wrap.classList.contains("swiped")) {
-            wrap.classList.remove("swiped");
-          } else if (dx < -40 && !wrap.classList.contains("swiped")) {
-            document.querySelectorAll(".task-swipe-wrap.swiped").forEach(w => w !== wrap && w.classList.remove("swiped"));
+          const isSwiped = wrap.classList.contains("swiped");
+          const isSwipedComplete = wrap.classList.contains("swiped-complete");
+          if (dx > 30 && (isSwiped || isSwipedComplete)) {
+            wrap.classList.remove("swiped", "swiped-complete");
+          } else if (dx < -40 && !isSwiped && !isSwipedComplete) {
+            document.querySelectorAll(".task-swipe-wrap.swiped, .task-swipe-wrap.swiped-complete").forEach(w => w !== wrap && w.classList.remove("swiped", "swiped-complete"));
             wrap.classList.add("swiped");
+          } else if (dx > 40 && !isSwiped && !isSwipedComplete) {
+            document.querySelectorAll(".task-swipe-wrap.swiped, .task-swipe-wrap.swiped-complete").forEach(w => w !== wrap && w.classList.remove("swiped", "swiped-complete"));
+            wrap.classList.add("swiped-complete");
           }
         }, { passive: true });
 
@@ -5444,7 +5510,11 @@
       if (!task) return;
       if (!task.subs?.length) task.subs = [{ id: uid("s"), text: "בוצע", done: false }];
       const next = !isDone(task);
-      const wasDailyFocus = next && todayAgenda().taskIds.includes(task.id);
+      const isTodayFocusTask = todayAgenda().taskIds.includes(task.id);
+      if (isTodayFocusTask) {
+        const agenda = ensureDailyAgenda();
+        agenda.completedToday = Math.max(0, (agenda.completedToday || 0) + (next ? 1 : -1));
+      }
       task.subs.forEach(s => s.done = next);
       
       if (next) {
@@ -5481,7 +5551,7 @@
       }
       
       save(); render();
-      if (wasDailyFocus) {
+      if (next && isTodayFocusTask) {
         setTimeout(() => {
           if (confirm("יפה. להוסיף עוד מטלה למיקוד היומי?")) openDailyAgendaModal(true);
         }, 250);
@@ -5553,7 +5623,7 @@
       const today = new Date(); today.setHours(0,0,0,0);
       const days = Math.round((due - today) / 86400000);
       const textDate = `${String(due.getDate()).padStart(2,"0")}/${String(due.getMonth()+1).padStart(2,"0")}/${due.getFullYear()}`;
-      if (days < 0) return { cls:"late", label:`באיחור ${Math.abs(days)} ימים`, date:textDate };
+      if (days < 0) return { cls: Math.abs(days) >= 7 ? "late critical" : "late", label:`באיחור ${Math.abs(days)} ימים`, date:textDate };
       if (days === 0) return { cls:"soon", label:"היום", date:textDate };
       if (days <= 3) return { cls:"soon", label:`עוד ${days} ימים`, date:textDate };
       return { cls:"ok", label:`עוד ${days} ימים`, date:textDate };
@@ -5662,7 +5732,7 @@
     }
 
     function normalizeDailyAgenda(agenda){
-      const base = { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null };
+      const base = { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null, completedToday: 0 };
       const next = agenda && typeof agenda === "object" ? { ...base, ...agenda } : base;
       next.taskIds = Array.isArray(next.taskIds) ? next.taskIds : [];
       next.manualIds = Array.isArray(next.manualIds) ? next.manualIds : [];
@@ -5854,6 +5924,7 @@
         agenda.skippedDate = null;
         agenda.promptedDate = null;
         agenda.closedDate = null;
+        agenda.completedToday = 0;
         changed = true;
       }
 
