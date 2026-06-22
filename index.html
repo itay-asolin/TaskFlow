@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="☀️ TaskFlow" />
-  <meta name="theme-color" content="#05121e" />
+  <meta id="themeColorMeta" name="theme-color" content="#05121e" />
   <title>☀️ TaskFlow</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23051F33'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-size='38'%3E%E2%98%80%EF%B8%8F%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1202,6 +1202,46 @@
     }
     .calendar-view .mg-now-line{height:2px}
 
+    /* ── Badge על כפתורי ניווט תחתון ── */
+    .bnav-btn{position:relative}
+    .bnav-badge{
+      position:absolute;top:6px;left:50%;transform:translateX(4px);
+      min-width:16px;height:16px;border-radius:999px;
+      background:var(--danger);color:#fff;
+      font-size:9px;font-weight:900;line-height:16px;
+      padding:0 4px;text-align:center;
+      pointer-events:none;display:none;
+    }
+    .bnav-badge.show{display:block}
+
+    /* ── Pulse על כפתור "רשימה חדשה" כשאין רשימות ── */
+    @keyframes addPulse{
+      0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}
+      50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}
+    }
+    #addBtn.pulse{animation:addPulse 1.8s ease infinite}
+
+    /* ── Swipe actions on task cards (mobile) ── */
+    .task-swipe-wrap{position:relative;overflow:hidden;border-radius:12px;touch-action:pan-y}
+    .task-swipe-actions{
+      position:absolute;top:0;bottom:0;left:0;
+      display:flex;align-items:stretch;
+      transform:translateX(-100%);
+      transition:transform .18s ease;
+      z-index:2;border-radius:12px 0 0 12px;overflow:hidden;
+    }
+    .task-swipe-actions .swipe-btn{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:3px;padding:0 16px;font-size:10px;font-weight:900;border:0;cursor:pointer;
+      min-width:52px;
+    }
+    .task-swipe-actions .swipe-btn .swipe-icon{font-size:18px;line-height:1}
+    .task-swipe-btn-edit{background:color-mix(in srgb,var(--accent) 80%,#000);color:#fff}
+    .task-swipe-btn-delete{background:var(--danger);color:#fff}
+    .task-swipe-inner{transition:transform .18s ease;position:relative;z-index:1;background:var(--card)}
+    .task-swipe-wrap.swiped .task-swipe-inner{transform:translateX(-104px)}
+    .task-swipe-wrap.swiped .task-swipe-actions{transform:translateX(0)}
+
     @media(max-width:820px){
       .calendar-view{
         --cal-hour-h:40px;
@@ -1354,7 +1394,7 @@
     <main>
       <div class="top">
         <div style="padding-right:8px">
-          <div id="timeGreeting" style="font-size: 11px; font-weight: 700; color: var(--accent2); margin-bottom: 2px; letter-spacing: 0.02em; line-height:1.3; max-width:520px;"></div>
+          <div id="timeGreeting" style="font-size: 13px; font-weight: 800; color: var(--accent2); margin-bottom: 4px; letter-spacing: 0.01em; line-height:1.45; max-width:520px;"></div>
           <h1 id="pageTitle">רשימות</h1>
           <p id="pageSub"></p>
         </div>
@@ -1375,14 +1415,17 @@
         <span>רשימות</span>
       </button>
       <button class="bnav-btn" data-bnav="all" type="button">
+        <span class="bnav-badge" id="bnavBadgeAll"></span>
         <span class="bnav-icon">✅</span>
         <span>משימות</span>
       </button>
       <button class="bnav-btn" data-bnav="calendar" type="button">
+        <span class="bnav-badge" id="bnavBadgeCal"></span>
         <span class="bnav-icon">📅</span>
         <span>לוח שנה</span>
       </button>
       <button class="bnav-btn" data-bnav="meetings" type="button">
+        <span class="bnav-badge" id="bnavBadgeMeet"></span>
         <span class="bnav-icon">🤝</span>
         <span>פגישות</span>
       </button>
@@ -4612,6 +4655,57 @@
     function taskRow(task){
       const row = taskCard(task, false);
       row.classList.add("task-row", "task-list-card");
+
+      // Swipe-to-action on mobile
+      if (window.matchMedia("(max-width:820px)").matches) {
+        const wrap = el("div", "task-swipe-wrap");
+        const actions = el("div", "task-swipe-actions");
+
+        const editBtn = el("button", "swipe-btn task-swipe-btn-edit");
+        editBtn.type = "button";
+        editBtn.innerHTML = `<span class="swipe-icon">✏️</span><span>ערוך</span>`;
+        editBtn.onclick = (e) => { e.stopPropagation(); wrap.classList.remove("swiped"); openTaskModal(task); };
+
+        const delBtn = el("button", "swipe-btn task-swipe-btn-delete");
+        delBtn.type = "button";
+        delBtn.innerHTML = `<span class="swipe-icon">🗑</span><span>מחק</span>`;
+        delBtn.onclick = (e) => { e.stopPropagation(); wrap.classList.remove("swiped"); deleteTask(task.id); };
+
+        actions.append(editBtn, delBtn);
+
+        const inner = el("div", "task-swipe-inner");
+        inner.append(row);
+        wrap.append(actions, inner);
+
+        // Touch swipe detection
+        let startX = 0, startY = 0, swiping = false;
+        inner.addEventListener("touchstart", (e) => {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          swiping = false;
+        }, { passive: true });
+        inner.addEventListener("touchmove", (e) => {
+          const dx = e.touches[0].clientX - startX;
+          const dy = e.touches[0].clientY - startY;
+          if (!swiping && Math.abs(dy) > Math.abs(dx)) return;
+          swiping = true;
+          if (dx > 20 && wrap.classList.contains("swiped")) {
+            wrap.classList.remove("swiped");
+          } else if (dx < -30 && !wrap.classList.contains("swiped")) {
+            // close other open swipes
+            document.querySelectorAll(".task-swipe-wrap.swiped").forEach(w => w.classList.remove("swiped"));
+            wrap.classList.add("swiped");
+          }
+        }, { passive: true });
+
+        // Close on outside tap
+        document.addEventListener("touchstart", (e) => {
+          if (!wrap.contains(e.target)) wrap.classList.remove("swiped");
+        }, { passive: true });
+
+        return wrap;
+      }
+
       return row;
     }
 
@@ -5488,6 +5582,14 @@
     function applyTheme(){
       document.body.dataset.theme = state.theme || "dark";
       document.documentElement.style.setProperty("--accent", state.accent || "#6d5dfc");
+      // Dynamic theme-color for browser chrome
+      const themeColors = {
+        sky:"#05121e", black:"#000000", forest:"#06100a", ember:"#130800",
+        light:"#c8dff5", green:"#d4ede0", white:"#f8f8f8", peach:"#fff4ed"
+      };
+      const metaTC = document.getElementById("themeColorMeta");
+      if (metaTC) metaTC.content = themeColors[state.theme] || "#05121e";
+
       if ($("themeToggleBtn")) {
         $("themeToggleBtn").classList.add("theme-toggle");
         const lightThemes = ["light", "green", "white", "peach"];
@@ -5498,6 +5600,44 @@
         $("themeToggleBtn").classList.add(modeClass);
         $("themeToggleBtn").innerHTML = `<span class="theme-pill"><span class="theme-icon">${icon}</span></span>`;
         $("themeToggleBtn").title = isLight ? "עבור למצב כהה" : "עבור למצב בהיר";
+      }
+
+      // Update bottom nav badges
+      updateNavBadges();
+
+      // Pulse addBtn if no lists exist
+      const addBtn = $("addBtn");
+      if (addBtn) {
+        if (state.currentView === "home" && !state.cats.length) {
+          addBtn.classList.add("pulse");
+        } else {
+          addBtn.classList.remove("pulse");
+        }
+      }
+    }
+
+    function updateNavBadges(){
+      const todayStr = toDateKey(new Date());
+      // Badge "משימות" - open tasks due today or overdue
+      const urgentCount = (state.tasks || []).filter(t => !isDone(t) && t.due && t.due <= todayStr).length;
+      const badgeAll = $("bnavBadgeAll");
+      if (badgeAll) {
+        badgeAll.textContent = urgentCount > 9 ? "9+" : String(urgentCount);
+        badgeAll.classList.toggle("show", urgentCount > 0);
+      }
+      // Badge "לוח שנה" - events today
+      const todayEvents = (state.events || []).filter(e => e.date === todayStr).length;
+      const badgeCal = $("bnavBadgeCal");
+      if (badgeCal) {
+        badgeCal.textContent = todayEvents > 9 ? "9+" : String(todayEvents);
+        badgeCal.classList.toggle("show", todayEvents > 0);
+      }
+      // Badge "פגישות" - meetings today
+      const todayMeet = (state.events || []).filter(e => e.date === todayStr && e.isMeeting).length;
+      const badgeMeet = $("bnavBadgeMeet");
+      if (badgeMeet) {
+        badgeMeet.textContent = todayMeet > 9 ? "9+" : String(todayMeet);
+        badgeMeet.classList.toggle("show", todayMeet > 0);
       }
     }
 
