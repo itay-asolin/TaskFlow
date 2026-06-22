@@ -4756,7 +4756,7 @@
     }
 
     function dueChip(due){
-      const chip = el("div","chip " + due.cls);
+      const chip = el("div","chip " + due.cls + (due.critical ? " critical" : ""));
       chip.append(el("span","due-label",due.label), el("span","due-date",due.date));
       return chip;
     }
@@ -5623,7 +5623,7 @@
       const today = new Date(); today.setHours(0,0,0,0);
       const days = Math.round((due - today) / 86400000);
       const textDate = `${String(due.getDate()).padStart(2,"0")}/${String(due.getMonth()+1).padStart(2,"0")}/${due.getFullYear()}`;
-      if (days < 0) return { cls: Math.abs(days) >= 7 ? "late critical" : "late", label:`באיחור ${Math.abs(days)} ימים`, date:textDate };
+      if (days < 0) return { cls:"late", critical: Math.abs(days) >= 7, label:`באיחור ${Math.abs(days)} ימים`, date:textDate };
       if (days === 0) return { cls:"soon", label:"היום", date:textDate };
       if (days <= 3) return { cls:"soon", label:`עוד ${days} ימים`, date:textDate };
       return { cls:"ok", label:`עוד ${days} ימים`, date:textDate };
@@ -6073,7 +6073,8 @@
       let score = 0;
       if (task.due) {
         const info = dueInfo(task.due);
-        if (info?.cls === "late") score += 80;
+        if (info?.critical) score += 95;
+        else if (info?.cls === "late") score += 80;
         else if (info?.label === "היום") score += 65;
         else if (info?.cls === "soon") score += 45;
         else score += 18;
