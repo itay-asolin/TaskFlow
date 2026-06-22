@@ -64,13 +64,14 @@
     .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
     .btn.danger:hover{border-color:rgba(239,68,68,.45);color:var(--danger)}
     .btn.icon{width:34px;height:34px;padding:0}
-    .theme-toggle{min-width:64px;max-width:64px;border:0!important;border-radius:999px;padding:0;background:transparent;box-shadow:none}
-    .theme-toggle .theme-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px;background:var(--card2);border:1.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.22);width:60px;height:30px;position:relative;transition:background .22s,border-color .22s}
-    .theme-toggle .theme-icon{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:14px;position:absolute;top:2px;transition:left .22s cubic-bezier(.34,1.3,.64,1),background .22s;box-shadow:0 2px 6px rgba(0,0,0,.28)}
-    .theme-toggle.light-mode .theme-pill{background:rgba(255,220,80,.22);border-color:rgba(255,200,40,.5)}
-    .theme-toggle.light-mode .theme-icon{left:30px;background:#f59e0b;color:#fff}
-    .theme-toggle.dark-mode .theme-pill{background:rgba(109,93,252,.18);border-color:rgba(109,93,252,.45)}
-    .theme-toggle.dark-mode .theme-icon{left:2px;background:var(--accent);color:#fff}
+    /* ── Theme Toggle Pill ── */
+    .theme-toggle{width:58px;min-width:58px;max-width:58px;height:30px;border:0!important;border-radius:999px;padding:0;background:transparent;box-shadow:none;display:flex;align-items:center;justify-content:center}
+    .theme-toggle .theme-pill{display:flex;align-items:center;width:54px;height:28px;border-radius:999px;border:1.5px solid var(--border);background:var(--card2);position:relative;box-shadow:0 2px 8px rgba(0,0,0,.22);transition:background .22s,border-color .22s;flex-shrink:0}
+    .theme-toggle .theme-icon{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;position:absolute;top:2px;transition:left .22s cubic-bezier(.34,1.3,.64,1),background .22s;box-shadow:0 1px 5px rgba(0,0,0,.3);line-height:1}
+    .theme-toggle.dark-mode .theme-pill{background:rgba(109,93,252,.18);border-color:rgba(109,93,252,.4)}
+    .theme-toggle.dark-mode .theme-icon{left:2px;background:var(--accent)}
+    .theme-toggle.light-mode .theme-pill{background:rgba(251,191,36,.18);border-color:rgba(251,191,36,.5)}
+    .theme-toggle.light-mode .theme-icon{left:28px;background:#f59e0b}
     .auth-msg{min-height:19px;color:var(--danger);font-size:12px;margin-top:10px}
     .show-pass{display:flex;align-items:center;gap:7px;margin-top:8px;color:var(--muted);font-size:12px;font-weight:700}
     .show-pass input{width:auto}
@@ -114,7 +115,7 @@
     #topBarBtns{display:flex;align-items:center;gap:6px;flex:0 0 auto}
     #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
     #briefBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
-    #topBarBtns .theme-toggle{height:36px;min-height:36px;min-width:64px;max-width:64px;padding:0}
+    #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
     .search{max-width:380px}
     
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
@@ -131,7 +132,7 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      min-height: 128px;
+      min-height: 126px;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     .cat-card:hover {
@@ -144,16 +145,6 @@
       background: var(--cat-color); transition: width 0.3s ease;
     }
     .cat-card:hover::before { width: 6px; }
-    .cat-card::after{
-      content:"";
-      position:absolute;
-      inset:auto 18px 18px auto;
-      width:42px;
-      height:42px;
-      border-radius:50%;
-      background:color-mix(in srgb,var(--cat-color) 12%,transparent);
-      pointer-events:none;
-    }
     
     .cat-tools {
       position: absolute; top: 12px; left: 12px; display: flex; gap: 4px; z-index: 3;
@@ -191,16 +182,6 @@
       content: ""; display: block; width: 6px; height: 6px; border-radius: 50%; border: 2px solid var(--cat-color); flex: 0 0 auto;
     }
     .cat-open-hint{display:none}
-    .cat-quick-add-btn{
-      position:absolute;bottom:12px;left:12px;
-      width:28px;height:28px;border-radius:50%;
-      border:1.5px solid color-mix(in srgb,var(--cat-color) 48%,var(--border));
-      background:color-mix(in srgb,var(--cat-color) 12%,var(--card2));
-      color:var(--cat-color);font-size:16px;font-weight:700;
-      display:grid;place-items:center;line-height:1;
-      cursor:pointer;transition:.18s;z-index:4;
-    }
-    .cat-quick-add-btn:hover{background:var(--cat-color);color:#fff;transform:scale(1.12)}
     .cat-detail-hero{border:1px solid color-mix(in srgb,var(--cat-color,var(--accent)) 38%,var(--border));background:linear-gradient(135deg,color-mix(in srgb,var(--cat-color,var(--accent)) 14%,var(--card)),var(--surface));border-radius:14px;padding:14px;margin-bottom:12px}
     .cat-detail-name{font-size:20px;font-weight:900;line-height:1.2;margin-bottom:8px;word-break:break-word}
     .cat-detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
@@ -215,9 +196,9 @@
     .cat-detail-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--cat-color,var(--accent))}
     .cat-detail-task-name{font-size:13px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .cat-detail-task-date{font-size:10px;font-weight:900;color:var(--faint);white-space:nowrap}
-    .home-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 12px}
+    .home-section-title{display:flex;align-items:center;gap:10px;margin:4px 2px 12px}
     .home-section-title strong{font-size:18px;font-weight:900}
-    .home-section-title span{font-size:12px;font-weight:800;color:var(--faint)}
+    .home-section-title span{font-size:12px;font-weight:800;color:var(--faint);margin-inline-end:auto}
     .home-wrap{display:grid;gap:10px;margin-top:-8px}
     .lists-wheel{position:relative;max-height:calc(100dvh - 300px);min-height:180px;overflow-y:auto;overflow-x:hidden;padding:2px 8px 10px;scroll-snap-type:y proximity;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;mask-image:linear-gradient(to bottom,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);perspective:900px}
     .lists-wheel::-webkit-scrollbar{width:6px}
@@ -516,12 +497,12 @@
       #content,.list,.grid{width:100%;max-width:100%;min-width:0}
       .top{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding-inline:0}
       .top > div:first-child{padding-right:0!important;min-width:0;order:2}
-      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr 64px;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
-      #topBarBtns button,#briefBtn{width:100%;max-width:none!important;min-width:0!important}
-      #themeToggleBtn{width:64px!important;max-width:64px!important;height:36px!important;min-width:64px!important;min-height:36px!important;border-radius:999px!important;padding:0!important;display:flex;align-items:center;justify-content:center}
-      #themeToggleBtn .theme-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px;background:var(--card2);border:1.5px solid var(--border);width:60px;height:30px;position:relative}
+      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr auto;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
+      #topBarBtns button,#briefBtn{max-width:none!important;min-width:0!important}
+      #themeToggleBtn{width:58px!important;max-width:58px!important;min-width:58px!important;height:30px!important;min-height:30px!important;border-radius:999px!important;padding:0!important;flex-shrink:0}
+      #themeToggleBtn .theme-pill{width:54px;height:28px}
       #themeToggleBtn .theme-pill span:not(.theme-icon){display:none}
-      #themeToggleBtn .theme-icon{width:24px;height:24px;font-size:14px}
+      #themeToggleBtn .theme-icon{font-size:13px}
       .actions{display:grid;grid-template-columns:1fr auto;gap:8px;width:100%;min-width:0;order:3}
       .actions .search{grid-column:1/-1;width:100%;max-width:none;min-width:0}
       #addBtn{grid-column:1/-1;width:100%}
@@ -862,7 +843,7 @@
       .home-section-title{margin:2px 2px 10px}
       .home-section-title strong{font-size:16px}
       .home-section-title span{font-size:11px}
-      .lists-wheel{min-height:200px;padding:0 8px 8px;overflow:hidden;position:relative;mask-image:none}
+      .lists-wheel{min-height:200px;padding:0 8px;overflow:hidden;position:relative;mask-image:none;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 6%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--accent) 16%,var(--border));border-radius:14px;margin-top:10px}
       .lists-wheel .grid{padding-block:0;position:relative;display:block;overflow:visible}
       .lists-wheel .cat-card{position:relative;margin-bottom:0}
       .home-secondary{grid-template-columns:1fr;gap:8px;margin-top:0}
@@ -874,22 +855,20 @@
       .shared-wheel.compact .shared-wheel-meta{display:none}
       .cat-card{
         min-height:0;
-        padding:13px 13px 42px;
+        padding:13px;
         border-radius:14px;
-        display:grid;
-        grid-template-columns:minmax(0,1fr) auto;
-        gap:10px;
-        align-items:center;
+        display:flex;
+        flex-direction:column;
+        gap:8px;
         box-shadow:0 8px 20px rgba(0,0,0,.14);
       }
       .cat-card::before{width:5px}
-      .cat-card::after{width:32px;height:32px;left:16px;right:auto;bottom:14px}
       .cat-card:hover{transform:none;box-shadow:0 8px 20px rgba(0,0,0,.14)}
-      .cat-tools{position:absolute;top:10px;left:8px;grid-column:unset;grid-row:unset;display:flex;gap:2px}
-      .cat-quick-add-btn{bottom:10px;left:10px;width:26px;height:26px;font-size:14px}
-      .cat-tools .mini{min-width:28px;min-height:28px;padding:0 6px;font-size:13px;background:transparent}
-      .cat-title{font-size:16px;margin:0 8px 0 0;padding-left:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .cat-progress-wrap{grid-column:1/-1;margin:0 8px 0 0}
+      .cat-tools{position:static;display:flex;gap:8px;order:3;margin-top:2px}
+      .cat-tools .mini{flex:1;min-height:38px;font-size:14px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:4px}
+      .cat-tools .mini:active{background:var(--accent);color:#fff;border-color:var(--accent)}
+      .cat-title{font-size:16px;margin:0;padding-left:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;order:1}
+      .cat-progress-wrap{margin:0;order:2}
       .cat-progress-stats{font-size:11px;margin-bottom:5px}
       .cat-progress-bg{height:7px}
       .cat-peek{display:none!important}
@@ -944,8 +923,8 @@
         font-size:14px;
         padding-inline:16px!important;
       }
-      #themeToggleBtn{max-width:64px!important;width:64px!important;height:36px!important;min-width:64px!important;min-height:36px!important;border-radius:999px!important;overflow:hidden}
-      #themeToggleBtn .theme-icon{font-size:15px}
+      #themeToggleBtn{max-width:58px!important;width:58px!important;height:30px!important;min-width:58px!important;min-height:30px!important;border-radius:999px!important;overflow:hidden;flex-shrink:0}
+      #themeToggleBtn .theme-icon{font-size:13px}
       #briefBtn{max-width:none!important;font-size:14px;font-weight:900;letter-spacing:.2px}
       #versionBadge{display:none}
       #bottomNav{
@@ -1202,46 +1181,6 @@
     }
     .calendar-view .mg-now-line{height:2px}
 
-    /* ── Badge על כפתורי ניווט תחתון ── */
-    .bnav-btn{position:relative}
-    .bnav-badge{
-      position:absolute;top:6px;left:50%;transform:translateX(4px);
-      min-width:16px;height:16px;border-radius:999px;
-      background:var(--danger);color:#fff;
-      font-size:9px;font-weight:900;line-height:16px;
-      padding:0 4px;text-align:center;
-      pointer-events:none;display:none;
-    }
-    .bnav-badge.show{display:block}
-
-    /* ── Pulse על כפתור "רשימה חדשה" כשאין רשימות ── */
-    @keyframes addPulse{
-      0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}
-      50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}
-    }
-    #addBtn.pulse{animation:addPulse 1.8s ease infinite}
-
-    /* ── Swipe actions on task cards (mobile) ── */
-    .task-swipe-wrap{position:relative;overflow:hidden;border-radius:12px;touch-action:pan-y}
-    .task-swipe-actions{
-      position:absolute;top:0;bottom:0;left:0;
-      display:flex;align-items:stretch;
-      transform:translateX(-100%);
-      transition:transform .18s ease;
-      z-index:2;border-radius:12px 0 0 12px;overflow:hidden;
-    }
-    .task-swipe-actions .swipe-btn{
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:3px;padding:0 16px;font-size:10px;font-weight:900;border:0;cursor:pointer;
-      min-width:52px;
-    }
-    .task-swipe-actions .swipe-btn .swipe-icon{font-size:18px;line-height:1}
-    .task-swipe-btn-edit{background:color-mix(in srgb,var(--accent) 80%,#000);color:#fff}
-    .task-swipe-btn-delete{background:var(--danger);color:#fff}
-    .task-swipe-inner{transition:transform .18s ease;position:relative;z-index:1;background:var(--card)}
-    .task-swipe-wrap.swiped .task-swipe-inner{transform:translateX(-104px)}
-    .task-swipe-wrap.swiped .task-swipe-actions{transform:translateX(0)}
-
     @media(max-width:820px){
       .calendar-view{
         --cal-hour-h:40px;
@@ -1337,6 +1276,26 @@
         line-height:1.12;
       }
     }
+
+    /* ── Badges on bottom nav ── */
+    .bnav-btn{position:relative}
+    .bnav-badge{position:absolute;top:5px;left:50%;transform:translateX(2px);min-width:16px;height:16px;border-radius:999px;background:var(--danger);color:#fff;font-size:9px;font-weight:900;line-height:16px;padding:0 4px;text-align:center;pointer-events:none;display:none;z-index:2}
+    .bnav-badge.show{display:block}
+
+    /* ── Pulse on addBtn when no lists ── */
+    @keyframes addPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}}
+    #addBtn.pulse{animation:addPulse 1.8s ease infinite}
+
+    /* ── Swipe-to-action on task rows (mobile) ── */
+    .task-swipe-wrap{position:relative;overflow:hidden;border-radius:12px}
+    .task-swipe-actions{position:absolute;top:0;bottom:0;right:0;display:flex;align-items:stretch;width:108px;transform:translateX(100%);transition:transform .18s ease;z-index:2;border-radius:0 12px 12px 0;overflow:hidden}
+    .swipe-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:10px;font-weight:900;border:0;cursor:pointer;flex:1}
+    .swipe-btn .swipe-icon{font-size:17px;line-height:1}
+    .swipe-btn-edit{background:color-mix(in srgb,var(--accent) 85%,#000);color:#fff}
+    .swipe-btn-delete{background:var(--danger);color:#fff}
+    .task-swipe-inner{transition:transform .18s ease;position:relative;z-index:1}
+    .task-swipe-wrap.swiped .task-swipe-inner{transform:translateX(-108px)}
+    .task-swipe-wrap.swiped .task-swipe-actions{transform:translateX(0)}
 
 </style>
 </head>
@@ -1568,6 +1527,7 @@
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
+    const RESET_UNDO_WINDOW_MS = 5 * 60 * 1000; // 5 minutes to undo a tasks reset
     let taskReminderTimer = null;
 
     const $ = (id) => document.getElementById(id);
@@ -2079,7 +2039,9 @@
       document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === state.currentView));
       
       $("searchBox").classList.toggle("hidden", !["all","kanban","calendar","meetings"].includes(state.currentView));
-      $("addBtn").classList.add("hidden");
+      $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
+      $("content").style.removeProperty("--accent");
+      $("content").style.removeProperty("--accent2");
       
       if (state.currentView === "home") renderHome();
       if (state.currentView === "kanban") renderKanban();
@@ -2175,14 +2137,13 @@
     }
     function renderHome(){
       $("pageTitle").textContent = "רשימות";
-      $("pageSub").textContent = cloudReady ? "מסונכרן דרך Firebase" : "מצב מקומי במכשיר הזה";
+      $("pageSub").textContent = cloudReady ? "" : "מצב מקומי במכשיר הזה";
       if (activeList.type === "shared") {
         const shareSpan = el("span", "", ` | 🔗 קוד שיתוף: ${activeList.id} (לחץ להעתקה)`);
         shareSpan.style.cssText = "color:var(--accent2); font-weight:bold; cursor:pointer; margin-right:8px;";
         shareSpan.onclick = () => copyShareCode();
         $("pageSub").append(shareSpan);
       }
-      $("addBtn").textContent = "רשימה חדשה";
       
       const grid = el("div","grid");
       const todayStr = toDateKey(new Date());
@@ -2246,21 +2207,9 @@
         }
         card.append(peek);
 
-        // Plus button for quick task creation
-        const plusBtn = el("button","cat-quick-add-btn","＋");
-        plusBtn.type = "button";
-        plusBtn.title = "הוסף משימה לרשימה";
-        plusBtn.onclick = (e) => {
-          e.stopPropagation();
-          state.currentCatId = cat.id;
-          openQuickAddTask(cat);
-        };
-        card.append(plusBtn);
-
         // Click to open
         card.onclick = (e) => {
           if (e.target.closest('.cat-tools')) return;
-          if (e.target.closest('.cat-quick-add-btn')) return;
           if (window.matchMedia("(max-width:820px)").matches) openCategoryDetailModal(cat.id);
           else openCat(cat.id);
         };
@@ -2410,9 +2359,20 @@
 
 
       const listHead = el("div","home-section-title");
+      listHead.style.cssText = "margin-top:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));border-radius:14px;padding:10px 14px;box-shadow:0 6px 18px rgba(0,0,0,.08)";
+      const listHeadLeft = el("div","");
+      listHeadLeft.style.cssText = "display:flex;align-items:center;gap:8px";
+      const newListBtn = el("button","","+ רשימה חדשה");
+      newListBtn.type = "button";
+      newListBtn.style.cssText = "font-size:12px;font-weight:800;padding:8px 14px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#fff0));color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);transition:.18s";
+      newListBtn.onmouseenter = () => newListBtn.style.transform = "translateY(-1px)";
+      newListBtn.onmouseleave = () => newListBtn.style.transform = "";
+      newListBtn.onclick = () => openCategoryModal();
+      listHeadLeft.append(el("strong","", "הרשימות שלך"));
       listHead.append(
-        el("strong","", "הרשימות שלך"),
-        el("span","", `${state.cats.length} רשימות`)
+        listHeadLeft,
+        el("span","", `${state.cats.length} רשימות`),
+        newListBtn
       );
 
       const listsWheel = el("div","lists-wheel");
@@ -2421,7 +2381,6 @@
       // Carousel: 3 cards visible VERTICALLY, infinite loop, one step at a time (mobile)
       if (window.matchMedia("(max-width:820px)").matches && state.cats.length > 0) {
         const origCards = [...grid.querySelectorAll(".cat-card")];
-        const origOnclicks = origCards.map(c => c.onclick);
         const total = origCards.length;
         let current = 0; // logical real index (0..total-1), derived from vCurrent
         let vCurrent = 0; // continuous virtual slot index, only ever incremented/decremented
@@ -2430,14 +2389,14 @@
         grid.style.cssText = "padding:0;margin:0;gap:0;display:block;height:auto;overflow:visible";
 
         // Fixed slot height in px — locked, predictable, no layout-dependent math
-        const SLOT_H = 134;
+        const SLOT_H = 156;
         const GAP = 8;
         const ROW_H = SLOT_H + GAP;
         const VIEWPORT_H = SLOT_H * 3 + GAP * 2; // exactly 3 slots tall
 
         // Build slider container (vertical)
         const sliderOuter = el("div","");
-        sliderOuter.style.cssText = `display:flex;align-items:stretch;gap:6px;height:${VIEWPORT_H}px`;
+        sliderOuter.style.cssText = `display:flex;align-items:stretch;height:${VIEWPORT_H}px`;
 
         const slider = el("div","");
         slider.style.cssText = `overflow:hidden;position:relative;border-radius:14px;flex:1;min-width:0;height:${VIEWPORT_H}px`;
@@ -2478,14 +2437,25 @@
           const wrap = el("div","");
           wrap.style.cssText = `flex:0 0 ${SLOT_H}px;height:${SLOT_H}px;margin-bottom:${GAP}px;box-sizing:border-box;display:flex`;
 
-          const origClick = origOnclicks[realIdx];
+          // cloneNode never carries JS-assigned onclick handlers, so every
+          // clone's inner tool buttons + the card itself need fresh handlers
+          // wired directly to this slot's real category.
+          const slotCat = state.cats[realIdx];
+          const dupBtn = node.querySelector('.cat-tools .mini[title="שכפל רשימה"]');
+          const editBtn = node.querySelector('.cat-tools .mini[title="ערוך רשימה"]');
+          const delBtn = node.querySelector('.cat-tools .mini[title="מחק רשימה"]');
+          if (dupBtn) dupBtn.onclick = (e) => { e.stopPropagation(); duplicateCategory(slotCat.id); };
+          if (editBtn) editBtn.onclick = (e) => { e.stopPropagation(); openCategoryModal(slotCat); };
+          if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteCategory(slotCat.id); };
+
           node.onclick = (e) => {
             if (slotIdx !== vCurrent) {
               e.stopPropagation();
               goTo(vCurrent + (slotIdx - vCurrent));
               return;
             }
-            if (origClick) origClick.call(node, e);
+            if (e.target.closest(".cat-tools")) return;
+            openCategoryDetailModal(slotCat.id);
           };
 
           wrap.append(node);
@@ -2516,10 +2486,12 @@
 
         function goTo(newVCurrent, animate = true) {
           if (isAnimating && animate) return;
+          const distance = Math.abs(newVCurrent - vCurrent);
           vCurrent = newVCurrent;
           current = ((vCurrent % total) + total) % total;
           const offset = offsetForSlot(vCurrent);
-          track.style.transition = animate ? "transform 0.34s cubic-bezier(.25,.8,.25,1)" : "none";
+          const duration = animate ? Math.min(0.34 + (distance - 1) * 0.06, 0.6) : 0;
+          track.style.transition = animate ? `transform ${duration}s cubic-bezier(.25,.8,.25,1)` : "none";
           track.style.transform = `translate3d(0,${-offset}px,0)`;
           updateDots();
           updateCardHighlight();
@@ -2529,7 +2501,7 @@
             setTimeout(() => {
               isAnimating = false;
               rewrapIfNeeded();
-            }, 350);
+            }, duration * 1000 + 16);
           } else {
             rewrapIfNeeded();
           }
@@ -2595,34 +2567,14 @@
         slider.addEventListener("touchend", () => {
           if (!dragging) return;
           dragging = false;
-          const threshold = ROW_H * 0.22;
-          if (dragOffset > threshold) {
-            goTo(vCurrent - 1);
-          } else if (dragOffset < -threshold) {
-            goTo(vCurrent + 1);
-          } else {
-            goTo(vCurrent); // snap back to center
-          }
+          // Move by however many rows were actually dragged, not just one step.
+          // dragOffset > 0 means dragging downward (content moves down → goes to previous slot).
+          const rawSteps = dragOffset / ROW_H;
+          const steps = dragOffset > 0 ? Math.ceil(rawSteps - 0.28) : Math.floor(rawSteps + 0.28);
+          goTo(vCurrent - steps);
         }, { passive: true });
 
-        // Up/Down arrow buttons
-        const arrowCol = el("div","");
-        arrowCol.style.cssText = "display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:2px 0;flex:0 0 auto";
-
-        const mkArrow = (dir, label) => {
-          const b = el("button","",label);
-          b.type = "button";
-          b.style.cssText = "width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);flex:0 0 auto";
-          b.onclick = () => goTo(vCurrent + dir);
-          return b;
-        };
-        const upBtn = mkArrow(-1, "▲");
-        const downBtn = mkArrow(1, "▼");
-        const spacer = el("div","");
-        spacer.style.cssText = "flex:1";
-        arrowCol.append(upBtn, spacer, downBtn);
-
-        sliderOuter.append(arrowCol, slider);
+        sliderOuter.append(slider);
 
         // Dot indicators
         const dots = el("div","");
@@ -2684,6 +2636,12 @@
       }      
       $("addBtn").textContent = "משימה חדשה";
 
+      // Tint this view's accent with the list's own color, so buttons,
+      // borders and highlights inside the list visually match it.
+      const catColorMain = cat.color || state.accent;
+      $("content").style.setProperty("--accent", catColorMain);
+      $("content").style.setProperty("--accent2", `color-mix(in srgb, ${catColorMain} 65%, white)`);
+
       const wrap = el("div");
 
       const topBar = el("div","row");
@@ -2694,7 +2652,10 @@
       kanbanBtn.onclick = () => { state.kanbanListMode = false; render(); };
       listBtn.onclick = () => { state.kanbanListMode = true; render(); };
       toggle.append(kanbanBtn, listBtn);
-      topBar.append(toggle);
+      const editCatBtn = el("button","btn","✎ ערוך רשימה");
+      editCatBtn.type = "button";
+      editCatBtn.onclick = () => openCategoryModal(cat);
+      topBar.append(toggle, editCatBtn);
       wrap.append(topBar);
 
       if (state.kanbanListMode) {
@@ -4474,9 +4435,13 @@
       const resetTasksBtn = el("button","btn danger","איפוס משימות");
       resetTasksBtn.type = "button"; 
       resetTasksBtn.onclick = () => {
-        if (!confirm("לאפס את כל המשימות? זה ימחק הכל.")) return;
-        state.cats = []; state.tasks = []; state.currentCatId = null; state.currentView = "home";
-        save(); render(); toast("המשימות אופסו");
+        if (!confirm("לאפס את כל המשימות? הרשימות עצמן יישארו. ניתן לבטל למשך כמה דקות.")) return;
+        const removedTasks = JSON.parse(JSON.stringify(state.tasks));
+        const removedAgenda = JSON.parse(JSON.stringify(state.dailyAgenda || null));
+        undoStack.push({ type:"tasksReset", tasks: removedTasks, dailyAgenda: removedAgenda, at: Date.now() });
+        state.tasks = [];
+        state.dailyAgenda = { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null };
+        save(); render(); toastUndo("המשימות אופסו (הרשימות נשארו)");
       };
       
       const resetCalBtn = el("button","btn danger","איפוס לוח שנה");
@@ -4489,6 +4454,23 @@
 
       backup.append(el("p","meta","מומלץ להוריד גיבוי מדי פעם, גם כשיש סנכרון."), el("div","row"));
       backup.lastChild.append(exportBtn, importBtn, resetTasksBtn, resetCalBtn);
+
+      const pendingReset = [...undoStack].reverse().find(a => a.type === "tasksReset");
+      if (pendingReset && Date.now() - pendingReset.at <= RESET_UNDO_WINDOW_MS) {
+        const minsLeft = Math.max(1, Math.ceil((RESET_UNDO_WINDOW_MS - (Date.now() - pendingReset.at)) / 60000));
+        const undoRow = el("div","row"); undoRow.style.marginTop = "10px";
+        const undoResetBtn = el("button","btn","↩️ בטל איפוס משימות אחרון");
+        undoResetBtn.type = "button";
+        undoResetBtn.onclick = () => {
+          const idx = undoStack.lastIndexOf(pendingReset);
+          if (idx !== -1) undoStack.splice(idx, 1);
+          state.tasks = pendingReset.tasks;
+          if (pendingReset.dailyAgenda) state.dailyAgenda = pendingReset.dailyAgenda;
+          save(); render(); toast("האיפוס בוטל, המשימות שוחזרו ✓");
+        };
+        undoRow.append(undoResetBtn, el("span","meta",`ניתן לבטל עוד כ-${minsLeft} דק׳`));
+        backup.append(undoRow);
+      }
       
       const icsBtn = el("button","btn","📅 ייבוא .ics");
       icsBtn.type = "button"; icsBtn.onclick = importIcs;
@@ -4614,11 +4596,9 @@
         const isCollapsed = state.collapsedSubs?.[task.id] ?? false;
         const subsHeader = el("div","subs-header");
         subsHeader.style.cssText = "display:flex;align-items:center;gap:6px;margin-top:10px;cursor:pointer;user-select:none;padding:2px 0";
-        const arrow = el("span",""); arrow.style.cssText = `font-size:11px;color:var(--faint);transition:transform .2s;display:inline-block;transform:rotate(${isCollapsed?"0deg":"90deg"})`;
-        arrow.textContent = "▶";
         const subsLabel = el("span",""); subsLabel.style.cssText = "font-size:12px;font-weight:800;color:var(--faint)";
         subsLabel.textContent = `תת-משימות  ${done}/${task.subs.length}`;
-        subsHeader.append(arrow, subsLabel, bar);
+        subsHeader.append(subsLabel, bar);
 
         const subs = el("div","subs");
         subs.style.display = isCollapsed ? "none" : "grid";
@@ -4635,8 +4615,8 @@
           e.stopPropagation();
           if (!state.collapsedSubs) state.collapsedSubs = {};
           state.collapsedSubs[task.id] = !state.collapsedSubs[task.id];
-          arrow.style.transform = state.collapsedSubs[task.id] ? "rotate(0deg)" : "rotate(90deg)";
           subs.style.display = state.collapsedSubs[task.id] ? "none" : "grid";
+          subsLabel.textContent = `תת-משימות  ${done}/${task.subs.length}`;
         };
 
         card.append(subsHeader, subs);
@@ -4656,51 +4636,51 @@
       const row = taskCard(task, false);
       row.classList.add("task-row", "task-list-card");
 
-      // Swipe-to-action on mobile
+      // Swipe-to-action on mobile only
       if (window.matchMedia("(max-width:820px)").matches) {
-        const wrap = el("div", "task-swipe-wrap");
-        const actions = el("div", "task-swipe-actions");
+        const wrap = document.createElement("div");
+        wrap.className = "task-swipe-wrap";
 
-        const editBtn = el("button", "swipe-btn task-swipe-btn-edit");
+        const actions = document.createElement("div");
+        actions.className = "task-swipe-actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "swipe-btn swipe-btn-edit";
         editBtn.type = "button";
         editBtn.innerHTML = `<span class="swipe-icon">✏️</span><span>ערוך</span>`;
         editBtn.onclick = (e) => { e.stopPropagation(); wrap.classList.remove("swiped"); openTaskModal(task); };
 
-        const delBtn = el("button", "swipe-btn task-swipe-btn-delete");
+        const delBtn = document.createElement("button");
+        delBtn.className = "swipe-btn swipe-btn-delete";
         delBtn.type = "button";
         delBtn.innerHTML = `<span class="swipe-icon">🗑</span><span>מחק</span>`;
         delBtn.onclick = (e) => { e.stopPropagation(); wrap.classList.remove("swiped"); deleteTask(task.id); };
 
         actions.append(editBtn, delBtn);
 
-        const inner = el("div", "task-swipe-inner");
+        const inner = document.createElement("div");
+        inner.className = "task-swipe-inner";
         inner.append(row);
+
         wrap.append(actions, inner);
 
-        // Touch swipe detection
-        let startX = 0, startY = 0, swiping = false;
-        inner.addEventListener("touchstart", (e) => {
+        let startX = 0, startY = 0, moved = false;
+        inner.addEventListener("touchstart", e => {
           startX = e.touches[0].clientX;
           startY = e.touches[0].clientY;
-          swiping = false;
+          moved = false;
         }, { passive: true });
-        inner.addEventListener("touchmove", (e) => {
+        inner.addEventListener("touchmove", e => {
           const dx = e.touches[0].clientX - startX;
           const dy = e.touches[0].clientY - startY;
-          if (!swiping && Math.abs(dy) > Math.abs(dx)) return;
-          swiping = true;
-          if (dx > 20 && wrap.classList.contains("swiped")) {
+          if (!moved && Math.abs(dy) > Math.abs(dx) + 5) return; // vertical scroll wins
+          moved = true;
+          if (dx > 30 && wrap.classList.contains("swiped")) {
             wrap.classList.remove("swiped");
-          } else if (dx < -30 && !wrap.classList.contains("swiped")) {
-            // close other open swipes
-            document.querySelectorAll(".task-swipe-wrap.swiped").forEach(w => w.classList.remove("swiped"));
+          } else if (dx < -40 && !wrap.classList.contains("swiped")) {
+            document.querySelectorAll(".task-swipe-wrap.swiped").forEach(w => w !== wrap && w.classList.remove("swiped"));
             wrap.classList.add("swiped");
           }
-        }, { passive: true });
-
-        // Close on outside tap
-        document.addEventListener("touchstart", (e) => {
-          if (!wrap.contains(e.target)) wrap.classList.remove("swiped");
         }, { passive: true });
 
         return wrap;
@@ -4765,6 +4745,11 @@
 
     function openCategoryModal(cat){
       openModal(cat ? "עריכת רשימה" : "רשימה חדשה", "", (form) => {
+        if (cat) {
+          const catColor = cat.color || state.accent;
+          $("modalBack").style.setProperty("--accent", catColor);
+          $("modalBack").style.setProperty("--accent2", `color-mix(in srgb, ${catColor} 65%, white)`);
+        }
         form.append(field("שם הרשימה","catName","text",cat?.name || ""));
 
         if (cat && activeList.type === "shared" && activeList.id) {
@@ -5012,6 +4997,8 @@
       $("modalSub").textContent = sub || "";
       const form = $("modalForm");
       form.replaceChildren();
+      $("modalBack").style.removeProperty("--accent");
+      $("modalBack").style.removeProperty("--accent2");
       build(form);
       form.onsubmit = (e) => e.preventDefault();
       $("modalBack").classList.remove("hidden");
@@ -5182,13 +5169,22 @@
       const catColor = cat.color || state.accent;
 
       openModal(cat.name, "פרטי רשימה", (form) => {
+        $("modalBack").style.setProperty("--accent", catColor);
+        $("modalBack").style.setProperty("--accent2", `color-mix(in srgb, ${catColor} 65%, white)`);
         form.style.setProperty("--cat-color", catColor);
         const hero = el("div","cat-detail-hero");
         hero.style.setProperty("--cat-color", catColor);
         hero.style.cursor = "pointer";
         hero.title = "פתח את הרשימה";
         hero.onclick = () => { closeModal(); openCat(id); };
-        hero.append(el("div","cat-detail-name",cat.name));
+        const heroTop = el("div",""); heroTop.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px";
+        heroTop.append(el("div","cat-detail-name",cat.name));
+        const editBtn = el("button","btn","✎ ערוך");
+        editBtn.type = "button";
+        editBtn.style.cssText = "flex:0 0 auto";
+        editBtn.onclick = (e) => { e.stopPropagation(); closeModal(); openCategoryModal(cat); };
+        heroTop.append(editBtn);
+        hero.append(heroTop);
 
         const stats = el("div","cat-detail-stats");
         [
@@ -5323,6 +5319,12 @@
         state.cats.push(action.cat);
         state.tasks.push(...action.tasks);
         save(); render(); toast("המחיקה בוטלה ✓");
+      } else if (action.type === "tasksReset") {
+        const ageMs = Date.now() - (action.at || 0);
+        if (ageMs > RESET_UNDO_WINDOW_MS) { toast("חלף הזמן לביטול האיפוס"); return; }
+        state.tasks = action.tasks;
+        if (action.dailyAgenda) state.dailyAgenda = action.dailyAgenda;
+        save(); render(); toast("האיפוס בוטל, המשימות שוחזרו ✓");
       }
     }
 
@@ -5582,6 +5584,7 @@
     function applyTheme(){
       document.body.dataset.theme = state.theme || "dark";
       document.documentElement.style.setProperty("--accent", state.accent || "#6d5dfc");
+
       // Dynamic theme-color for browser chrome
       const themeColors = {
         sky:"#05121e", black:"#000000", forest:"#06100a", ember:"#130800",
@@ -5590,55 +5593,44 @@
       const metaTC = document.getElementById("themeColorMeta");
       if (metaTC) metaTC.content = themeColors[state.theme] || "#05121e";
 
+      // Pill toggle
       if ($("themeToggleBtn")) {
-        $("themeToggleBtn").classList.add("theme-toggle");
         const lightThemes = ["light", "green", "white", "peach"];
         const isLight = lightThemes.includes(state.theme);
         const icon = isLight ? "☀️" : "🌙";
         const modeClass = isLight ? "light-mode" : "dark-mode";
+        $("themeToggleBtn").classList.add("theme-toggle");
         $("themeToggleBtn").classList.remove("light-mode", "dark-mode");
         $("themeToggleBtn").classList.add(modeClass);
         $("themeToggleBtn").innerHTML = `<span class="theme-pill"><span class="theme-icon">${icon}</span></span>`;
         $("themeToggleBtn").title = isLight ? "עבור למצב כהה" : "עבור למצב בהיר";
       }
 
-      // Update bottom nav badges
-      updateNavBadges();
-
-      // Pulse addBtn if no lists exist
+      // Pulse addBtn when no lists
       const addBtn = $("addBtn");
       if (addBtn) {
-        if (state.currentView === "home" && !state.cats.length) {
-          addBtn.classList.add("pulse");
-        } else {
-          addBtn.classList.remove("pulse");
-        }
+        const showPulse = state.currentView === "home" && !state.cats.length;
+        addBtn.classList.toggle("pulse", showPulse);
       }
+
+      // Bottom nav badges
+      updateNavBadges();
     }
 
     function updateNavBadges(){
       const todayStr = toDateKey(new Date());
-      // Badge "משימות" - open tasks due today or overdue
-      const urgentCount = (state.tasks || []).filter(t => !isDone(t) && t.due && t.due <= todayStr).length;
-      const badgeAll = $("bnavBadgeAll");
-      if (badgeAll) {
-        badgeAll.textContent = urgentCount > 9 ? "9+" : String(urgentCount);
-        badgeAll.classList.toggle("show", urgentCount > 0);
-      }
-      // Badge "לוח שנה" - events today
-      const todayEvents = (state.events || []).filter(e => e.date === todayStr).length;
-      const badgeCal = $("bnavBadgeCal");
-      if (badgeCal) {
-        badgeCal.textContent = todayEvents > 9 ? "9+" : String(todayEvents);
-        badgeCal.classList.toggle("show", todayEvents > 0);
-      }
-      // Badge "פגישות" - meetings today
-      const todayMeet = (state.events || []).filter(e => e.date === todayStr && e.isMeeting).length;
-      const badgeMeet = $("bnavBadgeMeet");
-      if (badgeMeet) {
-        badgeMeet.textContent = todayMeet > 9 ? "9+" : String(todayMeet);
-        badgeMeet.classList.toggle("show", todayMeet > 0);
-      }
+      const urgentCount = (state.tasks||[]).filter(t => !isDone(t) && t.due && t.due <= todayStr).length;
+      const todayEvents = (state.events||[]).filter(e => e.date === todayStr).length;
+      const todayMeet   = (state.events||[]).filter(e => e.date === todayStr && e.isMeeting).length;
+      const b = (id, n) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = n > 9 ? "9+" : String(n);
+        el.classList.toggle("show", n > 0);
+      };
+      b("bnavBadgeAll", urgentCount);
+      b("bnavBadgeCal", todayEvents);
+      b("bnavBadgeMeet", todayMeet);
     }
 
     function mergeState(data, isSharedSync = false){
