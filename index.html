@@ -827,8 +827,8 @@
       }
       .btn,.nav button,input,select,textarea{min-height:42px}
       .mini{
-        min-width:32px;
-        min-height:32px;
+        min-width:26px;
+        min-height:26px;
         display:inline-flex;
         align-items:center;
         justify-content:center;
@@ -902,8 +902,8 @@
       .task-list-card{width:100%;max-width:100%}
       .list{gap:10px}
       .card{width:100%;max-width:100%;min-width:0}
-      .task-top{grid-template-columns:auto minmax(0,1fr);gap:8px}
-      .task-tools{grid-column:2;justify-content:flex-start;margin-top:4px;width:max-content;max-width:100%}
+      .task-top{grid-template-columns:auto minmax(0,1fr)}
+      .task-tools{display:none}
       .chip,.tag,.est-badge,.repeat-badge{font-size:10px}
       .tags-bar,.sort-bar{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}
       .sort-bar select{min-width:128px}
@@ -2627,7 +2627,7 @@
       const cat = activeCat();
       if (!cat) return navigate("home");
       $("pageTitle").textContent = cat.name;
-      $("pageSub").textContent = "גרור משימות בין עמודות או ערוך";
+      $("pageSub").textContent = "";
       if (activeList.type === "shared") {
         const shareSpan = el("span", "", ` | 🔗 קוד שיתוף: ${activeList.id} (לחץ להעתקה)`);
         shareSpan.style.cssText = "color:var(--accent2); font-weight:bold; cursor:pointer; margin-right:8px;";
