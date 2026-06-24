@@ -116,7 +116,17 @@
     #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
     #briefBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
     #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
-    .search{max-width:380px}
+    .search-wrap{position:relative;max-width:380px;flex:1 1 auto}
+    .search{max-width:none;width:100%}
+    .search-results{position:absolute;top:calc(100% + 6px);right:0;left:0;max-height:340px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);z-index:60;padding:6px}
+    .search-result-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--rs);cursor:pointer;text-align:right;border-right:3px solid var(--cat-color, var(--accent))}
+    .search-result-item:hover{background:var(--card2)}
+    .search-result-icon{flex:0 0 auto;font-size:14px}
+    .search-result-text{min-width:0;overflow:hidden;flex:1 1 auto}
+    .search-result-name{font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .search-result-meta{font-size:11px;color:var(--faint);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .search-result-date{flex:0 0 auto;font-size:11px;font-weight:900;color:var(--accent2);white-space:nowrap}
+    .search-results-empty{padding:14px 10px;text-align:center;color:var(--faint);font-size:12px}
     
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow); transition: .2s;}
@@ -234,6 +244,18 @@
     .agenda-date{display:inline-flex;align-items:center;gap:5px;color:var(--faint);font-size:12px;font-weight:900;white-space:nowrap;text-align:left;direction:ltr}
     .agenda-date.today{color:var(--danger);direction:rtl}
     .agenda-bang{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:rgba(239,68,68,.16);color:var(--danger);border:1px solid rgba(239,68,68,.38);font-size:12px;font-weight:900;line-height:1}
+
+    .countdown-widget{margin-bottom:14px}
+    .countdown-title{font-size:13px;font-weight:900;color:var(--faint);margin-bottom:8px;padding:0 2px}
+    .countdown-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+    .countdown-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-right:4px solid var(--cat-color, var(--accent));border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;min-width:0}
+    .countdown-item:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+    .countdown-item.urgent .countdown-big{color:var(--danger)}
+    .countdown-big{font-size:26px;font-weight:900;color:var(--accent2);line-height:1;display:flex;align-items:baseline;gap:4px;flex:0 0 auto}
+    .countdown-unit{font-size:12px;font-weight:800;color:var(--faint)}
+    .countdown-info{min-width:0;overflow:hidden}
+    .countdown-name{font-weight:900;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .countdown-meta{font-size:11px;color:var(--faint);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
     
     .kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;align-items:start;max-height:calc(100dvh - 210px);overflow:hidden}
     .col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);min-height:230px;max-height:calc(100dvh - 214px);overflow:hidden;display:flex;flex-direction:column;min-width:0}
@@ -350,6 +372,8 @@
     .tag:hover{border-color:var(--accent);color:var(--accent2)}
     .tag.active-tag{background:rgba(109,93,252,.18);border-color:var(--accent);color:var(--accent2)}
     .tags-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+    .tag-group-head{border-bottom:1.5px solid var(--border)}
+    .tag-group-head:first-child{padding-top:4px!important}
     .task-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
     .sort-bar{display:flex;gap:6px;align-items:center;margin-bottom:10px;font-size:12px;color:var(--faint)}
     .sort-bar select{width:auto;padding:4px 8px;font-size:12px}
@@ -360,6 +384,9 @@
     .toast-undo button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:800;cursor:pointer}
     .toast-undo button:hover{background:rgba(255,255,255,.32)}
     .char-count{font-size:10px;color:var(--faint);text-align:left;margin-top:2px}
+    .date-suggestion{display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 10px;background:color-mix(in srgb,var(--accent) 12%,var(--card2));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:var(--rs);font-size:12px;font-weight:700;color:var(--accent2);flex-wrap:wrap}
+    .date-suggestion-apply{border:0;background:var(--accent);color:#fff;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:900;cursor:pointer}
+    .date-suggestion-dismiss{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:13px;padding:2px 4px;margin-right:auto}
     .char-count.warn{color:var(--warn)}
     .est-badge{font-size:10px;color:var(--faint);display:inline-flex;align-items:center;gap:3px;margin-top:4px}
     .repeat-badge{font-size:10px;font-weight:800;color:var(--accent2);background:rgba(109,93,252,.12);border:1px solid rgba(109,93,252,.25);border-radius:999px;padding:1px 7px;display:inline-flex;align-items:center;gap:3px;margin-top:4px}
@@ -516,7 +543,7 @@
       #themeToggleBtn .theme-pill span:not(.theme-icon){display:none}
       #themeToggleBtn .theme-icon{font-size:13px}
       .actions{display:grid;grid-template-columns:1fr auto;gap:8px;width:100%;min-width:0;order:3}
-      .actions .search{grid-column:1/-1;width:100%;max-width:none;min-width:0}
+      .actions .search-wrap{grid-column:1/-1;width:100%;max-width:none;min-width:0}
       #addBtn{grid-column:1/-1;width:100%}
       .shared-wheel{grid-template-columns:1fr;gap:10px;margin:0 0 14px;padding:10px;width:100%;max-width:100%}
       .shared-wheel-controls{grid-template-columns:1fr 1fr}
@@ -530,7 +557,7 @@
       .mobile-menu.hidden{display:none!important}
       .top{align-items:stretch}
       .actions{width:100%}
-      .search{max-width:none;flex:1 1 160px}
+      .search-wrap{max-width:none;flex:1 1 160px}
       .grid{grid-template-columns:1fr;gap:14px}
       .cat-solar{min-height:220px}
       .agenda-row{grid-template-columns:1fr auto;padding:10px 12px}
@@ -829,7 +856,8 @@
         width:100%;
         gap:8px;
       }
-      .actions .search{min-width:0;height:42px}
+      .actions .search-wrap{min-width:0}
+      .actions .search{height:42px}
       #addBtn{
         min-width:46px;
         height:42px;
@@ -1374,7 +1402,10 @@
           <p id="pageSub"></p>
         </div>
         <div class="actions">
-          <input id="searchBox" class="search" type="search" placeholder="חיפוש משימות..." />
+          <div id="searchWrap" class="search-wrap">
+            <input id="searchBox" class="search" type="search" placeholder="חיפוש משימות..." autocomplete="off" />
+            <div id="searchResults" class="search-results hidden"></div>
+          </div>
           <button id="addBtn" class="btn primary" type="button">+ חדש</button>
           <div id="topBarBtns">
             <button id="themeToggleBtn" class="btn topbar-btn" type="button" title="מצב תצוגה"></button>
@@ -1625,8 +1656,16 @@
         if (state.currentView === "home") openCategoryModal();
         else if (state.currentView === "kanban") openTaskModal();
       };
-      $("searchBox").oninput = (e) => { state.search = e.target.value.trim(); render(); };
-      
+      $("searchBox").oninput = (e) => {
+        state.search = e.target.value.trim();
+        render();
+        renderCalendarSearchResults();
+      };
+      $("searchBox").addEventListener("focus", renderCalendarSearchResults);
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#searchWrap")) hideCalendarSearchResults();
+      });
+
       document.querySelectorAll(".nav button[data-view]").forEach(btn => btn.onclick = () => navigate(btn.dataset.view));
       document.querySelectorAll(".bnav-btn").forEach(btn => {
         btn.onclick = () => navigate(btn.dataset.bnav);
@@ -2266,6 +2305,33 @@
       }).sort((a, b) => (a.due || "").localeCompare(b.due || ""));
       const todayEvents = (state.events||[]).filter(e => e.date === todayStr);
 
+      // === Widget: ספירה לאחור לדדליינים הקרובים ===
+      const upcomingDeadlines = state.tasks
+        .filter(t => !isDone(t) && t.due && t.due >= todayStr)
+        .sort((a,b) => (a.due||"").localeCompare(b.due||""))
+        .slice(0, 3);
+
+      let countdownWidget = null;
+      if (upcomingDeadlines.length) {
+        countdownWidget = el("div","countdown-widget");
+        const items = el("div","countdown-items");
+        upcomingDeadlines.forEach(t => {
+          const info = dueInfo(t.due);
+          const cat = state.cats.find(c => c.id === t.catId);
+          const item = el("div","countdown-item" + (info?.cls === "soon" ? " urgent" : ""));
+          item.style.setProperty("--cat-color", t.color || cat?.color || state.accent);
+          const daysNum = Math.max(0, Math.round((parseDate(t.due) - new Date(new Date().setHours(0,0,0,0))) / 86400000));
+          const big = el("div","countdown-big", daysNum === 0 ? "היום" : String(daysNum));
+          if (daysNum > 0) big.append(el("span","countdown-unit", daysNum === 1 ? "יום" : "ימים"));
+          const info2 = el("div","countdown-info");
+          info2.append(el("div","countdown-name", t.name), el("div","countdown-meta", cat ? cat.name : ""));
+          item.append(big, info2);
+          item.onclick = (e) => showCalItemPopup(e, t, t.due);
+          items.append(item);
+        });
+        countdownWidget.append(el("div","countdown-title","⏳ הדדליינים הקרובים"), items);
+      }
+
       // === כרטיס מאוחד: סדר יום + מיקוד יומי ===
       const unifiedCard = el("div","");
       unifiedCard.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.1)";
@@ -2665,6 +2731,7 @@
       secondary.append(renderSharedWheel(true));
 
       const wrap = el("div","home-wrap");
+      if (countdownWidget) wrap.append(countdownWidget);
       // הסדר יומי והמיקוד מוצגים רק בתוך פאנל התכנון (✨ תכנון) במובייל
       const isMobileHome = window.matchMedia("(max-width:820px)").matches;
       if (!isMobileHome) {
@@ -2808,7 +2875,7 @@
       sortBar.append(el("span","","מיון:"));
       const sortSel = el("select");
       sortSel.style.cssText = "width:auto;padding:4px 8px;font-size:12px";
-      [["due","לפי תאריך"],["name","לפי שם"],["cat","לפי קטגוריה"]].forEach(([v,l]) => {
+      [["due","לפי תאריך"],["name","לפי שם"],["cat","לפי קטגוריה"],["tag","לפי תגית (קורס)"]].forEach(([v,l]) => {
         const o = el("option","",l); o.value = v; if (state.sortAll===v) o.selected=true; sortSel.append(o);
       });
       sortSel.onchange = () => { state.sortAll = sortSel.value; render(); };
@@ -2840,6 +2907,49 @@
 
       const list = el("div","list");
       if (!tasks.length) list.append(emptyFun());
+
+      if (state.sortAll === "tag") {
+        // קיבוץ לפי תגית (קורס) — משימות ללא תגית מקובצות בסוף תחת "ללא תגית"
+        const groups = new Map();
+        tasks.forEach(t => {
+          const taskTags = t.tags?.length ? t.tags : ["ללא תגית"];
+          taskTags.forEach(tag => {
+            if (!groups.has(tag)) groups.set(tag, []);
+            groups.get(tag).push(t);
+          });
+        });
+        const sortedTagNames = [...groups.keys()].sort((a,b) => {
+          if (a === "ללא תגית") return 1;
+          if (b === "ללא תגית") return -1;
+          return a.localeCompare(b, "he");
+        });
+        sortedTagNames.forEach(tagName => {
+          const groupTasks = groups.get(tagName).sort((a,b) => (a.due||"9999").localeCompare(b.due||"9999"));
+          const groupHead = el("div","tag-group-head");
+          groupHead.style.cssText = "display:flex;align-items:center;gap:8px;padding:14px 4px 6px;font-weight:900;font-size:13px;color:var(--accent2)";
+          groupHead.append(el("span","",tagName === "ללא תגית" ? "ללא תגית" : "# " + tagName), el("span","count",String(groupTasks.length)));
+          list.append(groupHead);
+          groupTasks.forEach(task => {
+            const row = taskRow(task);
+            const cat = state.cats.find(c => c.id === task.catId);
+            if (cat) {
+              const col = cat.columns?.find(c => c.id === task.col);
+              const titleEl = row.querySelector(".task-title");
+              if (titleEl && !row.querySelector(".all-breadcrumb")) {
+                const bc = document.createElement("div");
+                bc.className = "all-breadcrumb";
+                bc.textContent = col ? `${cat.name} › ${col.name}` : cat.name;
+                titleEl.after(bc);
+              }
+            }
+            list.append(row);
+          });
+        });
+        wrap.append(list);
+        $("content").replaceChildren(wrap);
+        return;
+      }
+
       tasks.forEach(task => {
         const row = taskRow(task);
         const cat = state.cats.find(c => c.id === task.catId);
@@ -2857,6 +2967,62 @@
       });
       wrap.append(list);
       $("content").replaceChildren(wrap);
+    }
+
+    function hideCalendarSearchResults(){
+      const box = $("searchResults");
+      if (box) { box.classList.add("hidden"); box.replaceChildren(); }
+    }
+
+    function jumpToCalDate(dateKey){
+      state.calDate = dateKey;
+      state.calView = "day";
+      navigate("calendar");
+    }
+
+    function renderCalendarSearchResults(){
+      const box = $("searchResults");
+      if (!box) return;
+      if (state.currentView !== "calendar") { hideCalendarSearchResults(); return; }
+      const q = state.search.toLowerCase();
+      if (!q) { hideCalendarSearchResults(); return; }
+
+      const matchedEvents = (state.events || [])
+        .filter(e => (e.title||"").toLowerCase().includes(q))
+        .sort((a,b) => (a.date||"").localeCompare(b.date||""));
+      const matchedTasks = state.tasks
+        .filter(t => t.due && [t.name, ...(t.tags||[])].join(" ").toLowerCase().includes(q))
+        .sort((a,b) => (a.due||"").localeCompare(b.due||""));
+
+      box.replaceChildren();
+      if (!matchedEvents.length && !matchedTasks.length) {
+        box.append(el("div","search-results-empty","לא נמצאו אירועים או משימות מתאימות"));
+        box.classList.remove("hidden");
+        return;
+      }
+
+      matchedEvents.slice(0, 12).forEach(ev => {
+        const row = el("div","search-result-item");
+        row.style.setProperty("--cat-color", ev.color || state.accent);
+        row.append(el("span","search-result-icon","📅"));
+        const text = el("div","search-result-text");
+        text.append(el("div","search-result-name",ev.title), el("div","search-result-meta", ev.time || "כל היום"));
+        row.append(text, el("span","search-result-date", formatDateShort(ev.date)));
+        row.onclick = () => { hideCalendarSearchResults(); jumpToCalDate(ev.date); };
+        box.append(row);
+      });
+      matchedTasks.slice(0, 12).forEach(t => {
+        const cat = state.cats.find(c => c.id === t.catId);
+        const row = el("div","search-result-item");
+        row.style.setProperty("--cat-color", t.color || cat?.color || state.accent);
+        row.append(el("span","search-result-icon", isDone(t) ? "✓" : "☐"));
+        const text = el("div","search-result-text");
+        text.append(el("div","search-result-name",t.name), el("div","search-result-meta", cat ? cat.name : ""));
+        row.append(text, el("span","search-result-date", formatDateShort(t.due)));
+        row.onclick = () => { hideCalendarSearchResults(); jumpToCalDate(t.due); };
+        box.append(row);
+      });
+      box.classList.remove("hidden");
     }
 
     function renderCalendar(){
@@ -4997,9 +5163,12 @@
         const nameWrap = el("div","field");
         nameWrap.append(el("label","", "שם המשימה"));
         const nameInput = document.createElement("input");
-        nameInput.type = "text"; nameInput.id = "quickTaskName"; nameInput.placeholder = "שם המשימה...";
+        nameInput.type = "text"; nameInput.id = "quickTaskName"; nameInput.placeholder = "שם המשימה... (אפשר לכתוב למשל \"תרגיל 5 עד שלישי\")";
         nameInput.style.cssText = "width:100%;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:var(--rs);padding:10px 12px;direction:rtl;text-align:right";
         nameWrap.append(nameInput);
+
+        const dateSuggestion = el("div","date-suggestion hidden");
+        nameWrap.append(dateSuggestion);
         form.append(nameWrap);
 
         const two = el("div","two");
@@ -5024,10 +5193,34 @@
         two.append(colWrap);
         form.append(two);
 
+        let datePicker = null;
+        let suggestionDismissed = false;
+        nameInput.oninput = () => {
+          if (dateInput.value) { dateSuggestion.classList.add("hidden"); return; } // לא דורסים תאריך שכבר נקבע
+          const found = !suggestionDismissed ? parseHebrewDateFromText(nameInput.value) : null;
+          if (!found) { dateSuggestion.classList.add("hidden"); return; }
+          dateSuggestion.classList.remove("hidden");
+          dateSuggestion.replaceChildren();
+          const label = el("span","", `📅 זוהה תאריך: ${formatDateShort(found.dateKey)} — `);
+          const applyBtn = el("button","date-suggestion-apply","קבע תאריך והסר מהשם");
+          applyBtn.type = "button";
+          applyBtn.onclick = () => {
+            datePicker?.setDate(found.dateKey, true);
+            dateInput.value = found.dateKey;
+            nameInput.value = nameInput.value.replace(found.matchedText, "").replace(/\s{2,}/g," ").trim();
+            dateSuggestion.classList.add("hidden");
+          };
+          const dismissBtn = el("button","date-suggestion-dismiss","✕");
+          dismissBtn.type = "button";
+          dismissBtn.title = "התעלם";
+          dismissBtn.onclick = () => { suggestionDismissed = true; dateSuggestion.classList.add("hidden"); };
+          dateSuggestion.append(label, applyBtn, dismissBtn);
+        };
+
         form._afterMount = () => {
           nameInput.focus();
           if (typeof flatpickr !== "undefined") {
-            flatpickr($("quickTaskDue"), {
+            datePicker = flatpickr($("quickTaskDue"), {
               locale: "he", dateFormat: "Y-m-d",
               altInput: true, altFormat: "d/m/Y",
               altInputClass: "date-input",
@@ -5213,6 +5406,7 @@
     function navigate(view){
       state.currentView = view;
       if (view !== "kanban") state.currentCatId = view === "home" ? null : state.currentCatId;
+      hideCalendarSearchResults();
       const isMobile = window.matchMedia("(max-width:820px)").matches;
       if (isMobile) {
         const sidebar = $("sidebar");
@@ -5612,6 +5806,78 @@
     }
     
     function isDone(task){ return !!task.subs?.length && task.subs.every(s => s.done); }
+
+    // מפרק תאריך טבעי בעברית מתוך טקסט חופשי (לשימוש בהוספה מהירה).
+    // מחזיר { dateKey, matchedText } או null אם לא נמצאה התאמה.
+    function parseHebrewDateFromText(text){
+      if (!text) return null;
+      const t = text.trim();
+      const today = new Date(); today.setHours(0,0,0,0);
+      const dayNames = ["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","יום שבת","ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+      const dayIndexOf = (name) => {
+        const map = {"ראשון":0,"שני":1,"שלישי":2,"רביעי":3,"חמישי":4,"שישי":5,"שבת":6};
+        const key = name.replace("יום ","").trim();
+        return map[key] ?? -1;
+      };
+
+      // 1) תאריך מספרי: dd/mm או dd/mm/yyyy או dd.mm
+      let m = t.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?/);
+      if (m) {
+        const day = parseInt(m[1]), month = parseInt(m[2]);
+        let year = m[3] ? parseInt(m[3]) : today.getFullYear();
+        if (year < 100) year += 2000;
+        const d = new Date(year, month - 1, day);
+        if (!isNaN(d.getTime()) && d.getDate() === day) {
+          if (!m[3] && d < today) d.setFullYear(year + 1);
+          return { dateKey: toDateKey(d), matchedText: m[0] };
+        }
+      }
+
+      // 2) "היום"
+      if (/\bהיום\b/.test(t)) {
+        return { dateKey: toDateKey(today), matchedText: "היום" };
+      }
+
+      // 3) "מחר" / "מחרתיים"
+      if (/\bמחרתיים\b/.test(t)) {
+        const d = new Date(today); d.setDate(d.getDate() + 2);
+        return { dateKey: toDateKey(d), matchedText: "מחרתיים" };
+      }
+      if (/\bמחר\b/.test(t)) {
+        const d = new Date(today); d.setDate(d.getDate() + 1);
+        return { dateKey: toDateKey(d), matchedText: "מחר" };
+      }
+
+      // 4) "עוד שבוע" / "בעוד N ימים/שבועות"
+      m = t.match(/בעוד\s+(\d+)\s*ימים/);
+      if (m) {
+        const d = new Date(today); d.setDate(d.getDate() + parseInt(m[1]));
+        return { dateKey: toDateKey(d), matchedText: m[0] };
+      }
+      m = t.match(/(?:בעוד\s+)?שבוע(?:יים)?/);
+      if (m) {
+        const weeks = m[0].includes("שבועיים") ? 2 : 1;
+        const d = new Date(today); d.setDate(d.getDate() + weeks * 7);
+        return { dateKey: toDateKey(d), matchedText: m[0] };
+      }
+
+      // 5) "ביום שלישי" / "עד שלישי" / "ליום רביעי" וכו' — שם יום בעברית
+      for (const name of dayNames) {
+        const re = new RegExp(`(?:עד|ביום|ב-?יום|ל(?:יום)?)\\s*${name}\\b`);
+        const found = t.match(re) || t.match(new RegExp(`\\b${name}\\b`));
+        if (found) {
+          const targetDow = dayIndexOf(name);
+          if (targetDow < 0) continue;
+          const d = new Date(today);
+          let diff = (targetDow - d.getDay() + 7) % 7;
+          if (diff === 0) diff = 7; // "שלישי" כשהיום שלישי — נתפס כשלישי הבא
+          d.setDate(d.getDate() + diff);
+          return { dateKey: toDateKey(d), matchedText: found[0] };
+        }
+      }
+
+      return null;
+    }
 
     function filteredTasks(){
       const q = state.search.toLowerCase();
