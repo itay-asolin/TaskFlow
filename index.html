@@ -302,6 +302,8 @@
     
     .settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:20px;text-align:right;min-width:0}
     .settings .card{display:flex;flex-direction:column;gap:12px;min-width:0;overflow:hidden}
+    .settings .row{flex-wrap:wrap}
+    .settings .btn{min-width:0}
     .settings h3{margin:0 0 4px 0; font-size:18px;}
     
     .swatches{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
@@ -1817,9 +1819,10 @@
       activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
       setActiveListPreference(activeList);
 
-      if (!state.cats?.length && !state.tasks?.length) {
-        loadLocal();
-      }
+      state.cats = [];
+      state.tasks = [];
+      state.events = [];
+      loadLocal();
 
       render();
 
@@ -1845,7 +1848,6 @@
         saveLocalWithTimestamp(cloudTs);
         render();
         suppressSave = false;
-        toast("🔄 הנתונים עודכנו ממכשיר אחר");
       });
     }
 
