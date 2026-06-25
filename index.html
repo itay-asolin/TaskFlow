@@ -245,17 +245,41 @@
     .agenda-date.today{color:var(--danger);direction:rtl}
     .agenda-bang{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:rgba(239,68,68,.16);color:var(--danger);border:1px solid rgba(239,68,68,.38);font-size:12px;font-weight:900;line-height:1}
 
-    .countdown-widget{margin-bottom:14px}
-    .countdown-title{font-size:13px;font-weight:900;color:var(--faint);margin-bottom:8px;padding:0 2px}
-    .countdown-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-    .countdown-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-right:4px solid var(--cat-color, var(--accent));border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;min-width:0}
-    .countdown-item:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+    .countdown-widget{margin-bottom:18px}
+    .countdown-title{font-size:13px;font-weight:900;color:var(--faint);margin-bottom:10px;padding:0 2px;display:flex;align-items:center;gap:6px}
+    .countdown-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+    .countdown-item{
+      position:relative;display:flex;align-items:center;gap:14px;
+      background:linear-gradient(135deg,color-mix(in srgb,var(--cat-color,var(--accent)) 10%,var(--card)) 0%,var(--card) 65%);
+      border:1px solid color-mix(in srgb,var(--cat-color,var(--accent)) 28%,var(--border));
+      border-radius:14px;padding:14px 16px;cursor:pointer;
+      transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+      min-width:0;overflow:hidden;
+    }
+    .countdown-item::before{
+      content:"";position:absolute;inset:0 0 0 auto;width:4px;
+      background:var(--cat-color,var(--accent));
+    }
+    .countdown-item:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.18);border-color:var(--cat-color,var(--accent))}
+    .countdown-badge{
+      flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      width:52px;height:52px;border-radius:50%;
+      background:color-mix(in srgb,var(--cat-color,var(--accent)) 18%,var(--card2));
+      border:1.5px solid color-mix(in srgb,var(--cat-color,var(--accent)) 45%,var(--border));
+    }
+    .countdown-item.urgent .countdown-badge{
+      background:color-mix(in srgb,var(--danger) 20%,var(--card2));
+      border-color:color-mix(in srgb,var(--danger) 55%,var(--border));
+      animation:countdownPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes countdownPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.0)}50%{box-shadow:0 0 0 5px rgba(239,68,68,.12)}}
+    .countdown-big{font-size:17px;font-weight:900;line-height:1;color:var(--accent2)}
     .countdown-item.urgent .countdown-big{color:var(--danger)}
-    .countdown-big{font-size:26px;font-weight:900;color:var(--accent2);line-height:1;display:flex;align-items:baseline;gap:4px;flex:0 0 auto}
-    .countdown-unit{font-size:12px;font-weight:800;color:var(--faint)}
+    .countdown-big.is-today{font-size:11px}
+    .countdown-unit{font-size:8.5px;font-weight:800;color:var(--faint);margin-top:1px;letter-spacing:.02em}
     .countdown-info{min-width:0;overflow:hidden}
-    .countdown-name{font-weight:900;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .countdown-meta{font-size:11px;color:var(--faint);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+    .countdown-name{font-weight:900;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+    .countdown-meta{font-size:11px;color:var(--faint);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
     
     .kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;align-items:start;max-height:calc(100dvh - 210px);overflow:hidden}
     .col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);min-height:230px;max-height:calc(100dvh - 214px);overflow:hidden;display:flex;flex-direction:column;min-width:0}
@@ -2321,11 +2345,15 @@
           const item = el("div","countdown-item" + (info?.cls === "soon" ? " urgent" : ""));
           item.style.setProperty("--cat-color", t.color || cat?.color || state.accent);
           const daysNum = Math.max(0, Math.round((parseDate(t.due) - new Date(new Date().setHours(0,0,0,0))) / 86400000));
-          const big = el("div","countdown-big", daysNum === 0 ? "היום" : String(daysNum));
-          if (daysNum > 0) big.append(el("span","countdown-unit", daysNum === 1 ? "יום" : "ימים"));
+          const badge = el("div","countdown-badge");
+          if (daysNum === 0) {
+            badge.append(el("div","countdown-big is-today","היום"));
+          } else {
+            badge.append(el("div","countdown-big",String(daysNum)), el("div","countdown-unit", daysNum === 1 ? "יום" : "ימים"));
+          }
           const info2 = el("div","countdown-info");
           info2.append(el("div","countdown-name", t.name), el("div","countdown-meta", cat ? cat.name : ""));
-          item.append(big, info2);
+          item.append(badge, info2);
           item.onclick = (e) => showCalItemPopup(e, t, t.due);
           items.append(item);
         });
@@ -5154,7 +5182,7 @@
             await scheduleNotification(data.name, data.due);
           }
           closeModal(); save(); render(); toast("נשמר");
-        }));
+        }, task ? () => { closeModal(); deleteTask(task.id); } : null));
       });
     }
 
@@ -5373,9 +5401,16 @@
       return wrap;
     }
 
-    function footer(text, onSave){
+    function footer(text, onSave, onDelete){
       const row = el("div","row");
       row.style.marginTop = "18px";
+      if (onDelete) {
+        const delBtn = el("button","btn danger","מחק משימה");
+        delBtn.type = "button";
+        delBtn.style.marginInlineEnd = "auto";
+        delBtn.onclick = onDelete;
+        row.append(delBtn);
+      }
       const cancel = el("button","btn","ביטול"); cancel.type = "button"; cancel.onclick = closeModal;
       const saveBtn = el("button","btn primary",text); saveBtn.type = "button"; saveBtn.onclick = onSave;
       row.append(cancel, saveBtn);
@@ -5813,12 +5848,19 @@
       if (!text) return null;
       const t = text.trim();
       const today = new Date(); today.setHours(0,0,0,0);
-      const dayNames = ["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","יום שבת","ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
-      const dayIndexOf = (name) => {
-        const map = {"ראשון":0,"שני":1,"שלישי":2,"רביעי":3,"חמישי":4,"שישי":5,"שבת":6};
-        const key = name.replace("יום ","").trim();
-        return map[key] ?? -1;
-      };
+      // הערה: \b אינו עובד עם תווים בעברית ב-JS regex (הם אינם נחשבים "word characters"),
+      // לכן משתמשים בגבול מפורש: התחלת/סוף מחרוזת, רווח, או סימן פיסוק.
+      const B = "(?:^|\\s|[.,!?])"; // גבול לפני
+      const E = "(?=$|\\s|[.,!?])"; // גבול אחרי
+      const dayMap = [
+        { names: ["ראשון"], dow: 0 },
+        { names: ["שני"], dow: 1 },
+        { names: ["שלישי"], dow: 2 },
+        { names: ["רביעי"], dow: 3 },
+        { names: ["חמישי"], dow: 4 },
+        { names: ["שישי"], dow: 5 },
+        { names: ["שבת"], dow: 6 },
+      ];
 
       // 1) תאריך מספרי: dd/mm או dd/mm/yyyy או dd.mm
       let m = t.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?/);
@@ -5833,46 +5875,42 @@
         }
       }
 
-      // 2) "היום"
-      if (/\bהיום\b/.test(t)) {
-        return { dateKey: toDateKey(today), matchedText: "היום" };
-      }
+      // 2) "היום" / "להיום"
+      m = t.match(new RegExp(B + "(?:ל)?(היום)" + E));
+      if (m) return { dateKey: toDateKey(today), matchedText: m[1] };
 
-      // 3) "מחר" / "מחרתיים"
-      if (/\bמחרתיים\b/.test(t)) {
-        const d = new Date(today); d.setDate(d.getDate() + 2);
-        return { dateKey: toDateKey(d), matchedText: "מחרתיים" };
-      }
-      if (/\bמחר\b/.test(t)) {
-        const d = new Date(today); d.setDate(d.getDate() + 1);
-        return { dateKey: toDateKey(d), matchedText: "מחר" };
-      }
+      // 3) "מחרתיים" / "למחרתיים", "מחר" / "למחר"
+      m = t.match(new RegExp(B + "(?:ל)?(מחרתיים)" + E));
+      if (m) { const d = new Date(today); d.setDate(d.getDate()+2); return { dateKey: toDateKey(d), matchedText: m[1] }; }
+      m = t.match(new RegExp(B + "(?:ל)?(מחר)" + E));
+      if (m) { const d = new Date(today); d.setDate(d.getDate()+1); return { dateKey: toDateKey(d), matchedText: m[1] }; }
 
-      // 4) "עוד שבוע" / "בעוד N ימים/שבועות"
-      m = t.match(/בעוד\s+(\d+)\s*ימים/);
+      // 4) "בעוד N ימים"
+      m = t.match(new RegExp(B + "בעוד\\s+(\\d+)\\s*ימים" + E));
+      if (m) { const d = new Date(today); d.setDate(d.getDate()+parseInt(m[1])); return { dateKey: toDateKey(d), matchedText: m[0].trim() }; }
+
+      // 5) "עוד שבוע/שבועיים" / "בעוד שבוע/שבועיים"
+      m = t.match(new RegExp(B + "(?:בעוד\\s+)?(שבועיים|שבוע)" + E));
       if (m) {
-        const d = new Date(today); d.setDate(d.getDate() + parseInt(m[1]));
-        return { dateKey: toDateKey(d), matchedText: m[0] };
-      }
-      m = t.match(/(?:בעוד\s+)?שבוע(?:יים)?/);
-      if (m) {
-        const weeks = m[0].includes("שבועיים") ? 2 : 1;
-        const d = new Date(today); d.setDate(d.getDate() + weeks * 7);
-        return { dateKey: toDateKey(d), matchedText: m[0] };
+        const weeks = m[1] === "שבועיים" ? 2 : 1;
+        const d = new Date(today); d.setDate(d.getDate() + weeks*7);
+        return { dateKey: toDateKey(d), matchedText: m[0].trim() };
       }
 
-      // 5) "ביום שלישי" / "עד שלישי" / "ליום רביעי" וכו' — שם יום בעברית
-      for (const name of dayNames) {
-        const re = new RegExp(`(?:עד|ביום|ב-?יום|ל(?:יום)?)\\s*${name}\\b`);
-        const found = t.match(re) || t.match(new RegExp(`\\b${name}\\b`));
-        if (found) {
-          const targetDow = dayIndexOf(name);
-          if (targetDow < 0) continue;
-          const d = new Date(today);
-          let diff = (targetDow - d.getDay() + 7) % 7;
-          if (diff === 0) diff = 7; // "שלישי" כשהיום שלישי — נתפס כשלישי הבא
-          d.setDate(d.getDate() + diff);
-          return { dateKey: toDateKey(d), matchedText: found[0] };
+      // 6) שם יום בעברית: "עד שבת", "ביום שלישי", "ליום רביעי", "שלישי הקרוב", או סתם "שלישי"
+      //    תמיד מתפרש כיום השבוע *הקרוב* מהיום (כלומר 1-7 ימים מהיום, כולל היום עצמו אם הביטוי "היום" לא נתפס קודם).
+      for (const { names, dow } of dayMap) {
+        for (const name of names) {
+          const withPrefix = t.match(new RegExp(B + "(?:עד|ביום|ב-?יום|ל(?:יום)?)\\s*(" + name + ")" + E));
+          const bare = t.match(new RegExp(B + "(" + name + ")" + E));
+          const found = withPrefix || bare;
+          if (found) {
+            const d = new Date(today);
+            let diff = (dow - d.getDay() + 7) % 7;
+            if (diff === 0) diff = 7; // אם היום עצמו אותו יום בשבוע — מתכוון לשבוע הבא, לא להיום
+            d.setDate(d.getDate() + diff);
+            return { dateKey: toDateKey(d), matchedText: found[1] };
+          }
         }
       }
 
