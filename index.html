@@ -1056,7 +1056,6 @@
         gap:3px;
       }
       .day{min-height:64px;border-radius:8px}
-      .day-task{display:none}
       .day-count{
         display:inline-flex;
         align-self:flex-start;
@@ -3184,7 +3183,10 @@
     }
 
     function allCalItems(dateKey){
-      const tasks = filteredTasks().filter(t => t.due === dateKey && !isDone(t));
+      // הערה: בכוונה לא משתמשים ב-filteredTasks() כאן — חיפוש בעמוד לוח השנה
+      // מציג dropdown תוצאות לקפיצה לתאריך (renderCalendarSearchResults), ולא אמור
+      // להסתיר משימות/אירועים מהלוח עצמו.
+      const tasks = state.tasks.filter(t => t.due === dateKey && !isDone(t));
       const events = (state.events || []).filter(e => e.date === dateKey);
       return { tasks, events };
     }
@@ -3426,7 +3428,7 @@
             e.dataTransfer.setData("text/plain", "task:" + itemData.id);
           };
           item.ondragend = () => { item.classList.remove("dragging"); draggedTaskId = null; };
-          const taskObj = filteredTasks().find(t => t.id === itemData.id);
+          const taskObj = state.tasks.find(t => t.id === itemData.id);
           addLongPress(item,
             () => openReschedulePopup("task", itemData.id, dateKey, itemData.title),
             (e) => { e.stopPropagation(); if (taskObj) showCalItemPopup(e, taskObj, dateKey); }
@@ -5954,28 +5956,28 @@
         { names: ["שבת"], dow: 6 },
       ];
 
-      // 1) תאריך מספרי: dd/mm או dd/mm/yyyy או dd.mm
-      let m = t.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?/);
+      // 1) תאריך מספרי: dd/mm או dd/mm/yyyy או dd.mm (עם תחילית "ב-" אופציונלית, למשל "ב-12/7")
+      let m = t.match(new RegExp(B + "(ב-?)?(\\d{1,2})[./](\\d{1,2})(?:[./](\\d{2,4}))?" + E));
       if (m) {
-        const day = parseInt(m[1]), month = parseInt(m[2]);
-        let year = m[3] ? parseInt(m[3]) : today.getFullYear();
+        const day = parseInt(m[2]), month = parseInt(m[3]);
+        let year = m[4] ? parseInt(m[4]) : today.getFullYear();
         if (year < 100) year += 2000;
         const d = new Date(year, month - 1, day);
         if (!isNaN(d.getTime()) && d.getDate() === day) {
-          if (!m[3] && d < today) d.setFullYear(year + 1);
-          return { dateKey: toDateKey(d), matchedText: m[0] };
+          if (!m[4] && d < today) d.setFullYear(year + 1);
+          return { dateKey: toDateKey(d), matchedText: m[0].trim() };
         }
       }
 
       // 2) "היום" / "להיום"
       m = t.match(new RegExp(B + "(?:ל)?(היום)" + E));
-      if (m) return { dateKey: toDateKey(today), matchedText: m[1] };
+      if (m) return { dateKey: toDateKey(today), matchedText: m[0].trim() };
 
       // 3) "מחרתיים" / "למחרתיים", "מחר" / "למחר"
       m = t.match(new RegExp(B + "(?:ל)?(מחרתיים)" + E));
-      if (m) { const d = new Date(today); d.setDate(d.getDate()+2); return { dateKey: toDateKey(d), matchedText: m[1] }; }
+      if (m) { const d = new Date(today); d.setDate(d.getDate()+2); return { dateKey: toDateKey(d), matchedText: m[0].trim() }; }
       m = t.match(new RegExp(B + "(?:ל)?(מחר)" + E));
-      if (m) { const d = new Date(today); d.setDate(d.getDate()+1); return { dateKey: toDateKey(d), matchedText: m[1] }; }
+      if (m) { const d = new Date(today); d.setDate(d.getDate()+1); return { dateKey: toDateKey(d), matchedText: m[0].trim() }; }
 
       // 4) "בעוד N ימים"
       m = t.match(new RegExp(B + "בעוד\\s+(\\d+)\\s*ימים" + E));
@@ -5989,19 +5991,23 @@
         return { dateKey: toDateKey(d), matchedText: m[0].trim() };
       }
 
-      // 6) שם יום בעברית: "עד שבת", "ביום שלישי", "ליום רביעי", "שלישי הקרוב", או סתם "שלישי"
+      // 6) שם יום בעברית: "עד שבת", "ביום שלישי", "עד יום שלישי", "ליום רביעי", "שלישי הקרוב", או סתם "שלישי"
       //    תמיד מתפרש כיום השבוע *הקרוב* מהיום (כלומר 1-7 ימים מהיום, כולל היום עצמו אם הביטוי "היום" לא נתפס קודם).
       for (const { names, dow } of dayMap) {
         for (const name of names) {
-          const withPrefix = t.match(new RegExp(B + "(?:עד|ביום|ב-?יום|ל(?:יום)?)\\s*(" + name + ")" + E));
-          const bare = t.match(new RegExp(B + "(" + name + ")" + E));
+          // תחילית אופציונלית: עד / ביום / ב-יום / ל / ליום — ולפניה אפשרי גם "יום" בנפרד (למשל "עד יום שלישי")
+          // וסיומת אופציונלית "הקרוב" (למשל "שלישי הקרוב")
+          const withPrefix = t.match(new RegExp(B + "(?:עד|ביום|ב-?יום|ל(?:יום)?)\\s*(?:יום\\s+)?(" + name + ")(?:\\s+הקרוב)?" + E));
+          const bare = t.match(new RegExp(B + "(" + name + ")(?:\\s+הקרוב)?" + E));
           const found = withPrefix || bare;
           if (found) {
             const d = new Date(today);
             let diff = (dow - d.getDay() + 7) % 7;
             if (diff === 0) diff = 7; // אם היום עצמו אותו יום בשבוע — מתכוון לשבוע הבא, לא להיום
             d.setDate(d.getDate() + diff);
-            return { dateKey: toDateKey(d), matchedText: found[1] };
+            // matchedText צריך לכלול את כל הביטוי שנמצא (כולל "עד"/"ביום"/"ל"/"יום" אם היו), לא רק את שם היום עצמו —
+            // אחרת מילים כמו "עד" או "יום" נשארות תלויות בשם המשימה אחרי ההסרה.
+            return { dateKey: toDateKey(d), matchedText: found[0].trim() };
           }
         }
       }
