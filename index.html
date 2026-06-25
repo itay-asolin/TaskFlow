@@ -6362,7 +6362,7 @@
       return agenda.taskIds
         .map(id => state.tasks.find(t => t.id === id))
         .filter(t => t && !isDone(t))
-        .sort((a,b) => agendaTaskRank(a) - agendaTaskRank(b) || scoreAgendaTask(b) - scoreAgendaTask(a));
+        .sort((a,b) => agendaTaskRank(a) - agendaTaskRank(b) || (a.due||"9999").localeCompare(b.due||"9999"));
     }
 
     function agendaTaskRank(task){
