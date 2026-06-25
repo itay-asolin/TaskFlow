@@ -300,7 +300,7 @@
     .task-context,.all-breadcrumb{font-size:11px;color:var(--faint);font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .task-badge-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;max-height:56px;overflow:hidden}
     .task-tools{display:flex;gap:4px;margin-inline-start:auto;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:2px;align-self:start}
-    .mini{border:0;background:transparent;color:var(--faint);padding:3px 7px;border-radius:999px}
+    .mini{border:0;background:transparent;color:var(--muted);padding:3px 7px;border-radius:999px}
     .mini:hover{background:var(--card2);color:var(--text)}
     .check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:transparent;color:#fff;flex:0 0 auto}
     .check.done{background:var(--green);border-color:var(--green)}
@@ -378,6 +378,11 @@
     .cal-toolbar .btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
     .cal-nav{display:flex;align-items:center;gap:8px}
     .cal-title{font-weight:900;font-size:16px;min-width:160px;text-align:center}
+    .week-load-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:9px 12px;background:color-mix(in srgb,var(--accent) 7%,var(--card));border:1px solid var(--border);border-radius:var(--rs)}
+    .week-load-total{font-size:12px;font-weight:900;color:var(--faint);white-space:nowrap}
+    .week-load-chips{display:flex;gap:6px;flex-wrap:wrap}
+    .week-load-chip{border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:800;cursor:pointer;transition:.15s}
+    .week-load-chip:hover{border-color:var(--accent);color:var(--accent2);background:color-mix(in srgb,var(--accent) 10%,var(--card2))}
     .cal-time-col{display:grid;gap:0}
     .cal-hour{height:56px;display:flex;align-items:flex-start;justify-content:flex-end;padding:4px 6px 0;font-size:10px;color:var(--faint);font-weight:700}
     .cal-week-day-head{text-align:center;font-size:12px;font-weight:900;padding:6px;border-radius:var(--rs);background:var(--card);border:1px solid var(--border)}
@@ -411,6 +416,12 @@
     .date-suggestion{display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 10px;background:color-mix(in srgb,var(--accent) 12%,var(--card2));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:var(--rs);font-size:12px;font-weight:700;color:var(--accent2);flex-wrap:wrap}
     .date-suggestion-apply{border:0;background:var(--accent);color:#fff;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:900;cursor:pointer}
     .date-suggestion-dismiss{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:13px;padding:2px 4px;margin-right:auto}
+    .date-chip-row{margin-top:8px}
+    .date-chip-add{border:1.5px dashed var(--border);background:transparent;color:var(--muted);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer;transition:.18s}
+    .date-chip-add:hover{border-color:var(--accent);color:var(--accent2)}
+    .date-chip-set{display:inline-flex;align-items:center;gap:8px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));background:color-mix(in srgb,var(--accent) 12%,var(--card2));color:var(--accent2);border-radius:999px;padding:6px 8px 6px 14px;font-size:12px;font-weight:800;cursor:pointer}
+    .date-chip-clear{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:color-mix(in srgb,var(--accent) 22%,var(--card2));font-size:10px;color:var(--accent2)}
+    .date-chip-clear:hover{background:var(--danger);color:#fff}
     .char-count.warn{color:var(--warn)}
     .est-badge{font-size:10px;color:var(--faint);display:inline-flex;align-items:center;gap:3px;margin-top:4px}
     .repeat-badge{font-size:10px;font-weight:800;color:var(--accent2);background:rgba(109,93,252,.12);border:1px solid rgba(109,93,252,.25);border-radius:999px;padding:1px 7px;display:inline-flex;align-items:center;gap:3px;margin-top:4px}
@@ -472,7 +483,7 @@
     .daily-focus-tag.carried{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.34);color:var(--warn)}
     .daily-focus-tag.suggested{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.32);color:var(--green)}
     .daily-focus-tools{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
-    .daily-focus-tools .mini{background:var(--card2);border:1px solid var(--border);font-size:10px;font-weight:900;padding:3px 7px;white-space:nowrap}
+    .daily-focus-tools .mini{background:var(--card2);border:1px solid var(--border);font-size:10px;font-weight:900;padding:3px 7px;white-space:nowrap;color:var(--text)}
     .daily-focus-card.compact{padding:10px 12px;margin:0;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
     .daily-focus-card.compact .daily-focus-head{margin-bottom:7px;align-items:start}
     .daily-focus-card.compact .daily-focus-title{font-size:12px;color:var(--muted)}
@@ -929,7 +940,7 @@
       .cat-card::before{width:6px}
       .cat-card:hover{transform:none;box-shadow:0 8px 20px rgba(0,0,0,.14)}
       .cat-tools{position:static;display:flex;gap:8px;order:3;margin-top:2px}
-      .cat-tools .mini{flex:1;min-height:38px;font-size:14px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:4px}
+      .cat-tools .mini{flex:1;min-height:38px;font-size:14px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:4px;color:var(--text);font-weight:700}
       .cat-tools .mini:active{background:var(--accent);color:#fff;border-color:var(--accent)}
       .cat-title{font-size:16px;margin:0;padding-left:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;order:1}
       .cat-progress-wrap{margin:0;order:2}
@@ -3114,12 +3125,42 @@
       $("pageSub").textContent = "אירועים ומשימות לפי תאריך";
       const wrap = el("div","calendar-view");
       wrap.append(toolbar);
+      wrap.append(renderWeekLoadBar());
 
       if (state.calView === "month") wrap.append(renderMonthGrid(anchor, conflicts));
       else if (state.calView === "week") wrap.append(renderWeekGrid(anchor, conflicts));
       else wrap.append(renderDayGrid(anchor, conflicts));
 
       $("content").replaceChildren(wrap);
+    }
+
+    // סרגל סיכום עומס: כמה משימות פתוחות יש בשבוע הנוכחי (האמיתי, לא תלוי בניווט בלוח), מקובץ לפי תגית/קורס.
+    function renderWeekLoadBar(){
+      const ws = weekStart(new Date());
+      const we = new Date(ws); we.setDate(we.getDate()+6);
+      const wsKey = toDateKey(ws), weKey = toDateKey(we);
+
+      const weekTasks = state.tasks.filter(t => !isDone(t) && t.due && t.due >= wsKey && t.due <= weKey);
+      if (!weekTasks.length) return el("div","hidden");
+
+      const groups = new Map();
+      weekTasks.forEach(t => {
+        const tags = t.tags?.length ? t.tags : ["ללא תגית"];
+        tags.forEach(tag => groups.set(tag, (groups.get(tag)||0) + 1));
+      });
+      const sortedTags = [...groups.entries()].sort((a,b) => b[1]-a[1]);
+
+      const bar = el("div","week-load-bar");
+      bar.append(el("span","week-load-total", `${weekTasks.length} משימות פתוחות השבוע:`));
+      const chips = el("div","week-load-chips");
+      sortedTags.forEach(([tag,count]) => {
+        const chip = el("button","week-load-chip", `${tag === "ללא תגית" ? tag : "# "+tag} (${count})`);
+        chip.type = "button";
+        chip.onclick = () => { state.filterTag = tag === "ללא תגית" ? null : tag; navigate("all"); };
+        chips.append(chip);
+      });
+      bar.append(chips);
+      return bar;
     }
 
     function weekStart(date){
@@ -5156,8 +5197,21 @@
           const notifCb = document.createElement("input");
           notifCb.type = "checkbox"; notifCb.id = "taskNotif"; notifCb.checked = !!task?.notif;
           notifCb.style.cssText = "width:auto;margin:0";
-          notifRow.append(notifCb, el("span","meta","הפעל תזכורות חוזרות מהתאריך הזה עד שהמשימה תושלם"));
+          notifRow.append(notifCb, el("span","meta","הפעל תזכורות מהתאריך שנבחר עד שהמשימה תושלם"));
           notifWrap.append(notifLabel, notifRow);
+
+          const notifDaysRow = el("div","row notif-days-row" + (task?.notif ? "" : " hidden"));
+          notifDaysRow.style.marginTop = "8px";
+          notifDaysRow.append(el("span","meta","להתחיל להתריע:"));
+          const notifDaysSel = el("select"); notifDaysSel.id = "taskNotifDays";
+          notifDaysSel.style.cssText = "width:auto;padding:4px 8px;font-size:12px";
+          [[0,"ביום הדדליין"],[1,"יום לפני"],[3,"3 ימים לפני"],[7,"שבוע לפני"]].forEach(([v,l]) => {
+            const o = el("option","",l); o.value = v; if ((task?.notifDays ?? 0) === v) o.selected = true; notifDaysSel.append(o);
+          });
+          notifDaysRow.append(notifDaysSel);
+          notifWrap.append(notifDaysRow);
+
+          notifCb.onchange = () => notifDaysRow.classList.toggle("hidden", !notifCb.checked);
           form.append(notifWrap);
         }
 
@@ -5174,12 +5228,13 @@
             tags,
             est: parseInt($("taskEst")?.value)||0 || undefined,
             repeat: $("taskRepeat").value || undefined,
-            notif: $("taskNotif")?.checked || false
+            notif: $("taskNotif")?.checked || false,
+            notifDays: parseInt($("taskNotifDays")?.value) || 0
           };
           if (task) Object.assign(task, data);
           else state.tasks.push({ id: uid("t"), createdAt: Date.now(), ...data });
           if (data.notif && data.due) {
-            await scheduleNotification(data.name, data.due);
+            await scheduleNotification(data.name, data.due, data.notifDays);
           }
           closeModal(); save(); render(); toast("נשמר");
         }, task ? () => { closeModal(); deleteTask(task.id); } : null));
@@ -5197,17 +5252,16 @@
 
         const dateSuggestion = el("div","date-suggestion hidden");
         nameWrap.append(dateSuggestion);
-        form.append(nameWrap);
 
-        const two = el("div","two");
-
-        const dateWrap = el("div","field");
-        dateWrap.append(el("label","", "תאריך סיום"));
+        // שדה תאריך מוסתר — לא מוצג ב-UI, רק כדי שflatpickr יוכל להציג עליו לוח שנה כשנדרש.
         const dateInput = document.createElement("input");
-        dateInput.type = "text"; dateInput.id = "quickTaskDue"; dateInput.placeholder = "בחר תאריך...";
-        dateInput.className = "date-input";
-        dateWrap.append(dateInput);
-        two.append(dateWrap);
+        dateInput.type = "text"; dateInput.id = "quickTaskDue";
+        dateInput.style.cssText = "position:absolute;width:0;height:0;opacity:0;pointer-events:none";
+        nameWrap.append(dateInput);
+
+        const dateChipRow = el("div","date-chip-row");
+        nameWrap.append(dateChipRow);
+        form.append(nameWrap);
 
         const colWrap = el("div","field");
         colWrap.append(el("label","", "עמודה"));
@@ -5218,10 +5272,35 @@
           colSel.append(opt);
         });
         colWrap.append(colSel);
-        two.append(colWrap);
-        form.append(two);
+        form.append(colWrap);
 
         let datePicker = null;
+
+        function renderDateChip(){
+          dateChipRow.replaceChildren();
+          if (dateInput.value) {
+            const chip = el("button","date-chip-set");
+            chip.type = "button";
+            chip.append(el("span","","📅 " + formatDateShort(dateInput.value)));
+            const clearX = el("span","date-chip-clear","✕");
+            chip.append(clearX);
+            chip.onclick = (e) => {
+              if (e.target === clearX) {
+                dateInput.value = "";
+                datePicker?.clear();
+              } else {
+                datePicker?.open();
+              }
+            };
+            dateChipRow.append(chip);
+          } else {
+            const addChip = el("button","date-chip-add","+ הוסף תאריך");
+            addChip.type = "button";
+            addChip.onclick = () => datePicker?.open();
+            dateChipRow.append(addChip);
+          }
+        }
+
         let suggestionDismissed = false;
         nameInput.oninput = () => {
           if (dateInput.value) { dateSuggestion.classList.add("hidden"); return; } // לא דורסים תאריך שכבר נקבע
@@ -5237,6 +5316,7 @@
             dateInput.value = found.dateKey;
             nameInput.value = nameInput.value.replace(found.matchedText, "").replace(/\s{2,}/g," ").trim();
             dateSuggestion.classList.add("hidden");
+            renderDateChip();
           };
           const dismissBtn = el("button","date-suggestion-dismiss","✕");
           dismissBtn.type = "button";
@@ -5250,11 +5330,11 @@
           if (typeof flatpickr !== "undefined") {
             datePicker = flatpickr($("quickTaskDue"), {
               locale: "he", dateFormat: "Y-m-d",
-              altInput: true, altFormat: "d/m/Y",
-              altInputClass: "date-input",
-              disableMobile: true, monthSelectorType: "static"
+              disableMobile: true, monthSelectorType: "static",
+              onChange: () => renderDateChip()
             });
           }
+          renderDateChip();
         };
 
         form.append(footer("הוסף", () => {
@@ -5669,7 +5749,16 @@
     function getReminderDueTasks(){
       const today = toDateKey(new Date());
       return (state.tasks || [])
-        .filter(t => t.due && t.due <= today && !isDone(t))
+        .filter(t => {
+          if (!t.due || isDone(t)) return false;
+          if (t.due <= today) return true; // איחור או היום - מתריעים בכל מקרה
+          if (t.notif && t.notifDays > 0) {
+            const remindFrom = new Date(parseDate(t.due));
+            remindFrom.setDate(remindFrom.getDate() - t.notifDays);
+            return toDateKey(remindFrom) <= today;
+          }
+          return false;
+        })
         .sort((a,b) => (a.due || "").localeCompare(b.due || ""));
     }
 
@@ -5711,12 +5800,15 @@
       toast(body);
     }
 
-    async function scheduleNotification(name, dueStr){
+    async function scheduleNotification(name, dueStr, notifDays){
       const ok = await requestNotificationPermission();
       if (!ok) return;
       setRemindersEnabled(true);
       checkTaskReminders(true);
-      if (dueStr) toast(`התזכורת ל"${name}" פעילה ל-${formatDateShort(dueStr)}`);
+      if (dueStr) {
+        const leadText = notifDays > 0 ? ` (תתחיל ${notifDays === 1 ? "יום" : notifDays + " ימים"} לפני)` : "";
+        toast(`התזכורת ל"${name}" פעילה ל-${formatDateShort(dueStr)}${leadText}`);
+      }
     }
 
     let toastTimer2 = null;
