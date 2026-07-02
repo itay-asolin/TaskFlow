@@ -283,12 +283,13 @@
 
     @media(max-width:820px){
       .countdown-items{
-        display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;
-        margin:0 -2px;padding:2px 2px 6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+        display:grid;gap:10px;height:82px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;
+        margin:0;padding:0 2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+        mask-image:linear-gradient(to bottom,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%);
       }
       .countdown-items::-webkit-scrollbar{display:none}
       .countdown-item{
-        scroll-snap-align:center;flex:0 0 calc(100% - 4px);
+        scroll-snap-align:center;min-height:82px;
       }
       .countdown-title{display:flex;align-items:center;justify-content:space-between}
       .countdown-dots{display:flex;gap:5px}
@@ -1569,7 +1570,7 @@
     </div>
   </div>
 
-  <button id="dailyMemoBtn" type="button" title="פתק יומי" aria-label="פתק יומי">
+  <button id="dailyMemoBtn" class="hidden" type="button" title="פתק יומי" aria-label="פתק יומי">
     📝<span class="memo-dot"></span>
   </button>
   <div id="dailyMemoPanel" role="dialog" aria-modal="true" aria-label="פתק יומי">
@@ -1584,7 +1585,7 @@
     <button id="dailyMemoAdd" class="memo-add" type="button">+ הוסף שורה</button>
   </div>
 
-  <div id="agendaDropBubble" aria-label="הוסף לאג׳נדה היומית">
+  <div id="agendaDropBubble" class="hidden" aria-label="הוסף לאג׳נדה היומית">
     <span class="bubble-icon">☀️</span>
     <span>שחרר לאג׳נדה</span>
   </div>
@@ -1863,15 +1864,25 @@
       showApp("מצב מקומי - ללא סנכרון");
     }
 
+    function setAppFloatersVisible(visible){
+      ["dailyMemoBtn", "agendaDropBubble"].forEach(id => $(id)?.classList.toggle("hidden", !visible));
+      if (!visible) {
+        $("dailyMemoPanel")?.classList.remove("show");
+        hideAgendaDropBubble();
+      }
+    }
+
     function showAuth(){
       $("authView").classList.remove("hidden");
       $("appView").classList.add("hidden");
+      setAppFloatersVisible(false);
       stopTaskReminderLoop();
     }
 
     function showApp(label){
       $("authView").classList.add("hidden");
       $("appView").classList.remove("hidden");
+      setAppFloatersVisible(true);
       if($("userLabel")) $("userLabel").textContent = label || "";
       
       if (state.currentView === "settings") {
@@ -2427,7 +2438,9 @@
           upcomingDeadlines.forEach((_,i) => dots.append(el("span", i===0 ? "active" : "")));
           titleRow.append(dots);
           items.addEventListener("scroll", () => {
-            const idx = Math.round(items.scrollLeft / items.clientWidth);
+            const firstItem = items.querySelector(".countdown-item");
+            const step = firstItem ? firstItem.getBoundingClientRect().height + 10 : items.clientHeight;
+            const idx = Math.round(items.scrollTop / Math.max(1, step));
             [...dots.children].forEach((d,i) => d.classList.toggle("active", i===idx));
           }, { passive:true });
         }
@@ -2587,11 +2600,20 @@
       newListBtn.onmouseenter = () => newListBtn.style.transform = "translateY(-1px)";
       newListBtn.onmouseleave = () => newListBtn.style.transform = "";
       newListBtn.onclick = () => openCategoryModal();
+      const newTaskBtn = el("button","","+ מטלה חדשה");
+      newTaskBtn.type = "button";
+      newTaskBtn.style.cssText = "font-size:12px;font-weight:800;padding:8px 14px;border-radius:999px;border:1px solid color-mix(in srgb,var(--green) 45%,var(--border));background:color-mix(in srgb,var(--green) 14%,var(--card));color:var(--text);box-shadow:0 4px 14px rgba(0,0,0,.08);transition:.18s";
+      newTaskBtn.onmouseenter = () => newTaskBtn.style.transform = "translateY(-1px)";
+      newTaskBtn.onmouseleave = () => newTaskBtn.style.transform = "";
+      newTaskBtn.onclick = () => openHomeTaskPicker();
+      const listActions = el("div","");
+      listActions.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end";
+      listActions.append(newTaskBtn, newListBtn);
       listHeadLeft.append(el("strong","", "הרשימות שלך"));
       listHead.append(
         listHeadLeft,
         el("span","", `${state.cats.length} רשימות`),
-        newListBtn
+        listActions
       );
 
       const listsWheel = el("div","lists-wheel");
@@ -5304,6 +5326,52 @@
           }
           closeModal(); save(); render(); toast("נשמר");
         }, task ? () => { closeModal(); deleteTask(task.id); } : null));
+      });
+    }
+
+    function openHomeTaskPicker(){
+      if (!state.cats.length) return toast("צריך ליצור רשימה לפני שמוסיפים מטלה");
+      if (state.cats.length === 1) {
+        const cat = state.cats[0];
+        return openQuickAddTask(cat, getColumns(cat)[0]?.key);
+      }
+      openModal("מטלה חדשה", "בחר לאיזו רשימה להוסיף", (form) => {
+        const catWrap = el("div","field");
+        catWrap.append(el("label","", "רשימה"));
+        const catSel = el("select");
+        catSel.id = "homeTaskCat";
+        state.cats.forEach(cat => {
+          const opt = el("option","",cat.name);
+          opt.value = cat.id;
+          catSel.append(opt);
+        });
+        catWrap.append(catSel);
+
+        const colWrap = el("div","field");
+        colWrap.append(el("label","", "עמודה"));
+        const colSel = el("select");
+        colSel.id = "homeTaskCol";
+
+        function renderColumns(){
+          colSel.replaceChildren();
+          const cat = state.cats.find(c => c.id === catSel.value);
+          getColumns(cat).forEach(col => {
+            const opt = el("option","",col.name);
+            opt.value = col.key;
+            colSel.append(opt);
+          });
+        }
+
+        catSel.onchange = renderColumns;
+        renderColumns();
+        colWrap.append(colSel);
+        form.append(catWrap, colWrap);
+        form.append(footer("המשך", () => {
+          const cat = state.cats.find(c => c.id === catSel.value);
+          const colKey = colSel.value || getColumns(cat)[0]?.key;
+          closeModal();
+          setTimeout(() => openQuickAddTask(cat, colKey), 30);
+        }));
       });
     }
 
