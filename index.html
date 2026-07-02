@@ -114,8 +114,17 @@
     .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     #topBarBtns{display:flex;align-items:center;gap:6px;flex:0 0 auto}
     #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
-    #briefBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+    #briefBtn,#sharedPanelBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
     #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
+    #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(360px,calc(100vw - 24px));max-height:calc(100vh - 82px);overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
+    #sharedPanel.open{display:block;transform:translateY(0) scale(1);opacity:1}
+    .shared-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--border)}
+    .shared-panel-title{font-size:15px;font-weight:900;color:var(--text)}
+    .shared-panel-sub{font-size:11px;font-weight:800;color:var(--faint);margin-top:2px}
+    #sharedPanelClose{border:0;background:transparent;color:var(--faint);font-size:20px;line-height:1;padding:2px 7px;border-radius:8px;cursor:pointer}
+    #sharedPanelClose:hover{background:var(--card2);color:var(--text)}
+    #sharedPanelContent{padding:12px}
+    #sharedPanelContent .shared-wheel{margin:0;box-shadow:none}
     .search-wrap{position:relative;max-width:380px;flex:1 1 auto}
     .search{max-width:none;width:100%}
     .search-results{position:absolute;top:calc(100% + 6px);right:0;left:0;max-height:340px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);z-index:60;padding:6px}
@@ -610,8 +619,10 @@
       #content,.list,.grid{width:100%;max-width:100%;min-width:0}
       .top{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding-inline:0}
       .top > div:first-child{padding-right:0!important;min-width:0;order:2}
-      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr auto;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
+      #topBarBtns{order:1;width:100%;display:grid;grid-template-columns:1fr auto auto;gap:8px;position:static!important;z-index:auto;left:auto!important;right:auto!important;top:auto!important;max-width:none!important}
       #topBarBtns button,#briefBtn{max-width:none!important;min-width:0!important}
+      #sharedPanelBtn{font-size:12px!important;padding-inline:9px!important}
+      #sharedPanel{left:10px;right:10px;top:54px;width:auto;max-height:calc(100dvh - 72px)}
       #themeToggleBtn{width:58px!important;max-width:58px!important;min-width:58px!important;height:30px!important;min-height:30px!important;border-radius:999px!important;padding:0!important;flex-shrink:0}
       #themeToggleBtn .theme-pill{width:54px;height:28px}
       #themeToggleBtn .theme-pill span:not(.theme-icon){display:none}
@@ -1482,6 +1493,7 @@
           <button id="addBtn" class="btn primary" type="button">+ חדש</button>
           <div id="topBarBtns">
             <button id="themeToggleBtn" class="btn topbar-btn" type="button" title="מצב תצוגה"></button>
+            <button id="sharedPanelBtn" class="topbar-btn" type="button" title="רשימות משותפות">🔗 שיתופים</button>
             <button id="briefBtn" class="topbar-btn" type="button" title="תכנון שבועי">✨ תכנון</button>
           </div>
         </div>
@@ -1525,6 +1537,17 @@
       <button id="briefClose" type="button" style="border:0;background:transparent;font-size:20px;color:var(--faint);cursor:pointer;padding:2px 6px;border-radius:8px;line-height:1">×</button>
     </div>
     <div id="briefContent" style="padding:16px 20px 20px;display:grid;gap:10px"></div>
+  </div>
+
+  <div id="sharedPanel" role="dialog" aria-modal="false" aria-labelledby="sharedPanelTitle">
+    <div class="shared-panel-head">
+      <div>
+        <div id="sharedPanelTitle" class="shared-panel-title">🔗 שיתופים</div>
+        <div id="sharedPanelSub" class="shared-panel-sub"></div>
+      </div>
+      <button id="sharedPanelClose" type="button" aria-label="סגור">×</button>
+    </div>
+    <div id="sharedPanelContent"></div>
   </div>
 
 
@@ -1892,6 +1915,12 @@
       // קשר כפתורי Brief
       $("briefBtn").onclick = openBrief;
       $("briefClose").onclick = closeBrief;
+      $("sharedPanelBtn").onclick = () => {
+        const panel = $("sharedPanel");
+        if (panel?.classList.contains("open")) closeSharedPanel();
+        else openSharedPanel();
+      };
+      $("sharedPanelClose").onclick = closeSharedPanel;
       
       $("briefOverlay").onclick = closeBrief;
       $("dailyAgendaOverlay").onclick = (e) => { if (e.target === $("dailyAgendaOverlay")) closeDailyAgendaModal(); };
@@ -2209,6 +2238,10 @@
       if (bp && bp.style.display !== "none" && bp.style.opacity === "1") {
         renderBriefContent(true);
       }
+      const sp = $("sharedPanel");
+      if (sp?.classList.contains("open")) {
+        renderSharedPanelContent();
+      }
     }
 
     function getKnownSharedLists(){
@@ -2288,6 +2321,33 @@
       });
       return box;
     }
+
+    function renderSharedPanelContent(){
+      const content = $("sharedPanelContent");
+      if (!content) return;
+      $("sharedPanelSub").textContent = activeList.type === "shared"
+        ? `${activeList.name || "רשימה משותפת"} · ${activeList.id}`
+        : "הרשימה הפרטית פעילה עכשיו";
+      content.replaceChildren(renderSharedWheel(false));
+    }
+
+    function openSharedPanel(){
+      closeBrief();
+      renderSharedPanelContent();
+      const panel = $("sharedPanel");
+      panel.classList.add("open");
+      panel.style.display = "block";
+    }
+
+    function closeSharedPanel(){
+      const panel = $("sharedPanel");
+      if (!panel) return;
+      panel.classList.remove("open");
+      setTimeout(() => {
+        if (!panel.classList.contains("open")) panel.style.display = "none";
+      }, 220);
+    }
+
     function renderHome(){
       $("pageTitle").textContent = "רשימות";
       $("pageSub").textContent = cloudReady ? "" : "מצב מקומי במכשיר הזה";
@@ -2552,7 +2612,8 @@
         focusTasks.forEach(task => {
           const row = el("div","daily-focus-item");
           const check = el("button","daily-focus-check","✓"); check.type="button";
-          check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
+          check.title = "הסר מהמיקוד בלי להשלים את המטלה";
+          check.onclick = (e) => { e.stopPropagation(); removeTaskFromDailyAgenda(task.id, true); };
           const text = el("div","daily-focus-main");
           const reason = agendaReason(task);
           const tags = el("div","daily-focus-tags");
@@ -2562,7 +2623,7 @@
           const tomorrow = el("button","mini","מחר"); tomorrow.type="button";
           tomorrow.onclick = (e) => { e.stopPropagation(); moveTaskInDailyAgenda(task.id,"tomorrow"); };
           const rm = el("button","mini","×"); rm.type="button";
-          rm.onclick = (e) => { e.stopPropagation(); const ag=ensureDailyAgenda(); ag.taskIds=ag.taskIds.filter(id=>id!==task.id); ag.manualIds=ag.manualIds.filter(id=>id!==task.id); ag.deferredIds=ag.deferredIds.filter(id=>id!==task.id); save(); render(); };
+          rm.onclick = (e) => { e.stopPropagation(); removeTaskFromDailyAgenda(task.id); };
           tools.append(tomorrow, rm);
           row.append(check, text, tools);
           row.onclick = (e) => showCalItemPopup(e, task, task.due||toDateKey(new Date()));
@@ -2851,9 +2912,6 @@
         goTo(vCurrent, false);
       }
 
-      const secondary = el("div","home-secondary");
-      secondary.append(renderSharedWheel(true));
-
       const wrap = el("div","home-wrap");
       if (countdownWidget) wrap.append(countdownWidget);
       // הסדר יומי והמיקוד מוצגים רק בתוך פאנל התכנון (✨ תכנון) במובייל
@@ -2861,7 +2919,7 @@
       if (!isMobileHome) {
         wrap.append(unifiedCard);
       }
-      wrap.append(listHead, listsWheel, secondary);
+      wrap.append(listHead, listsWheel);
       $("content").replaceChildren(wrap);
     }
 
@@ -5035,14 +5093,16 @@
         const completeActions = document.createElement("div");
         completeActions.className = "task-swipe-complete-actions";
 
-        const completeBtn = document.createElement("button");
-        completeBtn.className = "swipe-btn swipe-btn-complete";
-        completeBtn.type = "button";
-        completeBtn.innerHTML = isDone(task)
-          ? `<span class="swipe-icon">↩️</span><span>בטל</span>`
-          : `<span class="swipe-icon">✓</span><span>בוצע</span>`;
-        completeBtn.onclick = (e) => { e.stopPropagation(); wrap.classList.remove("swiped-complete"); toggleTask(task.id); };
-        completeActions.append(completeBtn);
+        const focusBtn = document.createElement("button");
+        focusBtn.className = "swipe-btn swipe-btn-complete";
+        focusBtn.type = "button";
+        focusBtn.innerHTML = `<span class="swipe-icon">☀️</span><span>מיקוד</span>`;
+        focusBtn.onclick = (e) => {
+          e.stopPropagation();
+          wrap.classList.remove("swiped-complete");
+          addTaskToDailyAgenda(task.id);
+        };
+        completeActions.append(focusBtn);
 
         const inner = document.createElement("div");
         inner.className = "task-swipe-inner";
@@ -6442,21 +6502,28 @@
         }
       });
 
-      const previousIds = [...new Set([...(agenda.taskIds || []), ...(agenda.deferredIds || [])])];
-      const previousOpenAgendaIds = agenda.date && agenda.date !== todayKey
-        ? previousIds.filter(id => {
-            const task = state.tasks.find(t => t.id === id);
-            if (!task || isDone(task)) return false;
-            carried.push(task.name);
-            return true;
-          })
-        : [];
+      const previousIds = [...new Set([...(agenda.taskIds || []), ...(agenda.manualIds || []), ...(agenda.deferredIds || [])])];
+      const openAgendaIds = previousIds.filter(id => {
+        const task = state.tasks.find(t => t.id === id);
+        if (!task || isDone(task)) return false;
+        if (agenda.date && agenda.date !== todayKey) carried.push(task.name);
+        return true;
+      });
+      if (openAgendaIds.length !== (agenda.taskIds || []).length || openAgendaIds.some((id, i) => id !== agenda.taskIds[i])) {
+        agenda.taskIds = openAgendaIds;
+        changed = true;
+      }
+      const nextManualIds = (agenda.manualIds || []).filter(id => openAgendaIds.includes(id));
+      const nextDeferredIds = (agenda.deferredIds || []).filter(id => openAgendaIds.includes(id));
+      if (nextManualIds.length !== (agenda.manualIds || []).length || nextDeferredIds.length !== (agenda.deferredIds || []).length) {
+        changed = true;
+      }
+      agenda.manualIds = nextManualIds;
+      agenda.deferredIds = nextDeferredIds;
 
       if (agenda.date !== todayKey) {
         agenda.date = todayKey;
-        agenda.taskIds = [...previousOpenAgendaIds];
-        agenda.deferredIds = [...previousOpenAgendaIds];
-        agenda.manualIds = [];
+        agenda.deferredIds = [...new Set([...(agenda.deferredIds || []), ...openAgendaIds])];
         agenda.skippedDate = null;
         agenda.promptedDate = null;
         agenda.closedDate = null;
@@ -6484,7 +6551,8 @@
       const todayKey = toDateKey(new Date());
       const agenda = ensureDailyAgenda();
       if (agenda.date !== todayKey) {
-        return { ...agenda, date: todayKey, taskIds: [] };
+        agenda.date = todayKey;
+        save();
       }
       return agenda;
     }
@@ -6534,6 +6602,15 @@
       toast("נשמר למיקוד של מחר, בלי לשנות דדליין");
     }
 
+    function removeTaskFromDailyAgenda(taskId, announce = false){
+      const agenda = ensureDailyAgenda();
+      agenda.taskIds = (agenda.taskIds || []).filter(id => id !== taskId);
+      agenda.manualIds = (agenda.manualIds || []).filter(id => id !== taskId);
+      agenda.deferredIds = (agenda.deferredIds || []).filter(id => id !== taskId);
+      save(); render();
+      if (announce) toast("הוסר מהמיקוד, המטלה נשארה פתוחה");
+    }
+
     function setAgendaTaskMood(taskId, mood){
       const task = state.tasks.find(t => t.id === taskId);
       if (!task) return;
@@ -6560,9 +6637,6 @@
       const agenda = ensureDailyAgenda();
       if (agenda.date !== todayKey) {
         agenda.date = todayKey;
-        agenda.taskIds = [];
-        agenda.manualIds = [];
-        agenda.deferredIds = [];
         agenda.skippedDate = null;
       }
       if (!agenda.taskIds.includes(taskId)) agenda.taskIds.push(taskId);
@@ -6769,7 +6843,8 @@
         row.ondragend = () => { draggedTaskId = null; row.style.opacity = "1"; };
         const check = el("button","daily-focus-check","✓");
         check.type = "button";
-        check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
+        check.title = "הסר מהמיקוד בלי להשלים את המטלה";
+        check.onclick = (e) => { e.stopPropagation(); removeTaskFromDailyAgenda(task.id, true); };
         const text = el("div","daily-focus-main");
         const reason = agendaReason(task);
         const tags = el("div","daily-focus-tags");
@@ -6791,14 +6866,7 @@
         const remove = el("button","mini","×");
         remove.type = "button";
         remove.title = "הסר מהאג׳נדה";
-        remove.onclick = (e) => {
-          e.stopPropagation();
-          const agenda = ensureDailyAgenda();
-          agenda.taskIds = agenda.taskIds.filter(id => id !== task.id);
-          agenda.manualIds = agenda.manualIds.filter(id => id !== task.id);
-          agenda.deferredIds = agenda.deferredIds.filter(id => id !== task.id);
-          save(); render();
-        };
+        remove.onclick = (e) => { e.stopPropagation(); removeTaskFromDailyAgenda(task.id); };
         tools.append(started, stuck, tomorrow, remove);
         row.append(check, text, tools);
         row.onclick = (e) => showCalItemPopup(e, task, task.due || toDateKey(new Date()));
@@ -6999,6 +7067,7 @@
     }
 
 	function openBrief(){
+      closeSharedPanel();
       const overlay = $("briefOverlay");
       const panel = $("briefPanel");
       if(!overlay || !panel) return;
@@ -7178,6 +7247,20 @@
         $("briefClose").onclick = closeBrief;
         $("briefOverlay").onclick = closeBrief;
       }
+      if ($("sharedPanelBtn")) {
+        $("sharedPanelBtn").onclick = () => {
+          const panel = $("sharedPanel");
+          if (panel?.classList.contains("open")) closeSharedPanel();
+          else openSharedPanel();
+        };
+        $("sharedPanelClose").onclick = closeSharedPanel;
+      }
+      document.addEventListener("click", (e) => {
+        const panel = $("sharedPanel");
+        if (!panel?.classList.contains("open")) return;
+        if (e.target.closest("#sharedPanel") || e.target.closest("#sharedPanelBtn")) return;
+        closeSharedPanel();
+      });
       initDailyMemo();
     });
 
