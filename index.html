@@ -2838,6 +2838,10 @@
 
         function goTo(newVCurrent, animate = true) {
           if (isAnimating && animate) return;
+          // With fewer than 3 lists there are no looped duplicates in the track
+          // (CYCLES <= 1), so drifting past the real slots would show blank
+          // space off-center. Clamp to the real range in that case instead.
+          if (CYCLES <= 1) newVCurrent = Math.max(0, Math.min(total - 1, newVCurrent));
           const distance = Math.abs(newVCurrent - vCurrent);
           vCurrent = newVCurrent;
           current = ((vCurrent % total) + total) % total;
@@ -7434,11 +7438,12 @@
         const convert = el("button","memo-line-convert","→✓");
         convert.type = "button";
         convert.title = "המר למשימה";
-        convert.onclick = () => convertMemoLineToTask(idx);
+        convert.onclick = (e) => { e.stopPropagation(); convertMemoLineToTask(idx); };
         const del = el("button","memo-line-del","×");
         del.type = "button";
         del.title = "מחק שורה";
-        del.onclick = () => {
+        del.onclick = (e) => {
+          e.stopPropagation();
           const removedText = (dailyMemoState.lines[idx] || "").trim();
           if (removedText) {
             undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines] });
@@ -7608,7 +7613,12 @@
       document.addEventListener("click", (e) => {
         const panel = $("dailyMemoPanel"), btn = $("dailyMemoBtn");
         if (!panel || !panel.classList.contains("show")) return;
-        if (panel.contains(e.target) || btn.contains(e.target)) return;
+        // If the clicked element was removed from the DOM by its own click handler
+        // (e.g. deleting a memo line), e.target is detached and panel.contains()
+        // would wrongly report false. Use the original event path instead so a
+        // click that started inside the panel never closes it.
+        const path = e.composedPath ? e.composedPath() : [];
+        if (path.includes(panel) || path.includes(btn) || panel.contains(e.target) || btn.contains(e.target)) return;
         closeDailyMemo();
       });
     }
