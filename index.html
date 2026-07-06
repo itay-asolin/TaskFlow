@@ -539,12 +539,12 @@
     .daily-agenda-mark{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-weight:900;color:transparent}
     .daily-agenda-option.active .daily-agenda-mark{background:var(--accent);border-color:var(--accent);color:#fff}
     .daily-agenda-footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
-    /* ── Daily Memo (פתק יומי חופשי) ── */
+    /* ── מטלות קטנות (Daily Memo) ── */
     #dailyMemoBtn{position:fixed;bottom:24px;right:20px;z-index:90;width:52px;height:52px;border-radius:50%;border:1px solid var(--border);background:var(--accent);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(0,0,0,.32);transition:transform .18s ease,box-shadow .18s ease;padding:0;cursor:grab;touch-action:none;user-select:none}
     #dailyMemoBtn:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 14px 32px rgba(0,0,0,.38)}
     #dailyMemoBtn.dragging{cursor:grabbing;transition:none;box-shadow:0 16px 36px rgba(0,0,0,.42);transform:scale(1.08)}
-    #dailyMemoBtn .memo-dot{position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:var(--warn);border:2px solid var(--bg);display:none}
-    #dailyMemoBtn.has-content .memo-dot{display:block}
+    #dailyMemoBtn .memo-dot{position:absolute;top:-4px;left:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--warn);color:#fff;border:2px solid var(--bg);display:none;align-items:center;justify-content:center;font-size:11px;font-weight:800;line-height:1}
+    #dailyMemoBtn.has-content .memo-dot{display:flex}
     @media(max-width:820px){ #dailyMemoBtn{bottom:calc(76px + env(safe-area-inset-bottom));right:14px;width:48px;height:48px;font-size:20px} }
     #dailyMemoPanel{position:fixed;bottom:88px;right:20px;z-index:91;width:min(300px,calc(100vw - 32px));max-height:min(420px,calc(100vh - 120px));display:none;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);direction:rtl;text-align:right;overflow:hidden;animation:briefPop .24s cubic-bezier(.34,1.3,.64,1)}
     @media(max-width:820px){ #dailyMemoPanel{bottom:calc(132px + env(safe-area-inset-bottom));right:14px} }
@@ -560,6 +560,8 @@
     .memo-line input:focus{border-color:var(--accent)}
     .memo-line-del{flex:0 0 auto;width:22px;height:22px;border:0;background:transparent;color:var(--faint);font-size:15px;border-radius:6px;cursor:pointer;line-height:1}
     .memo-line-del:hover{color:var(--danger)}
+    .memo-line-convert{flex:0 0 auto;width:22px;height:22px;border:0;background:transparent;color:var(--faint);font-size:13px;border-radius:6px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center}
+    .memo-line-convert:hover{color:var(--accent2);background:var(--card2)}
     .memo-add{margin:2px 12px 12px;border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:8px;padding:7px;font-size:12px;font-weight:800;cursor:pointer}
     .memo-add:hover{border-color:var(--accent);color:var(--accent2)}
     #agendaDropBubble{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120px) scale(.92);z-index:140;min-width:190px;min-height:62px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:9px;color:var(--text);font-weight:900;opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.34,1.3,.64,1),opacity .18s,border-color .16s,background .16s;backdrop-filter:blur(14px)}
@@ -1414,7 +1416,7 @@
     .task-swipe-wrap{position:relative;overflow:hidden;border-radius:12px}
     .task-swipe-actions{position:absolute;top:0;bottom:0;right:0;display:flex;align-items:stretch;width:88px;transform:translateX(100%);transition:transform .18s ease;z-index:2;border-radius:0 12px 12px 0;overflow:hidden}
     .task-swipe-complete-actions{position:absolute;top:0;bottom:0;left:0;display:flex;align-items:stretch;width:88px;transform:translateX(-100%);transition:transform .18s ease;z-index:2;border-radius:12px 0 0 12px;overflow:hidden}
-    .swipe-btn-complete{background:var(--green);color:#fff;flex:1}
+    .swipe-btn-focus{background:var(--warn);color:#fff}
     .task-swipe-wrap.swiped-complete .task-swipe-inner{transform:translateX(88px)}
     .task-swipe-wrap.swiped-complete .task-swipe-complete-actions{transform:translateX(0)}
     .swipe-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:10px;font-weight:900;border:0;cursor:pointer;flex:1}
@@ -1579,7 +1581,7 @@
 
   <div id="dailyAgendaOverlay" role="dialog" aria-modal="true">
     <div id="dailyAgendaCard">
-      <h2>☀️ אג׳נדה יומית</h2>
+      <h2>☀️ מיקוד</h2>
       <p>בחר מה בא לך לקדם היום. זה לא חייב להיות עם דדליין, זה פשוט המיקוד של היום.</p>
       <div class="daily-agenda-tools">
         <input id="dailyAgendaSearch" type="search" placeholder="חפש משימה..." />
@@ -1589,15 +1591,15 @@
       <div id="dailyAgendaPool" class="daily-agenda-pool"></div>
       <div class="daily-agenda-footer">
         <button id="dailyAgendaSkip" class="btn" type="button">דלג להיום</button>
-        <button id="dailyAgendaSave" class="btn primary" type="button">קבע אג׳נדה</button>
+        <button id="dailyAgendaSave" class="btn primary" type="button">קבע מיקוד</button>
       </div>
     </div>
   </div>
 
-  <button id="dailyMemoBtn" class="hidden" type="button" title="פתק יומי" aria-label="פתק יומי">
+  <button id="dailyMemoBtn" class="hidden" type="button" title="מטלות קטנות" aria-label="מטלות קטנות">
     📝<span class="memo-dot"></span>
   </button>
-  <div id="dailyMemoPanel" role="dialog" aria-modal="true" aria-label="פתק יומי">
+  <div id="dailyMemoPanel" role="dialog" aria-modal="true" aria-label="מטלות קטנות">
     <div class="memo-head">
       <div>
         <div class="memo-head-title">📝 מטלות קטנות</div>
@@ -1609,9 +1611,9 @@
     <button id="dailyMemoAdd" class="memo-add" type="button">+ הוסף שורה</button>
   </div>
 
-  <div id="agendaDropBubble" class="hidden" aria-label="הוסף לאג׳נדה היומית">
+  <div id="agendaDropBubble" class="hidden" aria-label="הוסף למיקוד">
     <span class="bubble-icon">☀️</span>
-    <span>שחרר לאג׳נדה</span>
+    <span>שחרר למיקוד</span>
   </div>
 
   <div id="modalBack" class="modal-back hidden" role="dialog" aria-modal="true">
@@ -1673,6 +1675,7 @@
       filterTag: null,
       sortAll: "due",
       kanbanListMode: false,
+      dueFilterMode: "all",
       autoCollapse: false,
       cats: [
         {id: uid("c"), name: "לימודים", columns: [{id:"col1",name:"לעשות"},{id:"col2",name:"בתהליך"},{id:"col3",name:"הושלם"}], color: "#6d5dfc"},
@@ -1687,6 +1690,7 @@
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
+    let openAddMenuEl = null;
     const RESET_UNDO_WINDOW_MS = 5 * 60 * 1000; // 5 minutes to undo a tasks reset
     let taskReminderTimer = null;
 
@@ -2228,7 +2232,9 @@
       document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === state.currentView));
       document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === state.currentView));
       
-      $("searchBox").classList.toggle("hidden", !["all","kanban","calendar","meetings"].includes(state.currentView));
+      const searchActiveView = ["all","kanban","calendar","meetings"].includes(state.currentView);
+      $("searchBox").classList.toggle("hidden", !searchActiveView);
+      $("searchWrap").classList.toggle("hidden", !searchActiveView);
       $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
       $("content").style.removeProperty("--accent");
       $("content").style.removeProperty("--accent2");
@@ -2610,7 +2616,7 @@
       }
 
       if (!focusTasks.length) {
-        const emptyMsg = el("div","daily-focus-empty", todayAgenda().skippedDate===toDateKey(new Date()) ? "דילגת על אג׳נדה להיום" : "עוד לא נבחר מיקוד להיום");
+        const emptyMsg = el("div","daily-focus-empty", todayAgenda().skippedDate===toDateKey(new Date()) ? "דילגת על מיקוד להיום" : "עוד לא נבחר מיקוד להיום");
         const startBtn = el("button","btn primary","בחר מיקוד"); startBtn.type="button";
         startBtn.style.cssText = "margin-top:8px;width:100%";
         startBtn.onclick = () => openDailyAgendaModal(true);
@@ -2660,30 +2666,63 @@
 
 
       const listHead = el("div","home-section-title");
-      listHead.style.cssText = "margin-top:10px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));border-radius:12px;padding:7px 10px;box-shadow:0 4px 12px rgba(0,0,0,.07)";
-      const listHeadLeft = el("div","");
-      listHeadLeft.style.cssText = "display:flex;align-items:center;gap:8px";
-      const newListBtn = el("button","","+ רשימה חדשה");
-      newListBtn.type = "button";
-      newListBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#fff0));color:#fff;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 28%,transparent);transition:.18s";
-      newListBtn.onmouseenter = () => newListBtn.style.transform = "translateY(-1px)";
-      newListBtn.onmouseleave = () => newListBtn.style.transform = "";
-      newListBtn.onclick = () => openCategoryModal();
-      const newTaskBtn = el("button","","+ מטלה חדשה");
-      newTaskBtn.type = "button";
-      newTaskBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--green) 45%,var(--border));background:color-mix(in srgb,var(--green) 14%,var(--card));color:var(--text);box-shadow:0 3px 10px rgba(0,0,0,.07);transition:.18s";
-      newTaskBtn.onmouseenter = () => newTaskBtn.style.transform = "translateY(-1px)";
-      newTaskBtn.onmouseleave = () => newTaskBtn.style.transform = "";
-      newTaskBtn.onclick = () => openHomeTaskPicker();
-      const listActions = el("div","");
-      listActions.style.cssText = "display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end";
-      listActions.append(newTaskBtn, newListBtn);
-      listHeadLeft.append(el("strong","", "הרשימות שלך"));
-      listHead.append(
-        listHeadLeft,
-        el("span","", `${state.cats.length} רשימות`),
-        listActions
-      );
+      listHead.style.cssText = "margin-top:10px;padding:2px 4px;display:flex;align-items:center;gap:10px";
+      const listHeadTitle = el("div","");
+      listHeadTitle.style.cssText = "font-size:13px;font-weight:800;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+      listHeadTitle.textContent = `הרשימות שלך · ${state.cats.length} רשימות`;
+
+      const addWrap = el("div","");
+      addWrap.style.cssText = "position:relative;margin-inline-start:auto";
+      const unifiedAddBtn = el("button","home-add-btn","+ חדש ▾");
+      unifiedAddBtn.type = "button";
+      unifiedAddBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);background:var(--accent);color:#fff;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 28%,transparent);transition:.18s";
+      unifiedAddBtn.onmouseenter = () => unifiedAddBtn.style.transform = "translateY(-1px)";
+      unifiedAddBtn.onmouseleave = () => unifiedAddBtn.style.transform = "";
+
+      const addMenu = el("div","home-add-menu");
+      addMenu.style.cssText = "position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;display:none;z-index:20;min-width:150px";
+      const menuListBtn = el("button","","📋  רשימה חדשה");
+      menuListBtn.type = "button";
+      menuListBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer";
+      menuListBtn.onmouseenter = () => menuListBtn.style.background = "var(--card2)";
+      menuListBtn.onmouseleave = () => menuListBtn.style.background = "transparent";
+      menuListBtn.onclick = () => { addMenu.style.display = "none"; openAddMenuEl = null; openCategoryModal(); };
+      const menuTaskBtn = el("button","","📝  מטלה חדשה");
+      menuTaskBtn.type = "button";
+      menuTaskBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer";
+      menuTaskBtn.onmouseenter = () => menuTaskBtn.style.background = "var(--card2)";
+      menuTaskBtn.onmouseleave = () => menuTaskBtn.style.background = "transparent";
+      menuTaskBtn.onclick = () => { addMenu.style.display = "none"; openAddMenuEl = null; openHomeTaskPicker(); };
+      const menuQuickMemoBtn = el("button","","✍️  טקסט מהיר למטלות קטנות");
+      menuQuickMemoBtn.type = "button";
+      menuQuickMemoBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap";
+      menuQuickMemoBtn.onmouseenter = () => menuQuickMemoBtn.style.background = "var(--card2)";
+      menuQuickMemoBtn.onmouseleave = () => menuQuickMemoBtn.style.background = "transparent";
+      menuQuickMemoBtn.onclick = () => {
+        addMenu.style.display = "none"; openAddMenuEl = null;
+        const text = (prompt("מה להוסיף למטלות הקטנות?") || "").trim();
+        if (!text) return;
+        const memo = getDailyMemo();
+        const lines = memo.lines.filter(l => (l || "").trim());
+        const norm = s => (s || "").trim().toLowerCase();
+        if (!lines.some(l => norm(l) === norm(text))) lines.push(text);
+        state.dailyMemo = { lines: lines.length ? lines : [text] };
+        dailyMemoState = normalizeDailyMemo(state.dailyMemo);
+        saveDailyMemo(dailyMemoState);
+        if ($("dailyMemoPanel")?.classList.contains("show")) renderDailyMemo();
+        toast(`"${text}" נוספה למטלות הקטנות`);
+      };
+      addMenu.append(menuListBtn, menuTaskBtn, menuQuickMemoBtn);
+
+      unifiedAddBtn.onclick = (e) => {
+        e.stopPropagation();
+        const isOpen = addMenu.style.display === "block";
+        addMenu.style.display = isOpen ? "none" : "block";
+        openAddMenuEl = isOpen ? null : addMenu;
+      };
+
+      addWrap.append(unifiedAddBtn, addMenu);
+      listHead.append(listHeadTitle, addWrap);
 
       const listsWheel = el("div","lists-wheel");
       listsWheel.append(grid);
@@ -2702,7 +2741,10 @@
         const SLOT_H = 112;
         const GAP = 6;
         const ROW_H = SLOT_H + GAP;
-        const VIEWPORT_H = SLOT_H * 3 + GAP * 2; // exactly 3 slots tall
+        // Show fewer slots when the deadlines widget is already taking up space above
+        const VISIBLE_SLOTS = upcomingDeadlines.length ? 2 : 3;
+        const CENTER_ROW = Math.floor((VISIBLE_SLOTS - 1) / 2);
+        const VIEWPORT_H = SLOT_H * VISIBLE_SLOTS + GAP * (VISIBLE_SLOTS - 1);
 
         // Build slider container (vertical)
         const sliderOuter = el("div","");
@@ -2778,7 +2820,7 @@
         let isAnimating = false;
 
         function offsetForSlot(slotIdx) {
-          return slotIdx * ROW_H - ROW_H; // shift so center slot lands in middle row
+          return slotIdx * ROW_H - CENTER_ROW * ROW_H; // shift so the center row lands in the right slot
         }
 
         function rewrapIfNeeded() {
@@ -2837,7 +2879,7 @@
           allItems.forEach(({ node }, slotIdx) => {
             if (Math.abs(slotIdx - vCurrent) > WINDOW) return;
             const slotTop = slotIdx * ROW_H;
-            const distFromCenter = Math.abs((slotTop - currentOffset) - ROW_H);
+            const distFromCenter = Math.abs((slotTop - currentOffset) - CENTER_ROW * ROW_H);
             const t = Math.max(0, 1 - distFromCenter / ROW_H); // 1 at center, 0 one row away
             const opacity = 0.82 + 0.18 * t;
             const scale = 0.96 + 0.04 * t;
@@ -2966,9 +3008,25 @@
       topBar.append(toggle, editCatBtn);
       wrap.append(topBar);
 
+      const dueFilterBar = el("div","view-toggle");
+      dueFilterBar.style.marginBottom = "12px";
+      const dueFilters = [
+        { key: "all", label: "הכל" },
+        { key: "today", label: "היום" },
+        { key: "week", label: "השבוע" },
+        { key: "none", label: "ללא תאריך" }
+      ];
+      dueFilters.forEach(f => {
+        const btn = el("button", (state.dueFilterMode || "all") === f.key ? "active" : "", f.label);
+        btn.type = "button";
+        btn.onclick = () => { state.dueFilterMode = f.key; render(); };
+        dueFilterBar.append(btn);
+      });
+      wrap.append(dueFilterBar);
+
       if (state.kanbanListMode) {
         getColumns(cat).forEach(col => {
-          const tasks = filteredTasks().filter(t => t.catId === cat.id && t.col === col.key && !isDone(t));
+          const tasks = applyDueFilter(filteredTasks().filter(t => t.catId === cat.id && t.col === col.key && !isDone(t)));
           const sec = el("div","card"); sec.style.marginBottom = "14px";
           const head = el("div","col-head"); head.style.cssText = "padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center";
           const headLeft = el("div",""); headLeft.style.cssText = "display:flex;align-items:center;gap:8px";
@@ -2989,7 +3047,7 @@
         const board = el("div","kanban");
         getColumns(cat).forEach(col => {
           const colEl = el("section","col");
-          const tasks = filteredTasks().filter(t => t.catId === cat.id && t.col === col.key && !isDone(t));
+          const tasks = applyDueFilter(filteredTasks().filter(t => t.catId === cat.id && t.col === col.key && !isDone(t)));
           const head = el("div","col-head");
           const headLeft = el("div",""); headLeft.style.cssText = "display:flex;align-items:center;gap:8px";
           headLeft.append(el("span","",col.name), el("span","count", String(tasks.length)));
@@ -5087,7 +5145,7 @@
         const memoBtn = document.createElement("button");
         memoBtn.className = "swipe-btn swipe-btn-memo";
         memoBtn.type = "button";
-        memoBtn.innerHTML = `<span class="swipe-icon">📝</span><span>פתק</span>`;
+        memoBtn.innerHTML = `<span class="swipe-icon">📝</span><span>קטן</span>`;
         memoBtn.onclick = (e) => {
           e.stopPropagation();
           wrap.classList.remove("swiped");
@@ -5100,7 +5158,7 @@
         completeActions.className = "task-swipe-complete-actions";
 
         const focusBtn = document.createElement("button");
-        focusBtn.className = "swipe-btn swipe-btn-complete";
+        focusBtn.className = "swipe-btn swipe-btn-focus";
         focusBtn.type = "button";
         focusBtn.innerHTML = `<span class="swipe-icon">☀️</span><span>מיקוד</span>`;
         focusBtn.onclick = (e) => {
@@ -5902,6 +5960,18 @@
         state.tasks = action.tasks;
         if (action.dailyAgenda) state.dailyAgenda = action.dailyAgenda;
         save(); render(); toast("האיפוס בוטל, המשימות שוחזרו ✓");
+      } else if (action.type === "focusRemove") {
+        const agenda = ensureDailyAgenda();
+        agenda.taskIds = action.taskIds;
+        agenda.manualIds = action.manualIds;
+        agenda.deferredIds = action.deferredIds;
+        save(); render(); toast("החזרה למיקוד בוצעה ✓");
+      } else if (action.type === "memoRemove") {
+        state.dailyMemo = { lines: action.lines };
+        dailyMemoState = normalizeDailyMemo(state.dailyMemo);
+        saveDailyMemo(dailyMemoState);
+        if ($("dailyMemoPanel")?.classList.contains("show")) renderDailyMemo();
+        toast("השורה הוחזרה ✓");
       }
     }
 
@@ -6217,6 +6287,25 @@
       const q = state.search.toLowerCase();
       if (!q) return [...state.tasks];
       return state.tasks.filter(t => [t.name, ...(t.subs || []).map(s => s.text)].join(" ").toLowerCase().includes(q));
+    }
+
+    function taskDueBucket(t){
+      if (!t.due) return "none";
+      const due = parseDate(t.due);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const days = Math.round((due - today) / 86400000);
+      if (days <= 0) return "today";
+      if (days <= 7) return "week";
+      return "later";
+    }
+
+    function applyDueFilter(tasks){
+      const mode = state.dueFilterMode || "all";
+      if (mode === "all") return tasks;
+      if (mode === "none") return tasks.filter(t => taskDueBucket(t) === "none");
+      if (mode === "today") return tasks.filter(t => taskDueBucket(t) === "today");
+      if (mode === "week") return tasks.filter(t => taskDueBucket(t) === "today" || taskDueBucket(t) === "week");
+      return tasks;
     }
 
     function dueInfo(str){
@@ -6556,7 +6645,7 @@
       if (changed) save();
       if (announce && carried.length) {
         const label = carried.length === 1 ? `"${carried[0]}"` : `${carried.length} מטלות`;
-        toast(carried.length === 1 ? `${label} נשארה באג׳נדה להמשך עבודה` : `${label} נשארו באג׳נדה להמשך עבודה`);
+        toast(carried.length === 1 ? `${label} נשארה במיקוד להמשך עבודה` : `${label} נשארו במיקוד להמשך עבודה`);
       }
       return { changed, carried };
     }
@@ -6619,11 +6708,18 @@
 
     function removeTaskFromDailyAgenda(taskId, announce = false){
       const agenda = ensureDailyAgenda();
+      const task = state.tasks.find(t => t.id === taskId);
+      undoStack.push({
+        type: "focusRemove",
+        taskIds: [...(agenda.taskIds || [])],
+        manualIds: [...(agenda.manualIds || [])],
+        deferredIds: [...(agenda.deferredIds || [])]
+      });
       agenda.taskIds = (agenda.taskIds || []).filter(id => id !== taskId);
       agenda.manualIds = (agenda.manualIds || []).filter(id => id !== taskId);
       agenda.deferredIds = (agenda.deferredIds || []).filter(id => id !== taskId);
       save(); render();
-      if (announce) toast("הוסר מהמיקוד, המטלה נשארה פתוחה");
+      toastUndo(task?.name ? `"${task.name}" הוסרה מהמיקוד` : "הוסר מהמיקוד");
     }
 
     function setAgendaTaskMood(taskId, mood){
@@ -6804,7 +6900,7 @@
           promptedDate: todayKey
         };
         save(); closeDailyAgendaModal(); render();
-        toast(selected.size ? "אג׳נדה יומית נקבעה" : "אג׳נדה ריקה להיום");
+        toast(selected.size ? "המיקוד נקבע" : "מיקוד ריק להיום");
       };
       search.oninput = renderPool;
       search.value = "";
@@ -6838,7 +6934,7 @@
 
       const tasks = dailyAgendaTasks();
       if (!tasks.length) {
-        const emptyText = todayAgenda().skippedDate === toDateKey(new Date()) ? "דילגת על אג׳נדה להיום" : "עוד לא נבחר מיקוד להיום";
+        const emptyText = todayAgenda().skippedDate === toDateKey(new Date()) ? "דילגת על מיקוד להיום" : "עוד לא נבחר מיקוד להיום";
         const emptyLine = el("div","daily-focus-empty",emptyText);
         card.append(emptyLine);
         if (!compact) {
@@ -6880,7 +6976,7 @@
         tomorrow.onclick = (e) => { e.stopPropagation(); moveTaskInDailyAgenda(task.id, "tomorrow"); };
         const remove = el("button","mini","×");
         remove.type = "button";
-        remove.title = "הסר מהאג׳נדה";
+        remove.title = "הסר מהמיקוד";
         remove.onclick = (e) => { e.stopPropagation(); removeTaskFromDailyAgenda(task.id); };
         tools.append(started, stuck, tomorrow, remove);
         row.append(check, text, tools);
@@ -7276,6 +7372,12 @@
         if (e.target.closest("#sharedPanel") || e.target.closest("#sharedPanelBtn")) return;
         closeSharedPanel();
       });
+      document.addEventListener("click", (e) => {
+        if (!openAddMenuEl) return;
+        if (e.target.closest(".home-add-menu") || e.target.closest(".home-add-btn")) return;
+        openAddMenuEl.style.display = "none";
+        openAddMenuEl = null;
+      });
       initDailyMemo();
     });
 
@@ -7304,8 +7406,10 @@
     function updateDailyMemoBadge(memo){
       const btn = $("dailyMemoBtn");
       if (!btn) return;
-      const hasContent = (memo || getDailyMemo()).lines.some(l => (l || "").trim());
-      btn.classList.toggle("has-content", hasContent);
+      const activeCount = (memo || getDailyMemo()).lines.filter(l => (l || "").trim()).length;
+      btn.classList.toggle("has-content", activeCount > 0);
+      const dot = btn.querySelector(".memo-dot");
+      if (dot) dot.textContent = activeCount > 0 ? String(activeCount) : "";
     }
 
     let dailyMemoState = null;
@@ -7327,18 +7431,42 @@
         input.addEventListener("keydown", (e) => {
           if (e.key === "Enter"){ e.preventDefault(); addDailyMemoLine(); }
         });
+        const convert = el("button","memo-line-convert","→✓");
+        convert.type = "button";
+        convert.title = "המר למשימה";
+        convert.onclick = () => convertMemoLineToTask(idx);
         const del = el("button","memo-line-del","×");
         del.type = "button";
         del.title = "מחק שורה";
         del.onclick = () => {
+          const removedText = (dailyMemoState.lines[idx] || "").trim();
+          if (removedText) {
+            undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines] });
+          }
           dailyMemoState.lines.splice(idx,1);
           if (!dailyMemoState.lines.length) dailyMemoState.lines.push("");
           saveDailyMemo(dailyMemoState);
           renderDailyMemo();
+          if (removedText) toastUndo(`"${removedText}" נמחקה`);
         };
-        row.append(input, del);
+        row.append(input, convert, del);
         wrap.append(row);
       });
+    }
+
+    function convertMemoLineToTask(idx){
+      const text = (dailyMemoState.lines[idx] || "").trim();
+      if (!text) return toast("השורה ריקה, אין מה להמיר");
+      if (!state.cats.length) return toast("צריך ליצור רשימה קודם כדי להמיר למשימה");
+      const cat = state.cats[0];
+      const col = getColumns(cat)[0];
+      state.tasks.push({ id: uid("t"), createdAt: Date.now(), name: text, catId: cat.id, col: col.key, color: cat.color });
+      dailyMemoState.lines.splice(idx,1);
+      if (!dailyMemoState.lines.length) dailyMemoState.lines.push("");
+      saveDailyMemo(dailyMemoState);
+      renderDailyMemo();
+      render();
+      toast(`"${text}" הפכה למשימה ברשימת "${cat.name}"`);
     }
 
     function addDailyMemoLine(){
@@ -7351,14 +7479,17 @@
 
     function addTaskToDailyMemo(task){
       if (!task?.name) return false;
+      const cat = task.catId ? state.cats.find(c => c.id === task.catId) : null;
+      const lineText = cat?.name ? `${task.name} - ${cat.name}` : task.name;
       const memo = getDailyMemo();
       const lines = memo.lines.filter(line => (line || "").trim());
-      if (!lines.includes(task.name)) lines.push(task.name);
-      state.dailyMemo = { lines: lines.length ? lines : [task.name] };
+      const norm = s => (s || "").trim().toLowerCase();
+      if (!lines.some(l => norm(l) === norm(lineText))) lines.push(lineText);
+      state.dailyMemo = { lines: lines.length ? lines : [lineText] };
       dailyMemoState = normalizeDailyMemo(state.dailyMemo);
       saveDailyMemo(dailyMemoState);
       if ($("dailyMemoPanel")?.classList.contains("show")) renderDailyMemo();
-      toast(`"${task.name}" נוספה למטלות הקטנות`);
+      toast(`"${lineText}" נוספה למטלות הקטנות`);
       return true;
     }
 
