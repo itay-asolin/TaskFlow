@@ -560,8 +560,6 @@
     .memo-line input:focus{border-color:var(--accent)}
     .memo-line-del{flex:0 0 auto;width:22px;height:22px;border:0;background:transparent;color:var(--faint);font-size:15px;border-radius:6px;cursor:pointer;line-height:1}
     .memo-line-del:hover{color:var(--danger)}
-    .memo-line-convert{flex:0 0 auto;width:22px;height:22px;border:0;background:transparent;color:var(--faint);font-size:13px;border-radius:6px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center}
-    .memo-line-convert:hover{color:var(--accent2);background:var(--card2)}
     .memo-add{margin:2px 12px 12px;border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:8px;padding:7px;font-size:12px;font-weight:800;cursor:pointer}
     .memo-add:hover{border-color:var(--accent);color:var(--accent2)}
     #agendaDropBubble{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120px) scale(.92);z-index:140;min-width:190px;min-height:62px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:9px;color:var(--text);font-weight:900;opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.34,1.3,.64,1),opacity .18s,border-color .16s,background .16s;backdrop-filter:blur(14px)}
@@ -2693,26 +2691,8 @@
       menuTaskBtn.onmouseenter = () => menuTaskBtn.style.background = "var(--card2)";
       menuTaskBtn.onmouseleave = () => menuTaskBtn.style.background = "transparent";
       menuTaskBtn.onclick = () => { addMenu.style.display = "none"; openAddMenuEl = null; openHomeTaskPicker(); };
-      const menuQuickMemoBtn = el("button","","✍️  טקסט מהיר למטלות קטנות");
-      menuQuickMemoBtn.type = "button";
-      menuQuickMemoBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap";
-      menuQuickMemoBtn.onmouseenter = () => menuQuickMemoBtn.style.background = "var(--card2)";
-      menuQuickMemoBtn.onmouseleave = () => menuQuickMemoBtn.style.background = "transparent";
-      menuQuickMemoBtn.onclick = () => {
-        addMenu.style.display = "none"; openAddMenuEl = null;
-        const text = (prompt("מה להוסיף למטלות הקטנות?") || "").trim();
-        if (!text) return;
-        const memo = getDailyMemo();
-        const lines = memo.lines.filter(l => (l || "").trim());
-        const norm = s => (s || "").trim().toLowerCase();
-        if (!lines.some(l => norm(l) === norm(text))) lines.push(text);
-        state.dailyMemo = { lines: lines.length ? lines : [text] };
-        dailyMemoState = normalizeDailyMemo(state.dailyMemo);
-        saveDailyMemo(dailyMemoState);
-        if ($("dailyMemoPanel")?.classList.contains("show")) renderDailyMemo();
-        toast(`"${text}" נוספה למטלות הקטנות`);
-      };
-      addMenu.append(menuListBtn, menuTaskBtn, menuQuickMemoBtn);
+      addMenu.append(menuListBtn, menuTaskBtn);
+
 
       unifiedAddBtn.onclick = (e) => {
         e.stopPropagation();
@@ -2742,7 +2722,7 @@
         const GAP = 6;
         const ROW_H = SLOT_H + GAP;
         // Show fewer slots when the deadlines widget is already taking up space above
-        const VISIBLE_SLOTS = upcomingDeadlines.length ? 2 : 3;
+        const VISIBLE_SLOTS = 3;
         const CENTER_ROW = Math.floor((VISIBLE_SLOTS - 1) / 2);
         const VIEWPORT_H = SLOT_H * VISIBLE_SLOTS + GAP * (VISIBLE_SLOTS - 1);
 
@@ -7435,10 +7415,6 @@
         input.addEventListener("keydown", (e) => {
           if (e.key === "Enter"){ e.preventDefault(); addDailyMemoLine(); }
         });
-        const convert = el("button","memo-line-convert","→✓");
-        convert.type = "button";
-        convert.title = "המר למשימה";
-        convert.onclick = (e) => { e.stopPropagation(); convertMemoLineToTask(idx); };
         const del = el("button","memo-line-del","×");
         del.type = "button";
         del.title = "מחק שורה";
@@ -7454,25 +7430,11 @@
           renderDailyMemo();
           if (removedText) toastUndo(`"${removedText}" נמחקה`);
         };
-        row.append(input, convert, del);
+        row.append(input, del);
         wrap.append(row);
       });
     }
 
-    function convertMemoLineToTask(idx){
-      const text = (dailyMemoState.lines[idx] || "").trim();
-      if (!text) return toast("השורה ריקה, אין מה להמיר");
-      if (!state.cats.length) return toast("צריך ליצור רשימה קודם כדי להמיר למשימה");
-      const cat = state.cats[0];
-      const col = getColumns(cat)[0];
-      state.tasks.push({ id: uid("t"), createdAt: Date.now(), name: text, catId: cat.id, col: col.key, color: cat.color });
-      dailyMemoState.lines.splice(idx,1);
-      if (!dailyMemoState.lines.length) dailyMemoState.lines.push("");
-      saveDailyMemo(dailyMemoState);
-      renderDailyMemo();
-      render();
-      toast(`"${text}" הפכה למשימה ברשימת "${cat.name}"`);
-    }
 
     function addDailyMemoLine(){
       dailyMemoState.lines.push("");
