@@ -560,6 +560,8 @@
     .memo-line input:focus{border-color:var(--accent)}
     .memo-line-del{flex:0 0 auto;width:22px;height:22px;border:0;background:transparent;color:var(--faint);font-size:15px;border-radius:6px;cursor:pointer;line-height:1}
     .memo-line-del:hover{color:var(--danger)}
+    .memo-line-check{flex:0 0 auto;width:22px;height:22px;border:0;background:transparent;color:var(--faint);font-size:13px;font-weight:900;border-radius:6px;cursor:pointer;line-height:1}
+    .memo-line-check:hover{color:var(--green)}
     .memo-add{margin:2px 12px 12px;border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:8px;padding:7px;font-size:12px;font-weight:800;cursor:pointer}
     .memo-add:hover{border-color:var(--accent);color:var(--accent2)}
     #agendaDropBubble{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120px) scale(.92);z-index:140;min-width:190px;min-height:62px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:9px;color:var(--text);font-weight:900;opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.34,1.3,.64,1),opacity .18s,border-color .16s,background .16s;backdrop-filter:blur(14px)}
@@ -5951,7 +5953,7 @@
         agenda.deferredIds = action.deferredIds;
         save(); render(); toast("החזרה למיקוד בוצעה ✓");
       } else if (action.type === "memoRemove") {
-        state.dailyMemo = { lines: action.lines };
+        state.dailyMemo = { lines: action.lines, taskIds: action.taskIds || action.lines.map(() => null) };
         dailyMemoState = normalizeDailyMemo(state.dailyMemo);
         saveDailyMemo(dailyMemoState);
         if ($("dailyMemoPanel")?.classList.contains("show")) renderDailyMemo();
@@ -6420,7 +6422,10 @@
     function normalizeDailyMemo(memo){
       const rawLines = Array.isArray(memo?.lines) ? memo.lines : [];
       const lines = rawLines.map(line => String(line || ""));
-      return { lines: lines.length ? lines : [""] };
+      const rawTaskIds = Array.isArray(memo?.taskIds) ? memo.taskIds : [];
+      const finalLines = lines.length ? lines : [""];
+      const taskIds = finalLines.map((_, i) => rawTaskIds[i] || null);
+      return { lines: finalLines, taskIds };
     }
 
     function normalizeColumns(){
@@ -7415,6 +7420,29 @@
         input.addEventListener("keydown", (e) => {
           if (e.key === "Enter"){ e.preventDefault(); addDailyMemoLine(); }
         });
+        const check = el("button","memo-line-check","✓");
+        check.type = "button";
+        check.title = "השלם";
+        check.onclick = (e) => {
+          e.stopPropagation();
+          const lineText = (dailyMemoState.lines[idx] || "").trim();
+          const linkedTaskId = dailyMemoState.taskIds[idx] || null;
+          const linkedTask = linkedTaskId ? state.tasks.find(t => t.id === linkedTaskId) : null;
+          if (lineText) {
+            undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines], taskIds: [...dailyMemoState.taskIds] });
+          }
+          dailyMemoState.lines.splice(idx,1);
+          dailyMemoState.taskIds.splice(idx,1);
+          if (!dailyMemoState.lines.length) { dailyMemoState.lines.push(""); dailyMemoState.taskIds.push(null); }
+          saveDailyMemo(dailyMemoState);
+          renderDailyMemo();
+          if (linkedTask && !isDone(linkedTask)) {
+            toggleTask(linkedTask.id);
+            if (lineText) toastUndo(`"${lineText}" הושלמה גם במיקום שלה`);
+          } else if (lineText) {
+            toastUndo(`"${lineText}" הושלמה`);
+          }
+        };
         const del = el("button","memo-line-del","×");
         del.type = "button";
         del.title = "מחק שורה";
@@ -7422,15 +7450,16 @@
           e.stopPropagation();
           const removedText = (dailyMemoState.lines[idx] || "").trim();
           if (removedText) {
-            undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines] });
+            undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines], taskIds: [...dailyMemoState.taskIds] });
           }
           dailyMemoState.lines.splice(idx,1);
-          if (!dailyMemoState.lines.length) dailyMemoState.lines.push("");
+          dailyMemoState.taskIds.splice(idx,1);
+          if (!dailyMemoState.lines.length) { dailyMemoState.lines.push(""); dailyMemoState.taskIds.push(null); }
           saveDailyMemo(dailyMemoState);
           renderDailyMemo();
           if (removedText) toastUndo(`"${removedText}" נמחקה`);
         };
-        row.append(input, del);
+        row.append(input, check, del);
         wrap.append(row);
       });
     }
@@ -7438,6 +7467,7 @@
 
     function addDailyMemoLine(){
       dailyMemoState.lines.push("");
+      dailyMemoState.taskIds.push(null);
       saveDailyMemo(dailyMemoState);
       renderDailyMemo();
       const inputs = $("dailyMemoLines").querySelectorAll("input");
@@ -7449,10 +7479,13 @@
       const cat = task.catId ? state.cats.find(c => c.id === task.catId) : null;
       const lineText = cat?.name ? `${task.name} - ${cat.name}` : task.name;
       const memo = getDailyMemo();
-      const lines = memo.lines.filter(line => (line || "").trim());
       const norm = s => (s || "").trim().toLowerCase();
-      if (!lines.some(l => norm(l) === norm(lineText))) lines.push(lineText);
-      state.dailyMemo = { lines: lines.length ? lines : [lineText] };
+      const lines = []; const taskIds = [];
+      memo.lines.forEach((line, i) => {
+        if ((line || "").trim()) { lines.push(line); taskIds.push(memo.taskIds[i] || null); }
+      });
+      if (!lines.some(l => norm(l) === norm(lineText))) { lines.push(lineText); taskIds.push(task.id); }
+      state.dailyMemo = lines.length ? { lines, taskIds } : { lines: [lineText], taskIds: [task.id] };
       dailyMemoState = normalizeDailyMemo(state.dailyMemo);
       saveDailyMemo(dailyMemoState);
       if ($("dailyMemoPanel")?.classList.contains("show")) renderDailyMemo();
