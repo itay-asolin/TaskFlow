@@ -755,7 +755,7 @@
     @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
     .ev-popup-title{font-size:15px;font-weight:900;margin-bottom:6px;color:var(--text);line-height:1.3}
     .ev-popup-meta{font-size:12px;color:var(--muted);margin-bottom:3px;display:flex;align-items:center;gap:5px}
-    .ev-popup-actions{display:flex;gap:7px;margin-top:12px}
+    .ev-popup-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
     .ev-popup-close{position:absolute;top:10px;left:12px;border:0;background:transparent;font-size:17px;color:var(--faint);cursor:pointer;line-height:1;padding:2px 5px;border-radius:5px}
     .ev-popup-close:hover{color:var(--text);background:var(--card2)}
     .flatpickr-calendar { background: var(--surface) !important; border: 1px solid var(--border) !important; box-shadow: var(--shadow) !important; font-family: inherit !important; border-radius:14px!important; overflow:hidden!important; direction:rtl!important; }
@@ -2178,6 +2178,21 @@
       if (hasFirebaseConfig && auth && user?.uid) await signOut(auth);
       user = null;
       showAuth();
+    }
+
+    // מאפשר להתחבר/להחליף חשבון Google גם מתוך ההגדרות, בלי צורך להתנתק קודם.
+    // prompt: "select_account" גורם לגוגל תמיד להציג את בורר החשבונות, כך שאפשר לבחור חשבון אחר מזה שמחובר כרגע.
+    async function switchGoogleAccount(){
+      if (!hasFirebaseConfig || !auth || !GoogleAuthProvider) { toast("התחברות Google לא זמינה כרגע."); return; }
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
+        await signInWithPopup(auth, provider);
+        toast("התחברת בהצלחה עם Google ✓");
+        render();
+      } catch (err) {
+        toast(authError(err));
+      }
     }
 
     function loadLocal(){
@@ -4045,15 +4060,27 @@
           descEl.textContent = item.desc;
           popup.append(descEl);
         }
-        if (item.isMeeting) {
+        const curKind = eventKind(item);
+        if (curKind !== "event") {
           const mtgEl = el("div","ev-popup-meta");
-          mtgEl.innerHTML = `<span>🤝</span><span>פגישה / שיעור</span>`;
+          mtgEl.innerHTML = `<span>${curKind === "meeting" ? "🤝" : "⏱"}</span><span>${eventKindLabel(curKind)}</span>`;
           popup.append(mtgEl);
         }
         const actions = el("div","ev-popup-actions");
         const editBtn = el("button","btn primary","✎ ערוך");
         editBtn.type = "button";
         editBtn.onclick = () => { closeEvPopup(); openEventModal(item, dateKey); };
+        // כפתור מהיר להפוך אירוע לפגישה (או להחזיר אירוע שהוא פגישה לאירוע רגיל) - בלחיצה אחת, בלי לפתוח את חלון העריכה המלא.
+        // ברגע שהאירוע מסומן כפגישה הוא יופיע גם ביומן השעות/פגישות, עם אפשרות עריכה ומחיקה משם.
+        const toggleMeetingBtn = el("button","btn", curKind === "meeting" ? "↩ בטל סימון פגישה" : "🤝 הפוך לפגישה");
+        toggleMeetingBtn.type = "button";
+        toggleMeetingBtn.onclick = () => {
+          const ev = state.events.find(e => e.id === item.id);
+          if (!ev) return;
+          if (curKind === "meeting") { ev.kind = "event"; ev.isMeeting = false; toast("הסימון כפגישה הוסר"); }
+          else { ev.kind = "meeting"; ev.isMeeting = true; toast("האירוע הפך לפגישה ✓ — אפשר לראות אותו ביומן השעות"); }
+          closeEvPopup(); save(); render();
+        };
         const delBtn = el("button","btn danger","× מחק");
         delBtn.type = "button";
         delBtn.onclick = () => {
@@ -4061,7 +4088,7 @@
           state.events = state.events.filter(ev => ev.id !== item.id);
           closeEvPopup(); save(); render();
         };
-        actions.append(editBtn, delBtn);
+        actions.append(editBtn, toggleMeetingBtn, delBtn);
         popup.append(actions);
       } else {
         const cat = state.cats.find(c => c.id === item.catId);
@@ -4596,7 +4623,18 @@
       const name=state.profile?.name || (user?.displayName||"") || (user?.email||"").split("@")[0] || fallback || "";
       const target=$("userLabel"); if(!target)return;
       target.replaceChildren(); target.style.display="flex";target.style.alignItems="center";target.style.gap="6px";
-      if(user?.photoURL){const img=document.createElement("img");img.src=user.photoURL;img.alt="תמונת פרופיל";img.referrerPolicy="no-referrer";img.style.cssText="width:26px;height:26px;border-radius:50%;object-fit:cover";target.append(img);}else if(name){const avatar=el("span","",name.trim().charAt(0));avatar.style.cssText="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:900;font-size:12px";target.append(avatar);}
+      function makeInitialsAvatar(){const avatar=el("span","",(name||"?").trim().charAt(0).toUpperCase());avatar.style.cssText="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:900;font-size:12px;flex:0 0 auto";return avatar;}
+      if(user?.photoURL){
+        const img=document.createElement("img");
+        // גוגל לפעמים מחזיר URL עם גודל תמונה שגורם לה לא להיטען כמו שצריך - מתקנים לגודל אחיד שעובד טוב
+        img.src=user.photoURL.replace(/=s\d+-c$/,"=s96-c");
+        img.alt="תמונת פרופיל";
+        img.referrerPolicy="no-referrer";
+        img.style.cssText="width:26px;height:26px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:var(--card2)";
+        // אם התמונה נכשלת בטעינה (חסימת CORS/רשת), נופלים חזרה לאווטאר עם האות הראשונה במקום אייקון שבור
+        img.onerror=()=>{ if(img.isConnected){ const fallback=makeInitialsAvatar(); img.replaceWith(fallback); } };
+        target.append(img);
+      }else if(name){target.append(makeInitialsAvatar());}
       target.append(document.createTextNode(name?`שלום, ${name}`:""));
     }
 
@@ -5068,6 +5106,41 @@
       sync.append(el("h3","", "סנכרון"));
       sync.append(el("p","meta", cloudReady ? "מחובר ל-Firebase. כל שינוי נשמר לחשבון שלך ומסתנכרן בין מכשירים." : "כרגע מצב מקומי. הדבק Firebase config כדי להפעיל סנכרון."));
 
+      const account = el("section","card");
+      account.append(el("h3","", "חשבון והתחברות"));
+      if (hasFirebaseConfig && user) {
+        const isGoogleUser = (user.providerData||[]).some(p => p.providerId === "google.com");
+        const infoRow = el("div","row"); infoRow.style.cssText = "align-items:center;gap:10px;margin-bottom:10px";
+        if (user.photoURL) {
+          const img = document.createElement("img");
+          img.src = user.photoURL.replace(/=s\d+-c$/, "=s96-c");
+          img.referrerPolicy = "no-referrer";
+          img.alt = "תמונת פרופיל";
+          img.style.cssText = "width:38px;height:38px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:var(--card2)";
+          img.onerror = () => { img.remove(); };
+          infoRow.append(img);
+        }
+        const infoText = el("div","");
+        infoText.append(el("div","", user.displayName || (user.email||"").split("@")[0] || "משתמש"), el("div","meta", user.email || ""));
+        infoRow.append(infoText);
+        account.append(infoRow);
+        account.append(el("p","meta", isGoogleUser ? "מחובר/ת דרך חשבון Google." : "מחובר/ת עם אימייל וסיסמה."));
+        const switchBtn = el("button","btn primary", isGoogleUser ? "🔄 החלף חשבון Google" : "🔗 חבר חשבון Google");
+        switchBtn.type = "button"; switchBtn.onclick = switchGoogleAccount;
+        const logoutBtn2 = el("button","btn danger","🚪 התנתקות");
+        logoutBtn2.type = "button"; logoutBtn2.onclick = logout;
+        const accRow = el("div","row"); accRow.append(switchBtn, logoutBtn2);
+        account.append(accRow);
+        account.append(el("p","meta","לחיצה על \"החלף חשבון Google\" תמיד תפתח את בורר החשבונות של Google, כדי לאפשר להתחבר עם משתמש אחר בקלות."));
+      } else if (hasFirebaseConfig) {
+        account.append(el("p","meta","לא מחובר/ת כרגע."));
+        const loginBtn = el("button","btn primary","🔗 התחבר עם Google");
+        loginBtn.type = "button"; loginBtn.onclick = switchGoogleAccount;
+        account.append(loginBtn);
+      } else {
+        account.append(el("p","meta","המערכת פועלת במצב מקומי (ללא Firebase), כך שאין כרגע התחברות עם חשבון Google."));
+      }
+
       const reminders = el("section","card");
       reminders.append(el("h3","", "התראות ותזכורות"));
       const permissionText = !("Notification" in window)
@@ -5107,7 +5180,7 @@
       };
       reminders.append(remindersRow, testReminderBtn);
       
-      wrap.append(profileCard, reporting, theme, backup, sync, reminders);
+      wrap.append(profileCard, account, reporting, theme, backup, sync, reminders);
       $("content").replaceChildren(wrap);
     }
 
