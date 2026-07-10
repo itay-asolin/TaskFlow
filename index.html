@@ -416,6 +416,9 @@
     .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:500;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:2px;line-height:1.3}
     .cal-event.is-meeting{border-radius:6px 6px 6px 0}
     .cal-event.is-meeting::before{content:"";display:none}
+    .cal-event.is-work,.mg-event.is-work{border-radius:4px!important;background:repeating-linear-gradient(135deg,var(--work-color,#16a34a),var(--work-color,#16a34a) 6px,#ffffff33 6px,#ffffff33 9px)!important;border-right:3px solid #14532d}
+    .cal-event.is-meeting,.mg-event.is-meeting{border-radius:14px 14px 14px 3px!important;border:1px solid #ffffff66}
+    .cal-event.is-regular,.mg-event.is-regular{border-radius:5px!important;opacity:.82}
     .cal-event:hover{opacity:.85;z-index:3}
     .cal-event.conflict{outline:2px solid var(--danger)!important;outline-offset:-1px}
     .day-col{position:relative;border:1px solid var(--border);border-radius:var(--rs);background:var(--card);min-height:840px}
@@ -1458,6 +1461,7 @@
         </div>
       </div>
       <button id="authBtn" class="btn primary" type="button" style="width:100%">התחבר</button>
+      <button id="googleAuthBtn" class="btn" type="button" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800">Google&nbsp; <span style="font-size:17px">G</span> המשך עם</button>
       <div id="authMsg" class="auth-msg" aria-live="polite"></div>
       <div id="localNote" class="mode-note hidden">
         Firebase עדיין לא מוגדר. אפשר לבדוק את האתר במצב מקומי, אבל סנכרון בין מכשירים יתחיל רק אחרי הדבקת ה-config והפעלת Firestore.
@@ -1697,7 +1701,7 @@
       tasks: []
     };
     let authMode = "login";
-    let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut;
+    let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut;
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
@@ -1735,7 +1739,7 @@
         const authMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
         const fireMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
         ({ initializeApp } = appMod);
-        ({ getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } = authMod);
+        ({ getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } = authMod);
         ({ getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } = fireMod);
         const app = initializeApp(firebaseConfig);
         auth = getAuth(app);
@@ -1751,6 +1755,7 @@
       $("loginTab").onclick = () => setAuthMode("login");
       $("registerTab").onclick = () => setAuthMode("register");
       $("authBtn").onclick = submitAuth;
+      $("googleAuthBtn").onclick = signInGoogle;
       $("password").addEventListener("keydown", (e) => { if (e.key === "Enter") submitAuth(); });
       $("togglePassBtn").onclick = (e) => {
         e.preventDefault();
@@ -1845,6 +1850,18 @@
       } finally {
         $("authBtn").disabled = false;
       }
+    }
+
+    async function signInGoogle(){
+      if (!hasFirebaseConfig || !auth || !GoogleAuthProvider) return showAuthError("התחברות Google זמינה לאחר טעינת Firebase.");
+      const btn=$("googleAuthBtn"); btn.disabled=true;
+      try {
+        const provider=new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt:"select_account" });
+        await signInWithPopup(auth,provider);
+      } catch(err) {
+        showAuthError(authError(err));
+      } finally { btn.disabled=false; }
     }
 
     async function handleAuthState(nextUser){
@@ -3558,7 +3575,8 @@
           time: ev.time || "",
           id: ev.id,
           isConflict: conflicts.includes(ev.id),
-          isMeeting: !!ev.isMeeting
+          isMeeting: !!ev.isMeeting,
+          kind: eventKind(ev)
         })),
         ...tasks.map(t => ({
           type:"task",
@@ -3572,13 +3590,13 @@
 
       const maxShow = window.matchMedia("(max-width:820px)").matches ? 3 : 7;
       items.slice(0, maxShow).forEach(itemData => {
-        const item = el("div","day-task" + (itemData.type==="event" && itemData.isMeeting ? " is-meeting" : ""));
+        const item = el("div","day-task" + (itemData.type==="event" && itemData.kind==="meeting" ? " is-meeting" : itemData.type==="event" && itemData.kind==="work" ? " is-work" : ""));
         if (itemData.type === "event") {
-          const isMtg = itemData.isMeeting;
+          const isMtg = itemData.kind === "meeting", isWork = itemData.kind === "work";
           const titleSpan = el("span","");
           titleSpan.style.cssText = "overflow:hidden;flex:1;min-width:0;line-height:1.3";
-          titleSpan.textContent = (isMtg ? "🤝 " : "") + itemData.title;
-          if (!isMtg) {
+          titleSpan.textContent = (isMtg ? "🤝 " : isWork ? "⏱ " : "") + itemData.title;
+          if (!isMtg && !isWork) {
             const dot = el("span","");
             dot.style.cssText = `display:inline-block;width:6px;height:6px;border-radius:50%;background:${itemData.color};flex:0 0 auto;margin-left:4px;margin-top:4px`;
             item.append(dot);
@@ -3752,16 +3770,17 @@
           const height = Math.max(20, rawHeight * .97);
           const { col: colIdx, totalCols, span: colSpan = 1 } = columns.get(ev.id) || { col: 0, totalCols: 1, span: 1 };
           const pct = 100 / totalCols;
-          const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
+          const kind=eventKind(ev);
+          const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (kind==="meeting" ? " is-meeting" : kind==="work" ? " is-work" : " is-regular"));
           const titleStr = el("span","");
           titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:10px;line-height:1.25;flex:1;font-weight:500";
-          titleStr.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
+          titleStr.textContent = (kind==="meeting" ? "🤝 " : kind==="work" ? "⏱ " : "📅 ") + ev.title;
           chip.append(titleStr);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
           chip.style.left = `calc(${colIdx * pct}% + 3px)`;
           chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 3px)`;
           chip.style.width = "auto";
-          if (ev.isMeeting) {
+          if (kind === "meeting") {
             chip.style.background = `linear-gradient(160deg,${ev.color || state.accent}f0,${ev.color || state.accent}b0)`;
             chip.style.color = "#fff";
             chip.style.borderRight = `4px solid ${ev.color || state.accent}`;
@@ -3881,18 +3900,19 @@
         const { col: colIdx, totalCols, span: colSpan = 1 } = dayColumns.get(ev.id) || { col: 0, totalCols: 1, span: 1 };
         const pct = 100 / totalCols;
         const isConflict = (typeof conflicts !== "undefined") && conflicts.includes(ev.id);
-        const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (ev.isMeeting ? " is-meeting" : ""));
+        const kind=eventKind(ev);
+        const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (kind==="meeting" ? " is-meeting" : kind==="work" ? " is-work" : " is-regular"));
 
         const titleRow = el("span","");
         titleRow.style.cssText = "font-size:10px;font-weight:500;overflow:hidden;word-break:break-word;white-space:normal;line-height:1.25;flex:1";
-        titleRow.textContent = (ev.isMeeting ? "🤝 " : "") + ev.title;
+        titleRow.textContent = (kind==="meeting" ? "🤝 " : kind==="work" ? "⏱ " : "📅 ") + ev.title;
         chip.append(titleRow);
 
         chip.style.top = top+"px"; chip.style.height = height+"px";
         chip.style.left = `calc(${colIdx * pct}% + 3px)`;
         chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 3px)`;
         chip.style.width = "auto";
-        if (ev.isMeeting) {
+        if (kind === "meeting") {
           chip.style.background = `linear-gradient(160deg,${ev.color || state.accent}28,${ev.color || state.accent}14)`;
           chip.style.color = ev.color || state.accent;
           chip.style.border = `1px solid ${ev.color || state.accent}60`;
@@ -4174,6 +4194,8 @@
         }
 
         form.append(field("כותרת","evTitle","text", ev?.title || ""));
+        const kindWrap=el("div","field"),kindLabel=el("label","","סוג"),kindSelect=document.createElement("select");kindSelect.id="evKind";
+        [["event","📅 אירוע רגיל"],["meeting","🤝 פגישה / שיעור פרטי"],["work","⏱️ עבודה / שעות לדיווח"]].forEach(([v,t])=>{const o=el("option","",t);o.value=v;if(v===eventKind(ev))o.selected=true;kindSelect.append(o)});kindWrap.append(kindLabel,kindSelect);form.append(kindWrap);
         form.append(field("תאריך","evDate","date", ev?.date || dateKey || ""));
         const two2 = el("div","two");
         two2.append(field("שעת התחלה","evTime","time", defTime));
@@ -4215,12 +4237,14 @@
               const time = $("evTime").value || ev.time;
               const endTime = $("evEndTime").value || ev.endTime;
               const color = document.querySelector("[name=evColor]:checked")?.value || ev.color || state.accent;
+              const kind = $("evKind").value;
               state.events.forEach(e => {
                 if (e.seriesId === ev.seriesId) {
                   e.title = title;
                   e.time = time;
                   e.endTime = endTime;
                   e.color = color;
+                  e.kind = kind; e.isMeeting = kind === "meeting";
                 }
               });
               closeModal(); save(); render(); toast(`עודכנו כל מופעי הסדרה`);
@@ -4239,7 +4263,9 @@
             time: $("evTime").value,
             endTime: $("evEndTime").value,
             color: document.querySelector("[name=evColor]:checked")?.value || state.accent,
-            source: "manual"
+            source: "manual",
+            kind: $("evKind").value,
+            isMeeting: $("evKind").value === "meeting"
           };
           if (!data.date) return toast("צריך תאריך");
           if (ev) {
@@ -4542,7 +4568,8 @@
       const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
       const monthEnd = new Date(selected.getFullYear(), selected.getMonth()+1, 0);
       const monthEvents = (state.events||[]).filter(e => { const d=parseDate(e.date); return d>=monthStart && d<=monthEnd && e.time; }).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-      const hours = monthEvents.reduce((sum,e)=>sum+eventHours(e),0);
+      const workEvents = monthEvents.filter(e=>eventKind(e)==="work");
+      const hours = workEvents.reduce((sum,e)=>sum+eventHours(e),0);
       const toolbar=el("div","meetings-toolbar");
       const prev=el("button","btn","‹ שבוע קודם"); prev.type="button"; prev.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()-7);state.meetingsDate=toDateKey(d);save();render();};
       const next=el("button","btn","שבוע הבא ›"); next.type="button"; next.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()+7);state.meetingsDate=toDateKey(d);save();render();};
@@ -4551,30 +4578,32 @@
       toolbar.append(prev,el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`),next,month);
       const wrap=el("div","meetings-dashboard"); wrap.append(toolbar,buildWeekBlock(weekStart,today,"הלוח השבועי"));
       const stats=el("section","meetings-month-summary"), period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
-      [["חודש נבחר",period],["שעות מתועדות",formatHours(hours)],["פגישות / שיעורים",String(monthEvents.length)]].forEach(([l,v])=>{const c=el("div","meeting-stat");c.append(el("span","meta",l),el("strong","",v));stats.append(c)});
+      [["חודש נבחר",period],["שעות עבודה",formatHours(hours)],["פגישות",String(monthEvents.filter(e=>eventKind(e)==="meeting").length)]].forEach(([l,v])=>{const c=el("div","meeting-stat");c.append(el("span","meta",l),el("strong","",v));stats.append(c)});
       if(state.workReport?.enabled){const c=el("div","meeting-stat"),pay=Number(state.workReport.hourlyRate||0)*hours;c.append(el("span","meta","הכנסה משוערת"),el("strong","",pay?`₪${pay.toLocaleString("he-IL",{maximumFractionDigits:0})}`:"הגדר שכר"));stats.append(c)}
-      const listCard=el("section","card");listCard.append(el("h3","",`כל השעות ב-${period}`));
+      const listCard=el("section","card");listCard.append(el("h3","",`שעות עבודה ב-${period}`));
       if(state.workReport?.enabled&&selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&today.getDate()>=25)listCard.append(el("p","meta","🔔 סוף החודש מתקרב — אל תשכח לדווח שעות."));
-      const list=el("div","hours-list");if(!monthEvents.length)list.append(el("div","meta","אין עדיין שעות מתועדות בחודש הזה."));
-      monthEvents.forEach(ev=>{const r=el("div","hours-row"),dot=el("span","hours-dot"),d=parseDate(ev.date);dot.style.background=ev.color||state.accent;r.append(dot,el("strong","",ev.title),el("span","meta",`${d.toLocaleDateString("he-IL",{day:"numeric",month:"short"})} · ${ev.time}${ev.endTime?"–"+ev.endTime:""} · ${formatHours(eventHours(ev))}`));r.onclick=e=>showCalItemPopup(e,ev,ev.date);list.append(r)});
+      const list=el("div","hours-list");if(!workEvents.length)list.append(el("div","meta","אין עדיין שעות עבודה מתועדות בחודש הזה."));
+      workEvents.forEach(ev=>{const r=el("div","hours-row"),dot=el("span","hours-dot"),d=parseDate(ev.date);dot.style.background=ev.color||state.accent;r.append(dot,el("strong","",ev.title),el("span","meta",`${d.toLocaleDateString("he-IL",{day:"numeric",month:"short"})} · ${ev.time}${ev.endTime?"–"+ev.endTime:""} · ${formatHours(eventHours(ev))}`));r.onclick=e=>showCalItemPopup(e,ev,ev.date);list.append(r)});
       listCard.append(list);wrap.append(stats,listCard);$("content").replaceChildren(wrap);drawNowLine();
     }
 
     function eventHours(ev){if(!ev?.time||!ev?.endTime)return 0;const [sh,sm]=ev.time.split(":").map(Number),[eh,em]=ev.endTime.split(":").map(Number);return Math.max(0,(eh*60+em-sh*60-sm)/60);}
     function formatHours(value){return `${Number(value||0).toLocaleString("he-IL",{maximumFractionDigits:2})} שעות`;}
+    function eventKind(ev){return ev?.kind || (ev?.isMeeting ? "meeting" : "event");}
+    function eventKindLabel(kind){return ({event:"אירוע",meeting:"פגישה",work:"עבודה / שעות"})[kind]||"אירוע";}
 
     function updateUserLabel(fallback){
       const name=state.profile?.name || (user?.displayName||"") || (user?.email||"").split("@")[0] || fallback || "";
       const target=$("userLabel"); if(!target)return;
       target.replaceChildren(); target.style.display="flex";target.style.alignItems="center";target.style.gap="6px";
-      if(user?.photoURL){const img=document.createElement("img");img.src=user.photoURL;img.alt="תמונת פרופיל";img.referrerPolicy="no-referrer";img.style.cssText="width:26px;height:26px;border-radius:50%;object-fit:cover";target.append(img);}
+      if(user?.photoURL){const img=document.createElement("img");img.src=user.photoURL;img.alt="תמונת פרופיל";img.referrerPolicy="no-referrer";img.style.cssText="width:26px;height:26px;border-radius:50%;object-fit:cover";target.append(img);}else if(name){const avatar=el("span","",name.trim().charAt(0));avatar.style.cssText="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:900;font-size:12px";target.append(avatar);}
       target.append(document.createTextNode(name?`שלום, ${name}`:""));
     }
 
     function openOnboarding(){
       openModal("ברוך הבא ל-TaskFlow 👋","כמה שאלות קצרות כדי להתאים את המרחב",form=>{
         form.className="onboarding-card";
-        form.append(field("איך קוראים לך?","onboardName","text",state.profile?.name||""));
+        form.append(field("איך קוראים לך?","onboardName","text",state.profile?.name||user?.displayName||""));
         const student=el("label","row");const cb=document.createElement("input");cb.type="checkbox";cb.id="onboardStudent";cb.style.width="auto";cb.checked=!!state.profile?.student;student.append(cb,document.createTextNode("אני סטודנט/ית"));form.append(student);
         form.append(footer("המשך",()=>{state.profile={...(state.profile||{}),name:$("onboardName").value.trim(),student:$("onboardStudent").checked,onboarded:true};save();updateUserLabel();closeModal();if(state.profile.student)openSemesterModal();else toast("נעים להכיר 👋");}));
       });
@@ -4656,7 +4685,8 @@
           const height = Math.max(20, rawHeight * .97);
           const { col: colIdx, totalCols, span: colSpan = 1 } = mgColumns.get(ev.id) || { col: 0, totalCols: 1, span: 1 };
           const pct = 100 / totalCols;
-          const chip = el("div","mg-event");
+          const kind=eventKind(ev);
+          const chip = el("div","mg-event " + (kind==="work"?"is-work":kind==="meeting"?"is-meeting":"is-regular"));
           chip.style.top = (top + Math.max(1, rawHeight * .015)) + "px";
           chip.style.height = height + "px";
           chip.style.left = `calc(${colIdx * pct}% + 2px)`;
@@ -4669,11 +4699,11 @@
           chip.style.gap = "1px";
           chip.style.overflow = "hidden";
           chip.style.padding = "2px 4px";
-          chip.title = ev.title + " · " + ev.time + (ev.endTime ? "–"+ev.endTime : "");
+          chip.title = eventKindLabel(kind) + " · " + ev.title + " · " + ev.time + (ev.endTime ? "–"+ev.endTime : "");
 
           const titleEl = document.createElement("span");
           titleEl.style.cssText = "font-size:10px;font-weight:500;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block";
-          titleEl.textContent = ev.title;
+          titleEl.textContent = (kind==="work" ? "⏱ " : kind==="meeting" ? "🤝 " : "📅 ") + ev.title;
 
           const timeEl = document.createElement("span");
           timeEl.style.cssText = "font-size:9px;font-weight:400;opacity:.85;line-height:1.2;white-space:nowrap;display:block;direction:ltr";
@@ -4723,6 +4753,8 @@
         form.className = "event-form-modal";
 
         form.append(field("שם / כותרת","meetName","text",""));
+        const kindWrap=el("div","field"),kindLabel=el("label","","סוג ברשומות"),kindSelect=document.createElement("select");kindSelect.id="meetKind";
+        [["meeting","🤝 פגישה / שיעור פרטי"],["work","⏱️ עבודה / שעות לדיווח"]].forEach(([v,t])=>{const o=el("option","",t);o.value=v;kindSelect.append(o)});kindWrap.append(kindLabel,kindSelect);form.append(kindWrap);
         const subjWrap = el("div","field");
         const subjLabel = el("label"); subjLabel.htmlFor = "meetSubj"; subjLabel.textContent = "נושא / סוג";
         const subjSelect = el("select"); subjSelect.id = "meetSubj";
@@ -4847,13 +4879,14 @@
           const timeStr    = fmtTime(selStartH, selStartM);
           const endTimeStr = fmtTime(selEndH,   selEndM);
           const color = document.querySelector("[name=meetColor]:checked")?.value || state.accent;
+          const kind = $("meetKind").value;
           const email = $("meetEmail").value.trim();
           if (email) localStorage.setItem("taskflow_last_reminder_email", email);
 
           const newEvent = { 
             id: uid("ev"), title, date: dateKey, time: timeStr, endTime: endTimeStr, 
             color, source: "meeting", location,
-            isMeeting: true
+            kind, isMeeting: kind === "meeting"
           };
           state.events.push(newEvent);
           closeModal(); save(); render(); toast("הפגישה נוצרה ✓");
