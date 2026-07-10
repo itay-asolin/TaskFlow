@@ -454,6 +454,15 @@
     .kbd-hint.show{opacity:1}
     kbd{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:11px;color:var(--text)}
     .meetings-weeks{display:grid;gap:24px;margin-top:4px}
+    .meetings-dashboard{display:grid;gap:16px;margin-top:4px}
+    .meetings-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--border);border-radius:var(--rs);background:var(--card)}
+    .meetings-month-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+    .meeting-stat{padding:13px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
+    .meeting-stat strong{display:block;font-size:20px;color:var(--accent2);margin-top:4px}
+    .hours-list{display:grid;gap:7px;max-height:330px;overflow:auto}
+    .hours-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card2);cursor:pointer}
+    .hours-row .hours-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+    .onboarding-card{max-width:500px}
     .week-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
     .week-label{padding:10px 16px;font-weight:900;font-size:13px;color:var(--muted);background:var(--card);border-bottom:1px solid var(--border);letter-spacing:.03em}
     .meetings-grid{display:grid;grid-template-columns:54px repeat(7,1fr);gap:0}
@@ -1670,6 +1679,10 @@
       calView: "month",
       calDate: null,
       events: [],
+      profile: { name: "", student: null, onboarded: false },
+      workReport: { enabled: false, hourlyRate: "" },
+      semesters: [],
+      meetingsDate: null,
       dailyAgenda: { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
       dailyMemo: { lines: [""] },
       filterTag: null,
@@ -1912,7 +1925,7 @@
       $("authView").classList.add("hidden");
       $("appView").classList.remove("hidden");
       setAppFloatersVisible(true);
-      if($("userLabel")) $("userLabel").textContent = label || "";
+      updateUserLabel(label);
       
       if (state.currentView === "settings") {
         state.currentView = "home";
@@ -1967,6 +1980,7 @@
       }, 900);
 
       
+      setTimeout(() => { if (!state.profile?.onboarded) openOnboarding(); }, 7000);
       render();
     }
 
@@ -4520,19 +4534,59 @@
     }
 
     function renderMeetings(){
-      $("pageTitle").textContent = "📆 פגישות ושיעורים";
-      $("pageSub").textContent = "השבוע הנוכחי והבא — רחף על שעה כדי להוסיף";
-
+      $("pageTitle").textContent = "📆 יומן שעות";
+      $("pageSub").textContent = "לוח שבועי אחד, סיכום שעות ורשימה חודשית";
       const today = new Date(); today.setHours(0,0,0,0);
-      const thisWeekStart = meetingWeekStart(today);
-      const nextWeekStart = new Date(thisWeekStart); nextWeekStart.setDate(nextWeekStart.getDate()+7);
+      const selected = state.meetingsDate ? parseDate(state.meetingsDate) : today;
+      const weekStart = meetingWeekStart(selected);
+      const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
+      const monthEnd = new Date(selected.getFullYear(), selected.getMonth()+1, 0);
+      const monthEvents = (state.events||[]).filter(e => { const d=parseDate(e.date); return d>=monthStart && d<=monthEnd && e.time; }).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+      const hours = monthEvents.reduce((sum,e)=>sum+eventHours(e),0);
+      const toolbar=el("div","meetings-toolbar");
+      const prev=el("button","btn","‹ שבוע קודם"); prev.type="button"; prev.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()-7);state.meetingsDate=toDateKey(d);save();render();};
+      const next=el("button","btn","שבוע הבא ›"); next.type="button"; next.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()+7);state.meetingsDate=toDateKey(d);save();render();};
+      const month=document.createElement("input"); month.type="month"; month.value=`${selected.getFullYear()}-${String(selected.getMonth()+1).padStart(2,"0")}`; month.title="מעבר לחודש אחר"; month.onchange=()=>{if(month.value){state.meetingsDate=month.value+"-01";save();render();}};
+      const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
+      toolbar.append(prev,el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`),next,month);
+      const wrap=el("div","meetings-dashboard"); wrap.append(toolbar,buildWeekBlock(weekStart,today,"הלוח השבועי"));
+      const stats=el("section","meetings-month-summary"), period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
+      [["חודש נבחר",period],["שעות מתועדות",formatHours(hours)],["פגישות / שיעורים",String(monthEvents.length)]].forEach(([l,v])=>{const c=el("div","meeting-stat");c.append(el("span","meta",l),el("strong","",v));stats.append(c)});
+      if(state.workReport?.enabled){const c=el("div","meeting-stat"),pay=Number(state.workReport.hourlyRate||0)*hours;c.append(el("span","meta","הכנסה משוערת"),el("strong","",pay?`₪${pay.toLocaleString("he-IL",{maximumFractionDigits:0})}`:"הגדר שכר"));stats.append(c)}
+      const listCard=el("section","card");listCard.append(el("h3","",`כל השעות ב-${period}`));
+      if(state.workReport?.enabled&&selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&today.getDate()>=25)listCard.append(el("p","meta","🔔 סוף החודש מתקרב — אל תשכח לדווח שעות."));
+      const list=el("div","hours-list");if(!monthEvents.length)list.append(el("div","meta","אין עדיין שעות מתועדות בחודש הזה."));
+      monthEvents.forEach(ev=>{const r=el("div","hours-row"),dot=el("span","hours-dot"),d=parseDate(ev.date);dot.style.background=ev.color||state.accent;r.append(dot,el("strong","",ev.title),el("span","meta",`${d.toLocaleDateString("he-IL",{day:"numeric",month:"short"})} · ${ev.time}${ev.endTime?"–"+ev.endTime:""} · ${formatHours(eventHours(ev))}`));r.onclick=e=>showCalItemPopup(e,ev,ev.date);list.append(r)});
+      listCard.append(list);wrap.append(stats,listCard);$("content").replaceChildren(wrap);drawNowLine();
+    }
 
-      const wrap = el("div","meetings-weeks");
-      wrap.append(buildWeekBlock(thisWeekStart, today, "השבוע הנוכחי"));
-      wrap.append(buildWeekBlock(nextWeekStart, today, "השבוע הבא"));
+    function eventHours(ev){if(!ev?.time||!ev?.endTime)return 0;const [sh,sm]=ev.time.split(":").map(Number),[eh,em]=ev.endTime.split(":").map(Number);return Math.max(0,(eh*60+em-sh*60-sm)/60);}
+    function formatHours(value){return `${Number(value||0).toLocaleString("he-IL",{maximumFractionDigits:2})} שעות`;}
 
-      $("content").replaceChildren(wrap);
-      drawNowLine();
+    function updateUserLabel(fallback){
+      const name=state.profile?.name || (user?.displayName||"") || (user?.email||"").split("@")[0] || fallback || "";
+      const target=$("userLabel"); if(!target)return;
+      target.replaceChildren(); target.style.display="flex";target.style.alignItems="center";target.style.gap="6px";
+      if(user?.photoURL){const img=document.createElement("img");img.src=user.photoURL;img.alt="תמונת פרופיל";img.referrerPolicy="no-referrer";img.style.cssText="width:26px;height:26px;border-radius:50%;object-fit:cover";target.append(img);}
+      target.append(document.createTextNode(name?`שלום, ${name}`:""));
+    }
+
+    function openOnboarding(){
+      openModal("ברוך הבא ל-TaskFlow 👋","כמה שאלות קצרות כדי להתאים את המרחב",form=>{
+        form.className="onboarding-card";
+        form.append(field("איך קוראים לך?","onboardName","text",state.profile?.name||""));
+        const student=el("label","row");const cb=document.createElement("input");cb.type="checkbox";cb.id="onboardStudent";cb.style.width="auto";cb.checked=!!state.profile?.student;student.append(cb,document.createTextNode("אני סטודנט/ית"));form.append(student);
+        form.append(footer("המשך",()=>{state.profile={...(state.profile||{}),name:$("onboardName").value.trim(),student:$("onboardStudent").checked,onboarded:true};save();updateUserLabel();closeModal();if(state.profile.student)openSemesterModal();else toast("נעים להכיר 👋");}));
+      });
+    }
+
+    function openSemesterModal(){
+      openModal("🎓 סמסטר חדש","נבנה רשימה צבעונית לכל קורס. הפרד שמות בפסיקים.",form=>{
+        form.append(field("שם הסמסטר","semesterName","text",`סמסטר ${new Date().getFullYear()}`));
+        form.append(field("קורסים","semesterCourses","text",""));
+        form.append(el("p","meta","לדוגמה: אלגוריתמים, מבני נתונים, אנגלית"));
+        form.append(footer("צור קורסים",()=>{const courses=$("semesterCourses").value.split(",").map(x=>x.trim()).filter(Boolean);if(!courses.length)return toast("הוסף לפחות קורס אחד");const sem={id:uid("sem"),name:$("semesterName").value.trim()||"סמסטר",courses:[]};courses.forEach((name,i)=>{const cat={id:uid("c"),name,columns:[{id:"col1",name:"לביצוע"},{id:"col2",name:"השבוע"},{id:"col3",name:"הושלם"}],color:colors[(state.cats.length+i)%colors.length],semesterId:sem.id};state.cats.push(cat);sem.courses.push(cat.id);});state.semesters=[...(state.semesters||[]),sem];save();closeModal();navigate("home");toast(`נוצרו ${courses.length} רשימות קורסים ✓`);}));
+      });
     }
 
     function buildWeekBlock(weekStart, today, label){
@@ -4885,6 +4939,19 @@
       $("pageTitle").textContent = "הגדרות וגיבוי";
       $("pageSub").textContent = "עיצוב, ייצוא וייבוא נתונים";
       const wrap = el("div","settings");
+
+      const profileCard = el("section","card");
+      profileCard.append(el("h3","","פרופיל ולימודים"));
+      const nameInput = document.createElement("input"); nameInput.placeholder="איך לפנות אליך?"; nameInput.value=state.profile?.name||"";
+      const studentRow=el("label","row"); const studentCb=document.createElement("input");studentCb.type="checkbox";studentCb.style.width="auto";studentCb.checked=!!state.profile?.student;studentRow.append(studentCb,document.createTextNode("אני סטודנט/ית"));
+      const saveProfile=el("button","btn primary","שמור פרופיל");saveProfile.type="button";saveProfile.onclick=()=>{state.profile={...(state.profile||{}),name:nameInput.value.trim(),student:studentCb.checked,onboarded:true};save();updateUserLabel();toast("הפרופיל נשמר ✓");};
+      const semesterBtn=el("button","btn","+ הוספת סמסטר מהיר");semesterBtn.type="button";semesterBtn.onclick=openSemesterModal;
+      profileCard.append(nameInput,studentRow,el("div","row"),semesterBtn);profileCard.lastChild.previousSibling.append(saveProfile);
+
+      const reporting=el("section","card");reporting.append(el("h3","","דיווח שעות"));
+      const reportRow=el("label","row");const reportCb=document.createElement("input");reportCb.type="checkbox";reportCb.style.width="auto";reportCb.checked=!!state.workReport?.enabled;reportRow.append(reportCb,document.createTextNode("להזכיר לי בסוף החודש לדווח שעות"));
+      const rate=document.createElement("input");rate.type="number";rate.min="0";rate.placeholder="שכר לשעה (₪)";rate.value=state.workReport?.hourlyRate||"";
+      const saveReport=el("button","btn primary","שמור הגדרות דיווח");saveReport.type="button";saveReport.onclick=()=>{state.workReport={enabled:reportCb.checked,hourlyRate:rate.value};save();toast("הגדרות הדיווח נשמרו ✓");};reporting.append(reportRow,rate,saveReport);
       
       const theme = el("section","card");
       theme.append(el("h3","", "ערכת נושא"));
@@ -5007,7 +5074,7 @@
       };
       reminders.append(remindersRow, testReminderBtn);
       
-      wrap.append(theme, backup, sync, reminders);
+      wrap.append(profileCard, reporting, theme, backup, sync, reminders);
       $("content").replaceChildren(wrap);
     }
 
@@ -6462,6 +6529,10 @@
         currentCatId: s.currentCatId || null,
         calView: s.calView || "month",
         calDate: s.calDate || null,
+        meetingsDate: s.meetingsDate || null,
+        profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded },
+        workReport: { enabled: !!s.workReport?.enabled, hourlyRate: s.workReport?.hourlyRate || "" },
+        semesters: s.semesters || [],
         filterTag: s.filterTag || null,
         sortAll: s.sortAll || null,
         kanbanListMode: !!s.kanbanListMode,
@@ -7425,14 +7496,20 @@
         check.title = "השלם";
         check.onclick = (e) => {
           e.stopPropagation();
-          const lineText = (dailyMemoState.lines[idx] || "").trim();
-          const linkedTaskId = dailyMemoState.taskIds[idx] || null;
-          const linkedTask = linkedTaskId ? state.tasks.find(t => t.id === linkedTaskId) : null;
+          const rowIdx = Array.prototype.indexOf.call(wrap.children, row);
+          const i = rowIdx >= 0 ? rowIdx : idx;
+          const lineText = (dailyMemoState.lines[i] || "").trim();
+          const linkedTaskId = dailyMemoState.taskIds[i] || null;
+          let linkedTask = linkedTaskId ? state.tasks.find(t => t.id === linkedTaskId) : null;
+          if (!linkedTask && lineText) {
+            const norm = s => (s || "").trim().toLowerCase();
+            linkedTask = state.tasks.find(t => !isDone(t) && norm(t.name) === norm(lineText.split(" - ")[0]));
+          }
           if (lineText) {
             undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines], taskIds: [...dailyMemoState.taskIds] });
           }
-          dailyMemoState.lines.splice(idx,1);
-          dailyMemoState.taskIds.splice(idx,1);
+          dailyMemoState.lines.splice(i,1);
+          dailyMemoState.taskIds.splice(i,1);
           if (!dailyMemoState.lines.length) { dailyMemoState.lines.push(""); dailyMemoState.taskIds.push(null); }
           saveDailyMemo(dailyMemoState);
           renderDailyMemo();
