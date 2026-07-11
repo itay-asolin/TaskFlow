@@ -63,6 +63,8 @@
     .btn:hover{border-color:var(--accent);color:var(--accent2)}
     .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
     .btn.danger:hover{border-color:rgba(239,68,68,.45);color:var(--danger)}
+    .google-btn{background:#fff;color:#3c4043;border-color:#dadce0;font-weight:700}
+    .google-btn:hover{box-shadow:0 1px 3px rgba(0,0,0,.15);background:#f8f8f8}
     .btn.icon{width:34px;height:34px;padding:0}
     /* ── Theme Toggle Pill ── */
     .theme-toggle{width:58px;min-width:58px;max-width:58px;height:30px;border:0!important;border-radius:999px;padding:0;background:transparent;box-shadow:none;display:flex;align-items:center;justify-content:center}
@@ -1461,7 +1463,15 @@
         </div>
       </div>
       <button id="authBtn" class="btn primary" type="button" style="width:100%">התחבר</button>
-      <button id="googleAuthBtn" class="btn" type="button" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800">Google&nbsp; <span style="font-size:17px">G</span> המשך עם</button>
+      <button id="googleAuthBtn" class="btn google-btn" type="button" style="width:100%;margin-top:10px">
+        <svg width="18" height="18" viewBox="0 0 18 18" style="flex:0 0 auto">
+          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.03l2.97-2.33z"/>
+          <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.97l2.97 2.33C4.66 5.17 6.65 3.58 9 3.58z"/>
+        </svg>
+        <span>המשך עם Google</span>
+      </button>
       <div id="authMsg" class="auth-msg" aria-live="polite"></div>
       <div id="localNote" class="mode-note hidden">
         Firebase עדיין לא מוגדר. אפשר לבדוק את האתר במצב מקומי, אבל סנכרון בין מכשירים יתחיל רק אחרי הדבקת ה-config והפעלת Firestore.
@@ -1684,7 +1694,7 @@
       calDate: null,
       events: [],
       profile: { name: "", student: null, onboarded: false },
-      workReport: { enabled: false, hourlyRate: "" },
+      workReport: { enabled: false },
       semesters: [],
       meetingsDate: null,
       dailyAgenda: { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
@@ -1701,7 +1711,7 @@
       tasks: []
     };
     let authMode = "login";
-    let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut;
+    let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut;
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
@@ -1739,12 +1749,14 @@
         const authMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
         const fireMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
         ({ initializeApp } = appMod);
-        ({ getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } = authMod);
+        ({ getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut } = authMod);
         ({ getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } = fireMod);
         const app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
         onAuthStateChanged(auth, handleAuthState);
+        // אם התחברות ה-Google עברה דרך הפניה (redirect) - למשל בדפדפן שחסם popup - נבדוק אם יש תוצאה ממתינה
+        getRedirectResult(auth).catch(err => showAuthError(authError(err)));
       } catch {
         showAuthError("Firebase לא נטען. בדוק חיבור אינטרנט או config.");
         $("localNote").classList.remove("hidden");
@@ -1858,7 +1870,18 @@
       try {
         const provider=new GoogleAuthProvider();
         provider.setCustomParameters({ prompt:"select_account" });
-        await signInWithPopup(auth,provider);
+        try {
+          await signInWithPopup(auth,provider);
+        } catch(popupErr) {
+          // בחלק מהדפדפנים (למשל Safari, דפדפן פנימי באפליקציה, או חסימת חלונות קופצים) ה-popup נכשל או נחסם.
+          // במקרה כזה עוברים אוטומטית לזרימת redirect שעובדת בכל הדפדפנים.
+          const code = popupErr?.code || "";
+          if (code.includes("popup-blocked") || code.includes("operation-not-supported")) {
+            await signInWithRedirect(auth, provider);
+            return;
+          }
+          throw popupErr;
+        }
       } catch(err) {
         showAuthError(authError(err));
       } finally { btn.disabled=false; }
@@ -2187,7 +2210,16 @@
       try {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: "select_account" });
-        await signInWithPopup(auth, provider);
+        try {
+          await signInWithPopup(auth, provider);
+        } catch(popupErr) {
+          const code = popupErr?.code || "";
+          if (code.includes("popup-blocked") || code.includes("operation-not-supported")) {
+            await signInWithRedirect(auth, provider);
+            return;
+          }
+          throw popupErr;
+        }
         toast("התחברת בהצלחה עם Google ✓");
         render();
       } catch (err) {
@@ -4595,7 +4627,7 @@
       const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
       const monthEnd = new Date(selected.getFullYear(), selected.getMonth()+1, 0);
       const monthEvents = (state.events||[]).filter(e => { const d=parseDate(e.date); return d>=monthStart && d<=monthEnd && e.time; }).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-      const workEvents = monthEvents.filter(e=>eventKind(e)==="work");
+      const workEvents = monthEvents.filter(e=>["work","meeting"].includes(eventKind(e)));
       const hours = workEvents.reduce((sum,e)=>sum+eventHours(e),0);
       const toolbar=el("div","meetings-toolbar");
       const prev=el("button","btn","‹ שבוע קודם"); prev.type="button"; prev.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()-7);state.meetingsDate=toDateKey(d);save();render();};
@@ -4605,8 +4637,7 @@
       toolbar.append(prev,el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`),next,month);
       const wrap=el("div","meetings-dashboard"); wrap.append(toolbar,buildWeekBlock(weekStart,today,"הלוח השבועי"));
       const stats=el("section","meetings-month-summary"), period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
-      [["חודש נבחר",period],["שעות עבודה",formatHours(hours)],["פגישות",String(monthEvents.filter(e=>eventKind(e)==="meeting").length)]].forEach(([l,v])=>{const c=el("div","meeting-stat");c.append(el("span","meta",l),el("strong","",v));stats.append(c)});
-      if(state.workReport?.enabled){const c=el("div","meeting-stat"),pay=Number(state.workReport.hourlyRate||0)*hours;c.append(el("span","meta","הכנסה משוערת"),el("strong","",pay?`₪${pay.toLocaleString("he-IL",{maximumFractionDigits:0})}`:"הגדר שכר"));stats.append(c)}
+      [["חודש נבחר",period],["סה\"כ שעות",formatHours(hours)]].forEach(([l,v])=>{const c=el("div","meeting-stat");c.append(el("span","meta",l),el("strong","",v));stats.append(c)});
       const listCard=el("section","card");listCard.append(el("h3","",`שעות עבודה ב-${period}`));
       if(state.workReport?.enabled&&selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&today.getDate()>=25)listCard.append(el("p","meta","🔔 סוף החודש מתקרב — אל תשכח לדווח שעות."));
       const list=el("div","hours-list");if(!workEvents.length)list.append(el("div","meta","אין עדיין שעות עבודה מתועדות בחודש הזה."));
@@ -5021,8 +5052,7 @@
 
       const reporting=el("section","card");reporting.append(el("h3","","דיווח שעות"));
       const reportRow=el("label","row");const reportCb=document.createElement("input");reportCb.type="checkbox";reportCb.style.width="auto";reportCb.checked=!!state.workReport?.enabled;reportRow.append(reportCb,document.createTextNode("להזכיר לי בסוף החודש לדווח שעות"));
-      const rate=document.createElement("input");rate.type="number";rate.min="0";rate.placeholder="שכר לשעה (₪)";rate.value=state.workReport?.hourlyRate||"";
-      const saveReport=el("button","btn primary","שמור הגדרות דיווח");saveReport.type="button";saveReport.onclick=()=>{state.workReport={enabled:reportCb.checked,hourlyRate:rate.value};save();toast("הגדרות הדיווח נשמרו ✓");};reporting.append(reportRow,rate,saveReport);
+      const saveReport=el("button","btn primary","שמור הגדרות דיווח");saveReport.type="button";saveReport.onclick=()=>{state.workReport={enabled:reportCb.checked};save();toast("הגדרות הדיווח נשמרו ✓");};reporting.append(reportRow,saveReport);
       
       const theme = el("section","card");
       theme.append(el("h3","", "ערכת נושא"));
@@ -6570,7 +6600,10 @@
         state.collapsedSubs = data.collapsedSubs || state.collapsedSubs || {};
         state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
         state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
-      } else {
+        state.profile = data.profile || state.profile;
+        state.workReport = data.workReport || state.workReport;
+        state.semesters = Array.isArray(data.semesters) ? data.semesters : state.semesters;
+        state.meetingsDate = data.meetingsDate || state.meetingsDate;
         if (Array.isArray(data.cats)) state.cats = data.cats;
         if (Array.isArray(data.tasks)) state.tasks = data.tasks;
         if (Array.isArray(data.events)) state.events = data.events;
@@ -6637,7 +6670,7 @@
         calDate: s.calDate || null,
         meetingsDate: s.meetingsDate || null,
         profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded },
-        workReport: { enabled: !!s.workReport?.enabled, hourlyRate: s.workReport?.hourlyRate || "" },
+        workReport: { enabled: !!s.workReport?.enabled },
         semesters: s.semesters || [],
         filterTag: s.filterTag || null,
         sortAll: s.sortAll || null,
@@ -7830,9 +7863,10 @@
       console.error("Firebase auth error", err);
       if (code.includes("invalid-credential")) return "האימייל או הסיסמה לא נכונים.";
       if (code.includes("email-already-in-use")) return "האימייל כבר רשום.";
-      if (code.includes("operation-not-allowed")) return "Email/Password לא מופעל ב-Firebase Authentication.";
-      if (code.includes("unauthorized-domain")) return `הדומיין '${location.hostname}' לא מאושר ב-Firebase.`;
+      if (code.includes("operation-not-allowed")) return "התחברות עם Google לא מופעלת ב-Firebase Authentication (יש להפעיל את הספק Google בקונסולת Firebase).";
+      if (code.includes("unauthorized-domain")) return `הדומיין '${location.hostname}' לא מאושר להתחברות Google ב-Firebase (יש להוסיף אותו תחת Authentication → Settings → Authorized domains).`;
       if (code.includes("configuration-not-found")) return "הגדרת Authentication חסרה או לא הופעלה בפרויקט Firebase.";
+      if (code.includes("popup-closed-by-user") || code.includes("cancelled-popup-request")) return "חלון ההתחברות נסגר לפני שהושלמה ההתחברות. אפשר לנסות שוב.";
       if (code.includes("invalid-email")) return "כתובת האימייל לא תקינה.";
       if (code.includes("weak-password")) return "הסיסמה חלשה מדי.";
       if (code.includes("network")) return "יש בעיית רשת זמנית.";
