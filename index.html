@@ -5044,15 +5044,11 @@
 
       const profileCard = el("section","card");
       profileCard.append(el("h3","","פרופיל ולימודים"));
-      const nameInput = document.createElement("input"); nameInput.placeholder="איך לפנות אליך?"; nameInput.value=state.profile?.name||"";
       const studentRow=el("label","row"); const studentCb=document.createElement("input");studentCb.type="checkbox";studentCb.style.width="auto";studentCb.checked=!!state.profile?.student;studentRow.append(studentCb,document.createTextNode("אני סטודנט/ית"));
-      const saveProfile=el("button","btn primary","שמור פרופיל");saveProfile.type="button";saveProfile.onclick=()=>{state.profile={...(state.profile||{}),name:nameInput.value.trim(),student:studentCb.checked,onboarded:true};save();updateUserLabel();toast("הפרופיל נשמר ✓");};
       const semesterBtn=el("button","btn","+ הוספת סמסטר מהיר");semesterBtn.type="button";semesterBtn.onclick=openSemesterModal;
-      profileCard.append(nameInput,studentRow,el("div","row"),semesterBtn);profileCard.lastChild.previousSibling.append(saveProfile);
-
-      const reporting=el("section","card");reporting.append(el("h3","","דיווח שעות"));
       const reportRow=el("label","row");const reportCb=document.createElement("input");reportCb.type="checkbox";reportCb.style.width="auto";reportCb.checked=!!state.workReport?.enabled;reportRow.append(reportCb,document.createTextNode("להזכיר לי בסוף החודש לדווח שעות"));
-      const saveReport=el("button","btn primary","שמור הגדרות דיווח");saveReport.type="button";saveReport.onclick=()=>{state.workReport={enabled:reportCb.checked};save();toast("הגדרות הדיווח נשמרו ✓");};reporting.append(reportRow,saveReport);
+      const saveProfile=el("button","btn primary","שמור");saveProfile.type="button";saveProfile.onclick=()=>{state.profile={...(state.profile||{}),student:studentCb.checked,onboarded:true};state.workReport={enabled:reportCb.checked};save();toast("ההגדרות נשמרו ✓");};
+      profileCard.append(studentRow,semesterBtn,reportRow,saveProfile);
       
       const theme = el("section","card");
       theme.append(el("h3","", "ערכת נושא"));
@@ -5132,12 +5128,13 @@
       icsRow.append(el("span","meta","לוח שנה:"), icsBtn, icsExBtn);
       backup.append(icsRow);
       
-      const sync = el("section","card");
-      sync.append(el("h3","", "סנכרון"));
-      sync.append(el("p","meta", cloudReady ? "מחובר ל-Firebase. כל שינוי נשמר לחשבון שלך ומסתנכרן בין מכשירים." : "כרגע מצב מקומי. הדבק Firebase config כדי להפעיל סנכרון."));
-
       const account = el("section","card");
       account.append(el("h3","", "חשבון והתחברות"));
+      const nameInput = document.createElement("input"); nameInput.placeholder="איך לפנות אליך?"; nameInput.value=state.profile?.name||"";
+      const saveNameBtn = el("button","btn","שמור שם");
+      saveNameBtn.type="button"; saveNameBtn.onclick=()=>{state.profile={...(state.profile||{}),name:nameInput.value.trim(),onboarded:true};save();updateUserLabel();toast("השם נשמר ✓");};
+      const nameRow = el("div","row"); nameRow.append(nameInput, saveNameBtn);
+      account.append(nameRow);
       if (hasFirebaseConfig && user) {
         const isGoogleUser = (user.providerData||[]).some(p => p.providerId === "google.com");
         const infoRow = el("div","row"); infoRow.style.cssText = "align-items:center;gap:10px;margin-bottom:10px";
@@ -5171,46 +5168,7 @@
         account.append(el("p","meta","המערכת פועלת במצב מקומי (ללא Firebase), כך שאין כרגע התחברות עם חשבון Google."));
       }
 
-      const reminders = el("section","card");
-      reminders.append(el("h3","", "התראות ותזכורות"));
-      const permissionText = !("Notification" in window)
-        ? "הדפדפן לא תומך בהתראות."
-        : Notification.permission === "granted"
-          ? "הרשאה פעילה. האתר יזכיר על משימות להיום ומשימות באיחור כל עוד הוא פתוח."
-          : Notification.permission === "denied"
-            ? "ההתראות חסומות בדפדפן. פתח הרשאות בהגדרות האתר כדי להפעיל."
-            : "צריך לתת הרשאה כדי לקבל התראות מהדפדפן.";
-      reminders.append(el("p","meta", permissionText));
-      const remindersRow = el("div","row");
-      const remindersToggle = document.createElement("input");
-      remindersToggle.type = "checkbox";
-      remindersToggle.checked = remindersEnabled();
-      remindersToggle.style.cssText = "width:auto;margin:0";
-      remindersToggle.onchange = async () => {
-        if (remindersToggle.checked) {
-          const ok = await requestNotificationPermission();
-          if (!ok) {
-            remindersToggle.checked = false;
-            setRemindersEnabled(false);
-            render();
-            return;
-          }
-        }
-        setRemindersEnabled(remindersToggle.checked);
-        render();
-      };
-      remindersRow.append(remindersToggle, el("span","meta","הפעל תזכורות חוזרות למשימות להיום ובאיחור"));
-      const testReminderBtn = el("button","btn","בדיקת התראה עכשיו");
-      testReminderBtn.type = "button";
-      testReminderBtn.onclick = async () => {
-        const ok = await requestNotificationPermission();
-        if (!ok) return;
-        setRemindersEnabled(true);
-        checkTaskReminders(true);
-      };
-      reminders.append(remindersRow, testReminderBtn);
-      
-      wrap.append(profileCard, account, reporting, theme, backup, sync, reminders);
+      wrap.append(profileCard, account, theme, backup);
       $("content").replaceChildren(wrap);
     }
 
