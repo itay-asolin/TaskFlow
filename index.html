@@ -595,6 +595,45 @@
     .drum-selected-display{font-size:13px;font-weight:900;color:var(--accent2);text-align:center;letter-spacing:.04em;margin-top:2px}
     .mg-now-line{position:absolute;left:0;right:0;height:2px;background:var(--danger);z-index:10;pointer-events:none}
     .mg-now-line::before{content:'';position:absolute;right:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--danger)}
+    .cp-wrap{display:flex;flex-direction:column;gap:10px}
+    .cp-sortbar{display:flex;gap:6px;align-items:center;font-size:11px}
+    .cp-sortbar span{color:var(--faint);font-weight:700}
+    .cp-sort-btn{padding:5px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card2);color:var(--faint);font-size:11px;font-weight:800;cursor:pointer;transition:.15s}
+    .cp-sort-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .cp-pool{position:relative;display:flex;flex-wrap:wrap;gap:10px 8px;padding:16px 12px 12px;border-radius:18px;background:radial-gradient(ellipse at top,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%),var(--card2);border:1px dashed var(--border);min-height:52px;align-items:center}
+    .cp-pool-empty{font-size:12px;font-weight:700;color:var(--faint)}
+    .cp-bubble{position:relative;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;background:var(--card);border:1px solid var(--border);box-shadow:0 3px 10px rgba(0,0,0,.10);font-size:12px;font-weight:800;color:var(--text);cursor:grab;transition:transform .18s cubic-bezier(.34,1.3,.64,1),box-shadow .18s,border-color .18s,opacity .15s;user-select:none;touch-action:none}
+    .cp-bubble::before{content:"";position:absolute;top:-5px;right:12px;width:10px;height:10px;border-radius:50%;background:var(--card);border:1px solid var(--border)}
+    .cp-bubble:nth-child(3n+1){transform:rotate(-1.5deg)}
+    .cp-bubble:nth-child(3n+2){transform:rotate(1deg)}
+    .cp-bubble:nth-child(3n){transform:rotate(-0.5deg)}
+    .cp-bubble:hover{box-shadow:0 5px 16px rgba(0,0,0,.16)}
+    .cp-bubble.selected{border-color:var(--accent);background:var(--accent);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 45%,transparent);transform:translateY(-3px) scale(1.05)}
+    .cp-bubble.selected::before{background:var(--accent);border-color:var(--accent)}
+    .cp-bubble.dragging{opacity:.35}
+    .cp-bubble-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+    .cp-hint{font-size:11px;font-weight:800;color:var(--accent2);text-align:center;padding:2px 4px;min-height:16px}
+    .cp-timeline-scroll{max-height:340px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;border:1px solid var(--border);border-radius:14px}
+    .cp-timeline{position:relative;display:grid;grid-template-columns:40px 1fr}
+    .cp-time-labels{display:flex;flex-direction:column;border-right:1px solid var(--border)}
+    .cp-time-label{height:34px;display:flex;align-items:flex-start;justify-content:center;padding-top:2px;font-size:8px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--border)}
+    .cp-slots-col{position:relative}
+    .cp-slot{height:17px;border-bottom:1px solid rgba(42,43,61,.15);cursor:pointer;transition:background .15s}
+    .cp-slot:nth-child(2n){border-bottom:1px solid rgba(42,43,61,.5)}
+    .cp-slot:hover{background:rgba(109,93,252,.10)}
+    .cp-slot.can-drop{background:rgba(109,93,252,.18)}
+    .cp-task-chip{--cp-color:#6d5dfc;position:absolute;left:6px;right:6px;top:0;background:var(--cp-color);border-radius:4px 16px 14px 14px;padding:4px 8px 6px;font-size:10.5px;font-weight:800;color:#fff;overflow:visible;cursor:grab;z-index:4;box-shadow:0 3px 8px rgba(0,0,0,.2);touch-action:none}
+    .cp-task-chip::before{content:"";position:absolute;top:-6px;right:8px;width:14px;height:14px;border-radius:50%;background:var(--cp-color);z-index:-1}
+    .cp-task-chip::after{content:"";position:absolute;top:-3px;right:20px;width:10px;height:10px;border-radius:50%;background:var(--cp-color);z-index:-1}
+    .cp-task-chip.dragging{opacity:.55;cursor:grabbing}
+    .cp-chip-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+    .cp-chip-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+    .cp-chip-x{flex:0 0 auto;width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;cursor:pointer}
+    .cp-chip-x:hover{background:rgba(255,255,255,.5)}
+    .cp-resize-handle{position:absolute;left:0;right:0;bottom:0;height:9px;cursor:ns-resize;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
+    .cp-resize-handle::after{content:"";width:22px;height:3px;border-radius:3px;background:rgba(255,255,255,.55);margin-bottom:2px}
+    .cp-event-chip{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--faint);background:color-mix(in srgb,var(--border) 60%,transparent);overflow:hidden;z-index:2;pointer-events:none;opacity:.75}
+    .cp-event-chip{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--faint);background:color-mix(in srgb,var(--border) 60%,transparent);overflow:hidden;z-index:2;pointer-events:none;opacity:.75}
     .shared-wheel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;margin:0 0 18px;padding:13px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.10)}
     .shared-wheel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
     .shared-wheel-title{font-size:14px;font-weight:900;color:var(--text)}
@@ -1695,6 +1734,7 @@
       events: [],
       profile: { name: "", student: null, onboarded: false },
       workReport: { enabled: false },
+      meetingsSettings: { showSummary: true, showList: true },
       semesters: [],
       meetingsDate: null,
       dailyAgenda: { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
@@ -1715,6 +1755,7 @@
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
+    let selectedPlannerTaskId = null, draggedPlannerTaskId = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
     let openAddMenuEl = null;
@@ -2605,13 +2646,16 @@
 
       // Tab bar
       const tabBar = el("div","");
-      tabBar.style.cssText = "display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)";
+      tabBar.style.cssText = "display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)";
       const tabAgenda = el("button","");
       tabAgenda.type = "button";
       tabAgenda.textContent = `☀️ סדר יום · ${agendaOpenTasks.length + todayEvents.length}`;
       const tabFocus = el("button","");
       tabFocus.type = "button";
       tabFocus.textContent = "🎯 מיקוד יומי";
+      const tabPlan = el("button","");
+      tabPlan.type = "button";
+      tabPlan.textContent = "🌤 תכנון היום";
 
       const focusTasks = dailyAgendaTasks();
 
@@ -2629,6 +2673,8 @@
       paneAgenda.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
       const paneFocus = el("div","");
       paneFocus.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
+      const panePlan = el("div","");
+      panePlan.style.cssText = "padding:10px 12px 12px";
 
       // Fill agenda pane
       if (!agendaOpenTasks.length && !todayEvents.length) {
@@ -2727,19 +2773,24 @@
         paneFocus.append(focusList, editFocusBtn);
       }
 
+      panePlan.append(buildCloudPlanner(focusTasks, todayEvents));
+
       function switchTab(tab) {
         activeTab = tab;
         localStorage.setItem("taskflow_home_tab", tab);
         styleTab(tabAgenda, tab==="agenda");
         styleTab(tabFocus, tab==="focus");
+        styleTab(tabPlan, tab==="plan");
         paneAgenda.style.display = tab==="agenda" ? "" : "none";
         paneFocus.style.display = tab==="focus" ? "" : "none";
+        panePlan.style.display = tab==="plan" ? "" : "none";
       }
 
       tabAgenda.onclick = () => switchTab("agenda");
       tabFocus.onclick = () => switchTab("focus");
-      tabBar.append(tabFocus, tabAgenda);
-      unifiedCard.append(tabBar, paneAgenda, paneFocus);
+      tabPlan.onclick = () => switchTab("plan");
+      tabBar.append(tabPlan, tabFocus, tabAgenda);
+      unifiedCard.append(tabBar, paneAgenda, paneFocus, panePlan);
       switchTab(activeTab);
 
 
@@ -4636,13 +4687,22 @@
       const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
       toolbar.append(prev,el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`),next,month);
       const wrap=el("div","meetings-dashboard"); wrap.append(toolbar,buildWeekBlock(weekStart,today,"הלוח השבועי"));
-      const stats=el("section","meetings-month-summary"), period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
-      [["חודש נבחר",period],["סה\"כ שעות",formatHours(hours)]].forEach(([l,v])=>{const c=el("div","meeting-stat");c.append(el("span","meta",l),el("strong","",v));stats.append(c)});
-      const listCard=el("section","card");listCard.append(el("h3","",`שעות עבודה ב-${period}`));
-      if(state.workReport?.enabled&&selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&today.getDate()>=25)listCard.append(el("p","meta","🔔 סוף החודש מתקרב — אל תשכח לדווח שעות."));
-      const list=el("div","hours-list");if(!workEvents.length)list.append(el("div","meta","אין עדיין שעות עבודה מתועדות בחודש הזה."));
-      workEvents.forEach(ev=>{const r=el("div","hours-row"),dot=el("span","hours-dot"),d=parseDate(ev.date);dot.style.background=ev.color||state.accent;r.append(dot,el("strong","",ev.title),el("span","meta",`${d.toLocaleDateString("he-IL",{day:"numeric",month:"short"})} · ${ev.time}${ev.endTime?"–"+ev.endTime:""} · ${formatHours(eventHours(ev))}`));r.onclick=e=>showCalItemPopup(e,ev,ev.date);list.append(r)});
-      listCard.append(list);wrap.append(stats,listCard);$("content").replaceChildren(wrap);drawNowLine();
+      const period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
+      const showSummary = state.meetingsSettings?.showSummary!==false;
+      const showList = state.meetingsSettings?.showList!==false;
+      if(showSummary){
+        const stats=el("section","meetings-month-summary");
+        [["חודש נבחר",period],["סה\"כ שעות",formatHours(hours)]].forEach(([l,v])=>{const c=el("div","meeting-stat");c.append(el("span","meta",l),el("strong","",v));stats.append(c)});
+        wrap.append(stats);
+      }
+      if(showList){
+        const listCard=el("section","card");listCard.append(el("h3","",`שעות עבודה ב-${period}`));
+        if(state.workReport?.enabled&&selected.getFullYear()===today.getFullYear()&&selected.getMonth()===today.getMonth()&&today.getDate()>=25)listCard.append(el("p","meta","🔔 סוף החודש מתקרב — אל תשכח לדווח שעות."));
+        const list=el("div","hours-list");if(!workEvents.length)list.append(el("div","meta","אין עדיין שעות עבודה מתועדות בחודש הזה."));
+        workEvents.forEach(ev=>{const r=el("div","hours-row"),dot=el("span","hours-dot"),d=parseDate(ev.date);dot.style.background=ev.color||state.accent;r.append(dot,el("strong","",ev.title),el("span","meta",`${d.toLocaleDateString("he-IL",{day:"numeric",month:"short"})} · ${ev.time}${ev.endTime?"–"+ev.endTime:""} · ${formatHours(eventHours(ev))}`));r.onclick=e=>showCalItemPopup(e,ev,ev.date);list.append(r)});
+        listCard.append(list);wrap.append(listCard);
+      }
+      $("content").replaceChildren(wrap);drawNowLine();
     }
 
     function eventHours(ev){if(!ev?.time||!ev?.endTime)return 0;const [sh,sm]=ev.time.split(":").map(Number),[eh,em]=ev.endTime.split(":").map(Number);return Math.max(0,(eh*60+em-sh*60-sm)/60);}
@@ -5049,6 +5109,15 @@
       const reportRow=el("label","row");const reportCb=document.createElement("input");reportCb.type="checkbox";reportCb.style.width="auto";reportCb.checked=!!state.workReport?.enabled;reportRow.append(reportCb,document.createTextNode("להזכיר לי בסוף החודש לדווח שעות"));
       const saveProfile=el("button","btn primary","שמור");saveProfile.type="button";saveProfile.onclick=()=>{state.profile={...(state.profile||{}),student:studentCb.checked,onboarded:true};state.workReport={enabled:reportCb.checked};save();toast("ההגדרות נשמרו ✓");};
       profileCard.append(studentRow,semesterBtn,reportRow,saveProfile);
+
+      const meetingsCard = el("section","card");
+      meetingsCard.append(el("h3","","📆 יומן שעות"));
+      meetingsCard.append(el("p","meta","בחר אילו חלקים יוצגו בעמוד יומן השעות"));
+      const showSummaryRow=el("label","row");const showSummaryCb=document.createElement("input");showSummaryCb.type="checkbox";showSummaryCb.style.width="auto";showSummaryCb.checked=state.meetingsSettings?.showSummary!==false;showSummaryRow.append(showSummaryCb,document.createTextNode("הצג סיכום שעות (סה\"כ שעות לחודש)"));
+      showSummaryCb.onchange=()=>{state.meetingsSettings={...(state.meetingsSettings||{}),showSummary:showSummaryCb.checked};save();};
+      const showListRow=el("label","row");const showListCb=document.createElement("input");showListCb.type="checkbox";showListCb.style.width="auto";showListCb.checked=state.meetingsSettings?.showList!==false;showListRow.append(showListCb,document.createTextNode("הצג רשימת שעות עבודה מפורטת"));
+      showListCb.onchange=()=>{state.meetingsSettings={...(state.meetingsSettings||{}),showList:showListCb.checked};save();};
+      meetingsCard.append(showSummaryRow,showListRow);
       
       const theme = el("section","card");
       theme.append(el("h3","", "ערכת נושא"));
@@ -5168,7 +5237,7 @@
         account.append(el("p","meta","המערכת פועלת במצב מקומי (ללא Firebase), כך שאין כרגע התחברות עם חשבון Google."));
       }
 
-      wrap.append(profileCard, account, theme, backup);
+      wrap.append(profileCard, meetingsCard, account, theme, backup);
       $("content").replaceChildren(wrap);
     }
 
@@ -6560,6 +6629,7 @@
         state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
         state.profile = data.profile || state.profile;
         state.workReport = data.workReport || state.workReport;
+        state.meetingsSettings = { showSummary: data.meetingsSettings?.showSummary !== false, showList: data.meetingsSettings?.showList !== false };
         state.semesters = Array.isArray(data.semesters) ? data.semesters : state.semesters;
         state.meetingsDate = data.meetingsDate || state.meetingsDate;
         if (Array.isArray(data.cats)) state.cats = data.cats;
@@ -6629,6 +6699,7 @@
         meetingsDate: s.meetingsDate || null,
         profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded },
         workReport: { enabled: !!s.workReport?.enabled },
+        meetingsSettings: { showSummary: s.meetingsSettings?.showSummary !== false, showList: s.meetingsSettings?.showList !== false },
         semesters: s.semesters || [],
         filterTag: s.filterTag || null,
         sortAll: s.sortAll || null,
@@ -6850,6 +6921,315 @@
       const cat = state.cats.find(c => c.id === task.catId);
       const col = cat?.columns?.find(c => c.id === task.col);
       return cat ? (col ? `${cat.name} › ${col.name}` : cat.name) : "";
+    }
+
+    // ---------- Cloud daily planner (תכנון היום) ----------
+    const PLANNER_SLOT_MIN = 30, PLANNER_SLOT_H = 17;
+    function plannerBounds(){
+      return { start: MEETING_HOURS[0], end: MEETING_HOURS[MEETING_HOURS.length-1] + 1 };
+    }
+    function cpSortMode(){ return localStorage.getItem("taskflow_planner_sort") || "list"; }
+    function cpSetSortMode(mode){ localStorage.setItem("taskflow_planner_sort", mode); }
+
+    function sortPlannerPool(tasks, mode){
+      const copy = [...tasks];
+      if (mode === "due") {
+        copy.sort((a,b) => (a.due||"9999-99-99").localeCompare(b.due||"9999-99-99") || a.name.localeCompare(b.name,"he"));
+      } else {
+        copy.sort((a,b) => {
+          const ca = state.cats.find(c=>c.id===a.catId)?.name || "";
+          const cb = state.cats.find(c=>c.id===b.catId)?.name || "";
+          return ca.localeCompare(cb,"he") || a.name.localeCompare(b.name,"he");
+        });
+      }
+      return copy;
+    }
+
+    function scheduleTaskAt(taskId, h, m){
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      const todayKey = toDateKey(new Date());
+      task.due = todayKey;
+      task.plannedTime = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+      if (!task.plannedDuration) task.plannedDuration = 30;
+      save(); render();
+    }
+
+    function unscheduleTask(taskId){
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      delete task.plannedTime;
+      delete task.plannedDuration;
+      save(); render();
+      toast(`"${task.name}" חזר לענן ☁️`);
+    }
+
+    function setTaskPlannedDuration(taskId, minutes){
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task || !task.plannedTime) return;
+      task.plannedDuration = Math.max(15, minutes);
+      save(); render();
+    }
+
+    // y (client coords) -> snapped {h,m,topPx} within slotsCol, snapMin granularity
+    function cpTimeFromY(slotsCol, clientY, snapMin){
+      const { start, end } = plannerBounds();
+      const rect = slotsCol.getBoundingClientRect();
+      const totalRangeMin = (end - start) * 60;
+      let y = clientY - rect.top;
+      y = Math.max(0, Math.min((totalRangeMin/PLANNER_SLOT_MIN)*PLANNER_SLOT_H - 1, y));
+      const totalMin = (y / PLANNER_SLOT_H) * PLANNER_SLOT_MIN;
+      let snapped = Math.round(totalMin / snapMin) * snapMin;
+      snapped = Math.max(0, Math.min(totalRangeMin - snapMin, snapped));
+      const h = start + Math.floor(snapped/60);
+      const m = snapped % 60;
+      return { h, m, topPx: (snapped/PLANNER_SLOT_MIN)*PLANNER_SLOT_H };
+    }
+
+    function buildCloudPlanner(focusTasks, todayEvents){
+      const { start: startH, end: endH } = plannerBounds();
+      const wrap = el("div","cp-wrap");
+      const todayKey = toDateKey(new Date());
+      const scheduled = focusTasks.filter(t => t.plannedTime && t.due === todayKey);
+      const unscheduled = focusTasks.filter(t => !(t.plannedTime && t.due === todayKey));
+
+      // sort bar
+      const sortbar = el("div","cp-sortbar");
+      sortbar.append(el("span","","מיון:"));
+      const mode = cpSortMode();
+      const byList = el("button","cp-sort-btn"+(mode==="list"?" active":""),"לפי רשימה"); byList.type="button";
+      const byDue = el("button","cp-sort-btn"+(mode==="due"?" active":""),"לפי תאריך הגשה"); byDue.type="button";
+      byList.onclick = () => { cpSetSortMode("list"); render(); };
+      byDue.onclick = () => { cpSetSortMode("due"); render(); };
+      sortbar.append(byList, byDue);
+      wrap.append(sortbar);
+
+      // pool
+      const pool = el("div","cp-pool");
+      const sortedUnscheduled = sortPlannerPool(unscheduled, mode);
+      if (!sortedUnscheduled.length) {
+        pool.append(el("div","cp-pool-empty", focusTasks.length ? "כל המשימות מתוזמנות 🎉" : "אין משימות במיקוד היום"));
+      } else {
+        sortedUnscheduled.forEach(task => {
+          const bubble = el("div","cp-bubble"+(selectedPlannerTaskId===task.id?" selected":""));
+          const dot = el("span","cp-bubble-dot"); dot.style.background = task.color || state.accent;
+          bubble.append(dot, document.createTextNode(task.name));
+          bubble.draggable = false;
+          pool.append(bubble);
+          attachPoolBubbleDrag(bubble, task, () => slotsCol);
+        });
+      }
+      wrap.append(pool);
+
+      const hint = el("div","cp-hint", selectedPlannerTaskId ? "בחר שעה בציר הזמן כדי לתזמן ✨ (או גרור ישירות)" : "גררו בועה מהענן אל ציר הזמן כדי לתזמן");
+      wrap.append(hint);
+
+      // timeline
+      const scrollWrap = el("div","cp-timeline-scroll");
+      const timeline = el("div","cp-timeline");
+      const timeLabels = el("div","cp-time-labels");
+      const slotsCol = el("div","cp-slots-col");
+      const totalSlots = (endH - startH) * (60/PLANNER_SLOT_MIN);
+      slotsCol.style.height = (totalSlots * PLANNER_SLOT_H) + "px";
+      for (let h=startH; h<endH; h++) timeLabels.append(el("div","cp-time-label", h+":00"));
+
+      for (let h=startH; h<endH; h++) {
+        [0,30].forEach(m => {
+          const slot = el("div","cp-slot");
+          slot.dataset.h = h; slot.dataset.m = m;
+          slot.onclick = () => {
+            if (!selectedPlannerTaskId) return;
+            scheduleTaskAt(selectedPlannerTaskId, h, m);
+            selectedPlannerTaskId = null;
+          };
+          slotsCol.append(slot);
+        });
+      }
+
+      // today's calendar events, read-only context
+      (todayEvents||[]).filter(ev=>ev.time).forEach(ev => {
+        const [sh,sm] = ev.time.split(":").map(Number);
+        const [eh,em] = (ev.endTime||ev.time).split(":").map(Number);
+        let evStartH = sh+sm/60, evEndH = eh+em/60;
+        if (evEndH <= evStartH) evEndH = evStartH + 0.5;
+        if (evEndH <= startH || evStartH >= endH) return;
+        const clampedStart = Math.max(evStartH, startH), clampedEnd = Math.min(evEndH, endH);
+        const top = (clampedStart-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
+        const height = Math.max(10, (clampedEnd-clampedStart) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
+        const chip = el("div","cp-event-chip");
+        chip.style.top = top+"px"; chip.style.height = height+"px";
+        chip.textContent = "📅 " + ev.title;
+        slotsCol.append(chip);
+      });
+
+      // scheduled task cloud-chips
+      scheduled.forEach(task => {
+        const [h,m] = task.plannedTime.split(":").map(Number);
+        const startMin = (h - startH)*60 + m;
+        if (startMin < 0 || startMin >= (endH-startH)*60) return;
+        const duration = task.plannedDuration || 30;
+        const top = (startMin/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
+        const height = Math.max(16, (duration/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
+        const chip = el("div","cp-task-chip");
+        chip.style.setProperty("--cp-color", task.color || state.accent);
+        chip.style.top = top+"px"; chip.style.height = height+"px";
+        const row = el("div","cp-chip-row");
+        row.append(el("span","cp-chip-title", `${task.plannedTime} · ${task.name}`));
+        const xBtn = el("span","cp-chip-x","×");
+        xBtn.onclick = (e) => { e.stopPropagation(); unscheduleTask(task.id); };
+        row.append(xBtn);
+        chip.append(row);
+        const handle = el("div","cp-resize-handle");
+        chip.append(handle);
+        slotsCol.append(chip);
+        attachChipReposition(chip, task, () => slotsCol);
+        attachChipResize(handle, chip, task, () => slotsCol);
+      });
+
+      timeline.append(timeLabels, slotsCol);
+      scrollWrap.append(timeline);
+      wrap.append(scrollWrap);
+
+      setTimeout(() => {
+        const now = new Date();
+        const nowH = now.getHours() + now.getMinutes()/60;
+        const targetH = Math.max(startH, Math.min(endH, nowH) - 1.5);
+        scrollWrap.scrollTop = Math.max(0, (targetH-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H);
+      }, 0);
+
+      return wrap;
+    }
+
+    function attachPoolBubbleDrag(bubble, task, getSlotsCol){
+      let startX=0, startY=0, dragging=false, moved=false, ghost=null, indicator=null;
+      const THRESH = 8;
+      function clearIndicator(){ if (indicator) { indicator.remove(); indicator = null; } }
+      function onMove(e){
+        const dx = e.clientX-startX, dy = e.clientY-startY;
+        if (!dragging && Math.hypot(dx,dy) > THRESH) {
+          dragging = true;
+          bubble.classList.add("dragging");
+          ghost = bubble.cloneNode(true);
+          ghost.classList.remove("dragging");
+          ghost.style.position = "fixed"; ghost.style.pointerEvents = "none"; ghost.style.zIndex = "999";
+          ghost.style.opacity = ".92"; ghost.style.left = "0px"; ghost.style.top = "0px";
+          document.body.append(ghost);
+        }
+        if (!dragging) return;
+        e.preventDefault();
+        moved = true;
+        ghost.style.transform = `translate(${e.clientX - ghost.offsetWidth/2}px, ${e.clientY - ghost.offsetHeight/2}px)`;
+        const slotsCol = getSlotsCol();
+        const rect = slotsCol.getBoundingClientRect();
+        if (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom) {
+          const { h, m, topPx } = cpTimeFromY(slotsCol, e.clientY, PLANNER_SLOT_MIN);
+          if (!indicator) { indicator = el("div",""); indicator.style.cssText = "position:absolute;left:6px;right:6px;height:16px;border-radius:8px;background:color-mix(in srgb,var(--accent) 35%,transparent);border:1px dashed var(--accent);z-index:6;pointer-events:none"; slotsCol.append(indicator); }
+          indicator.style.top = topPx+"px";
+          indicator.textContent = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+          indicator.style.fontSize = "9px"; indicator.style.fontWeight="900"; indicator.style.color="var(--accent2)"; indicator.style.textAlign="center";
+        } else {
+          clearIndicator();
+        }
+      }
+      function finish(commit, e){
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("pointercancel", onCancel);
+        if (dragging && commit && e) {
+          const slotsCol = getSlotsCol();
+          const rect = slotsCol.getBoundingClientRect();
+          if (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom) {
+            const { h, m } = cpTimeFromY(slotsCol, e.clientY, PLANNER_SLOT_MIN);
+            scheduleTaskAt(task.id, h, m);
+          }
+        } else if (!dragging && !moved) {
+          selectedPlannerTaskId = selectedPlannerTaskId===task.id ? null : task.id;
+          render();
+        }
+        clearIndicator();
+        if (ghost) ghost.remove();
+        bubble.classList.remove("dragging");
+        dragging=false; moved=false; ghost=null;
+      }
+      const onUp = (e) => finish(true, e);
+      const onCancel = () => finish(false, null);
+      bubble.addEventListener("pointerdown", (e) => {
+        if (e.button===2) return;
+        startX=e.clientX; startY=e.clientY; dragging=false; moved=false;
+        document.addEventListener("pointermove", onMove, { passive:false });
+        document.addEventListener("pointerup", onUp);
+        document.addEventListener("pointercancel", onCancel);
+      });
+    }
+
+    function attachChipReposition(chip, task, getSlotsCol){
+      let startY=0, grabOffsetY=0, dragging=false, moved=false;
+      const THRESH = 6;
+      function onMove(e){
+        if (Math.abs(e.clientY-startY) > THRESH) dragging = true;
+        if (!dragging) return;
+        e.preventDefault(); moved = true;
+        chip.classList.add("dragging");
+        const slotsCol = getSlotsCol();
+        const { topPx } = cpTimeFromY(slotsCol, e.clientY - grabOffsetY, PLANNER_SLOT_MIN);
+        chip.style.top = topPx + "px";
+      }
+      function finish(commit, e){
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("pointercancel", onCancel);
+        chip.classList.remove("dragging");
+        if (dragging && commit && e) {
+          const slotsCol = getSlotsCol();
+          const { h, m } = cpTimeFromY(slotsCol, e.clientY - grabOffsetY, PLANNER_SLOT_MIN);
+          scheduleTaskAt(task.id, h, m);
+        }
+        dragging=false; moved=false;
+      }
+      const onUp = (e) => finish(true, e);
+      const onCancel = () => finish(false, null);
+      chip.addEventListener("pointerdown", (e) => {
+        if (e.target.closest(".cp-resize-handle") || e.target.closest(".cp-chip-x")) return;
+        startY = e.clientY;
+        grabOffsetY = e.clientY - chip.getBoundingClientRect().top;
+        dragging=false; moved=false;
+        document.addEventListener("pointermove", onMove, { passive:false });
+        document.addEventListener("pointerup", onUp);
+        document.addEventListener("pointercancel", onCancel);
+      });
+    }
+
+    function attachChipResize(handle, chip, task, getSlotsCol){
+      let startY=0, startDuration=30, dragging=false;
+      function onMove(e){
+        e.preventDefault();
+        dragging = true;
+        const delta = e.clientY - startY;
+        const deltaMin = Math.round((delta/PLANNER_SLOT_H)*PLANNER_SLOT_MIN/15)*15;
+        const { end } = plannerBounds(), { start } = plannerBounds();
+        const [h,m] = task.plannedTime.split(":").map(Number);
+        const startMin = (h-start)*60+m;
+        const maxDuration = (end-start)*60 - startMin;
+        const newDuration = Math.max(15, Math.min(maxDuration, startDuration + deltaMin));
+        chip.style.height = Math.max(16, (newDuration/PLANNER_SLOT_MIN)*PLANNER_SLOT_H - 2) + "px";
+        chip._cpNewDuration = newDuration;
+      }
+      function finish(commit){
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("pointercancel", onCancel);
+        if (commit && dragging && chip._cpNewDuration) setTaskPlannedDuration(task.id, chip._cpNewDuration);
+        dragging = false;
+      }
+      const onUp = () => finish(true);
+      const onCancel = () => finish(false);
+      handle.addEventListener("pointerdown", (e) => {
+        e.stopPropagation(); e.preventDefault();
+        startY = e.clientY; startDuration = task.plannedDuration || 30; dragging = false;
+        document.addEventListener("pointermove", onMove, { passive:false });
+        document.addEventListener("pointerup", onUp);
+        document.addEventListener("pointercancel", onCancel);
+      });
     }
 
     function moveTaskInDailyAgenda(taskId, when = "tomorrow"){
