@@ -633,7 +633,12 @@
     .cp-resize-handle{position:absolute;left:0;right:0;bottom:0;height:9px;cursor:ns-resize;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
     .cp-resize-handle::after{content:"";width:22px;height:3px;border-radius:3px;background:rgba(255,255,255,.55);margin-bottom:2px}
     .cp-event-chip{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--faint);background:color-mix(in srgb,var(--border) 60%,transparent);overflow:hidden;z-index:2;pointer-events:none;opacity:.75}
-    .cp-event-chip{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--faint);background:color-mix(in srgb,var(--border) 60%,transparent);overflow:hidden;z-index:2;pointer-events:none;opacity:.75}
+    .cp-days-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 8px}
+    .cp-days-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    .cp-day-block{min-width:0}
+    .cp-day-head{font-size:11px;font-weight:900;color:var(--accent2);margin-bottom:4px;text-align:center}
+    .cp-quick-add{display:flex;gap:6px;margin-top:8px}
+    @media (max-width:820px){.cp-days-row{grid-template-columns:1fr}}
     .shared-wheel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;margin:0 0 18px;padding:13px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.10)}
     .shared-wheel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
     .shared-wheel-title{font-size:14px;font-weight:900;color:var(--text)}
@@ -3235,11 +3240,9 @@
       wrap.append(viewToggle);
 
       if (allViewMode === "plan") {
-        $("pageSub").textContent = "גררו משימות מהענן לציר הזמן כדי לתכנן את היום";
-        const todayKey = toDateKey(new Date());
+        $("pageSub").textContent = "גררו משימות מהענן לציר הזמן, או צרו מטלה קטנה ישירות בענן — ניתן לדפדף בין הימים";
         const openTasks = filteredTasksWithTag().filter(t => !isDone(t));
-        const todayEvents = (state.events||[]).filter(e => e.date === todayKey);
-        wrap.append(buildCloudPlanner(openTasks, todayEvents));
+        wrap.append(buildCloudPlanner(openTasks));
         $("content").replaceChildren(wrap);
         return;
       }
@@ -6955,14 +6958,45 @@
       return copy;
     }
 
-    function scheduleTaskAt(taskId, h, m){
+    function scheduleTaskAt(taskId, h, m, dateKey){
       const task = state.tasks.find(t => t.id === taskId);
       if (!task) return;
-      const todayKey = toDateKey(new Date());
-      task.due = todayKey;
+      const dk = dateKey || toDateKey(new Date());
+      task.due = dk;
       task.plannedTime = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
       if (!task.plannedDuration) task.plannedDuration = 30;
       save(); render();
+    }
+
+    // ── חלון תצוגה של 3 ימים בענן, עם דפדוף ──
+    let plannerBaseDate = null; // Date; null = מתחיל מהיום
+    function plannerWindowDates(){
+      const base = plannerBaseDate ? new Date(plannerBaseDate) : new Date();
+      base.setHours(0,0,0,0);
+      return [0,1,2].map(i => { const d = new Date(base); d.setDate(d.getDate()+i); return d; });
+    }
+    function plannerShiftWindow(days){
+      const base = plannerBaseDate ? new Date(plannerBaseDate) : new Date();
+      base.setHours(0,0,0,0);
+      base.setDate(base.getDate() + days);
+      plannerBaseDate = base;
+      render();
+    }
+    function plannerResetToday(){
+      plannerBaseDate = null;
+      render();
+    }
+
+    // יוצר "מטלה קטנה" ישירות בענן, בלי לעבור דרך רשימה קיימת
+    function createQuickPlannerTask(name){
+      name = (name || "").trim();
+      if (!name) return null;
+      const cat = state.cats[0];
+      if (!cat) { toast("קודם צריך ליצור רשימה אחת לפחות"); return null; }
+      const task = { id: uid("t"), createdAt: Date.now(), name, catId: cat.id, col: cat.columns?.[0]?.id || "col1", color: cat.color };
+      state.tasks.push(task);
+      save(); render();
+      return task;
     }
 
     function unscheduleTask(taskId){
@@ -6996,12 +7030,11 @@
       return { h, m, topPx: (snapped/PLANNER_SLOT_MIN)*PLANNER_SLOT_H };
     }
 
-    function buildCloudPlanner(focusTasks, todayEvents){
+    function buildCloudPlanner(focusTasks){
       const { start: startH, end: endH } = plannerBounds();
       const wrap = el("div","cp-wrap");
+      const dates = plannerWindowDates();
       const todayKey = toDateKey(new Date());
-      const scheduled = focusTasks.filter(t => t.plannedTime && t.due === todayKey);
-      const unscheduled = focusTasks.filter(t => !(t.plannedTime && t.due === todayKey));
 
       // sort bar
       const sortbar = el("div","cp-sortbar");
@@ -7014,9 +7047,28 @@
       sortbar.append(byList, byDue);
       wrap.append(sortbar);
 
-      // pool
+      // דפדוף בין חלונות של 3 ימים
+      const daysNav = el("div","cp-days-nav");
+      const prevBtn = el("button","btn","◀ 3 קודמים"); prevBtn.type="button";
+      prevBtn.onclick = () => plannerShiftWindow(-3);
+      const fmt = d => d.toLocaleDateString("he-IL",{day:"numeric",month:"short"});
+      const rangeLabel = el("div","","");
+      rangeLabel.style.cssText = "font-size:12px;font-weight:800;color:var(--faint)";
+      rangeLabel.textContent = `${fmt(dates[0])} – ${fmt(dates[2])}`;
+      const todayBtn = el("button","btn","היום"); todayBtn.type="button";
+      todayBtn.onclick = plannerResetToday;
+      const nextBtn = el("button","btn","3 הבאים ▶"); nextBtn.type="button";
+      nextBtn.onclick = () => plannerShiftWindow(3);
+      daysNav.append(prevBtn, rangeLabel, todayBtn, nextBtn);
+      wrap.append(daysNav);
+
+      // pool (הענן)
+      const unscheduled = focusTasks.filter(t => !t.plannedTime);
       const pool = el("div","cp-pool");
       const sortedUnscheduled = sortPlannerPool(unscheduled, mode);
+      const dayColsList = []; // {dateKey, slotsCol}
+      const getDayCols = () => dayColsList;
+
       if (!sortedUnscheduled.length) {
         pool.append(el("div","cp-pool-empty", focusTasks.length ? "כל המשימות מתוזמנות 🎉" : "אין משימות פתוחות להצגה"));
       } else {
@@ -7026,94 +7078,129 @@
           bubble.append(dot, document.createTextNode(task.name));
           bubble.draggable = false;
           pool.append(bubble);
-          attachPoolBubbleDrag(bubble, task, () => slotsCol);
+          attachPoolBubbleDrag(bubble, task, getDayCols);
         });
       }
       wrap.append(pool);
 
-      const hint = el("div","cp-hint", selectedPlannerTaskId ? "בחר שעה בציר הזמן כדי לתזמן ✨ (או גרור ישירות)" : "גררו בועה מהענן אל ציר הזמן כדי לתזמן");
+      // יצירת "מטלה קטנה" ישירות לענן, בלי לפתוח מטלה מוכנה מראש
+      const quickRow = el("div","cp-quick-add");
+      const quickInput = document.createElement("input");
+      quickInput.type = "text"; quickInput.placeholder = "➕ מטלה קטנה חדשה לענן...";
+      const quickBtn = el("button","btn primary","הוסף"); quickBtn.type="button";
+      const submitQuick = () => {
+        const val = quickInput.value.trim();
+        if (!val) return;
+        if (createQuickPlannerTask(val)) { quickInput.value = ""; toast("נוסף לענן ☁️"); }
+      };
+      quickBtn.onclick = submitQuick;
+      quickInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submitQuick(); } });
+      quickRow.append(quickInput, quickBtn);
+      wrap.append(quickRow);
+
+      const hint = el("div","cp-hint", selectedPlannerTaskId ? "בחר יום ושעה בציר הזמן כדי לתזמן ✨ (או גרור ישירות)" : "גררו בועה מהענן לאחד הימים כדי לתזמן");
       wrap.append(hint);
 
-      // timeline
-      const scrollWrap = el("div","cp-timeline-scroll");
-      const timeline = el("div","cp-timeline");
-      const timeLabels = el("div","cp-time-labels");
-      const slotsCol = el("div","cp-slots-col");
-      const totalSlots = (endH - startH) * (60/PLANNER_SLOT_MIN);
-      slotsCol.style.height = (totalSlots * PLANNER_SLOT_H) + "px";
-      for (let h=startH; h<endH; h++) timeLabels.append(el("div","cp-time-label", h+":00"));
+      // 3 ציר-זמן, יום ליד יום
+      const daysRow = el("div","cp-days-row");
+      dates.forEach(d => {
+        const dKey = toDateKey(d);
+        const dayBlock = el("div","cp-day-block");
+        const dayHead = el("div","cp-day-head");
+        dayHead.textContent = (dKey===todayKey ? "היום · " : "") + d.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"short"});
+        dayBlock.append(dayHead);
 
-      for (let h=startH; h<endH; h++) {
-        [0,30].forEach(m => {
-          const slot = el("div","cp-slot");
-          slot.dataset.h = h; slot.dataset.m = m;
-          slot.onclick = () => {
-            if (!selectedPlannerTaskId) return;
-            scheduleTaskAt(selectedPlannerTaskId, h, m);
-            selectedPlannerTaskId = null;
-          };
-          slotsCol.append(slot);
+        const scrollWrap = el("div","cp-timeline-scroll");
+        const timeline = el("div","cp-timeline");
+        const timeLabels = el("div","cp-time-labels");
+        const slotsCol = el("div","cp-slots-col");
+        const totalSlots = (endH - startH) * (60/PLANNER_SLOT_MIN);
+        slotsCol.style.height = (totalSlots * PLANNER_SLOT_H) + "px";
+        for (let h=startH; h<endH; h++) timeLabels.append(el("div","cp-time-label", h+":00"));
+
+        for (let h=startH; h<endH; h++) {
+          [0,30].forEach(m => {
+            const slot = el("div","cp-slot");
+            slot.dataset.h = h; slot.dataset.m = m;
+            slot.onclick = () => {
+              if (!selectedPlannerTaskId) return;
+              scheduleTaskAt(selectedPlannerTaskId, h, m, dKey);
+              selectedPlannerTaskId = null;
+            };
+            slotsCol.append(slot);
+          });
+        }
+
+        // אירועי היום הזה בלוח השנה, לצפייה בלבד
+        (state.events||[]).filter(ev=>ev.date===dKey && ev.time).forEach(ev => {
+          const [sh,sm] = ev.time.split(":").map(Number);
+          const [eh,em] = (ev.endTime||ev.time).split(":").map(Number);
+          let evStartH = sh+sm/60, evEndH = eh+em/60;
+          if (evEndH <= evStartH) evEndH = evStartH + 0.5;
+          if (evEndH <= startH || evStartH >= endH) return;
+          const clampedStart = Math.max(evStartH, startH), clampedEnd = Math.min(evEndH, endH);
+          const top = (clampedStart-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
+          const height = Math.max(10, (clampedEnd-clampedStart) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
+          const chip = el("div","cp-event-chip");
+          chip.style.top = top+"px"; chip.style.height = height+"px";
+          chip.textContent = "📅 " + ev.title;
+          slotsCol.append(chip);
         });
-      }
 
-      // today's calendar events, read-only context
-      (todayEvents||[]).filter(ev=>ev.time).forEach(ev => {
-        const [sh,sm] = ev.time.split(":").map(Number);
-        const [eh,em] = (ev.endTime||ev.time).split(":").map(Number);
-        let evStartH = sh+sm/60, evEndH = eh+em/60;
-        if (evEndH <= evStartH) evEndH = evStartH + 0.5;
-        if (evEndH <= startH || evStartH >= endH) return;
-        const clampedStart = Math.max(evStartH, startH), clampedEnd = Math.min(evEndH, endH);
-        const top = (clampedStart-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
-        const height = Math.max(10, (clampedEnd-clampedStart) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
-        const chip = el("div","cp-event-chip");
-        chip.style.top = top+"px"; chip.style.height = height+"px";
-        chip.textContent = "📅 " + ev.title;
-        slotsCol.append(chip);
+        // משימות מתוזמנות ליום הזה
+        focusTasks.filter(t => t.plannedTime && t.due === dKey).forEach(task => {
+          const [h,m] = task.plannedTime.split(":").map(Number);
+          const startMin = (h - startH)*60 + m;
+          if (startMin < 0 || startMin >= (endH-startH)*60) return;
+          const duration = task.plannedDuration || 30;
+          const top = (startMin/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
+          const height = Math.max(16, (duration/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
+          const chip = el("div","cp-task-chip");
+          chip.style.setProperty("--cp-color", task.color || state.accent);
+          chip.style.top = top+"px"; chip.style.height = height+"px";
+          const row = el("div","cp-chip-row");
+          row.append(el("span","cp-chip-title", `${task.plannedTime} · ${task.name}`));
+          const xBtn = el("span","cp-chip-x","×");
+          xBtn.onclick = (e) => { e.stopPropagation(); unscheduleTask(task.id); };
+          row.append(xBtn);
+          chip.append(row);
+          const handle = el("div","cp-resize-handle");
+          chip.append(handle);
+          slotsCol.append(chip);
+          attachChipReposition(chip, task, () => slotsCol, dKey);
+          attachChipResize(handle, chip, task, () => slotsCol);
+        });
+
+        timeline.append(timeLabels, slotsCol);
+        scrollWrap.append(timeline);
+        dayBlock.append(scrollWrap);
+        daysRow.append(dayBlock);
+        dayColsList.push({ dateKey: dKey, slotsCol });
+
+        setTimeout(() => {
+          const now = new Date();
+          const nowH = now.getHours() + now.getMinutes()/60;
+          const targetH = Math.max(startH, Math.min(endH, nowH) - 1.5);
+          scrollWrap.scrollTop = Math.max(0, (targetH-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H);
+        }, 0);
       });
-
-      // scheduled task cloud-chips
-      scheduled.forEach(task => {
-        const [h,m] = task.plannedTime.split(":").map(Number);
-        const startMin = (h - startH)*60 + m;
-        if (startMin < 0 || startMin >= (endH-startH)*60) return;
-        const duration = task.plannedDuration || 30;
-        const top = (startMin/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
-        const height = Math.max(16, (duration/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
-        const chip = el("div","cp-task-chip");
-        chip.style.setProperty("--cp-color", task.color || state.accent);
-        chip.style.top = top+"px"; chip.style.height = height+"px";
-        const row = el("div","cp-chip-row");
-        row.append(el("span","cp-chip-title", `${task.plannedTime} · ${task.name}`));
-        const xBtn = el("span","cp-chip-x","×");
-        xBtn.onclick = (e) => { e.stopPropagation(); unscheduleTask(task.id); };
-        row.append(xBtn);
-        chip.append(row);
-        const handle = el("div","cp-resize-handle");
-        chip.append(handle);
-        slotsCol.append(chip);
-        attachChipReposition(chip, task, () => slotsCol);
-        attachChipResize(handle, chip, task, () => slotsCol);
-      });
-
-      timeline.append(timeLabels, slotsCol);
-      scrollWrap.append(timeline);
-      wrap.append(scrollWrap);
-
-      setTimeout(() => {
-        const now = new Date();
-        const nowH = now.getHours() + now.getMinutes()/60;
-        const targetH = Math.max(startH, Math.min(endH, nowH) - 1.5);
-        scrollWrap.scrollTop = Math.max(0, (targetH-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H);
-      }, 0);
+      wrap.append(daysRow);
 
       return wrap;
     }
 
-    function attachPoolBubbleDrag(bubble, task, getSlotsCol){
-      let startX=0, startY=0, dragging=false, moved=false, ghost=null, indicator=null;
+    function attachPoolBubbleDrag(bubble, task, getDayCols){
+      let startX=0, startY=0, dragging=false, moved=false, ghost=null, indicator=null, indicatorCol=null;
       const THRESH = 8;
-      function clearIndicator(){ if (indicator) { indicator.remove(); indicator = null; } }
+      function clearIndicator(){ if (indicator) { indicator.remove(); indicator = null; indicatorCol = null; } }
+      function findCol(clientX, clientY){
+        const cols = getDayCols();
+        for (const c of cols) {
+          const rect = c.slotsCol.getBoundingClientRect();
+          if (clientX>=rect.left && clientX<=rect.right && clientY>=rect.top && clientY<=rect.bottom) return c;
+        }
+        return null;
+      }
       function onMove(e){
         const dx = e.clientX-startX, dy = e.clientY-startY;
         if (!dragging && Math.hypot(dx,dy) > THRESH) {
@@ -7129,11 +7216,16 @@
         e.preventDefault();
         moved = true;
         ghost.style.transform = `translate(${e.clientX - ghost.offsetWidth/2}px, ${e.clientY - ghost.offsetHeight/2}px)`;
-        const slotsCol = getSlotsCol();
-        const rect = slotsCol.getBoundingClientRect();
-        if (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom) {
-          const { h, m, topPx } = cpTimeFromY(slotsCol, e.clientY, PLANNER_SLOT_MIN);
-          if (!indicator) { indicator = el("div",""); indicator.style.cssText = "position:absolute;left:6px;right:6px;height:16px;border-radius:8px;background:color-mix(in srgb,var(--accent) 35%,transparent);border:1px dashed var(--accent);z-index:6;pointer-events:none"; slotsCol.append(indicator); }
+        const col = findCol(e.clientX, e.clientY);
+        if (col) {
+          const { h, m, topPx } = cpTimeFromY(col.slotsCol, e.clientY, PLANNER_SLOT_MIN);
+          if (indicatorCol !== col.slotsCol) {
+            clearIndicator();
+            indicator = el("div","");
+            indicator.style.cssText = "position:absolute;left:6px;right:6px;height:16px;border-radius:8px;background:color-mix(in srgb,var(--accent) 35%,transparent);border:1px dashed var(--accent);z-index:6;pointer-events:none";
+            col.slotsCol.append(indicator);
+            indicatorCol = col.slotsCol;
+          }
           indicator.style.top = topPx+"px";
           indicator.textContent = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
           indicator.style.fontSize = "9px"; indicator.style.fontWeight="900"; indicator.style.color="var(--accent2)"; indicator.style.textAlign="center";
@@ -7146,11 +7238,10 @@
         document.removeEventListener("pointerup", onUp);
         document.removeEventListener("pointercancel", onCancel);
         if (dragging && commit && e) {
-          const slotsCol = getSlotsCol();
-          const rect = slotsCol.getBoundingClientRect();
-          if (e.clientX>=rect.left && e.clientX<=rect.right && e.clientY>=rect.top && e.clientY<=rect.bottom) {
-            const { h, m } = cpTimeFromY(slotsCol, e.clientY, PLANNER_SLOT_MIN);
-            scheduleTaskAt(task.id, h, m);
+          const col = findCol(e.clientX, e.clientY);
+          if (col) {
+            const { h, m } = cpTimeFromY(col.slotsCol, e.clientY, PLANNER_SLOT_MIN);
+            scheduleTaskAt(task.id, h, m, col.dateKey);
           }
         } else if (!dragging && !moved) {
           selectedPlannerTaskId = selectedPlannerTaskId===task.id ? null : task.id;
@@ -7172,7 +7263,7 @@
       });
     }
 
-    function attachChipReposition(chip, task, getSlotsCol){
+    function attachChipReposition(chip, task, getSlotsCol, dateKey){
       let startY=0, grabOffsetY=0, dragging=false, moved=false;
       const THRESH = 6;
       function onMove(e){
@@ -7192,7 +7283,7 @@
         if (dragging && commit && e) {
           const slotsCol = getSlotsCol();
           const { h, m } = cpTimeFromY(slotsCol, e.clientY - grabOffsetY, PLANNER_SLOT_MIN);
-          scheduleTaskAt(task.id, h, m);
+          scheduleTaskAt(task.id, h, m, dateKey || task.due);
         }
         dragging=false; moved=false;
       }
