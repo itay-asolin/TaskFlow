@@ -2646,16 +2646,13 @@
 
       // Tab bar
       const tabBar = el("div","");
-      tabBar.style.cssText = "display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)";
+      tabBar.style.cssText = "display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)";
       const tabAgenda = el("button","");
       tabAgenda.type = "button";
       tabAgenda.textContent = `☀️ סדר יום · ${agendaOpenTasks.length + todayEvents.length}`;
       const tabFocus = el("button","");
       tabFocus.type = "button";
       tabFocus.textContent = "🎯 מיקוד יומי";
-      const tabPlan = el("button","");
-      tabPlan.type = "button";
-      tabPlan.textContent = "🌤 תכנון היום";
 
       const focusTasks = dailyAgendaTasks();
 
@@ -2673,8 +2670,6 @@
       paneAgenda.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
       const paneFocus = el("div","");
       paneFocus.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
-      const panePlan = el("div","");
-      panePlan.style.cssText = "padding:10px 12px 12px";
 
       // Fill agenda pane
       if (!agendaOpenTasks.length && !todayEvents.length) {
@@ -2773,24 +2768,19 @@
         paneFocus.append(focusList, editFocusBtn);
       }
 
-      panePlan.append(buildCloudPlanner(focusTasks, todayEvents));
-
       function switchTab(tab) {
         activeTab = tab;
         localStorage.setItem("taskflow_home_tab", tab);
         styleTab(tabAgenda, tab==="agenda");
         styleTab(tabFocus, tab==="focus");
-        styleTab(tabPlan, tab==="plan");
         paneAgenda.style.display = tab==="agenda" ? "" : "none";
         paneFocus.style.display = tab==="focus" ? "" : "none";
-        panePlan.style.display = tab==="plan" ? "" : "none";
       }
 
       tabAgenda.onclick = () => switchTab("agenda");
       tabFocus.onclick = () => switchTab("focus");
-      tabPlan.onclick = () => switchTab("plan");
-      tabBar.append(tabPlan, tabFocus, tabAgenda);
-      unifiedCard.append(tabBar, paneAgenda, paneFocus, panePlan);
+      tabBar.append(tabFocus, tabAgenda);
+      unifiedCard.append(tabBar, paneAgenda, paneFocus);
       switchTab(activeTab);
 
 
@@ -3233,6 +3223,26 @@
       $("pageTitle").textContent = "כל המשימות";
 
       const wrap = el("div");
+
+      const viewToggle = el("div","");
+      viewToggle.style.cssText = "display:flex;gap:6px;margin-bottom:12px";
+      const allViewMode = localStorage.getItem("taskflow_all_view") || "list";
+      const listBtn = el("button","cp-sort-btn"+(allViewMode==="list"?" active":""),"📋 רשימה"); listBtn.type="button";
+      const planBtn = el("button","cp-sort-btn"+(allViewMode==="plan"?" active":""),"🌤 תכנון יומי"); planBtn.type="button";
+      listBtn.onclick = () => { localStorage.setItem("taskflow_all_view","list"); render(); };
+      planBtn.onclick = () => { localStorage.setItem("taskflow_all_view","plan"); render(); };
+      viewToggle.append(planBtn, listBtn);
+      wrap.append(viewToggle);
+
+      if (allViewMode === "plan") {
+        $("pageSub").textContent = "גררו משימות מהענן לציר הזמן כדי לתכנן את היום";
+        const todayKey = toDateKey(new Date());
+        const openTasks = filteredTasksWithTag().filter(t => !isDone(t));
+        const todayEvents = (state.events||[]).filter(e => e.date === todayKey);
+        wrap.append(buildCloudPlanner(openTasks, todayEvents));
+        $("content").replaceChildren(wrap);
+        return;
+      }
 
       const sortBar = el("div","sort-bar");
       sortBar.append(el("span","","מיון:"));
@@ -7008,7 +7018,7 @@
       const pool = el("div","cp-pool");
       const sortedUnscheduled = sortPlannerPool(unscheduled, mode);
       if (!sortedUnscheduled.length) {
-        pool.append(el("div","cp-pool-empty", focusTasks.length ? "כל המשימות מתוזמנות 🎉" : "אין משימות במיקוד היום"));
+        pool.append(el("div","cp-pool-empty", focusTasks.length ? "כל המשימות מתוזמנות 🎉" : "אין משימות פתוחות להצגה"));
       } else {
         sortedUnscheduled.forEach(task => {
           const bubble = el("div","cp-bubble"+(selectedPlannerTaskId===task.id?" selected":""));
