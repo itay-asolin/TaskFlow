@@ -611,6 +611,8 @@
     .cp-bubble.selected{border-color:var(--accent);background:var(--accent);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 45%,transparent);transform:translateY(-3px) scale(1.05)}
     .cp-bubble.selected::before{background:var(--accent);border-color:var(--accent)}
     .cp-bubble.dragging{opacity:.35}
+    .cp-bubble.overdue{border-color:color-mix(in srgb,#ef4444 55%,var(--border))}
+    .cp-bubble-late{font-size:11px}
     .cp-bubble-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
     .cp-hint{font-size:11px;font-weight:800;color:var(--accent2);text-align:center;padding:2px 4px;min-height:16px}
     .cp-timeline-scroll{max-height:340px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;border:1px solid var(--border);border-radius:14px}
@@ -814,12 +816,21 @@
     .flatpickr-calendar { background: var(--surface) !important; border: 1px solid var(--border) !important; box-shadow: var(--shadow) !important; font-family: inherit !important; border-radius:14px!important; overflow:hidden!important; direction:rtl!important; }
     .flatpickr-months{background:var(--card)!important;border-bottom:1px solid var(--border)!important;padding:6px 4px!important}
     .flatpickr-day, .flatpickr-month, .flatpickr-weekday, .flatpickr-current-month .flatpickr-monthDropdown-months { color: var(--text) !important; fill: var(--text) !important; }
-    .flatpickr-current-month{font-weight:900!important}
+    .flatpickr-current-month, .flatpickr-current-month input.cur-year { color: var(--text) !important; font-weight:900!important; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months{background:transparent!important}
+    .flatpickr-current-month .flatpickr-monthDropdown-months option{background:var(--surface)!important;color:var(--text)!important}
+    .flatpickr-prev-month, .flatpickr-next-month{color:var(--faint)!important;fill:var(--faint)!important}
+    .flatpickr-prev-month:hover, .flatpickr-next-month:hover{color:var(--accent)!important;fill:var(--accent)!important}
+    .flatpickr-prev-month svg, .flatpickr-next-month svg{fill:inherit!important}
+    .numInputWrapper span.arrowUp:after{border-bottom-color:var(--faint)!important}
+    .numInputWrapper span.arrowDown:after{border-top-color:var(--faint)!important}
+    .numInputWrapper:hover{background:transparent!important}
     .flatpickr-day{border-radius:8px!important;font-weight:800!important}
     .flatpickr-day.today{border-color:var(--accent)!important;color:var(--accent2)!important}
     span.flatpickr-weekday { color: var(--faint) !important; font-weight: 800 !important; }
     .flatpickr-day.selected { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; font-weight: bold; }
     .flatpickr-day:hover { background: var(--card2) !important; }
+    .flatpickr-day.flatpickr-disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay { color: var(--faint) !important; opacity:.5!important }
   
     #topBarBtns button:hover { opacity: 1 !important; }
     @media(max-width:820px){
@@ -7090,7 +7101,7 @@
       const daysNav = el("div","cp-days-nav");
       const prevBtn = el("button","cp-nav-arrow"); prevBtn.type="button";
       prevBtn.title = "3 ימים קודמים";
-      prevBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">◀</span>';
+      prevBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">▶</span>';
       prevBtn.onclick = () => plannerShiftWindow(-3);
       const fmt = d => d.toLocaleDateString("he-IL",{day:"numeric",month:"short"});
       const isTodayWindow = toDateKey(dates[0]) === todayKey;
@@ -7101,7 +7112,7 @@
       navCenter.append(todayBtn, rangeLabel);
       const nextBtn = el("button","cp-nav-arrow"); nextBtn.type="button";
       nextBtn.title = "3 ימים הבאים";
-      nextBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">▶</span>';
+      nextBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">◀</span>';
       nextBtn.onclick = () => plannerShiftWindow(3);
       daysNav.append(prevBtn, navCenter, nextBtn);
       wrap.append(daysNav);
@@ -7117,9 +7128,12 @@
         pool.append(el("div","cp-pool-empty", focusTasks.length ? "כל המשימות מתוזמנות 🎉" : "אין משימות פתוחות להצגה"));
       } else {
         sortedUnscheduled.forEach(task => {
-          const bubble = el("div","cp-bubble"+(selectedPlannerTaskId===task.id?" selected":""));
+          const isOverdue = task.due && task.due < todayKey;
+          const bubble = el("div","cp-bubble"+(selectedPlannerTaskId===task.id?" selected":"")+(isOverdue?" overdue":""));
           const dot = el("span","cp-bubble-dot"); dot.style.background = task.color || state.accent;
-          bubble.append(dot, document.createTextNode(task.name));
+          bubble.append(dot);
+          if (isOverdue) { bubble.append(el("span","cp-bubble-late","⏰")); bubble.title = "באיחור — עדיין אפשר לתזמן"; }
+          bubble.append(document.createTextNode(task.name));
           bubble.draggable = false;
           pool.append(bubble);
           attachPoolBubbleDrag(bubble, task, getDayCols);
