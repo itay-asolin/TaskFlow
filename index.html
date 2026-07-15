@@ -1753,6 +1753,7 @@
       dailyMemo: { lines: [""] },
       filterTag: null,
       plannerWindowDate: null,
+      schedule: [],
       sortAll: "due",
       kanbanListMode: false,
       dueFilterMode: "all",
@@ -2159,7 +2160,7 @@
         localStorage.setItem("taskflow_knownShared", JSON.stringify(_known));
         setActiveListPreference(activeList);
         let sharedSnapshotReady = false;
-        let lastSharedState = JSON.stringify({ cats: state.cats, tasks: state.tasks, events: state.events, dailyAgenda: state.dailyAgenda, dailyMemo: state.dailyMemo });
+        let lastSharedState = JSON.stringify({ cats: state.cats, tasks: state.tasks, events: state.events, schedule: state.schedule, dailyAgenda: state.dailyAgenda, dailyMemo: state.dailyMemo });
         unsub = onSnapshot(ref, (docSnap) => {
           if (!docSnap.exists()) return;
           const next = docSnap.data();
@@ -2176,6 +2177,7 @@
           state.cats = [];
           state.tasks = [];
           state.events = [];
+          state.schedule = [];
           
           activeList.name = next.name || activeList.name;
           activeList.role = next.members?.[user.uid] || activeList.role;
@@ -2338,6 +2340,7 @@
             cats: payload.cats,
             tasks: payload.tasks,
             events: payload.events || [],
+            schedule: payload.schedule || [],
             dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
             dailyMemo: payload.dailyMemo || { lines: [""] }
           };
@@ -6657,6 +6660,20 @@
         if (Array.isArray(data.cats)) state.cats = data.cats;
         if (Array.isArray(data.tasks)) state.tasks = data.tasks;
         if (Array.isArray(data.events)) state.events = data.events;
+        state.schedule = Array.isArray(data.schedule) ? data.schedule : (state.schedule || []);
+        // מיגרציה חד-פעמית: תזמון ישן שנשמר כ-property על המטלה עצמה -> מועבר למערך schedule נפרד, לא נוגע בשדות המטלה
+        (state.tasks||[]).forEach(t => {
+          if (t.plannedTime) {
+            if (!state.schedule.find(e => e.taskId === t.id)) {
+              state.schedule.push({
+                id: uid("sch"), taskId: t.id,
+                date: t.plannedDate || t.due || toDateKey(new Date()),
+                time: t.plannedTime, duration: t.plannedDuration || 30
+              });
+            }
+            delete t.plannedTime; delete t.plannedDuration; delete t.plannedDate;
+          }
+        });
         state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
         state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
         if (!state.cats.find(c => c.id === state.currentCatId)) {
@@ -6732,7 +6749,8 @@
         dailyMemo: normalizeDailyMemo(s.dailyMemo),
         cats: s.cats || [],
         tasks: s.tasks || [],
-        events: s.events || []
+        events: s.events || [],
+        schedule: s.schedule || []
       };
       return stripUndefined(raw);
     }
@@ -6968,13 +6986,23 @@
       return copy;
     }
 
+    // ── תזמון: state.schedule הוא מערך נפרד לגמרי מהמטלות, מקשר taskId->{date,time,duration}. לעולם לא נוגעים בשדות המטלה עצמה ──
+    function findScheduleEntry(taskId){
+      return state.schedule.find(e => e.taskId === taskId);
+    }
+
     function scheduleTaskAt(taskId, h, m, dateKey){
       const task = state.tasks.find(t => t.id === taskId);
       if (!task) return;
-      const dk = dateKey || task.plannedDate || task.due || toDateKey(new Date());
-      task.plannedDate = dk; // יום התזמון בענן — נפרד מ-due (תאריך ההגשה), לא נוגעים בו
-      task.plannedTime = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
-      if (!task.plannedDuration) task.plannedDuration = 30;
+      const dk = dateKey || toDateKey(new Date());
+      let entry = findScheduleEntry(taskId);
+      if (!entry) {
+        entry = { id: uid("sch"), taskId, duration: 30 };
+        state.schedule.push(entry);
+      }
+      entry.date = dk;
+      entry.time = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+      if (!entry.duration) entry.duration = 30;
       save(); render();
     }
 
@@ -7011,19 +7039,18 @@
     }
 
     function unscheduleTask(taskId){
+      const idx = state.schedule.findIndex(e => e.taskId === taskId);
+      if (idx === -1) return;
       const task = state.tasks.find(t => t.id === taskId);
-      if (!task) return;
-      delete task.plannedTime;
-      delete task.plannedDuration;
-      delete task.plannedDate;
+      state.schedule.splice(idx, 1);
       save(); render();
-      toast(`"${task.name}" חזר לענן ☁️`);
+      if (task) toast(`"${task.name}" חזר לענן ☁️`);
     }
 
     function setTaskPlannedDuration(taskId, minutes){
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task || !task.plannedTime) return;
-      task.plannedDuration = Math.max(15, minutes);
+      const entry = findScheduleEntry(taskId);
+      if (!entry) return;
+      entry.duration = Math.max(15, minutes);
       save(); render();
     }
 
@@ -7080,7 +7107,7 @@
       wrap.append(daysNav);
 
       // pool (הענן)
-      const unscheduled = focusTasks.filter(t => !t.plannedTime);
+      const unscheduled = focusTasks.filter(t => !findScheduleEntry(t.id));
       const pool = el("div","cp-pool");
       const sortedUnscheduled = sortPlannerPool(unscheduled, mode);
       const dayColsList = []; // {dateKey, slotsCol}
@@ -7164,19 +7191,21 @@
           slotsCol.append(chip);
         });
 
-        // משימות מתוזמנות ליום הזה
-        focusTasks.filter(t => t.plannedTime && (t.plannedDate || t.due) === dKey).forEach(task => {
-          const [h,m] = task.plannedTime.split(":").map(Number);
+        // משימות מתוזמנות ליום הזה — נשלף מ-state.schedule, לא משדה על המטלה
+        state.schedule.filter(e => e.date === dKey).forEach(entry => {
+          const task = focusTasks.find(t => t.id === entry.taskId);
+          if (!task) return;
+          const [h,m] = entry.time.split(":").map(Number);
           const startMin = (h - startH)*60 + m;
           if (startMin < 0 || startMin >= (endH-startH)*60) return;
-          const duration = task.plannedDuration || 30;
+          const duration = entry.duration || 30;
           const top = (startMin/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
           const height = Math.max(16, (duration/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
           const chip = el("div","cp-task-chip");
           chip.style.setProperty("--cp-color", task.color || state.accent);
           chip.style.top = top+"px"; chip.style.height = height+"px";
           const row = el("div","cp-chip-row");
-          row.append(el("span","cp-chip-title", `${task.plannedTime} · ${task.name}`));
+          row.append(el("span","cp-chip-title", `${entry.time} · ${task.name}`));
           const xBtn = el("span","cp-chip-x","×");
           xBtn.onclick = (e) => { e.stopPropagation(); unscheduleTask(task.id); };
           row.append(xBtn);
@@ -7300,7 +7329,7 @@
         if (dragging && commit && e) {
           const slotsCol = getSlotsCol();
           const { h, m } = cpTimeFromY(slotsCol, e.clientY - grabOffsetY, PLANNER_SLOT_MIN);
-          scheduleTaskAt(task.id, h, m, dateKey || task.plannedDate || task.due);
+          scheduleTaskAt(task.id, h, m, dateKey);
         }
         dragging=false; moved=false;
       }
@@ -7325,7 +7354,9 @@
         const delta = e.clientY - startY;
         const deltaMin = Math.round((delta/PLANNER_SLOT_H)*PLANNER_SLOT_MIN/15)*15;
         const { end } = plannerBounds(), { start } = plannerBounds();
-        const [h,m] = task.plannedTime.split(":").map(Number);
+        const entry = findScheduleEntry(task.id);
+        if (!entry) return;
+        const [h,m] = entry.time.split(":").map(Number);
         const startMin = (h-start)*60+m;
         const maxDuration = (end-start)*60 - startMin;
         const newDuration = Math.max(15, Math.min(maxDuration, startDuration + deltaMin));
@@ -7343,7 +7374,7 @@
       const onCancel = () => finish(false);
       handle.addEventListener("pointerdown", (e) => {
         e.stopPropagation(); e.preventDefault();
-        startY = e.clientY; startDuration = task.plannedDuration || 30; dragging = false;
+        startY = e.clientY; startDuration = findScheduleEntry(task.id)?.duration || 30; dragging = false;
         document.addEventListener("pointermove", onMove, { passive:false });
         document.addEventListener("pointerup", onUp);
         document.addEventListener("pointercancel", onCancel);
