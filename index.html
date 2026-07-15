@@ -633,7 +633,14 @@
     .cp-resize-handle{position:absolute;left:0;right:0;bottom:0;height:9px;cursor:ns-resize;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
     .cp-resize-handle::after{content:"";width:22px;height:3px;border-radius:3px;background:rgba(255,255,255,.55);margin-bottom:2px}
     .cp-event-chip{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--faint);background:color-mix(in srgb,var(--border) 60%,transparent);overflow:hidden;z-index:2;pointer-events:none;opacity:.75}
-    .cp-days-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 8px}
+    .cp-days-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 10px}
+    .cp-nav-arrow{flex:0 0 auto;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid var(--border);background:var(--card2);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;cursor:pointer;transition:.15s}
+    .cp-nav-arrow:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+    .cp-nav-center{display:flex;align-items:center;gap:8px;flex:0 1 auto}
+    .cp-today-btn{padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card2);color:var(--faint);font-size:11px;font-weight:800;cursor:pointer;transition:.15s;white-space:nowrap}
+    .cp-today-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .cp-today-btn:not(.active):hover{border-color:var(--accent);color:var(--text)}
+    .cp-range-label{font-size:12px;font-weight:800;color:var(--faint);min-width:96px;text-align:center;white-space:nowrap}
     .cp-days-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
     .cp-day-block{min-width:0}
     .cp-day-head{font-size:11px;font-weight:900;color:var(--accent2);margin-bottom:4px;text-align:center}
@@ -1745,6 +1752,7 @@
       dailyAgenda: { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
       dailyMemo: { lines: [""] },
       filterTag: null,
+      plannerWindowDate: null,
       sortAll: "due",
       kanbanListMode: false,
       dueFilterMode: "all",
@@ -6645,6 +6653,7 @@
         state.meetingsSettings = { showSummary: data.meetingsSettings?.showSummary !== false, showList: data.meetingsSettings?.showList !== false };
         state.semesters = Array.isArray(data.semesters) ? data.semesters : state.semesters;
         state.meetingsDate = data.meetingsDate || state.meetingsDate;
+        state.plannerWindowDate = data.plannerWindowDate !== undefined ? data.plannerWindowDate : state.plannerWindowDate;
         if (Array.isArray(data.cats)) state.cats = data.cats;
         if (Array.isArray(data.tasks)) state.tasks = data.tasks;
         if (Array.isArray(data.events)) state.events = data.events;
@@ -6710,6 +6719,7 @@
         calView: s.calView || "month",
         calDate: s.calDate || null,
         meetingsDate: s.meetingsDate || null,
+        plannerWindowDate: s.plannerWindowDate || null,
         profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded },
         workReport: { enabled: !!s.workReport?.enabled },
         meetingsSettings: { showSummary: s.meetingsSettings?.showSummary !== false, showList: s.meetingsSettings?.showList !== false },
@@ -6961,30 +6971,31 @@
     function scheduleTaskAt(taskId, h, m, dateKey){
       const task = state.tasks.find(t => t.id === taskId);
       if (!task) return;
-      const dk = dateKey || toDateKey(new Date());
-      task.due = dk;
+      const dk = dateKey || task.plannedDate || task.due || toDateKey(new Date());
+      task.plannedDate = dk; // יום התזמון בענן — נפרד מ-due (תאריך ההגשה), לא נוגעים בו
       task.plannedTime = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
       if (!task.plannedDuration) task.plannedDuration = 30;
       save(); render();
     }
 
-    // ── חלון תצוגה של 3 ימים בענן, עם דפדוף ──
-    let plannerBaseDate = null; // Date; null = מתחיל מהיום
+    // ── חלון תצוגה של 3 ימים בענן, עם דפדוף. נשמר ב-state (מסונכרן), ולא נשאר תקוע על יום שעבר ──
     function plannerWindowDates(){
-      const base = plannerBaseDate ? new Date(plannerBaseDate) : new Date();
-      base.setHours(0,0,0,0);
+      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+      let base = state.plannerWindowDate ? new Date(state.plannerWindowDate) : null;
+      if (base) base.setHours(0,0,0,0);
+      if (!base || base < todayStart) base = todayStart; // אין צורך לשמור על יום שעבר
       return [0,1,2].map(i => { const d = new Date(base); d.setDate(d.getDate()+i); return d; });
     }
     function plannerShiftWindow(days){
-      const base = plannerBaseDate ? new Date(plannerBaseDate) : new Date();
-      base.setHours(0,0,0,0);
+      const [firstDay] = plannerWindowDates();
+      const base = new Date(firstDay);
       base.setDate(base.getDate() + days);
-      plannerBaseDate = base;
-      render();
+      state.plannerWindowDate = toDateKey(base);
+      save(); render();
     }
     function plannerResetToday(){
-      plannerBaseDate = null;
-      render();
+      state.plannerWindowDate = null;
+      save(); render();
     }
 
     // יוצר "מטלה קטנה" ישירות בענן, בלי לעבור דרך רשימה קיימת
@@ -7004,6 +7015,7 @@
       if (!task) return;
       delete task.plannedTime;
       delete task.plannedDuration;
+      delete task.plannedDate;
       save(); render();
       toast(`"${task.name}" חזר לענן ☁️`);
     }
@@ -7049,17 +7061,22 @@
 
       // דפדוף בין חלונות של 3 ימים
       const daysNav = el("div","cp-days-nav");
-      const prevBtn = el("button","btn","◀ 3 קודמים"); prevBtn.type="button";
+      const prevBtn = el("button","cp-nav-arrow"); prevBtn.type="button";
+      prevBtn.title = "3 ימים קודמים";
+      prevBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">◀</span>';
       prevBtn.onclick = () => plannerShiftWindow(-3);
       const fmt = d => d.toLocaleDateString("he-IL",{day:"numeric",month:"short"});
-      const rangeLabel = el("div","","");
-      rangeLabel.style.cssText = "font-size:12px;font-weight:800;color:var(--faint)";
-      rangeLabel.textContent = `${fmt(dates[0])} – ${fmt(dates[2])}`;
-      const todayBtn = el("button","btn","היום"); todayBtn.type="button";
+      const isTodayWindow = toDateKey(dates[0]) === todayKey;
+      const navCenter = el("div","cp-nav-center");
+      const todayBtn = el("button","cp-today-btn"+(isTodayWindow?" active":""),"היום"); todayBtn.type="button";
       todayBtn.onclick = plannerResetToday;
-      const nextBtn = el("button","btn","3 הבאים ▶"); nextBtn.type="button";
+      const rangeLabel = el("span","cp-range-label", `${fmt(dates[0])} – ${fmt(dates[2])}`);
+      navCenter.append(todayBtn, rangeLabel);
+      const nextBtn = el("button","cp-nav-arrow"); nextBtn.type="button";
+      nextBtn.title = "3 ימים הבאים";
+      nextBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">▶</span>';
       nextBtn.onclick = () => plannerShiftWindow(3);
-      daysNav.append(prevBtn, rangeLabel, todayBtn, nextBtn);
+      daysNav.append(prevBtn, navCenter, nextBtn);
       wrap.append(daysNav);
 
       // pool (הענן)
@@ -7148,7 +7165,7 @@
         });
 
         // משימות מתוזמנות ליום הזה
-        focusTasks.filter(t => t.plannedTime && t.due === dKey).forEach(task => {
+        focusTasks.filter(t => t.plannedTime && (t.plannedDate || t.due) === dKey).forEach(task => {
           const [h,m] = task.plannedTime.split(":").map(Number);
           const startMin = (h - startH)*60 + m;
           if (startMin < 0 || startMin >= (endH-startH)*60) return;
@@ -7283,7 +7300,7 @@
         if (dragging && commit && e) {
           const slotsCol = getSlotsCol();
           const { h, m } = cpTimeFromY(slotsCol, e.clientY - grabOffsetY, PLANNER_SLOT_MIN);
-          scheduleTaskAt(task.id, h, m, dateKey || task.due);
+          scheduleTaskAt(task.id, h, m, dateKey || task.plannedDate || task.due);
         }
         dragging=false; moved=false;
       }
