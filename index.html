@@ -43,7 +43,7 @@
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Heebo,system-ui,sans-serif;overflow-x:hidden}
     button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
+    button{cursor:pointer;color:inherit}
     .hidden{display:none!important}
     .auth{min-height:100vh;display:grid;place-items:center;padding:22px}
     .auth-box{width:min(440px,100%);background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:30px;box-shadow:var(--shadow)}
@@ -216,7 +216,7 @@
     .cat-detail-task{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 10px;cursor:pointer}
     .cat-detail-task:hover{border-color:var(--cat-color,var(--accent))}
     .cat-detail-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--cat-color,var(--accent))}
-    .cat-detail-task-name{font-size:13px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cat-detail-task-name{font-size:13px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
     .cat-detail-task-date{font-size:10px;font-weight:900;color:var(--faint);white-space:nowrap}
     .home-section-title{display:flex;align-items:center;gap:10px;margin:4px 2px 12px}
     .home-section-title strong{font-size:18px;font-weight:900}
