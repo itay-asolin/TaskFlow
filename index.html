@@ -6258,7 +6258,7 @@
     function startTaskReminderLoop(runNow = false){
       if (taskReminderTimer) clearInterval(taskReminderTimer);
       if (!remindersEnabled()) return;
-      taskReminderTimer = setInterval(() => checkTaskReminders(false), 5 * 60000);
+      taskReminderTimer = setInterval(() => checkTaskReminders(false), 20 * 60000);
       if (runNow) checkTaskReminders(true);
     }
 
@@ -6296,11 +6296,16 @@
         return;
       }
 
+      const nowDate = new Date();
+      const hour = nowDate.getHours();
+      const inQuietHours = !force && (hour >= 22 || hour < 8); // לא מציקים בלילה
+      if (inQuietHours) return;
+
       const now = Date.now();
       const key = reminderKey(tasks);
       let last = {};
       try { last = JSON.parse(localStorage.getItem("taskflow_reminder_last") || "{}"); } catch {}
-      const repeatMs = 30 * 60000;
+      const repeatMs = 3 * 60 * 60000; // תזכורת חוזרת על אותה רשימה פעם בכמה שעות, לא כל חצי שעה
       if (!force && last.key === key && now - (last.at || 0) < repeatMs) return;
 
       localStorage.setItem("taskflow_reminder_last", JSON.stringify({ key, at: now }));
@@ -6646,7 +6651,30 @@
     }
 
     function mergeState(data, isSharedSync = false){
+      // הנתונים עצמם (כולל schedule) תמיד ממוזגים - גם ברשימה משותפת. זה מה שגרם ל"אין סנכרון" — קודם זה רץ רק כשלא שיתוף
+      state.cats = Array.isArray(data.cats) ? data.cats : state.cats;
+      state.tasks = Array.isArray(data.tasks) ? data.tasks : state.tasks;
+      state.events = Array.isArray(data.events) ? data.events : (state.events || []);
+      state.schedule = Array.isArray(data.schedule) ? data.schedule : (state.schedule || []);
+      state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
+      state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
+
+      // מיגרציה חד-פעמית: תזמון ישן שנשמר כ-property על המטלה עצמה -> מועבר למערך schedule נפרד, לא נוגע בשדות המטלה
+      (state.tasks||[]).forEach(t => {
+        if (t.plannedTime) {
+          if (!state.schedule.find(e => e.taskId === t.id)) {
+            state.schedule.push({
+              id: uid("sch"), taskId: t.id,
+              date: t.plannedDate || t.due || toDateKey(new Date()),
+              time: t.plannedTime, duration: t.plannedDuration || 30
+            });
+          }
+          delete t.plannedTime; delete t.plannedDuration; delete t.plannedDate;
+        }
+      });
+
       if (!isSharedSync) {
+        // העדפות תצוגה אישיות - רק ברשימה הפרטית, לא רלוונטי לרשימה משותפת
         state.theme = data.theme || state.theme;
         state.accent = data.accent || state.accent;
         state.currentView = data.currentView || state.currentView;
@@ -6656,37 +6684,13 @@
         state.kanbanListMode = data.kanbanListMode !== undefined ? !!data.kanbanListMode : state.kanbanListMode;
         state.filterTag = data.filterTag || null;
         state.sortAll = data.sortAll || state.sortAll;
-        state.cats = Array.isArray(data.cats) ? data.cats : state.cats;
-        state.tasks = Array.isArray(data.tasks) ? data.tasks : state.tasks;
-        state.events = Array.isArray(data.events) ? data.events : (state.events || []);
         state.collapsedSubs = data.collapsedSubs || state.collapsedSubs || {};
-        state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
-        state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
         state.profile = data.profile || state.profile;
         state.workReport = data.workReport || state.workReport;
         state.meetingsSettings = { showSummary: data.meetingsSettings?.showSummary !== false, showList: data.meetingsSettings?.showList !== false };
         state.semesters = Array.isArray(data.semesters) ? data.semesters : state.semesters;
         state.meetingsDate = data.meetingsDate || state.meetingsDate;
         state.plannerWindowDate = data.plannerWindowDate !== undefined ? data.plannerWindowDate : state.plannerWindowDate;
-        if (Array.isArray(data.cats)) state.cats = data.cats;
-        if (Array.isArray(data.tasks)) state.tasks = data.tasks;
-        if (Array.isArray(data.events)) state.events = data.events;
-        state.schedule = Array.isArray(data.schedule) ? data.schedule : (state.schedule || []);
-        // מיגרציה חד-פעמית: תזמון ישן שנשמר כ-property על המטלה עצמה -> מועבר למערך schedule נפרד, לא נוגע בשדות המטלה
-        (state.tasks||[]).forEach(t => {
-          if (t.plannedTime) {
-            if (!state.schedule.find(e => e.taskId === t.id)) {
-              state.schedule.push({
-                id: uid("sch"), taskId: t.id,
-                date: t.plannedDate || t.due || toDateKey(new Date()),
-                time: t.plannedTime, duration: t.plannedDuration || 30
-              });
-            }
-            delete t.plannedTime; delete t.plannedDuration; delete t.plannedDate;
-          }
-        });
-        state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
-        state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
         if (!state.cats.find(c => c.id === state.currentCatId)) {
           state.currentCatId = state.cats[0]?.id || null;
         }
