@@ -617,6 +617,36 @@
     .cp-hint{font-size:11px;font-weight:800;color:var(--accent2);text-align:center;padding:2px 4px;min-height:16px}
     .cp-timeline-scroll{max-height:340px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;border:1px solid var(--border);border-radius:14px}
     .cp-timeline{position:relative;display:grid;grid-template-columns:40px 1fr}
+
+    /* ── Flow Chart (שרשרת משימות) ── */
+    .flow-wrap{display:flex;flex-direction:column;gap:0;max-width:560px;margin:0 auto}
+    .flow-additem{display:flex;gap:8px;margin-bottom:16px}
+    .flow-additem select,.flow-additem input{flex:1}
+    .flow-empty{font-size:13px;font-weight:700;color:var(--faint);text-align:center;padding:26px 10px;border:1px dashed var(--border);border-radius:14px}
+    .flow-item{display:flex;flex-direction:column;align-items:stretch}
+    .flow-node{position:relative;display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:0 4px 14px rgba(0,0,0,.10);transition:transform .15s,box-shadow .15s,border-color .15s,opacity .15s;touch-action:pan-y}
+    .flow-node.mini{background:var(--card2);border-style:dashed}
+    .flow-node.done{opacity:.6}
+    .flow-node.done .flow-title{text-decoration:line-through;color:var(--faint)}
+    .flow-node.lifting{box-shadow:0 14px 30px rgba(0,0,0,.28);border-color:var(--accent);z-index:20;cursor:grabbing}
+    .flow-node.drop-target::before{content:"";position:absolute;left:10px;right:10px;top:-9px;height:4px;border-radius:4px;background:var(--accent)}
+    .flow-check{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:var(--faint);transition:.15s}
+    .flow-node.done .flow-check{background:var(--green);border-color:var(--green);color:#fff}
+    .flow-title{flex:1;min-width:0;font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .flow-tag{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--accent2);background:color-mix(in srgb,var(--accent) 14%,transparent);border-radius:999px;padding:2px 8px}
+    .flow-del{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--faint);font-size:12px;display:flex;align-items:center;justify-content:center}
+    .flow-del:hover{color:var(--danger);border-color:rgba(239,68,68,.4)}
+    .flow-connector{display:flex;align-items:center;gap:8px;padding:6px 0 6px 34px;margin-right:14px;border-right:2px dashed var(--border)}
+    .flow-arrow{font-size:16px;color:var(--accent2);line-height:1}
+    .flow-swap-btn{border:1px solid var(--border);background:var(--card2);color:var(--muted);border-radius:999px;font-size:11px;font-weight:800;padding:4px 10px;display:flex;align-items:center;gap:4px}
+    .flow-swap-btn:hover{border-color:var(--accent);color:var(--accent2)}
+    .flow-addmini-row{display:flex;justify-content:flex-start;padding:4px 0 4px 34px;margin-right:14px}
+    .flow-addmini-row.last{border-right:none}
+    .flow-addmini-btn{font-size:11px;font-weight:800;color:var(--faint);background:transparent;border:1px dashed var(--border);border-radius:999px;padding:3px 10px}
+    .flow-addmini-btn:hover{color:var(--accent2);border-color:var(--accent)}
+    .flow-mini-input{display:flex;gap:6px;padding:6px 0 10px 34px;margin-right:14px}
+    .flow-mini-input input{flex:1;padding:7px 10px;font-size:12px}
+    .flow-hint{font-size:11px;color:var(--faint);text-align:center;margin-top:14px}
     .cp-time-labels{display:flex;flex-direction:column;border-right:1px solid var(--border)}
     .cp-time-label{height:34px;display:flex;align-items:flex-start;justify-content:center;padding-top:2px;font-size:8px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--border)}
     .cp-slots-col{position:relative}
@@ -1765,6 +1795,7 @@
       filterTag: null,
       plannerWindowDate: null,
       schedule: [],
+      flow: [],
       sortAll: "due",
       kanbanListMode: false,
       dueFilterMode: "all",
@@ -2171,7 +2202,7 @@
         localStorage.setItem("taskflow_knownShared", JSON.stringify(_known));
         setActiveListPreference(activeList);
         let sharedSnapshotReady = false;
-        let lastSharedState = JSON.stringify({ cats: state.cats, tasks: state.tasks, events: state.events, schedule: state.schedule, dailyAgenda: state.dailyAgenda, dailyMemo: state.dailyMemo });
+        let lastSharedState = JSON.stringify({ cats: state.cats, tasks: state.tasks, events: state.events, schedule: state.schedule, flow: state.flow, dailyAgenda: state.dailyAgenda, dailyMemo: state.dailyMemo });
         unsub = onSnapshot(ref, (docSnap) => {
           if (!docSnap.exists()) return;
           const next = docSnap.data();
@@ -2189,6 +2220,7 @@
           state.tasks = [];
           state.events = [];
           state.schedule = [];
+          state.flow = [];
           
           activeList.name = next.name || activeList.name;
           activeList.role = next.members?.[user.uid] || activeList.role;
@@ -3255,16 +3287,15 @@
       viewToggle.style.cssText = "display:flex;gap:6px;margin-bottom:12px";
       const allViewMode = localStorage.getItem("taskflow_all_view") || "list";
       const listBtn = el("button","cp-sort-btn"+(allViewMode==="list"?" active":""),"📋 רשימה"); listBtn.type="button";
-      const planBtn = el("button","cp-sort-btn"+(allViewMode==="plan"?" active":""),"🌤 תכנון יומי"); planBtn.type="button";
+      const planBtn = el("button","cp-sort-btn"+(allViewMode==="flow"?" active":""),"🔗 שרשרת משימות"); planBtn.type="button";
       listBtn.onclick = () => { localStorage.setItem("taskflow_all_view","list"); render(); };
-      planBtn.onclick = () => { localStorage.setItem("taskflow_all_view","plan"); render(); };
+      planBtn.onclick = () => { localStorage.setItem("taskflow_all_view","flow"); render(); };
       viewToggle.append(planBtn, listBtn);
       wrap.append(viewToggle);
 
-      if (allViewMode === "plan") {
-        $("pageSub").textContent = "גררו משימות מהענן לציר הזמן, או צרו מטלה קטנה ישירות בענן — ניתן לדפדף בין הימים";
-        const openTasks = filteredTasksWithTag().filter(t => !isDone(t));
-        wrap.append(buildCloudPlanner(openTasks));
+      if (allViewMode === "flow") {
+        $("pageSub").textContent = "בנו שרשרת משימות עם חצים ביניהן — הוסיפו מיני-מטלות, החליפו סדר, או החזיקו לחיצה ארוכה כדי להזיז";
+        wrap.append(buildFlowChart());
         $("content").replaceChildren(wrap);
         return;
       }
@@ -6656,6 +6687,7 @@
       state.tasks = Array.isArray(data.tasks) ? data.tasks : state.tasks;
       state.events = Array.isArray(data.events) ? data.events : (state.events || []);
       state.schedule = Array.isArray(data.schedule) ? data.schedule : (state.schedule || []);
+      state.flow = Array.isArray(data.flow) ? data.flow : (state.flow || []);
       state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
       state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
 
@@ -6765,7 +6797,8 @@
         cats: s.cats || [],
         tasks: s.tasks || [],
         events: s.events || [],
-        schedule: s.schedule || []
+        schedule: s.schedule || [],
+        flow: s.flow || []
       };
       return stripUndefined(raw);
     }
@@ -6979,7 +7012,246 @@
       return cat ? (col ? `${cat.name} › ${col.name}` : cat.name) : "";
     }
 
-    // ---------- Cloud daily planner (תכנון היום) ----------
+    // ---------- שרשרת משימות (Flow Chart) ----------
+    function flowCleanupOrphans(){
+      state.flow = (state.flow || []).filter(n => !n.taskId || state.tasks.some(t => t.id === n.taskId));
+    }
+
+    function flowTitle(node){
+      if (node.taskId) {
+        const t = state.tasks.find(x => x.id === node.taskId);
+        return t ? t.name : "(משימה נמחקה)";
+      }
+      return node.title || "";
+    }
+
+    function flowIsDone(node){
+      if (node.taskId) {
+        const t = state.tasks.find(x => x.id === node.taskId);
+        return t ? isDone(t) : true;
+      }
+      return !!node.done;
+    }
+
+    function flowToggleNode(nodeId){
+      const node = state.flow.find(n => n.id === nodeId);
+      if (!node) return;
+      if (node.taskId) { toggleTask(node.taskId); return; }
+      node.done = !node.done;
+      save(); render();
+    }
+
+    function flowRemoveNode(nodeId){
+      const idx = state.flow.findIndex(n => n.id === nodeId);
+      if (idx === -1) return;
+      state.flow.splice(idx, 1);
+      save(); render();
+    }
+
+    function flowSwapAt(index){
+      if (index < 0 || index >= state.flow.length - 1) return;
+      const arr = state.flow;
+      [arr[index], arr[index+1]] = [arr[index+1], arr[index]];
+      save(); render();
+    }
+
+    function flowAddMiniAfter(afterNodeId, text){
+      text = (text || "").trim();
+      if (!text) return;
+      const node = { id: uid("fl"), taskId: null, title: text, done: false };
+      if (afterNodeId) {
+        const idx = state.flow.findIndex(n => n.id === afterNodeId);
+        state.flow.splice(idx + 1, 0, node);
+      } else {
+        state.flow.push(node);
+      }
+      save(); render();
+    }
+
+    function flowAddTaskRef(taskId){
+      if (!taskId) return;
+      if (state.flow.some(n => n.taskId === taskId)) { toast("המשימה כבר בשרשרת"); return; }
+      state.flow.push({ id: uid("fl"), taskId, title: "", done: false });
+      save(); render();
+    }
+
+    function flowMoveNodeTo(nodeId, newIndex){
+      const idx = state.flow.findIndex(n => n.id === nodeId);
+      if (idx === -1) return;
+      const [node] = state.flow.splice(idx, 1);
+      newIndex = Math.max(0, Math.min(state.flow.length, newIndex));
+      state.flow.splice(newIndex, 0, node);
+      save(); render();
+    }
+
+    // לחיצה ארוכה על כרטיס בשרשרת -> מצב גרירה, כדי להזיז אותו למקום אחר בשרשרת
+    function attachFlowLongPress(nodeEl, nodeId, containerEl){
+      const LONG_PRESS_MS = 480, MOVE_CANCEL_PX = 10;
+      let pressTimer = null, dragging = false, startY = 0;
+
+      function siblingNodes(){ return [...containerEl.querySelectorAll(".flow-node")]; }
+      function clearDropIndicators(){ siblingNodes().forEach(n => n.classList.remove("drop-target")); }
+      function findTarget(clientY){
+        return siblingNodes().find(n => {
+          if (n === nodeEl) return false;
+          const r = n.getBoundingClientRect();
+          return clientY >= r.top && clientY <= r.bottom;
+        });
+      }
+      function cancelPressTimer(){ if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } }
+
+      function onMove(e){
+        if (!dragging) return;
+        e.preventDefault();
+        const dy = e.clientY - startY;
+        nodeEl.style.transform = `translateY(${dy}px)`;
+        clearDropIndicators();
+        const target = findTarget(e.clientY);
+        if (target) target.classList.add("drop-target");
+      }
+      function endDrag(commit, e){
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("pointercancel", onCancel);
+        cancelPressTimer();
+        if (dragging) {
+          nodeEl.classList.remove("lifting");
+          nodeEl.style.transform = "";
+          if (commit && e) {
+            const target = findTarget(e.clientY);
+            if (target) {
+              const targetIdx = state.flow.findIndex(n => n.id === target.dataset.flowId);
+              if (targetIdx !== -1) flowMoveNodeTo(nodeId, targetIdx);
+            }
+          }
+          clearDropIndicators();
+        }
+        dragging = false;
+      }
+      const onUp = (e) => endDrag(true, e);
+      const onCancel = () => endDrag(false, null);
+
+      nodeEl.addEventListener("pointerdown", (e) => {
+        if (e.target.closest("button")) return;
+        startY = e.clientY;
+        const onPreMove = (ev) => {
+          if (!dragging && Math.abs(ev.clientY - startY) > MOVE_CANCEL_PX) {
+            cancelPressTimer();
+            document.removeEventListener("pointermove", onPreMove);
+          }
+        };
+        document.addEventListener("pointermove", onPreMove);
+        document.addEventListener("pointerup", () => document.removeEventListener("pointermove", onPreMove), { once: true });
+        pressTimer = setTimeout(() => {
+          dragging = true;
+          nodeEl.classList.add("lifting");
+          try { nodeEl.setPointerCapture(e.pointerId); } catch {}
+          document.addEventListener("pointermove", onMove, { passive: false });
+          document.addEventListener("pointerup", onUp);
+          document.addEventListener("pointercancel", onCancel);
+        }, LONG_PRESS_MS);
+      });
+      nodeEl.addEventListener("pointerup", cancelPressTimer);
+      nodeEl.addEventListener("pointercancel", cancelPressTimer);
+    }
+
+    function buildFlowChart(){
+      flowCleanupOrphans();
+      const wrap = el("div","flow-wrap");
+
+      // הוספת משימה קיימת לשרשרת
+      const addRow = el("div","flow-additem");
+      const availableTasks = state.tasks.filter(t => !isDone(t) && !state.flow.some(n => n.taskId === t.id));
+      const sel = document.createElement("select");
+      const optDefault = document.createElement("option");
+      optDefault.value = "";
+      optDefault.textContent = availableTasks.length ? "➕ הוסיפו משימה קיימת לשרשרת..." : "אין משימות פתוחות להוספה";
+      sel.append(optDefault);
+      availableTasks.forEach(t => {
+        const o = document.createElement("option");
+        o.value = t.id; o.textContent = t.name;
+        sel.append(o);
+      });
+      sel.onchange = () => { if (sel.value) { flowAddTaskRef(sel.value); sel.value = ""; } };
+      addRow.append(sel);
+      wrap.append(addRow);
+
+      if (!state.flow.length) {
+        wrap.append(el("div","flow-empty","עדיין אין שרשרת. הוסיפו משימה קיימת מהרשימה למעלה, או הוסיפו מיני-מטלה ראשונה 👇"));
+        const firstAdd = el("div","flow-mini-input"); firstAdd.style.cssText = "padding-right:0;margin-right:0;margin-top:10px";
+        const input = document.createElement("input");
+        input.type = "text"; input.placeholder = "שם המיני-מטלה הראשונה...";
+        const confirmBtn = el("button","btn primary","הוסף"); confirmBtn.type = "button";
+        const submit = () => { flowAddMiniAfter(null, input.value); input.value = ""; };
+        confirmBtn.onclick = submit;
+        input.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+        firstAdd.append(input, confirmBtn);
+        wrap.append(firstAdd);
+      } else {
+        state.flow.forEach((node, i) => {
+          const item = el("div","flow-item");
+          const done = flowIsDone(node);
+          const nodeEl = el("div","flow-node" + (node.taskId ? "" : " mini") + (done ? " done" : ""));
+          nodeEl.dataset.flowId = node.id;
+
+          const check = el("button","flow-check", done ? "✓" : "");
+          check.type = "button";
+          check.title = "סמן כבוצע";
+          check.onclick = (e) => { e.stopPropagation(); flowToggleNode(node.id); };
+
+          const title = el("span","flow-title", flowTitle(node));
+
+          const del = el("button","flow-del","✕");
+          del.type = "button";
+          del.title = "הסר מהשרשרת";
+          del.onclick = (e) => { e.stopPropagation(); flowRemoveNode(node.id); };
+
+          nodeEl.append(check, title);
+          if (!node.taskId) nodeEl.append(el("span","flow-tag","מיני"));
+          nodeEl.append(del);
+          item.append(nodeEl);
+          attachFlowLongPress(nodeEl, node.id, wrap);
+
+          if (i < state.flow.length - 1) {
+            const connector = el("div","flow-connector");
+            connector.append(el("span","flow-arrow","↓"));
+            const swapBtn = el("button","flow-swap-btn","⇄ החלף עם הבא"); swapBtn.type = "button";
+            swapBtn.title = "החלף מקום עם המטלה הבאה";
+            swapBtn.onclick = () => flowSwapAt(i);
+            connector.append(swapBtn);
+            item.append(connector);
+          }
+
+          const addMiniRow = el("div","flow-addmini-row" + (i === state.flow.length - 1 ? " last" : ""));
+          const addMiniBtn = el("button","flow-addmini-btn","+ מיני-מטלה כאן"); addMiniBtn.type = "button";
+          addMiniRow.append(addMiniBtn);
+          item.append(addMiniRow);
+
+          const inputRow = el("div","flow-mini-input"); inputRow.style.display = "none";
+          const input = document.createElement("input");
+          input.type = "text"; input.placeholder = "שם המיני-מטלה...";
+          const confirmBtn = el("button","btn primary","הוסף"); confirmBtn.type = "button";
+          const submit = () => { flowAddMiniAfter(node.id, input.value); input.value = ""; };
+          confirmBtn.onclick = submit;
+          input.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+          inputRow.append(input, confirmBtn);
+          item.append(inputRow);
+
+          addMiniBtn.onclick = () => {
+            const isOpen = inputRow.style.display !== "none";
+            inputRow.style.display = isOpen ? "none" : "flex";
+            if (!isOpen) input.focus();
+          };
+
+          wrap.append(item);
+        });
+      }
+
+      wrap.append(el("div","flow-hint","💡 החזיקו לחיצה ארוכה על כרטיס כדי להזיז אותו למקום אחר בשרשרת"));
+      return wrap;
+    }
+
+    // ---------- Cloud daily planner (תכנון היום) — לא בשימוש יותר, הוחלף בשרשרת המשימות למעלה ----------
     const PLANNER_SLOT_MIN = 30, PLANNER_SLOT_H = 17;
     function plannerBounds(){
       return { start: MEETING_HOURS[0], end: MEETING_HOURS[MEETING_HOURS.length-1] + 1 };
