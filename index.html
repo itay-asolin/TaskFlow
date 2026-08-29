@@ -117,10 +117,9 @@
     #topBarBtns{display:flex;align-items:center;gap:6px;flex:0 0 auto}
     #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
     #briefBtn,#sharedPanelBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
-    /* The old dedicated "שיתופים" panel button is superseded by the shared
-       lists shown directly on the home page; kept in the DOM (so existing
-       code that wires it up doesn't throw on a missing element) but hidden. */
-    #sharedPanelBtn{display:none!important}
+    /* Small button that opens the shared-lists panel (#sharedPanel below):
+       a bigger surrounding window with its own "+" to create/join another
+       shared list and a "copy code" action per list. */
     #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
     #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);border:1.5px solid rgba(109,93,252,.45);border-radius:16px;box-shadow:0 18px 46px rgba(109,93,252,.22),var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
     #sharedPanel.open{display:block;transform:translateY(0) scale(1);opacity:1}
@@ -3630,19 +3629,7 @@
       // clicking one opens straight into that list without swapping the
       // whole home page away from your private lists.
       const knownShared = getKnownSharedLists();
-      let sharedAddCard = null;
       if (!catSelectMode) {
-        // A small always-present card to create/join a shared list — this
-        // replaces the old separate "שיתופים" panel button.
-        sharedAddCard = el("article","card cat-card shared-home-add-card");
-        sharedAddCard.title = "רשימה משותפת חדשה או הצטרפות עם קוד";
-        sharedAddCard.style.position = "relative";
-        const addAnchor = el("div","");
-        addAnchor.append(el("div","shared-home-add-icon","🔗"), el("div","shared-home-add-label","רשימה משותפת חדשה"));
-        sharedAddCard.append(addAnchor);
-        sharedAddCard.onclick = (e) => { e.stopPropagation(); openSharedAddMenu(addAnchor); };
-        grid.append(sharedAddCard);
-
         knownShared.forEach((s, i) => {
           const card = el("article","card cat-card shared-home-card");
           const color = SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length];
