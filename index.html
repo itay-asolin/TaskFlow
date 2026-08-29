@@ -205,7 +205,8 @@
     .cat-mark{display:none}
     .cat-mark small{display:none}
     .shared-home-card{cursor:pointer}
-    .shared-home-card-peek{font-size:11px;font-weight:800;color:var(--faint);margin-right:12px;margin-top:2px}
+    .shared-home-card-lists{margin-right:12px;margin-top:2px;display:grid;gap:5px}
+    .shared-home-card-list-item{font-size:12px;font-weight:700;color:var(--text);background:var(--card2);padding:5px 9px;border-radius:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .cat-title {
       font-size: 16px; font-weight: 900; margin: 0 10px 8px 0; line-height: 1.2; padding-left:72px;
       color: color-mix(in srgb, var(--cat-color, var(--text)) 55%, var(--text));
@@ -2790,32 +2791,6 @@
     const SHARED_CARD_PALETTE = ["#6d5dfc","#22c55e","#f59e0b","#ec4899","#06b6d4","#ef4444","#a855f7","#14b8a6"];
     let expandedSharedIds = new Set();
     let sharedPeekCache = {};
-    let sharedNamesCache = {};
-
-    // Fetches the display names of the *other* people on a shared list (not
-    // the current user), reading the memberNames map that's written whenever
-    // someone opens or creates the list. Cached like loadSharedPeek so we
-    // don't refetch on every render.
-    async function loadSharedMemberNames(id){
-      if (sharedNamesCache[id]) return sharedNamesCache[id];
-      try {
-        if (!cloudReady) { sharedNamesCache[id] = { names: [] }; return sharedNamesCache[id]; }
-        const ref = doc(db, "sharedLists", id);
-        const snap = await getDoc(ref);
-        if (!snap.exists()) { sharedNamesCache[id] = { names: [] }; return sharedNamesCache[id]; }
-        const data = snap.data();
-        const memberIds = Object.keys(data.members || {});
-        const names = memberIds
-          .filter(uidKey => uidKey !== user?.uid)
-          .map(uidKey => data.memberNames?.[uidKey])
-          .filter(Boolean);
-        sharedNamesCache[id] = { names };
-      } catch (err) {
-        console.error("Shared member names error", err);
-        sharedNamesCache[id] = { names: [], error: true };
-      }
-      return sharedNamesCache[id];
-    }
 
 
     // One-off (non-subscribing) look at the categories inside a list, used to
@@ -3651,13 +3626,15 @@
           const color = SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length];
           card.style.setProperty("--cat-color", color);
           card.append(el("h3","cat-title", s.name || "רשימה משותפת"));
-          const peekLine = el("div","shared-home-card-peek", "טוען שותפים…");
-          card.append(peekLine);
+          const listsBox = el("div","shared-home-card-lists", "טוען…");
+          card.append(listsBox);
           card.onclick = async () => { await subscribeSharedList(s.id); render(); };
           sharedGrid.append(card);
-          loadSharedMemberNames(s.id).then(res => {
-            if (res.error) { peekLine.textContent = "לא הצלחתי לטעון שותפים"; return; }
-            peekLine.textContent = res.names.length ? `משותף עם ${res.names.join(", ")}` : "עדיין אין שותפים שהצטרפו";
+          loadSharedPeek(s.id).then(res => {
+            listsBox.replaceChildren();
+            if (res.error) { listsBox.textContent = "לא הצלחתי לטעון"; return; }
+            if (!res.catNames.length) { listsBox.textContent = "אין רשימות עדיין"; return; }
+            res.catNames.forEach(name => listsBox.append(el("div","shared-home-card-list-item", name)));
           });
         });
         sharedSection.append(sharedGrid);
