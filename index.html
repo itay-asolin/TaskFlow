@@ -118,10 +118,10 @@
     #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
     #briefBtn,#sharedPanelBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
     #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
-    #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
+    #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);border:1.5px solid rgba(109,93,252,.45);border-radius:16px;box-shadow:0 18px 46px rgba(109,93,252,.22),var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
     #sharedPanel.open{display:block;transform:translateY(0) scale(1);opacity:1}
-    .shared-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--border)}
-    .shared-panel-title{font-size:15px;font-weight:900;color:var(--text)}
+    .shared-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid rgba(109,93,252,.25);background:linear-gradient(135deg,rgba(109,93,252,.14),transparent)}
+    .shared-panel-title{font-size:15px;font-weight:900;color:#6d5dfc}
     .shared-panel-sub{font-size:11px;font-weight:800;color:var(--faint);margin-top:2px}
     #sharedPanelClose{border:0;background:transparent;color:var(--faint);font-size:20px;line-height:1;padding:2px 7px;border-radius:8px;cursor:pointer}
     #sharedPanelClose:hover{background:var(--card2);color:var(--text)}
@@ -313,6 +313,7 @@
     .col-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);font-weight:900}
     .drop{min-height:170px;padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
     .drop.over{outline:2px dashed var(--accent);outline-offset:-8px}
+    .task.drop-target{outline:2px dashed var(--accent);outline-offset:-4px}
     .task{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-right:5px solid var(--accent);border-radius:10px;padding:12px 13px;box-shadow:0 2px 10px rgba(0,0,0,.08);max-height:260px;min-width:0}
     .task::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:color-mix(in srgb,var(--accent) 58%,transparent);opacity:.55;pointer-events:none}
     .task,.card,.day-task,.agenda-row{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}
@@ -691,9 +692,21 @@
     .shared-wheel-stage::after{bottom:0;background:linear-gradient(transparent,var(--card))}
     .shared-wheel-track{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;padding:58px 8px;display:grid;gap:8px}
     .shared-wheel-track::-webkit-scrollbar{display:none}
-    .shared-wheel-item{min-height:50px;scroll-snap-align:center;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:9px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--text);text-align:right;transition:transform .16s,border-color .16s,background .16s,opacity .16s;opacity:.72}
+    .shared-wheel-item{min-height:50px;scroll-snap-align:center;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--text);text-align:right;transition:transform .16s,border-color .16s,background .16s,opacity .16s;opacity:.72}
     .shared-wheel-del{font-size:14px;opacity:.55;padding:4px 6px;border-radius:8px;line-height:1}
     .shared-wheel-del:hover{opacity:1;background:var(--card2)}
+    .shared-add-wrap{position:relative}
+    .shared-add-btn{width:32px;height:32px;border-radius:10px;border:1.5px solid rgba(109,93,252,.5);background:rgba(109,93,252,.12);color:#6d5dfc;font-size:18px;font-weight:900;cursor:pointer;display:grid;place-items:center;line-height:1}
+    .shared-add-btn:hover{background:#6d5dfc;color:#fff}
+    .shared-add-menu{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);z-index:66;min-width:180px;padding:6px;direction:rtl;text-align:right}
+    .shared-add-menu button{display:block;width:100%;text-align:right;border:0;background:transparent;color:var(--text);padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer}
+    .shared-add-menu button:hover{background:var(--card2)}
+    .shared-item-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:6px;box-shadow:var(--shadow);z-index:66;min-width:170px;direction:rtl;text-align:right}
+    .shared-item-menu button{display:block;width:100%;text-align:right;border:0;background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer}
+    .shared-item-menu button:hover{background:var(--card2)}
+    .shared-item-menu button.danger{color:#e0455a}
+    .shared-wheel-dots{font-size:16px;opacity:.6;padding:4px 8px;border-radius:8px;line-height:1;cursor:pointer}
+    .shared-wheel-dots:hover{opacity:1;background:var(--card2)}
     .shared-wheel-item:hover{opacity:1;border-color:var(--accent)}
     .shared-wheel-item.active{opacity:1;transform:scale(1.02);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 24%,transparent)}
     .shared-wheel-item.muted{cursor:default;opacity:.55}
@@ -2527,6 +2540,58 @@
       return "מרחב משותף";
     }
 
+    function closeSharedAddMenu(){
+      const m = document.querySelector(".shared-add-menu");
+      if (m) m.remove();
+      document.removeEventListener("click", closeSharedAddMenu, true);
+    }
+
+    function openSharedAddMenu(anchor){
+      closeSharedAddMenu();
+      closeSharedItemMenu();
+      const menu = el("div", "shared-add-menu");
+      const newBtn = el("button", "", "🎨 רשימה משותפת חדשה");
+      newBtn.type = "button";
+      newBtn.onclick = () => { closeSharedAddMenu(); closeSharedPanel(); openCategoryModal(null, true); };
+      const joinBtn = el("button", "", "🔗 הצטרף עם קוד");
+      joinBtn.type = "button";
+      joinBtn.onclick = () => { closeSharedAddMenu(); joinSharedList(); };
+      menu.append(newBtn, joinBtn);
+      anchor.parentElement.append(menu);
+      setTimeout(() => document.addEventListener("click", closeSharedAddMenu, true), 0);
+    }
+
+    function closeSharedItemMenu(){
+      const m = document.querySelector(".shared-item-menu");
+      if (m) m.remove();
+      document.removeEventListener("click", closeSharedItemMenu, true);
+    }
+
+    function openSharedItemMenu(anchor, item){
+      closeSharedItemMenu();
+      closeSharedAddMenu();
+      const menu = el("div", "shared-item-menu");
+      const r = anchor.getBoundingClientRect();
+      menu.style.top = (r.bottom + 4) + "px";
+      menu.style.left = Math.max(8, r.left - 120) + "px";
+      const openBtn = el("button", "", "פתיחה");
+      openBtn.type = "button";
+      openBtn.onclick = () => { closeSharedItemMenu(); subscribeSharedList(item.id); };
+      const copyBtn = el("button", "", "📋 העתקת קוד");
+      copyBtn.type = "button";
+      copyBtn.onclick = async () => {
+        closeSharedItemMenu();
+        try { await navigator.clipboard.writeText(item.id); toast("קוד השיתוף הועתק"); }
+        catch { prompt("העתק את קוד השיתוף:", item.id); }
+      };
+      const delBtn = el("button", "danger", "🗑 מחיקת שיתוף");
+      delBtn.type = "button";
+      delBtn.onclick = () => { closeSharedItemMenu(); deleteSharedList({ id: item.id, name: item.name }); };
+      menu.append(openBtn, copyBtn, delBtn);
+      document.body.append(menu);
+      setTimeout(() => document.addEventListener("click", closeSharedItemMenu, true), 0);
+    }
+
     function renderSharedWheel(compact = false){
       const box = el("section", "shared-wheel" + (compact ? " compact" : ""));
       box.id = "sharedWheel";
@@ -2535,13 +2600,16 @@
       const head = el("div", "shared-wheel-head");
       head.append(el("div", "shared-wheel-title", "שיתופים"));
       const actions = el("div", "shared-wheel-actions");
-      const join = el("button", "btn primary", "הצטרף עם קוד");
-      join.type = "button";
-      join.onclick = joinSharedList;
       const privateBtn = el("button", "btn", "הרשימה הפרטית");
       privateBtn.type = "button";
       privateBtn.onclick = subscribePrivateList;
-      actions.append(join, privateBtn);
+      const addWrap = el("div", "shared-add-wrap");
+      const addBtn = el("button", "shared-add-btn", "+");
+      addBtn.type = "button";
+      addBtn.title = "רשימה חדשה או הצטרפות עם קוד";
+      addBtn.onclick = (e) => { e.stopPropagation(); openSharedAddMenu(addBtn); };
+      addWrap.append(addBtn);
+      actions.append(privateBtn, addWrap);
       if (activeList.type === "shared") {
         const copy = el("button", "btn", "העתק קוד");
         copy.type = "button";
@@ -2555,27 +2623,28 @@
       const known = getKnownSharedLists();
       const items = [
         { id: "__private", name: "הרשימה הפרטית", meta: "המשימות האישיות שלך", icon: "⌂", active: activeList.type === "private", action: subscribePrivateList },
-        ...known.map(s => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: `${sharedKindLabel(s.kind)} · ${s.id}`, icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, deletable: true, action: () => subscribeSharedList(s.id) })),
-        { id: "__join", name: "הצטרפות לשיתוף", meta: "הדבק קוד שקיבלת ממישהו", icon: "+", active: false, action: joinSharedList }
+        ...known.map(s => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: `${sharedKindLabel(s.kind)} · ${s.id}`, icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, deletable: true, action: () => subscribeSharedList(s.id) }))
       ];
 
-      while (items.length < 3) {
-        items.splice(items.length - 1, 0, { id: "__tip" + items.length, name: "שיתוף חדש יופיע כאן", meta: "צור משימה/רשימה משותפת או הצטרף עם קוד", icon: "·", muted: true });
+      if (!known.length) {
+        items.push({ id: "__tip", name: "שיתוף חדש יופיע כאן", meta: "לחצו על + כדי ליצור או להצטרף", icon: "·", muted: true });
       }
 
       items.forEach(item => {
         const row = el("button", "shared-wheel-item" + (item.active ? " active" : "") + (item.muted ? " muted" : ""));
         row.type = "button";
         row.dataset.sharedId = item.id;
-        row.append(el("span", "shared-wheel-mark", item.icon), el("div", "", ""), el("span", "shared-wheel-go", item.muted ? "" : "›"));
+        row.append(el("span", "shared-wheel-mark", item.icon), el("div", "", ""));
         const text = row.children[1];
         text.append(el("div", "shared-wheel-name", item.name), el("div", "shared-wheel-meta", item.meta));
         if (!item.muted) row.onclick = item.action;
         if (item.deletable) {
-          const del = el("span", "shared-wheel-del", "🗑");
-          del.title = "מחיקת שיתוף";
-          del.onclick = (e) => { e.stopPropagation(); deleteSharedList({ id: item.id, name: item.name }); };
-          row.append(del);
+          const dots = el("span", "shared-wheel-dots", "⋮");
+          dots.title = "פעולות";
+          dots.onclick = (e) => { e.stopPropagation(); openSharedItemMenu(dots, { id: item.id, name: item.name }); };
+          row.append(dots);
+        } else {
+          row.append(el("span", "shared-wheel-go", item.muted ? "" : "›"));
         }
         track.append(row);
       });
@@ -2603,6 +2672,8 @@
     function renderSharedPanelContent(){
       const content = $("sharedPanelContent");
       if (!content) return;
+      closeSharedAddMenu();
+      closeSharedItemMenu();
       $("sharedPanelSub").textContent = activeList.type === "shared"
         ? `${activeList.name || "רשימה משותפת"} · ${activeList.id}`
         : "הרשימה הפרטית פעילה עכשיו";
@@ -2620,6 +2691,8 @@
     function closeSharedPanel(){
       const panel = $("sharedPanel");
       if (!panel) return;
+      closeSharedAddMenu();
+      closeSharedItemMenu();
       panel.classList.remove("open");
       setTimeout(() => {
         if (!panel.classList.contains("open")) panel.style.display = "none";
@@ -4890,12 +4963,24 @@
       });
     }
 
+    function deletePreviousSemesterLists(){
+      const prevSemIds = (state.semesters || []).map(s => s.id);
+      if (!prevSemIds.length) return 0;
+      const removeCatIds = state.cats.filter(c => c.semesterId && prevSemIds.includes(c.semesterId)).map(c => c.id);
+      if (!removeCatIds.length) return 0;
+      state.cats = state.cats.filter(c => !removeCatIds.includes(c.id));
+      state.tasks = state.tasks.filter(t => !removeCatIds.includes(t.catId));
+      state.semesters = [];
+      return removeCatIds.length;
+    }
+
     function openSemesterModal(){
-      openModal("🎓 סמסטר חדש","נבנה רשימה צבעונית לכל קורס. הפרד שמות בפסיקים.",form=>{
+      if (activeList.type === "shared") return toast("סמסטר מהיר פועל רק על הרשימה הפרטית - עברו אליה קודם");
+      openModal("🎓 סמסטר חדש","נבנה רשימה צבעונית לכל קורס. הפרד שמות בפסיקים. רשימות מסמסטר קודם שנוצר כך יימחקו.",form=>{
         form.append(field("שם הסמסטר","semesterName","text",`סמסטר ${new Date().getFullYear()}`));
         form.append(field("קורסים","semesterCourses","text",""));
         form.append(el("p","meta","לדוגמה: אלגוריתמים, מבני נתונים, אנגלית"));
-        form.append(footer("צור קורסים",()=>{const courses=$("semesterCourses").value.split(",").map(x=>x.trim()).filter(Boolean);if(!courses.length)return toast("הוסף לפחות קורס אחד");const sem={id:uid("sem"),name:$("semesterName").value.trim()||"סמסטר",courses:[]};courses.forEach((name,i)=>{const cat={id:uid("c"),name,columns:[{id:"col1",name:"לביצוע"},{id:"col2",name:"השבוע"},{id:"col3",name:"הושלם"}],color:colors[(state.cats.length+i)%colors.length],semesterId:sem.id};state.cats.push(cat);sem.courses.push(cat.id);});state.semesters=[...(state.semesters||[]),sem];save();closeModal();navigate("home");toast(`נוצרו ${courses.length} רשימות קורסים ✓`);}));
+        form.append(footer("צור קורסים",()=>{const courses=$("semesterCourses").value.split(",").map(x=>x.trim()).filter(Boolean);if(!courses.length)return toast("הוסף לפחות קורס אחד");const removedCount=deletePreviousSemesterLists();const sem={id:uid("sem"),name:$("semesterName").value.trim()||"סמסטר",courses:[]};courses.forEach((name,i)=>{const cat={id:uid("c"),name,columns:[{id:"col1",name:"לביצוע"},{id:"col2",name:"השבוע"},{id:"col3",name:"הושלם"}],color:colors[(state.cats.length+i)%colors.length],semesterId:sem.id};state.cats.push(cat);sem.courses.push(cat.id);});state.semesters=[...(state.semesters||[]),sem];save();closeModal();navigate("home");toast(`נוצרו ${courses.length} רשימות קורסים${removedCount?` (${removedCount} רשימות מהסמסטר הקודם הוחלפו)`:""} ✓`);}));
       });
     }
 
@@ -5416,6 +5501,19 @@
       card.ondragend = () => {
           hideAgendaDropBubble();
       };
+      card.ondragover = (e) => {
+          if (!draggedTaskId || draggedTaskId === task.id) return;
+          e.preventDefault();
+          e.stopPropagation();
+          card.classList.add("drop-target");
+      };
+      card.ondragleave = () => card.classList.remove("drop-target");
+      card.ondrop = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          card.classList.remove("drop-target");
+          moveDraggedOntoTask(task.id);
+      };
       const top = el("div","task-top");
       const check = el("button","check" + (isDone(task) ? " done" : ""), isDone(task) ? "✓" : "");
       check.type = "button"; check.ariaLabel = "סמן משימה"; check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
@@ -5495,7 +5593,7 @@
     }
 
     function taskRow(task){
-      const row = taskCard(task, false);
+      const row = taskCard(task, true);
       row.classList.add("task-row", "task-list-card");
 
       // Swipe-to-action on mobile only
@@ -5622,8 +5720,8 @@
       return wrap;
     }
 
-    function openCategoryModal(cat){
-      openModal(cat ? "עריכת רשימה" : "רשימה חדשה", "", (form) => {
+    function openCategoryModal(cat, forceShared = false){
+      openModal(cat ? "עריכת רשימה" : (forceShared ? "רשימה משותפת חדשה" : "רשימה חדשה"), "", (form) => {
         if (cat) {
           const catColor = cat.color || state.accent;
           $("modalBack").style.setProperty("--accent", catColor);
@@ -5648,7 +5746,11 @@
 
         form.append(columnEditor(getColumns(cat || { columns: [{id:"col1",name:"לעשות"},{id:"col2",name:"בתהליך"}] })));
         form.append(colorPicker(cat?.color || colors[0], "catColor"));
-        if (!cat) form.append(sharedToggle("catShared", "צור כרשימה משותפת", "נשמרת כמרחב משותף נפרד שאפשר לשלוח אליו קוד."));
+        if (!cat) {
+          const sharedRow = sharedToggle("catShared", "צור כרשימה משותפת", "נשמרת כמרחב משותף נפרד שאפשר לשלוח אליו קוד.");
+          if (forceShared) { sharedRow.querySelector("input").checked = true; sharedRow.style.display = "none"; }
+          form.append(sharedRow);
+        }
         
         form.append(footer(cat ? "שמור" : "צור", async () => {
           const columns = readColumnEditor();
@@ -6523,6 +6625,16 @@
     function toggleSub(taskId, subId){
       const sub = state.tasks.find(t => t.id === taskId)?.subs?.find(s => s.id === subId);
       if (sub) { sub.done = !sub.done; save(); render(); }
+    }
+
+    function moveDraggedOntoTask(targetTaskId){
+      const source = state.tasks.find(t => t.id === draggedTaskId);
+      const target = state.tasks.find(t => t.id === targetTaskId);
+      draggedTaskId = null;
+      if (!source || !target || source.id === target.id) return;
+      source.catId = target.catId;
+      source.col = target.col;
+      save(); render();
     }
 
     function moveDragged(catId, col){
