@@ -718,6 +718,66 @@
     .shared-wheel-controls button{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:900;cursor:pointer}
     .shared-wheel-controls button:hover{border-color:var(--accent);color:var(--accent2)}
     .cat-btn.shared{border-style:dashed;border-color:rgba(109,93,252,.3)}
+
+    /* --- Shared panel cards ---
+       Standalone styles for the "שיתופים" purple panel, deliberately NOT
+       reusing .cat-card so future edits to the regular list cards never
+       change how the shared cards look (and vice versa). */
+    .shared-card-box{display:grid;gap:12px}
+    .shared-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+    .shared-card-actions .btn{min-height:30px;padding:5px 10px;font-size:11px;border-radius:8px}
+    .shared-add-wrap{position:relative;margin-inline-end:auto}
+    .shared-card-grid{display:grid;gap:10px}
+    .shared-card{
+      position:relative;
+      background:linear-gradient(135deg,color-mix(in srgb,var(--shared-color,#6d5dfc) 16%,var(--card)),var(--card));
+      border:1px solid color-mix(in srgb,var(--shared-color,#6d5dfc) 30%,var(--border));
+      border-radius:14px;
+      padding:12px 14px;
+      overflow:hidden;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      text-align:right;
+      transition:transform .25s cubic-bezier(.25,.8,.25,1),border-color .2s ease,box-shadow .2s ease;
+    }
+    .shared-card::before{
+      content:"";position:absolute;top:0;right:0;bottom:0;width:6px;
+      background:var(--shared-color,#6d5dfc);transition:width .25s ease;
+    }
+    .shared-card:hover{
+      transform:translateY(-3px);
+      border-color:var(--shared-color,#6d5dfc);
+      box-shadow:0 12px 24px rgba(0,0,0,.18),0 0 16px color-mix(in srgb,var(--shared-color,#6d5dfc) 16%,transparent);
+    }
+    .shared-card:hover::before{width:8px}
+    .shared-card.active{
+      border-color:var(--shared-color,#6d5dfc);
+      box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--shared-color,#6d5dfc) 45%,transparent);
+    }
+    .shared-card.muted{cursor:default;opacity:.6}
+    .shared-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .shared-card-head{display:flex;align-items:center;gap:9px;min-width:0}
+    .shared-card-mark{
+      width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+      background:color-mix(in srgb,var(--shared-color,#6d5dfc) 22%,var(--card2));
+      font-size:15px;flex:0 0 auto;
+    }
+    .shared-card-name{
+      font-size:14px;font-weight:900;line-height:1.2;
+      color:color-mix(in srgb,var(--shared-color,#6d5dfc) 55%,var(--text));
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .shared-card-meta{
+      font-size:10.5px;color:var(--faint);font-weight:800;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:41px;
+    }
+    .shared-card-dots{font-size:16px;opacity:.6;padding:4px 8px;border-radius:8px;line-height:1;cursor:pointer;flex:0 0 auto}
+    .shared-card-dots:hover{opacity:1;background:var(--card2)}
+    @media (max-width:520px){
+      .shared-card-actions{justify-content:space-between}
+    }
     .cat-btn.shared .dot{background:transparent;border:2px solid currentColor;box-sizing:border-box}
     .toggle-switch{display:inline-flex;align-items:center;cursor:pointer;gap:0}
     .toggle-switch input{display:none}
@@ -2669,6 +2729,68 @@
       return box;
     }
 
+    const SHARED_CARD_PALETTE = ["#6d5dfc","#22c55e","#f59e0b","#ec4899","#06b6d4","#ef4444","#a855f7","#14b8a6"];
+
+    // Renders the contents of the purple "שיתופים" panel as cards that look
+    // like the regular list cards on the home page (icon, name, meta line).
+    // This is intentionally a separate function/CSS from the home page cards
+    // (see .shared-card in the stylesheet) so styling one never changes the other.
+    function renderSharedCards(){
+      const box = el("div","shared-card-box");
+
+      const actions = el("div","shared-card-actions");
+      const addWrap = el("div","shared-add-wrap");
+      const addBtn = el("button","shared-add-btn","+");
+      addBtn.type = "button";
+      addBtn.title = "רשימה חדשה או הצטרפות עם קוד";
+      addBtn.onclick = (e) => { e.stopPropagation(); openSharedAddMenu(addBtn); };
+      addWrap.append(addBtn);
+      actions.append(addWrap);
+      if (activeList.type === "shared") {
+        const copy = el("button", "btn", "העתק קוד");
+        copy.type = "button";
+        copy.onclick = copyShareCode;
+        actions.append(copy);
+      }
+      box.append(actions);
+
+      const grid = el("div","shared-card-grid");
+      const known = getKnownSharedLists();
+      const items = [
+        { id: "__private", name: "הרשימה הפרטית", meta: "המשימות האישיות שלך", icon: "⌂", active: activeList.type === "private", action: subscribePrivateList, color: SHARED_CARD_PALETTE[0] },
+        ...known.map((s, i) => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: `${sharedKindLabel(s.kind)} · ${s.id}`, icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, deletable: true, action: () => subscribeSharedList(s.id), color: SHARED_CARD_PALETTE[(i + 1) % SHARED_CARD_PALETTE.length] }))
+      ];
+
+      if (!known.length) {
+        items.push({ id: "__tip", name: "שיתוף חדש יופיע כאן", meta: "לחצו על + כדי ליצור או להצטרף", icon: "·", muted: true, color: SHARED_CARD_PALETTE[0] });
+      }
+
+      items.forEach(item => {
+        const card = el("article","shared-card" + (item.active ? " active" : "") + (item.muted ? " muted" : ""));
+        card.style.setProperty("--shared-color", item.color);
+        card.dataset.sharedId = item.id;
+
+        const top = el("div","shared-card-top");
+        const head = el("div","shared-card-head");
+        head.append(el("span","shared-card-mark",item.icon), el("div","shared-card-name",item.name));
+        top.append(head);
+        if (item.deletable) {
+          const dots = el("span","shared-card-dots","⋮");
+          dots.title = "פעולות";
+          dots.onclick = (e) => { e.stopPropagation(); openSharedItemMenu(dots, { id: item.id, name: item.name }); };
+          top.append(dots);
+        }
+        card.append(top);
+        card.append(el("div","shared-card-meta", item.meta + (item.active && !item.muted ? " · פעיל כעת" : "")));
+
+        if (!item.muted) card.onclick = item.action;
+        grid.append(card);
+      });
+
+      box.append(grid);
+      return box;
+    }
+
     function renderSharedPanelContent(){
       const content = $("sharedPanelContent");
       if (!content) return;
@@ -2677,7 +2799,7 @@
       $("sharedPanelSub").textContent = activeList.type === "shared"
         ? `${activeList.name || "רשימה משותפת"} · ${activeList.id}`
         : "הרשימה הפרטית פעילה עכשיו";
-      content.replaceChildren(renderSharedWheel(false));
+      content.replaceChildren(renderSharedCards());
     }
 
     function openSharedPanel(){
@@ -5915,7 +6037,10 @@
             await scheduleNotification(data.name, data.due, data.notifDays);
           }
           closeModal(); save(); render(); toast("נשמר");
-        }, task ? () => { closeModal(); deleteTask(task.id); } : null));
+        }, task ? () => {
+          if (!confirm(`למחוק את המשימה "${task.name}"? לא ניתן לבטל פעולה זו.`)) return;
+          closeModal(); deleteTask(task.id);
+        } : null));
       });
     }
 
