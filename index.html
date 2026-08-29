@@ -118,7 +118,7 @@
     #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
     #briefBtn,#sharedPanelBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
     #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
-    #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(360px,calc(100vw - 24px));max-height:calc(100vh - 82px);overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
+    #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
     #sharedPanel.open{display:block;transform:translateY(0) scale(1);opacity:1}
     .shared-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--border)}
     .shared-panel-title{font-size:15px;font-weight:900;color:var(--text)}
@@ -685,7 +685,7 @@
     .shared-wheel-title{font-size:14px;font-weight:900;color:var(--text)}
     .shared-wheel-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
     .shared-wheel-actions .btn{min-height:30px;padding:5px 9px;font-size:11px;border-radius:8px}
-    .shared-wheel-stage{position:relative;height:174px;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--card);isolation:isolate}
+    .shared-wheel-stage{position:relative;height:340px;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--card);isolation:isolate}
     .shared-wheel-stage::before,.shared-wheel-stage::after{content:"";position:absolute;left:0;right:0;height:42px;z-index:2;pointer-events:none}
     .shared-wheel-stage::before{top:0;background:linear-gradient(var(--card),transparent)}
     .shared-wheel-stage::after{bottom:0;background:linear-gradient(transparent,var(--card))}
@@ -1812,6 +1812,7 @@
     let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut;
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
+    let knownSharedDoc = null, unsubKnown = null, knownSharedCache = [];
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
     let selectedPlannerTaskId = null, draggedPlannerTaskId = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
@@ -1988,6 +1989,7 @@
 
     async function handleAuthState(nextUser){
       if (unsub) unsub();
+      if (unsubKnown) unsubKnown();
       user = nextUser;
       if (!user) {
         showAuth();
@@ -1995,6 +1997,8 @@
       }
       cloudReady = true;
       userDoc = doc(db, "users", user.uid, "app", "state");
+      knownSharedDoc = doc(db, "users", user.uid, "app", "knownShared");
+      subscribeKnownShared();
 
       // טען local קודם כברירת מחדל
       loadLocal();
@@ -2196,12 +2200,7 @@
         activeDoc = ref;
         const sharedKind = data.kind || inferSharedKind(data.state || {});
         activeList = { type: "shared", id: listId.trim(), name: data.name || "רשימה משותפת", role: data.members?.[user.uid] || "editor", kind: sharedKind };
-        const _known = JSON.parse(localStorage.getItem("taskflow_knownShared") || "[]");
-        const knownIndex = _known.findIndex(k => k.id === listId.trim());
-        const knownItem = { id: listId.trim(), name: data.name || "רשימה משותפת", kind: sharedKind };
-        if (knownIndex >= 0) _known[knownIndex] = { ..._known[knownIndex], ...knownItem };
-        else _known.push(knownItem);
-        localStorage.setItem("taskflow_knownShared", JSON.stringify(_known));
+        upsertKnownShared({ id: listId.trim(), name: data.name || "רשימה משותפת", kind: sharedKind });
         setActiveListPreference(activeList);
         let sharedSnapshotReady = false;
         let lastSharedState = JSON.stringify({ cats: state.cats, tasks: state.tasks, events: state.events, schedule: state.schedule, flow: state.flow, dailyAgenda: state.dailyAgenda, dailyMemo: state.dailyMemo });
@@ -2439,8 +2438,32 @@
     }
 
     function getKnownSharedLists(){
+      if (knownSharedCache.length) return knownSharedCache;
       try { return JSON.parse(localStorage.getItem("taskflow_knownShared") || "[]").filter(Boolean); }
       catch { return []; }
+    }
+
+    function subscribeKnownShared(){
+      if (unsubKnown) unsubKnown();
+      if (!knownSharedDoc) return;
+      unsubKnown = onSnapshot(knownSharedDoc, (docSnap) => {
+        knownSharedCache = docSnap.exists() ? (docSnap.data().items || []) : [];
+        try { localStorage.setItem("taskflow_knownShared", JSON.stringify(knownSharedCache)); } catch {}
+        if ($("sharedPanel")?.classList.contains("open")) renderSharedPanelContent();
+        else if (state.currentView === "home") render();
+      });
+    }
+
+    async function upsertKnownShared(item){
+      const list = getKnownSharedLists().slice();
+      const idx = list.findIndex(k => k.id === item.id);
+      if (idx >= 0) list[idx] = { ...list[idx], ...item }; else list.push(item);
+      knownSharedCache = list;
+      try { localStorage.setItem("taskflow_knownShared", JSON.stringify(list)); } catch {}
+      if (knownSharedDoc) {
+        try { await setDoc(knownSharedDoc, { items: list, updatedAt: serverTimestamp() }, { merge: true }); }
+        catch (err) { console.error("Sync known shared failed", err); }
+      }
     }
 
     function sharedKindLabel(kind){
@@ -5131,11 +5154,7 @@
           updatedAt: serverTimestamp(),
           updatedBy: user.uid
         });
-        const known = JSON.parse(localStorage.getItem("taskflow_knownShared") || "[]");
-        if (!known.find(k => k.id === listId)) {
-          known.push({ id: listId, name, kind });
-          localStorage.setItem("taskflow_knownShared", JSON.stringify(known));
-        }
+        await upsertKnownShared({ id: listId, name, kind });
         await subscribeSharedList(listId);
         render();
         toast(successMsg);
