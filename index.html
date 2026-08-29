@@ -3601,26 +3601,12 @@
         goTo(vCurrent, false);
       }
 
-      const wrap = el("div","home-wrap");
-      if (countdownWidget) wrap.append(countdownWidget);
-      // הסדר יומי והמיקוד מוצגים רק בתוך פאנל התכנון (✨ תכנון) במובייל
-      const isMobileHome = window.matchMedia("(max-width:820px)").matches;
-      if (!isMobileHome) {
-        wrap.append(unifiedCard);
-      }
-      wrap.append(listHead, listsWheel);
-
-      // One extra card per shared list, in its own color, showing the list's
-      // name and (if known) who it's shared with — separate from the
-      // private-lists carousel above so it never interferes with it.
+      // Shared lists get their own colored card mixed directly into the same
+      // grid as the private lists (filling any empty cells in the last row),
+      // instead of a separate section below. The card grows automatically
+      // if the shared list contains more than one list inside it.
       const knownShared = getKnownSharedLists();
       if (knownShared.length && !catSelectMode) {
-        const sharedSection = el("div","shared-home-section");
-        sharedSection.style.cssText = "margin-top:24px";
-        const sharedTitle = el("h3","", "רשימות משותפות");
-        sharedTitle.style.cssText = "font-size:14px;font-weight:900;color:var(--muted);margin:0 0 12px 4px";
-        sharedSection.append(sharedTitle);
-        const sharedGrid = el("div","grid");
         knownShared.forEach((s, i) => {
           const card = el("article","card cat-card shared-home-card");
           const color = SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length];
@@ -3629,7 +3615,7 @@
           const listsBox = el("div","shared-home-card-lists", "טוען…");
           card.append(listsBox);
           card.onclick = async () => { await subscribeSharedList(s.id); render(); };
-          sharedGrid.append(card);
+          grid.append(card);
           loadSharedPeek(s.id).then(res => {
             listsBox.replaceChildren();
             if (res.error) { listsBox.textContent = "לא הצלחתי לטעון"; return; }
@@ -3637,9 +3623,16 @@
             res.catNames.forEach(name => listsBox.append(el("div","shared-home-card-list-item", name)));
           });
         });
-        sharedSection.append(sharedGrid);
-        wrap.append(sharedSection);
       }
+
+      const wrap = el("div","home-wrap");
+      if (countdownWidget) wrap.append(countdownWidget);
+      // הסדר יומי והמיקוד מוצגים רק בתוך פאנל התכנון (✨ תכנון) במובייל
+      const isMobileHome = window.matchMedia("(max-width:820px)").matches;
+      if (!isMobileHome) {
+        wrap.append(unifiedCard);
+      }
+      wrap.append(listHead, listsWheel);
 
       if (catSelectMode) wrap.append(renderCatSelectBar());
       $("content").replaceChildren(wrap);
