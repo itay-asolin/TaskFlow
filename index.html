@@ -210,11 +210,18 @@
     .cat-mark small{display:none}
     .shared-home-card{cursor:default}
     .shared-home-card:hover{transform:none;box-shadow:var(--shadow)}
-    .shared-home-card-lists{margin-right:12px;margin-top:2px;display:grid;gap:5px}
-    .shared-home-card-list-item{font-size:12px;font-weight:700;color:var(--text);background:var(--card2);padding:5px 9px;border-radius:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:background .15s}
+    .shared-home-card-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+    .shared-home-card-head .cat-title{margin:0;flex:1 1 auto;min-width:0}
+    .shared-home-card-actions{display:flex;gap:5px;flex:0 0 auto}
+    .shared-home-mini-btn{width:26px;height:26px;padding:0;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+    .shared-home-mini-btn:hover{border-color:var(--cat-color,var(--accent));color:var(--cat-color,var(--accent))}
+    .shared-home-card-lists{margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+    .shared-home-card-list-item{padding:6px 8px;border-radius:8px;background:var(--card2);cursor:pointer;transition:background .15s;overflow:hidden}
     .shared-home-card-list-item:hover{background:color-mix(in srgb,var(--cat-color,var(--accent)) 20%,var(--card2))}
+    .shared-home-card-list-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .shared-home-card-list-meta{font-size:10px;font-weight:600;color:var(--faint);margin-top:2px}
     .shared-home-add-card{align-items:center;justify-content:center;display:flex;flex-direction:column;gap:6px;border-style:dashed;background:var(--card)}
-    .shared-home-badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:800;color:var(--cat-color,var(--accent));background:color-mix(in srgb,var(--cat-color,var(--accent)) 18%,transparent);padding:2px 8px;border-radius:999px}
+    .shared-home-badge{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--cat-color,var(--accent));background:color-mix(in srgb,var(--cat-color,var(--accent)) 18%,transparent);padding:2px 8px;border-radius:999px}
     .shared-home-add-card::before{content:none}
     .shared-home-add-icon{font-size:22px}
     .shared-home-add-label{font-size:12px;font-weight:800;color:var(--muted)}
@@ -432,10 +439,6 @@
     .swatch.active{border-color:#fff;transform:scale(1.08)}
     .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px;z-index:50}
     .modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
-    .modal.wide{width:min(760px,100%)}
-    .shared-group-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-    .shared-group-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-    .shared-group-empty{grid-column:1/-1;text-align:center;color:var(--faint);padding:30px 16px;background:var(--card);border:1px dashed var(--border);border-radius:var(--r)}
     .modal-head{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:16px}
     .modal h2{margin:0;font-size:20px}
     .modal-sub{color:var(--faint);font-size:12px;margin-top:2px}
@@ -2869,53 +2872,15 @@
       return sharedPeekCache[id];
     }
 
-    // Opens a big window (in the same modal used for private lists) that
-    // shows the lists inside one shared group, styled exactly like the
-    // regular home-page list cards. Has its own "link" (copy code) and
-    // "add list" actions so a whole shared group can be managed without
-    // leaving the private home page.
-    async function openSharedGroupModal(id, fallbackName){
-      const known = getKnownSharedLists().find(s => s.id === id);
-      const name = known?.name || fallbackName || "רשימה משותפת";
-      openModal(name, `קוד שיתוף: ${id}`, (form) => {
-        const actions = el("div","shared-group-actions");
-        const linkBtn = el("button","btn","🔗 קישור");
-        linkBtn.type = "button";
-        linkBtn.onclick = async () => {
-          try { await navigator.clipboard.writeText(id); toast("קוד השיתוף הועתק"); }
-          catch { prompt("העתק את קוד השיתוף:", id); }
-        };
-        const addBtn = el("button","btn primary","+ הוספת רשימה");
-        addBtn.type = "button";
-        addBtn.onclick = async () => {
-          closeModal();
-          await subscribeSharedList(id, { silent: true });
-          openCategoryModal();
-        };
-        actions.append(linkBtn, addBtn);
-        form.append(actions);
-
-        const grid = el("div","shared-group-grid");
-        grid.append(el("div","shared-group-empty","טוען…"));
-        form.append(grid);
-
-        loadSharedPeek(id).then(res => {
-          grid.replaceChildren();
-          if (res.error) { grid.append(el("div","shared-group-empty","לא הצלחתי לטעון")); return; }
-          if (!res.cats.length) { grid.append(el("div","shared-group-empty","אין רשימות עדיין. אפשר להוסיף עם + הוספת רשימה.")); return; }
-          res.cats.forEach(c => {
-            const card = el("article","card cat-card");
-            card.style.setProperty("--cat-color", c.color || "#6d5dfc");
-            card.append(el("h3","cat-title", c.name));
-            const stats = el("div","cat-progress-stats");
-            stats.style.marginTop = "6px";
-            stats.innerHTML = `<span>${c.open} פתוחות</span><span>${c.total} סה"כ</span>`;
-            card.append(stats);
-            card.onclick = () => { closeModal(); openSharedCategory(id, c.id); };
-            grid.append(card);
-          });
-        });
-      }, { wide: true });
+    // Copies a shared list's join code, and lets a shared group grow another
+    // list from directly within its home-page card (no separate window).
+    async function copySharedCode(id){
+      try { await navigator.clipboard.writeText(id); toast("קוד השיתוף הועתק"); }
+      catch { prompt("העתק את קוד השיתוף:", id); }
+    }
+    async function addListToSharedGroup(id){
+      await subscribeSharedList(id, { silent: true });
+      openCategoryModal();
     }
 
     async function toggleSharedExpand(id){
@@ -3411,8 +3376,33 @@
       menuJoinBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer";
       menuJoinBtn.onmouseenter = () => menuJoinBtn.style.background = "var(--card2)";
       menuJoinBtn.onmouseleave = () => menuJoinBtn.style.background = "transparent";
-      menuJoinBtn.onclick = () => { addMenu.style.display = "none"; openAddMenuEl = null; joinSharedList(); };
+      menuJoinBtn.onclick = () => {
+        addMenu.style.display = "none"; openAddMenuEl = null;
+        joinRow.style.display = joinRow.style.display === "none" ? "flex" : "none";
+        if (joinRow.style.display === "flex") setTimeout(() => joinInput.focus(), 0);
+      };
       addMenu.append(menuListBtn, menuTaskBtn, menuJoinBtn);
+
+      // Inline "join with code" row, shown right on the home page instead of
+      // a native prompt() popup.
+      const joinRow = el("div","");
+      joinRow.style.cssText = "display:none;align-items:center;gap:8px;margin-top:10px";
+      const joinInput = document.createElement("input");
+      joinInput.type = "text"; joinInput.placeholder = "הדבק קוד שיתוף";
+      joinInput.style.cssText = "flex:1 1 auto;min-width:0";
+      const joinConfirm = el("button","btn primary","הצטרף");
+      joinConfirm.type = "button";
+      const joinCancel = el("button","btn icon","×");
+      joinCancel.type = "button";
+      joinCancel.onclick = () => { joinRow.style.display = "none"; joinInput.value = ""; };
+      joinConfirm.onclick = async () => {
+        const code = joinInput.value.trim();
+        if (!code) return toast("צריך להדביק קוד שיתוף");
+        const ok = await subscribeSharedList(code);
+        if (ok) { joinRow.style.display = "none"; joinInput.value = ""; render(); }
+      };
+      joinInput.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); joinConfirm.click(); } };
+      joinRow.append(joinInput, joinConfirm, joinCancel);
 
 
       unifiedAddBtn.onclick = (e) => {
@@ -3704,16 +3694,34 @@
           const card = el("article","card cat-card shared-home-card");
           const color = SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length];
           card.style.setProperty("--cat-color", color);
-          card.style.position = "relative";
-          card.append(el("span","shared-home-badge","משותף"));
-          card.append(el("h3","cat-title", s.name || "רשימה משותפת"));
+
+          const head = el("div","shared-home-card-head");
+          head.append(el("span","shared-home-badge","משותף"), el("h3","cat-title", s.name || "רשימה משותפת"));
+          const headActions = el("div","shared-home-card-actions");
+          const linkBtn = el("button","shared-home-mini-btn","🔗");
+          linkBtn.type = "button"; linkBtn.title = "העתקת קוד שיתוף";
+          linkBtn.onclick = (e) => { e.stopPropagation(); copySharedCode(s.id); };
+          const addBtn = el("button","shared-home-mini-btn","+");
+          addBtn.type = "button"; addBtn.title = "הוספת רשימה לקבוצה המשותפת";
+          addBtn.onclick = (e) => { e.stopPropagation(); addListToSharedGroup(s.id); };
+          headActions.append(linkBtn, addBtn);
+          head.append(headActions);
+          card.append(head);
+
           const listsBox = el("div","shared-home-card-lists", "טוען…");
           card.append(listsBox);
-          card.onclick = () => openSharedGroupModal(s.id, s.name);
           grid.append(card);
           loadSharedPeek(s.id).then(res => {
+            listsBox.replaceChildren();
             if (res.error) { listsBox.textContent = "לא הצלחתי לטעון"; return; }
-            listsBox.textContent = res.cats.length ? `${res.cats.length} רשימות בפנים` : "אין רשימות עדיין";
+            if (!res.cats.length) { listsBox.textContent = "אין רשימות עדיין"; return; }
+            res.cats.forEach(c => {
+              const item = el("div","shared-home-card-list-item");
+              item.append(el("div","shared-home-card-list-name", c.name));
+              item.append(el("div","shared-home-card-list-meta", `${c.open} פתוחות`));
+              item.onclick = (e) => { e.stopPropagation(); openSharedCategory(s.id, c.id); };
+              listsBox.append(item);
+            });
           });
         });
       }
@@ -3725,7 +3733,7 @@
       if (!isMobileHome) {
         wrap.append(unifiedCard);
       }
-      wrap.append(listHead, listsWheel);
+      wrap.append(listHead, joinRow, listsWheel);
 
       if (catSelectMode) wrap.append(renderCatSelectBar());
       $("content").replaceChildren(wrap);
@@ -6527,14 +6535,13 @@
       if (removed > 0) { save(); toast(`🗑 ${removed} משימות שהושלמו אופסו לשבוע החדש`); }
     }
 
-    function openModal(title, sub, build, opts = {}){
+    function openModal(title, sub, build){
       $("modalTitle").textContent = title;
       $("modalSub").textContent = sub || "";
       const form = $("modalForm");
       form.replaceChildren();
       $("modalBack").style.removeProperty("--accent");
       $("modalBack").style.removeProperty("--accent2");
-      $("modalBack").querySelector(".modal").classList.toggle("wide", !!opts.wide);
       build(form);
       form.onsubmit = (e) => e.preventDefault();
       $("modalBack").classList.remove("hidden");
