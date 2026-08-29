@@ -117,6 +117,10 @@
     #topBarBtns{display:flex;align-items:center;gap:6px;flex:0 0 auto}
     #topBarBtns .topbar-btn{height:36px;min-height:36px;border-radius:999px;padding:5px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.18);opacity:.9}
     #briefBtn,#sharedPanelBtn{border:1px solid var(--border);background:var(--card2);color:var(--text);font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+    /* The old dedicated "שיתופים" panel button is superseded by the shared
+       lists shown directly on the home page; kept in the DOM (so existing
+       code that wires it up doesn't throw on a missing element) but hidden. */
+    #sharedPanelBtn{display:none!important}
     #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
     #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);border:1.5px solid rgba(109,93,252,.45);border-radius:16px;box-shadow:0 18px 46px rgba(109,93,252,.22),var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
     #sharedPanel.open{display:block;transform:translateY(0) scale(1);opacity:1}
@@ -204,9 +208,15 @@
     }
     .cat-mark{display:none}
     .cat-mark small{display:none}
-    .shared-home-card{cursor:pointer}
+    .shared-home-card{cursor:default}
+    .shared-home-card:hover{transform:none;box-shadow:var(--shadow)}
     .shared-home-card-lists{margin-right:12px;margin-top:2px;display:grid;gap:5px}
-    .shared-home-card-list-item{font-size:12px;font-weight:700;color:var(--text);background:var(--card2);padding:5px 9px;border-radius:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .shared-home-card-list-item{font-size:12px;font-weight:700;color:var(--text);background:var(--card2);padding:5px 9px;border-radius:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:background .15s}
+    .shared-home-card-list-item:hover{background:color-mix(in srgb,var(--cat-color,var(--accent)) 20%,var(--card2))}
+    .shared-home-add-card{align-items:center;justify-content:center;display:flex;flex-direction:column;gap:6px;border-style:dashed;background:var(--card)}
+    .shared-home-add-card::before{content:none}
+    .shared-home-add-icon{font-size:22px}
+    .shared-home-add-label{font-size:12px;font-weight:800;color:var(--muted)}
     .cat-title {
       font-size: 16px; font-weight: 900; margin: 0 10px 8px 0; line-height: 1.2; padding-left:72px;
       color: color-mix(in srgb, var(--cat-color, var(--text)) 55%, var(--text));
@@ -2326,6 +2336,16 @@
       });
     }
 
+    async function openSharedCategory(listId, catId){
+      // Pre-set where we want to land so that once subscribeSharedList's
+      // first snapshot comes in, forceSharedView() finds this category
+      // already valid and opens straight into it instead of the shared
+      // list's own home/first-category default.
+      state.currentCatId = catId;
+      state.currentView = "kanban";
+      await subscribeSharedList(listId);
+    }
+
     async function subscribeSharedList(listId, options = {}){
       if (!cloudReady || !user?.uid) {
         if (!options.silent) toast("צריך להתחבר כדי להשתמש ברשימה משותפת");
@@ -2797,39 +2817,40 @@
     // populate an accordion strip when it's expanded. Doesn't touch activeDoc/unsub,
     // so it never changes which list is actually open.
     async function loadSharedPeek(id){
+      const toPeek = (cats) => ({ catNames: cats.map(c => c.name), cats: cats.map(c => ({ id: c.id, name: c.name })) });
       // The currently-active list's data is already live in `state`, so always
       // read it fresh instead of using a possibly-stale cached peek.
       if (id === "__private" && activeList.type === "private") {
-        return (sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) });
+        return (sharedPeekCache[id] = toPeek(state.cats));
       }
       if (id !== "__private" && activeList.type === "shared" && activeList.id === id) {
-        return (sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) });
+        return (sharedPeekCache[id] = toPeek(state.cats));
       }
       if (sharedPeekCache[id]) return sharedPeekCache[id];
       try {
         if (id === "__private") {
           if (activeList.type === "private") {
-            sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) };
+            sharedPeekCache[id] = toPeek(state.cats);
           } else if (cloudReady && userDoc) {
             const snap = await getDoc(userDoc);
             const cats = snap.exists() ? (snap.data().state?.cats || []) : [];
-            sharedPeekCache[id] = { catNames: cats.map(c => c.name) };
+            sharedPeekCache[id] = toPeek(cats);
           } else {
-            sharedPeekCache[id] = { catNames: [] };
+            sharedPeekCache[id] = toPeek([]);
           }
         } else if (activeList.type === "shared" && activeList.id === id) {
-          sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) };
+          sharedPeekCache[id] = toPeek(state.cats);
         } else if (cloudReady) {
           const ref = doc(db, "sharedLists", id);
           const snap = await getDoc(ref);
           const cats = snap.exists() ? (snap.data().state?.cats || []) : [];
-          sharedPeekCache[id] = { catNames: cats.map(c => c.name) };
+          sharedPeekCache[id] = toPeek(cats);
         } else {
-          sharedPeekCache[id] = { catNames: [] };
+          sharedPeekCache[id] = toPeek([]);
         }
       } catch (err) {
         console.error("Shared peek error", err);
-        sharedPeekCache[id] = { catNames: [], error: true };
+        sharedPeekCache[id] = { catNames: [], cats: [], error: true };
       }
       return sharedPeekCache[id];
     }
@@ -3604,9 +3625,24 @@
       // Shared lists get their own colored card mixed directly into the same
       // grid as the private lists (filling any empty cells in the last row),
       // instead of a separate section below. The card grows automatically
-      // if the shared list contains more than one list inside it.
+      // if the shared list contains more than one list inside it. The card
+      // itself isn't a link — only the individual lists inside it are, and
+      // clicking one opens straight into that list without swapping the
+      // whole home page away from your private lists.
       const knownShared = getKnownSharedLists();
-      if (knownShared.length && !catSelectMode) {
+      let sharedAddCard = null;
+      if (!catSelectMode) {
+        // A small always-present card to create/join a shared list — this
+        // replaces the old separate "שיתופים" panel button.
+        sharedAddCard = el("article","card cat-card shared-home-add-card");
+        sharedAddCard.title = "רשימה משותפת חדשה או הצטרפות עם קוד";
+        sharedAddCard.style.position = "relative";
+        const addAnchor = el("div","");
+        addAnchor.append(el("div","shared-home-add-icon","🔗"), el("div","shared-home-add-label","רשימה משותפת חדשה"));
+        sharedAddCard.append(addAnchor);
+        sharedAddCard.onclick = (e) => { e.stopPropagation(); openSharedAddMenu(addAnchor); };
+        grid.append(sharedAddCard);
+
         knownShared.forEach((s, i) => {
           const card = el("article","card cat-card shared-home-card");
           const color = SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length];
@@ -3614,13 +3650,16 @@
           card.append(el("h3","cat-title", s.name || "רשימה משותפת"));
           const listsBox = el("div","shared-home-card-lists", "טוען…");
           card.append(listsBox);
-          card.onclick = async () => { await subscribeSharedList(s.id); render(); };
           grid.append(card);
           loadSharedPeek(s.id).then(res => {
             listsBox.replaceChildren();
             if (res.error) { listsBox.textContent = "לא הצלחתי לטעון"; return; }
-            if (!res.catNames.length) { listsBox.textContent = "אין רשימות עדיין"; return; }
-            res.catNames.forEach(name => listsBox.append(el("div","shared-home-card-list-item", name)));
+            if (!res.cats.length) { listsBox.textContent = "אין רשימות עדיין"; return; }
+            res.cats.forEach(c => {
+              const item = el("div","shared-home-card-list-item", c.name);
+              item.onclick = (e) => { e.stopPropagation(); openSharedCategory(s.id, c.id); };
+              listsBox.append(item);
+            });
           });
         });
       }
@@ -6592,6 +6631,7 @@
     }
     
     function navigate(view){
+      const cameFromShared = view === "home" && activeList.type === "shared";
       state.currentView = view;
       if (view !== "kanban") state.currentCatId = view === "home" ? null : state.currentCatId;
       hideCalendarSearchResults();
@@ -6606,6 +6646,9 @@
       } else if (state.autoCollapse) {
         autoCloseSidebar();
       }
+      // subscribePrivateList() renders on its own, so skip the extra
+      // render() below when we're bouncing back from a shared list.
+      if (cameFromShared) { subscribePrivateList(); return; }
       render();
     }
 
