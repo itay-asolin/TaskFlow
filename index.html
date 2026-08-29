@@ -204,6 +204,8 @@
     }
     .cat-mark{display:none}
     .cat-mark small{display:none}
+    .shared-home-card{cursor:pointer}
+    .shared-home-card-peek{font-size:11px;font-weight:800;color:var(--faint);margin-right:12px;margin-top:2px}
     .cat-title {
       font-size: 16px; font-weight: 900; margin: 0 10px 8px 0; line-height: 1.2; padding-left:72px;
       color: color-mix(in srgb, var(--cat-color, var(--text)) 55%, var(--text));
@@ -2337,7 +2339,11 @@
         }
         const data = snap.data();
         if (!data.members?.[user.uid]) {
-          await setDoc(ref, { members: { [user.uid]: "editor" }, updatedAt: serverTimestamp() }, { merge: true });
+          await setDoc(ref, { members: { [user.uid]: "editor" }, memberNames: { [user.uid]: myDisplayName() }, updatedAt: serverTimestamp() }, { merge: true });
+        } else if (data.memberNames?.[user.uid] !== myDisplayName()) {
+          // Keep our own display name fresh for other members to see, and
+          // backfill it for shared lists that predate this field.
+          setDoc(ref, { memberNames: { [user.uid]: myDisplayName() } }, { merge: true }).catch(() => {});
         }
         if (unsub) unsub();
         activeDoc = ref;
@@ -2784,6 +2790,33 @@
     const SHARED_CARD_PALETTE = ["#6d5dfc","#22c55e","#f59e0b","#ec4899","#06b6d4","#ef4444","#a855f7","#14b8a6"];
     let expandedSharedIds = new Set();
     let sharedPeekCache = {};
+    let sharedNamesCache = {};
+
+    // Fetches the display names of the *other* people on a shared list (not
+    // the current user), reading the memberNames map that's written whenever
+    // someone opens or creates the list. Cached like loadSharedPeek so we
+    // don't refetch on every render.
+    async function loadSharedMemberNames(id){
+      if (sharedNamesCache[id]) return sharedNamesCache[id];
+      try {
+        if (!cloudReady) { sharedNamesCache[id] = { names: [] }; return sharedNamesCache[id]; }
+        const ref = doc(db, "sharedLists", id);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) { sharedNamesCache[id] = { names: [] }; return sharedNamesCache[id]; }
+        const data = snap.data();
+        const memberIds = Object.keys(data.members || {});
+        const names = memberIds
+          .filter(uidKey => uidKey !== user?.uid)
+          .map(uidKey => data.memberNames?.[uidKey])
+          .filter(Boolean);
+        sharedNamesCache[id] = { names };
+      } catch (err) {
+        console.error("Shared member names error", err);
+        sharedNamesCache[id] = { names: [], error: true };
+      }
+      return sharedNamesCache[id];
+    }
+
 
     // One-off (non-subscribing) look at the categories inside a list, used to
     // populate an accordion strip when it's expanded. Doesn't touch activeDoc/unsub,
@@ -3601,6 +3634,36 @@
         wrap.append(unifiedCard);
       }
       wrap.append(listHead, listsWheel);
+
+      // One extra card per shared list, in its own color, showing the list's
+      // name and (if known) who it's shared with — separate from the
+      // private-lists carousel above so it never interferes with it.
+      const knownShared = getKnownSharedLists();
+      if (knownShared.length && !catSelectMode) {
+        const sharedSection = el("div","shared-home-section");
+        sharedSection.style.cssText = "margin-top:24px";
+        const sharedTitle = el("h3","", "רשימות משותפות");
+        sharedTitle.style.cssText = "font-size:14px;font-weight:900;color:var(--muted);margin:0 0 12px 4px";
+        sharedSection.append(sharedTitle);
+        const sharedGrid = el("div","grid");
+        knownShared.forEach((s, i) => {
+          const card = el("article","card cat-card shared-home-card");
+          const color = SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length];
+          card.style.setProperty("--cat-color", color);
+          card.append(el("h3","cat-title", s.name || "רשימה משותפת"));
+          const peekLine = el("div","shared-home-card-peek", "טוען שותפים…");
+          card.append(peekLine);
+          card.onclick = async () => { await subscribeSharedList(s.id); render(); };
+          sharedGrid.append(card);
+          loadSharedMemberNames(s.id).then(res => {
+            if (res.error) { peekLine.textContent = "לא הצלחתי לטעון שותפים"; return; }
+            peekLine.textContent = res.names.length ? `משותף עם ${res.names.join(", ")}` : "עדיין אין שותפים שהצטרפו";
+          });
+        });
+        sharedSection.append(sharedGrid);
+        wrap.append(sharedSection);
+      }
+
       if (catSelectMode) wrap.append(renderCatSelectBar());
       $("content").replaceChildren(wrap);
     }
@@ -5243,6 +5306,9 @@
     function formatHours(value){return `${Number(value||0).toLocaleString("he-IL",{maximumFractionDigits:2})} שעות`;}
     function eventKind(ev){return ev?.kind || (ev?.isMeeting ? "meeting" : "event");}
     function eventKindLabel(kind){return ({event:"אירוע",meeting:"פגישה",work:"עבודה / שעות"})[kind]||"אירוע";}
+    function myDisplayName(){
+      return state.profile?.name || (user?.displayName || "") || (user?.email || "").split("@")[0] || "משתמש";
+    }
 
     function updateUserLabel(fallback){
       const name=state.profile?.name || (user?.displayName||"") || (user?.email||"").split("@")[0] || fallback || "";
@@ -5604,6 +5670,7 @@
           kind,
           owner: user.uid,
           members: { [user.uid]: "owner" },
+          memberNames: { [user.uid]: myDisplayName() },
           state: payload,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
