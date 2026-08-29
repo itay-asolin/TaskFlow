@@ -170,6 +170,38 @@
     .cat-tools {
       position: absolute; top: 9px; left: 9px; display: flex; gap: 4px; z-index: 3;
     }
+
+    /* --- Multi-select of lists on the home page --- */
+    .cat-card.select-mode{cursor:pointer}
+    .cat-card.select-mode:hover{transform:translateY(-4px);border-color:var(--danger);box-shadow:0 13px 28px rgba(0,0,0,0.18), 0 0 18px color-mix(in srgb, var(--danger) 20%, transparent)}
+    .cat-card.selected{
+      transform:translateY(-4px);
+      border-color:var(--danger);
+      box-shadow:0 13px 28px rgba(0,0,0,0.18), 0 0 22px color-mix(in srgb, var(--danger) 35%, transparent);
+    }
+    .cat-card.selected::before{background:var(--danger);width:8px}
+    /* Invisible hit-area over the whole checkbox spot; the glow/lift on the card itself is the selection indicator */
+    .cat-select-check{
+      position:absolute;top:0;left:0;z-index:5;width:56px;height:56px;
+      cursor:pointer;background:transparent;border:none;
+    }
+    .cat-select-check input{
+      position:absolute;top:0;left:0;width:100%;height:100%;margin:0;
+      opacity:0;cursor:pointer;
+    }
+    .cat-select-toggle{cursor:pointer;white-space:nowrap}
+    .cat-select-bar{
+      position:fixed;left:50%;transform:translateX(-50%);bottom:80px;z-index:80;
+      display:flex;align-items:center;gap:14px;
+      background:var(--surface);border:1px solid var(--border);border-radius:14px;
+      box-shadow:0 10px 26px rgba(0,0,0,.22);padding:10px 16px;
+    }
+    .cat-select-count{font-size:12px;font-weight:900;color:var(--text);white-space:nowrap}
+    .cat-select-btns{display:flex;gap:8px}
+    .cat-select-btns .btn{min-height:32px;padding:6px 12px;font-size:11.5px}
+    @media (max-width:820px){
+      .cat-select-bar{bottom:76px;left:12px;right:12px;transform:none;justify-content:space-between}
+    }
     .cat-mark{display:none}
     .cat-mark small{display:none}
     .cat-title {
@@ -309,9 +341,10 @@
     }
     
     .kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;align-items:start;max-height:calc(100dvh - 210px);overflow:hidden}
-    .col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);min-height:230px;max-height:calc(100dvh - 214px);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+    .col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);max-height:calc(100dvh - 214px);overflow:hidden;display:flex;flex-direction:column;min-width:0}
     .col-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);font-weight:900}
-    .drop{min-height:170px;padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+    .drop{padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;max-height:calc(3 * 140px + 2 * 10px)}
+    .drop:empty{padding:10px}
     .drop.over{outline:2px dashed var(--accent);outline-offset:-8px}
     .task.drop-target{outline:2px dashed var(--accent);outline-offset:-4px}
     .task{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-right:5px solid var(--accent);border-radius:10px;padding:12px 13px;box-shadow:0 2px 10px rgba(0,0,0,.08);max-height:260px;min-width:0}
@@ -735,30 +768,26 @@
       border-radius:14px;
       padding:12px 14px;
       overflow:hidden;
-      cursor:pointer;
       display:flex;
       flex-direction:column;
       gap:6px;
       text-align:right;
-      transition:transform .25s cubic-bezier(.25,.8,.25,1),border-color .2s ease,box-shadow .2s ease;
+      transition:border-color .2s ease,box-shadow .2s ease;
     }
     .shared-card::before{
       content:"";position:absolute;top:0;right:0;bottom:0;width:6px;
       background:var(--shared-color,#6d5dfc);transition:width .25s ease;
     }
-    .shared-card:hover{
-      transform:translateY(-3px);
-      border-color:var(--shared-color,#6d5dfc);
-      box-shadow:0 12px 24px rgba(0,0,0,.18),0 0 16px color-mix(in srgb,var(--shared-color,#6d5dfc) 16%,transparent);
-    }
-    .shared-card:hover::before{width:8px}
     .shared-card.active{
       border-color:var(--shared-color,#6d5dfc);
       box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--shared-color,#6d5dfc) 45%,transparent);
     }
-    .shared-card.muted{cursor:default;opacity:.6}
+    .shared-card.open{border-color:var(--shared-color,#6d5dfc)}
+    .shared-card.open::before{width:8px}
+    .shared-card.muted{opacity:.6}
     .shared-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .shared-card-head{display:flex;align-items:center;gap:9px;min-width:0}
+    .shared-card-head{display:flex;align-items:center;gap:9px;min-width:0;cursor:pointer;flex:1 1 auto}
+    .shared-card.muted .shared-card-head{cursor:default}
     .shared-card-mark{
       width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
       background:color-mix(in srgb,var(--shared-color,#6d5dfc) 22%,var(--card2));
@@ -773,8 +802,29 @@
       font-size:10.5px;color:var(--faint);font-weight:800;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:41px;
     }
-    .shared-card-dots{font-size:16px;opacity:.6;padding:4px 8px;border-radius:8px;line-height:1;cursor:pointer;flex:0 0 auto}
-    .shared-card-dots:hover{opacity:1;background:var(--card2)}
+    .shared-card-chevron{
+      font-size:13px;opacity:.65;padding:5px 10px;border-radius:8px;line-height:1;
+      cursor:pointer;flex:0 0 auto;
+    }
+    .shared-card-chevron:hover{opacity:1;background:var(--card2)}
+    .shared-card-body{
+      margin-top:6px;padding-top:10px;margin-right:41px;
+      border-top:1px dashed color-mix(in srgb,var(--shared-color,#6d5dfc) 30%,var(--border));
+      display:grid;gap:8px;
+    }
+    .shared-card-code-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .shared-card-code{
+      font-family:monospace;font-size:12px;font-weight:800;
+      background:var(--card2);border-radius:8px;padding:5px 9px;
+    }
+    .shared-card-code-row .btn{min-height:28px;padding:4px 10px;font-size:10.5px;border-radius:8px}
+    .shared-card-body-title{font-size:10px;color:var(--faint);font-weight:900;letter-spacing:.03em}
+    .shared-card-body-empty{font-size:11.5px;color:var(--faint)}
+    .shared-card-body-list{display:grid;gap:5px}
+    .shared-card-body-item{
+      font-size:12px;font-weight:700;color:var(--text);
+      background:var(--card2);padding:5px 9px;border-radius:8px;
+    }
     @media (max-width:520px){
       .shared-card-actions{justify-content:space-between}
     }
@@ -1201,10 +1251,9 @@
       .kanban .col{
         flex:0 0 min(86vw,340px);
         scroll-snap-align:start;
-        min-height:300px;
         max-height:calc(100dvh - 210px);
       }
-      .drop{max-height:calc(100dvh - 266px)}
+      .drop{max-height:min(calc(100dvh - 266px), calc(3 * 140px + 2 * 10px))}
       .col-head{position:sticky;top:0;z-index:1;background:var(--surface)}
       .task{padding:12px 10px;width:100%;max-width:100%;min-width:0;max-height:230px}
       .task-title{-webkit-line-clamp:2}
@@ -1893,6 +1942,9 @@
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
     let openAddMenuEl = null;
+    let catSelectMode = false;
+    let selectedCatIds = new Set();
+    let longPressTimer = null;
     const RESET_UNDO_WINDOW_MS = 5 * 60 * 1000; // 5 minutes to undo a tasks reset
     let taskReminderTimer = null;
 
@@ -2730,11 +2782,67 @@
     }
 
     const SHARED_CARD_PALETTE = ["#6d5dfc","#22c55e","#f59e0b","#ec4899","#06b6d4","#ef4444","#a855f7","#14b8a6"];
+    let expandedSharedIds = new Set();
+    let sharedPeekCache = {};
 
-    // Renders the contents of the purple "שיתופים" panel as cards that look
-    // like the regular list cards on the home page (icon, name, meta line).
-    // This is intentionally a separate function/CSS from the home page cards
-    // (see .shared-card in the stylesheet) so styling one never changes the other.
+    // One-off (non-subscribing) look at the categories inside a list, used to
+    // populate an accordion strip when it's expanded. Doesn't touch activeDoc/unsub,
+    // so it never changes which list is actually open.
+    async function loadSharedPeek(id){
+      // The currently-active list's data is already live in `state`, so always
+      // read it fresh instead of using a possibly-stale cached peek.
+      if (id === "__private" && activeList.type === "private") {
+        return (sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) });
+      }
+      if (id !== "__private" && activeList.type === "shared" && activeList.id === id) {
+        return (sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) });
+      }
+      if (sharedPeekCache[id]) return sharedPeekCache[id];
+      try {
+        if (id === "__private") {
+          if (activeList.type === "private") {
+            sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) };
+          } else if (cloudReady && userDoc) {
+            const snap = await getDoc(userDoc);
+            const cats = snap.exists() ? (snap.data().state?.cats || []) : [];
+            sharedPeekCache[id] = { catNames: cats.map(c => c.name) };
+          } else {
+            sharedPeekCache[id] = { catNames: [] };
+          }
+        } else if (activeList.type === "shared" && activeList.id === id) {
+          sharedPeekCache[id] = { catNames: state.cats.map(c => c.name) };
+        } else if (cloudReady) {
+          const ref = doc(db, "sharedLists", id);
+          const snap = await getDoc(ref);
+          const cats = snap.exists() ? (snap.data().state?.cats || []) : [];
+          sharedPeekCache[id] = { catNames: cats.map(c => c.name) };
+        } else {
+          sharedPeekCache[id] = { catNames: [] };
+        }
+      } catch (err) {
+        console.error("Shared peek error", err);
+        sharedPeekCache[id] = { catNames: [], error: true };
+      }
+      return sharedPeekCache[id];
+    }
+
+    async function toggleSharedExpand(id){
+      if (expandedSharedIds.has(id)) {
+        expandedSharedIds.delete(id);
+        renderSharedPanelContent();
+        return;
+      }
+      expandedSharedIds.add(id);
+      renderSharedPanelContent();
+      await loadSharedPeek(id);
+      renderSharedPanelContent();
+    }
+
+    // Renders the contents of the purple "שיתופים" panel as collapsible strips:
+    // one for "רשימות אישיות" (private) and one per shared list, each with an
+    // arrow that opens/closes it to reveal the share code/link and the lists inside.
+    // Intentionally a separate function/CSS from the home page cards (.shared-card)
+    // so styling one never changes the other.
     function renderSharedCards(){
       const box = el("div","shared-card-box");
 
@@ -2746,19 +2854,13 @@
       addBtn.onclick = (e) => { e.stopPropagation(); openSharedAddMenu(addBtn); };
       addWrap.append(addBtn);
       actions.append(addWrap);
-      if (activeList.type === "shared") {
-        const copy = el("button", "btn", "העתק קוד");
-        copy.type = "button";
-        copy.onclick = copyShareCode;
-        actions.append(copy);
-      }
       box.append(actions);
 
       const grid = el("div","shared-card-grid");
       const known = getKnownSharedLists();
       const items = [
-        { id: "__private", name: "הרשימה הפרטית", meta: "המשימות האישיות שלך", icon: "⌂", active: activeList.type === "private", action: subscribePrivateList, color: SHARED_CARD_PALETTE[0] },
-        ...known.map((s, i) => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: `${sharedKindLabel(s.kind)} · ${s.id}`, icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, deletable: true, action: () => subscribeSharedList(s.id), color: SHARED_CARD_PALETTE[(i + 1) % SHARED_CARD_PALETTE.length] }))
+        { id: "__private", name: "רשימות אישיות", meta: "המשימות האישיות שלך", icon: "⌂", active: activeList.type === "private", action: subscribePrivateList, color: SHARED_CARD_PALETTE[0] },
+        ...known.map((s, i) => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: sharedKindLabel(s.kind), icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, deletable: true, action: () => subscribeSharedList(s.id), color: SHARED_CARD_PALETTE[(i + 1) % SHARED_CARD_PALETTE.length] }))
       ];
 
       if (!known.length) {
@@ -2766,24 +2868,60 @@
       }
 
       items.forEach(item => {
-        const card = el("article","shared-card" + (item.active ? " active" : "") + (item.muted ? " muted" : ""));
+        const isOpen = expandedSharedIds.has(item.id);
+        const card = el("article","shared-card" + (item.active ? " active" : "") + (item.muted ? " muted" : "") + (isOpen ? " open" : ""));
         card.style.setProperty("--shared-color", item.color);
         card.dataset.sharedId = item.id;
 
         const top = el("div","shared-card-top");
+        if (!item.muted) top.onclick = item.action;
         const head = el("div","shared-card-head");
         head.append(el("span","shared-card-mark",item.icon), el("div","shared-card-name",item.name));
         top.append(head);
-        if (item.deletable) {
-          const dots = el("span","shared-card-dots","⋮");
-          dots.title = "פעולות";
-          dots.onclick = (e) => { e.stopPropagation(); openSharedItemMenu(dots, { id: item.id, name: item.name }); };
-          top.append(dots);
+        if (!item.muted) {
+          const chev = el("span","shared-card-chevron", isOpen ? "︿" : "﹀");
+          chev.title = isOpen ? "כיווץ" : "הרחבה";
+          chev.onclick = (e) => { e.stopPropagation(); toggleSharedExpand(item.id); };
+          top.append(chev);
         }
         card.append(top);
         card.append(el("div","shared-card-meta", item.meta + (item.active && !item.muted ? " · פעיל כעת" : "")));
 
-        if (!item.muted) card.onclick = item.action;
+        if (isOpen) {
+          const body = el("div","shared-card-body");
+          if (item.deletable) {
+            const codeRow = el("div","shared-card-code-row");
+            codeRow.append(el("span","shared-card-code", item.id));
+            const copyBtn = el("button","btn","📋 העתק קוד");
+            copyBtn.type = "button";
+            copyBtn.onclick = async (e) => {
+              e.stopPropagation();
+              try { await navigator.clipboard.writeText(item.id); toast("קוד השיתוף הועתק"); }
+              catch { prompt("העתק את קוד השיתוף:", item.id); }
+            };
+            const delShareBtn = el("button","btn danger","🗑 מחיקת שיתוף");
+            delShareBtn.type = "button";
+            delShareBtn.onclick = (e) => { e.stopPropagation(); deleteSharedList({ id: item.id, name: item.name }); };
+            codeRow.append(copyBtn, delShareBtn);
+            body.append(codeRow);
+          }
+          const peek = sharedPeekCache[item.id];
+          const listsTitle = el("div","shared-card-body-title", "רשימות בפנים:");
+          body.append(listsTitle);
+          if (!peek) {
+            body.append(el("div","shared-card-body-empty","טוען…"));
+          } else if (peek.error) {
+            body.append(el("div","shared-card-body-empty","לא הצלחתי לטעון את התוכן"));
+          } else if (!peek.catNames.length) {
+            body.append(el("div","shared-card-body-empty","אין רשימות עדיין"));
+          } else {
+            const ul = el("div","shared-card-body-list");
+            peek.catNames.forEach(name => ul.append(el("div","shared-card-body-item", name)));
+            body.append(ul);
+          }
+          card.append(body);
+        }
+
         grid.append(card);
       });
 
@@ -2845,20 +2983,32 @@
       }
       
 	state.cats.forEach(cat => {
-        const card = el("article","card cat-card");
+        const card = el("article","card cat-card" + (catSelectMode ? " select-mode" : "") + (selectedCatIds.has(cat.id) ? " selected" : ""));
         const catColor = cat.color || state.accent;
         card.style.setProperty('--cat-color', catColor);
         
         if (activeList.type === "shared") card.style.backgroundColor = state.accent + "1A";
 
-        // Tools
-        const tools = el("div","cat-tools");
-        tools.append(
-          tool("שכפל רשימה", "⧉", () => duplicateCategory(cat.id)),
-          tool("ערוך רשימה", "✎", () => openCategoryModal(cat)),
-          tool("מחק רשימה", "🗑", () => deleteCategory(cat.id))
-        );
-        card.append(tools);
+        if (catSelectMode) {
+          // Selection mode: show a checkbox instead of the edit/duplicate/delete tools,
+          // so a tap can't accidentally trigger one of those actions.
+          const checkWrap = el("label","cat-select-check");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = selectedCatIds.has(cat.id);
+          checkbox.onclick = (e) => { e.stopPropagation(); toggleCatSelected(cat.id); };
+          checkWrap.append(checkbox);
+          card.append(checkWrap);
+        } else {
+          // Tools
+          const tools = el("div","cat-tools");
+          tools.append(
+            tool("שכפל רשימה", "⧉", () => duplicateCategory(cat.id)),
+            tool("ערוך רשימה", "✎", () => openCategoryModal(cat)),
+            tool("מחק רשימה", "🗑", () => deleteCategory(cat.id))
+          );
+          card.append(tools);
+        }
 
         // Title
         card.append(el("h3", "cat-title", cat.name));
@@ -2902,12 +3052,24 @@
         }
         card.append(peek);
 
-        // Click to open
+        // Click to open (or toggle selection while in select mode)
         card.onclick = (e) => {
+          if (longPressFired) { longPressFired = false; return; }
           if (e.target.closest('.cat-tools')) return;
+          if (e.target.closest('.cat-select-check')) return;
+          if (catSelectMode) return toggleCatSelected(cat.id);
           if (window.matchMedia("(max-width:820px)").matches) openCategoryDetailModal(cat.id);
           else openCat(cat.id);
         };
+
+        // Long-press (mobile) to enter/extend selection mode without opening the list
+        let longPressFired = false;
+        card.addEventListener("touchstart", () => {
+          longPressFired = false;
+          startLongPress(cat.id, () => { longPressFired = true; });
+        }, { passive: true });
+        card.addEventListener("touchend", cancelLongPress, { passive: true });
+        card.addEventListener("touchmove", cancelLongPress, { passive: true });
 
         // Drag & Drop
         card.ondragover = (e) => { e.preventDefault(); card.style.borderColor = "var(--accent)"; };
@@ -3163,7 +3325,17 @@
       };
 
       addWrap.append(unifiedAddBtn, addMenu);
-      listHead.append(listHeadTitle, addWrap);
+      listHead.append(listHeadTitle);
+
+      if (state.cats.length > 0) {
+        const selectToggleBtn = el("button","cat-select-toggle", catSelectMode ? "✕ בטל בחירה" : "☑ בחירה מרובה");
+        selectToggleBtn.type = "button";
+        selectToggleBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text)";
+        selectToggleBtn.onclick = () => toggleCatSelectMode();
+        listHead.append(selectToggleBtn);
+      }
+
+      listHead.append(addWrap);
 
       const listsWheel = el("div","lists-wheel");
       listsWheel.append(grid);
@@ -3182,9 +3354,10 @@
         const SLOT_H = 112;
         const GAP = 6;
         const ROW_H = SLOT_H + GAP;
-        // Show fewer slots when the deadlines widget is already taking up space above
-        const VISIBLE_SLOTS = 3;
-        const CENTER_ROW = Math.floor((VISIBLE_SLOTS - 1) / 2);
+        // Show one slot per list, up to a max of 3 — so with fewer than 3 lists
+        // the wheel shrinks to fit instead of leaving empty slot space.
+        const VISIBLE_SLOTS = Math.min(3, total);
+        const CENTER_ROW = total < 3 ? 0 : Math.floor((VISIBLE_SLOTS - 1) / 2);
         const VIEWPORT_H = SLOT_H * VISIBLE_SLOTS + GAP * (VISIBLE_SLOTS - 1);
 
         // Build slider container (vertical)
@@ -3230,9 +3403,9 @@
           const wrap = el("div","");
           wrap.style.cssText = `flex:0 0 ${SLOT_H}px;height:${SLOT_H}px;margin-bottom:${GAP}px;box-sizing:border-box;display:flex`;
 
-          // cloneNode never carries JS-assigned onclick handlers, so every
-          // clone's inner tool buttons + the card itself need fresh handlers
-          // wired directly to this slot's real category.
+          // cloneNode never carries JS-assigned onclick/addEventListener handlers, so
+          // every clone's inner tool buttons + the card itself need fresh handlers
+          // wired directly to this slot's real category (including selection mode).
           const slotCat = state.cats[realIdx];
           const dupBtn = node.querySelector('.cat-tools .mini[title="שכפל רשימה"]');
           const editBtn = node.querySelector('.cat-tools .mini[title="ערוך רשימה"]');
@@ -3240,14 +3413,27 @@
           if (dupBtn) dupBtn.onclick = (e) => { e.stopPropagation(); duplicateCategory(slotCat.id); };
           if (editBtn) editBtn.onclick = (e) => { e.stopPropagation(); openCategoryModal(slotCat); };
           if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteCategory(slotCat.id); };
+          const checkInput = node.querySelector('.cat-select-check input');
+          if (checkInput) checkInput.onclick = (e) => { e.stopPropagation(); toggleCatSelected(slotCat.id); };
+
+          let slotLongPressFired = false;
+          node.ontouchstart = () => {
+            slotLongPressFired = false;
+            startLongPress(slotCat.id, () => { slotLongPressFired = true; });
+          };
+          node.ontouchend = cancelLongPress;
+          node.ontouchmove = cancelLongPress;
 
           node.onclick = (e) => {
+            if (slotLongPressFired) { slotLongPressFired = false; return; }
             if (slotIdx !== vCurrent) {
               e.stopPropagation();
               goTo(vCurrent + (slotIdx - vCurrent));
               return;
             }
             if (e.target.closest(".cat-tools")) return;
+            if (e.target.closest(".cat-select-check")) return;
+            if (catSelectMode) return toggleCatSelected(slotCat.id);
             openCategoryDetailModal(slotCat.id);
           };
 
@@ -3415,6 +3601,7 @@
         wrap.append(unifiedCard);
       }
       wrap.append(listHead, listsWheel);
+      if (catSelectMode) wrap.append(renderCatSelectBar());
       $("content").replaceChildren(wrap);
     }
 
@@ -6502,6 +6689,81 @@
       state.tasks = state.tasks.filter(t => t.catId !== id);
       if (state.currentCatId === id) { state.currentCatId = null; state.currentView = "home"; }
       save(); render(); toastUndo(`"${cat.name}" נמחקה`);
+    }
+
+    // --- Multi-select of lists (categories) on the home page ---
+    // Enter/exit via a toolbar toggle (desktop) or a long-press on a card (mobile).
+    function enterCatSelectMode(firstId){
+      catSelectMode = true;
+      if (firstId) selectedCatIds.add(firstId);
+      render();
+    }
+
+    function exitCatSelectMode(){
+      catSelectMode = false;
+      selectedCatIds.clear();
+      render();
+    }
+
+    function toggleCatSelectMode(){
+      if (catSelectMode) exitCatSelectMode();
+      else enterCatSelectMode();
+    }
+
+    function toggleCatSelected(id){
+      if (selectedCatIds.has(id)) selectedCatIds.delete(id);
+      else selectedCatIds.add(id);
+      render();
+    }
+
+    function startLongPress(id, onFire){
+      clearTimeout(longPressTimer);
+      longPressTimer = setTimeout(() => {
+        longPressTimer = null;
+        if (navigator.vibrate) navigator.vibrate(15);
+        if (typeof onFire === "function") onFire();
+        if (!catSelectMode) enterCatSelectMode(id);
+        else toggleCatSelected(id);
+      }, 500);
+    }
+
+    function cancelLongPress(){
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+
+    function deleteCategoriesBulk(){
+      const ids = [...selectedCatIds];
+      if (!ids.length) return;
+      const cats = state.cats.filter(c => ids.includes(c.id));
+      const label = cats.length === 1 ? `"${cats[0].name}"` : `${cats.length} הרשימות שנבחרו`;
+      if (!confirm(`למחוק את ${label} ואת כל המשימות שלהן? לא ניתן לבטל פעולה זו.`)) return;
+      cats.forEach(cat => {
+        const removedTasks = state.tasks.filter(t => t.catId === cat.id);
+        undoStack.push({ type:"cat", cat: JSON.parse(JSON.stringify(cat)), tasks: JSON.parse(JSON.stringify(removedTasks)) });
+      });
+      state.cats = state.cats.filter(c => !ids.includes(c.id));
+      state.tasks = state.tasks.filter(t => !ids.includes(t.catId));
+      if (ids.includes(state.currentCatId)) { state.currentCatId = null; state.currentView = "home"; }
+      exitCatSelectMode();
+      save(); render();
+      toast(`🗑 ${cats.length} רשימות נמחקו`);
+    }
+
+    function renderCatSelectBar(){
+      const bar = el("div","cat-select-bar");
+      const count = el("div","cat-select-count", selectedCatIds.size ? `${selectedCatIds.size} רשימות נבחרו` : "בחר רשימות למחיקה");
+      const btns = el("div","cat-select-btns");
+      const delBtn = el("button","btn danger","🗑 מחק נבחרות");
+      delBtn.type = "button";
+      delBtn.disabled = !selectedCatIds.size;
+      delBtn.onclick = deleteCategoriesBulk;
+      const cancelBtn = el("button","btn","ביטול");
+      cancelBtn.type = "button";
+      cancelBtn.onclick = exitCatSelectMode;
+      btns.append(delBtn, cancelBtn);
+      bar.append(count, btns);
+      return bar;
     }
     
 	function duplicateCategory(id){
