@@ -209,6 +209,7 @@
     .cat-mark{display:none}
     .cat-mark small{display:none}
     .shared-home-card{cursor:default}
+    .shared-home-grid{margin-top:18px}
     .shared-home-card:hover{transform:none;box-shadow:var(--shadow)}
     .shared-home-card-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
     .shared-home-card-head .cat-title{margin:0;flex:1 1 auto;min-width:0}
@@ -3681,14 +3682,15 @@
         goTo(vCurrent, false);
       }
 
-      // Shared lists get their own colored card mixed directly into the same
-      // grid as the private lists (filling any empty cells in the last row),
-      // instead of a separate section below. The card grows automatically
-      // if the shared list contains more than one list inside it. The card
-      // itself isn't a link — only the individual lists inside it are, and
-      // clicking one opens straight into that list without swapping the
-      // whole home page away from your private lists.
+      // Shared lists get their own colored cards, styled just like the private
+      // ones, but rendered in their own natural-flow section below the private
+      // lists — never inside the mobile "lists-wheel" carousel, which locks
+      // itself to a fixed height + overflow:hidden and virtualizes/clones its
+      // slides for infinite swipe. Mounting shared cards there clipped them and
+      // left them looking stuck instead of scrollable, so they get a separate
+      // grid mounted after the wheel instead.
       const knownShared = getKnownSharedLists();
+      const sharedGrid = el("div","grid shared-home-grid");
       if (!catSelectMode) {
         knownShared.forEach((s, i) => {
           const card = el("article","card cat-card shared-home-card");
@@ -3710,7 +3712,7 @@
 
           const listsBox = el("div","shared-home-card-lists", "טוען…");
           card.append(listsBox);
-          grid.append(card);
+          sharedGrid.append(card);
           loadSharedPeek(s.id).then(res => {
             listsBox.replaceChildren();
             if (res.error) { listsBox.textContent = "לא הצלחתי לטעון"; return; }
@@ -3734,6 +3736,7 @@
         wrap.append(unifiedCard);
       }
       wrap.append(listHead, joinRow, listsWheel);
+      if (sharedGrid.children.length) wrap.append(sharedGrid);
 
       if (catSelectMode) wrap.append(renderCatSelectBar());
       $("content").replaceChildren(wrap);
