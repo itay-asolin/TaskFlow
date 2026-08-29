@@ -691,7 +691,9 @@
     .shared-wheel-stage::after{bottom:0;background:linear-gradient(transparent,var(--card))}
     .shared-wheel-track{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;padding:58px 8px;display:grid;gap:8px}
     .shared-wheel-track::-webkit-scrollbar{display:none}
-    .shared-wheel-item{min-height:50px;scroll-snap-align:center;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--text);text-align:right;transition:transform .16s,border-color .16s,background .16s,opacity .16s;opacity:.72}
+    .shared-wheel-item{min-height:50px;scroll-snap-align:center;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:9px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--text);text-align:right;transition:transform .16s,border-color .16s,background .16s,opacity .16s;opacity:.72}
+    .shared-wheel-del{font-size:14px;opacity:.55;padding:4px 6px;border-radius:8px;line-height:1}
+    .shared-wheel-del:hover{opacity:1;background:var(--card2)}
     .shared-wheel-item:hover{opacity:1;border-color:var(--accent)}
     .shared-wheel-item.active{opacity:1;transform:scale(1.02);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 24%,transparent)}
     .shared-wheel-item.muted{cursor:default;opacity:.55}
@@ -1810,7 +1812,7 @@
     };
     let authMode = "login";
     let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut;
-    let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp;
+    let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp, deleteDoc, deleteField;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
     let knownSharedDoc = null, unsubKnown = null, knownSharedCache = [];
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
@@ -1850,7 +1852,7 @@
         const fireMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
         ({ initializeApp } = appMod);
         ({ getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut } = authMod);
-        ({ getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } = fireMod);
+        ({ getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp, deleteDoc, deleteField } = fireMod);
         const app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
@@ -2451,6 +2453,9 @@
         try { localStorage.setItem("taskflow_knownShared", JSON.stringify(knownSharedCache)); } catch {}
         if ($("sharedPanel")?.classList.contains("open")) renderSharedPanelContent();
         else if (state.currentView === "home") render();
+      }, (err) => {
+        console.error("Known shared sync failed", err);
+        toast("סנכרון השיתופים בין מכשירים נכשל (בדוק Firestore Rules).");
       });
     }
 
@@ -2464,6 +2469,40 @@
         try { await setDoc(knownSharedDoc, { items: list, updatedAt: serverTimestamp() }, { merge: true }); }
         catch (err) { console.error("Sync known shared failed", err); }
       }
+    }
+
+    async function removeKnownShared(id){
+      const list = getKnownSharedLists().filter(k => k.id !== id);
+      knownSharedCache = list;
+      try { localStorage.setItem("taskflow_knownShared", JSON.stringify(list)); } catch {}
+      if (knownSharedDoc) {
+        try { await setDoc(knownSharedDoc, { items: list, updatedAt: serverTimestamp() }, { merge: true }); }
+        catch (err) { console.error("Sync known shared failed", err); }
+      }
+    }
+
+    async function deleteSharedList(item){
+      if (!cloudReady || !user?.uid) return;
+      if (!confirm(`למחוק את "${item.name || "השיתוף"}"? הפעולה לא הפיכה.`)) return;
+      const ref = doc(db, "sharedLists", item.id);
+      try {
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.owner === user.uid) {
+            await deleteDoc(ref);
+          } else {
+            await setDoc(ref, { members: { [user.uid]: deleteField() }, updatedAt: serverTimestamp() }, { merge: true });
+          }
+        }
+      } catch (err) {
+        console.error("Delete shared list failed", err);
+        toast("לא הצלחתי למחוק את השיתוף. בדוק Firestore Rules.");
+      }
+      await removeKnownShared(item.id);
+      if (activeList.type === "shared" && activeList.id === item.id) subscribePrivateList();
+      else renderSharedPanelContent();
+      toast("השיתוף הוסר");
     }
 
     function sharedKindLabel(kind){
@@ -2500,7 +2539,7 @@
       const known = getKnownSharedLists();
       const items = [
         { id: "__private", name: "הרשימה הפרטית", meta: "המשימות האישיות שלך", icon: "⌂", active: activeList.type === "private", action: subscribePrivateList },
-        ...known.map(s => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: `${sharedKindLabel(s.kind)} · ${s.id}`, icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, action: () => subscribeSharedList(s.id) })),
+        ...known.map(s => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: `${sharedKindLabel(s.kind)} · ${s.id}`, icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, deletable: true, action: () => subscribeSharedList(s.id) })),
         { id: "__join", name: "הצטרפות לשיתוף", meta: "הדבק קוד שקיבלת ממישהו", icon: "+", active: false, action: joinSharedList }
       ];
 
@@ -2516,6 +2555,12 @@
         const text = row.children[1];
         text.append(el("div", "shared-wheel-name", item.name), el("div", "shared-wheel-meta", item.meta));
         if (!item.muted) row.onclick = item.action;
+        if (item.deletable) {
+          const del = el("span", "shared-wheel-del", "🗑");
+          del.title = "מחיקת שיתוף";
+          del.onclick = (e) => { e.stopPropagation(); deleteSharedList({ id: item.id, name: item.name }); };
+          row.append(del);
+        }
         track.append(row);
       });
 
