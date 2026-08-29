@@ -395,10 +395,13 @@
     .chip.critical{box-shadow:0 0 0 1px var(--danger);animation:chip-pulse 1.8s ease-in-out infinite}
     @keyframes chip-pulse{0%,100%{box-shadow:0 0 0 1px rgba(239,68,68,.5)}50%{box-shadow:0 0 0 1px rgba(239,68,68,1)}}
     @media (prefers-reduced-motion: reduce){.chip.critical{animation:none;box-shadow:0 0 0 1.5px var(--danger)}}
-    .subs{border-top:1px solid var(--border);padding-top:8px;display:grid;gap:3px;max-height:112px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+    .subs{border-top:1px solid var(--border);padding-top:8px;display:grid;gap:2px;max-height:112px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+    @keyframes semPillIn{from{opacity:0;transform:scaleX(.25) translateY(-3px);}60%{transform:scaleX(1.05) translateY(0);}to{opacity:1;transform:scaleX(1) translateY(0);}}
+    .sem-preview{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px;min-height:24px}
+    .sem-pill{display:flex;align-items:center;height:22px;border-radius:7px;padding:0 10px;font-size:11px;font-weight:800;color:#fff;transform-origin:right center;animation:semPillIn .3s cubic-bezier(.25,.8,.25,1);white-space:nowrap}
     .subs-header:hover span{color:var(--muted)}
     .subs-header .bar{flex:1;margin:0 0 0 6px}
-    .subtask{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;font-weight:600;padding:3px 4px;border-radius:5px;min-width:0}
+    .subtask{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;font-weight:600;padding:3px 4px;border-radius:5px;min-width:0;margin:0}
     .subtask:hover{background:var(--card2)}
     .subtask input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;flex:0 0 auto}
     .subtask.done{color:var(--faint)}
@@ -5425,11 +5428,30 @@
 
     function openSemesterModal(){
       if (activeList.type === "shared") return toast("סמסטר מהיר פועל רק על הרשימה הפרטית - עברו אליה קודם");
-      openModal("🎓 סמסטר חדש","נבנה רשימה צבעונית לכל קורס. הפרד שמות בפסיקים. רשימות מסמסטר קודם שנוצר כך יימחקו.",form=>{
+      openModal("🎓 סמסטר חדש","נבנה רשימה צבעונית לכל קורס, עם אותן עמודות לכולן. הפרד שמות בפסיקים. רשימות מסמסטר קודם שנוצר כך יימחקו.",form=>{
         form.append(field("שם הסמסטר","semesterName","text",`סמסטר ${new Date().getFullYear()}`));
         form.append(field("קורסים","semesterCourses","text",""));
         form.append(el("p","meta","לדוגמה: אלגוריתמים, מבני נתונים, אנגלית"));
-        form.append(footer("צור קורסים",()=>{const courses=$("semesterCourses").value.split(",").map(x=>x.trim()).filter(Boolean);if(!courses.length)return toast("הוסף לפחות קורס אחד");const removedCount=deletePreviousSemesterLists();const sem={id:uid("sem"),name:$("semesterName").value.trim()||"סמסטר",courses:[]};courses.forEach((name,i)=>{const cat={id:uid("c"),name,columns:[{id:"col1",name:"לביצוע"},{id:"col2",name:"השבוע"},{id:"col3",name:"הושלם"}],color:colors[(state.cats.length+i)%colors.length],semesterId:sem.id};state.cats.push(cat);sem.courses.push(cat.id);});state.semesters=[...(state.semesters||[]),sem];save();closeModal();navigate("home");toast(`נוצרו ${courses.length} רשימות קורסים${removedCount?` (${removedCount} רשימות מהסמסטר הקודם הוחלפו)`:""} ✓`);}));
+        const preview = el("div","sem-preview");
+        form.append(preview);
+        form.append(field("עמודות ברשימה (לכל הקורסים)","semesterColumns","text","לביצוע, השבוע, הושלם"));
+        form.append(el("p","meta","לדוגמה: קריאה, תרגול, הושלם"));
+
+        const coursesInput = $("semesterCourses");
+        const updatePreview = () => {
+          const courses = coursesInput.value.split(",").map(x=>x.trim()).filter(Boolean);
+          [...preview.children].forEach(p => { if (!courses.includes(p.dataset.name)) p.remove(); });
+          courses.forEach((name,i) => {
+            if ([...preview.children].some(p => p.dataset.name === name)) return;
+            const pill = el("span","sem-pill",name);
+            pill.dataset.name = name;
+            pill.style.background = colors[i % colors.length];
+            preview.append(pill);
+          });
+        };
+        coursesInput.addEventListener("input", updatePreview);
+
+        form.append(footer("צור קורסים",()=>{const courses=$("semesterCourses").value.split(",").map(x=>x.trim()).filter(Boolean);if(!courses.length)return toast("הוסף לפחות קורס אחד");const colNames=$("semesterColumns").value.split(",").map(x=>x.trim()).filter(Boolean);const columns=(colNames.length?colNames:["לביצוע","השבוע","הושלם"]).map((name,idx)=>({id:"col"+(idx+1),name}));const removedCount=deletePreviousSemesterLists();const sem={id:uid("sem"),name:$("semesterName").value.trim()||"סמסטר",courses:[]};courses.forEach((name,i)=>{const cat={id:uid("c"),name,columns:columns.map(c=>({...c})),color:colors[i%colors.length],semesterId:sem.id};state.cats.push(cat);sem.courses.push(cat.id);});state.semesters=[...(state.semesters||[]),sem];save();closeModal();navigate("home");toast(`נוצרו ${courses.length} רשימות קורסים${removedCount?` (${removedCount} רשימות מהסמסטר הקודם הוחלפו)`:""} ✓`);}));
       });
     }
 
