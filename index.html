@@ -5128,19 +5128,12 @@
       const tasks = state.tasks.filter(t => t.catId === cat.id);
       if (!tasks.length) return toast("אין משימות להעתקה ברשימה הזו");
       const cols = getColumns(cat);
-      const colName = key => cols.find(c => c.key === key)?.name || key;
-      const lines = [`רשימה: ${cat.name}`, `תאריך ייצוא: ${formatDateShort(toDateKey(new Date()))}`, `סה"כ משימות: ${tasks.length}`, ""];
-      tasks.forEach((t, i) => {
-        lines.push(`משימה: ${t.name}`);
-        lines.push(`סטטוס: ${isDone(t) ? "הושלם" : "פתוח"}`);
-        lines.push(`עמודה: ${colName(t.col)}`);
-        lines.push(`תאריך יעד: ${t.due ? formatDateShort(t.due) : "ללא"}`);
-        if (t.tags?.length) lines.push(`תגיות: ${t.tags.join(", ")}`);
-        if (t.subs?.length) {
-          lines.push("תתי-משימות:");
-          t.subs.forEach(s => lines.push(`  ${s.done ? "☑" : "☐"} ${s.text}`));
-        }
-        if (i < tasks.length - 1) { lines.push(""); lines.push("---"); lines.push(""); }
+      const lines = [cat.name, ""];
+      cols.forEach(col => {
+        const colTasks = tasks.filter(t => t.col === col.key);
+        if (!colTasks.length) return;
+        const items = colTasks.map(t => t.due ? `${t.name} עד ה-${formatDateShort(t.due)}` : t.name);
+        lines.push(`${col.name}: ${items.join(", ")}`);
       });
       const text = lines.join("\n");
       try {
