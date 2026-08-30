@@ -1961,6 +1961,7 @@
     let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut;
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp, deleteDoc, deleteField;
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
+    let activeListReady = true;
     let knownSharedDoc = null, unsubKnown = null, knownSharedCache = [];
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
     let selectedPlannerTaskId = null, draggedPlannerTaskId = null;
@@ -2314,6 +2315,7 @@
       
       activeDoc = userDoc;
       activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
+      activeListReady = true;
       setActiveListPreference(activeList);
 
       state.cats = [];
@@ -2379,9 +2381,11 @@
           setDoc(ref, { memberNames: { [user.uid]: myDisplayName() } }, { merge: true }).catch(() => {});
         }
         if (unsub) unsub();
+        clearTimeout(saveTimer);
         activeDoc = ref;
         const sharedKind = data.kind || inferSharedKind(data.state || {});
         activeList = { type: "shared", id: listId.trim(), name: data.name || "רשימה משותפת", role: data.members?.[user.uid] || "editor", kind: sharedKind };
+        activeListReady = false;
         upsertKnownShared({ id: listId.trim(), name: data.name || "רשימה משותפת", kind: sharedKind });
         setActiveListPreference(activeList);
         let sharedSnapshotReady = false;
@@ -2415,6 +2419,7 @@
           lastSharedState = JSON.stringify(incomingState);
           if (remoteChange) notifySharedChange(changeText);
           sharedSnapshotReady = true;
+          activeListReady = true;
         });
         if (!options.silent) toast("התחברת לרשימה המשותפת");
         return listId;
@@ -2536,6 +2541,16 @@
 
     function save(){
       if (suppressSave) return;
+      // Guard against a race on shared-list load: right after switching to a
+      // shared list, activeList/activeDoc point at it immediately, but the
+      // real shared cats/tasks only land once its first onSnapshot delivers
+      // (a network round-trip). Anything that calls save() in that window
+      // (e.g. the daily-agenda auto-prompt firing on app open) would still
+      // see the previous (private) state in memory and — because activeDoc
+      // already points at the shared doc — overwrite the shared list's real
+      // content with stale private data. So: no cloud writes for a shared
+      // list until we know we're holding its actual data.
+      if (activeList.type === "shared" && !activeListReady) return;
       const payload = cleanState(state);
       const currentListType = activeList.type;
       const currentDoc = activeDoc;
@@ -3768,16 +3783,15 @@
 
       const topBar = el("div","row");
       topBar.style.marginBottom = "12px";
-      const toggle = el("div","view-toggle");
-      const kanbanBtn = el("button", state.kanbanListMode ? "" : "active", "▦ לוח");
-      const listBtn = el("button", state.kanbanListMode ? "active" : "", "☰ רשימה");
-      kanbanBtn.onclick = () => { state.kanbanListMode = false; render(); };
-      listBtn.onclick = () => { state.kanbanListMode = true; render(); };
-      toggle.append(kanbanBtn, listBtn);
       const editCatBtn = el("button","btn","✎ ערוך רשימה");
       editCatBtn.type = "button";
       editCatBtn.onclick = () => openCategoryModal(cat);
-      topBar.append(toggle, editCatBtn);
+      const exportWrap = el("div","shared-add-wrap");
+      const exportBtn = el("button","btn","⬇ ייצוא");
+      exportBtn.type = "button";
+      exportBtn.onclick = (e) => { e.stopPropagation(); openListExportMenu(exportBtn, cat); };
+      exportWrap.append(exportBtn);
+      topBar.append(editCatBtn, exportWrap);
       wrap.append(topBar);
 
       const dueFilterBar = el("div","view-toggle");
@@ -3796,53 +3810,19 @@
       });
       wrap.append(dueFilterBar);
 
-      if (state.kanbanListMode) {
-        getColumns(cat).forEach(col => {
-          const tasks = applyDueFilter(filteredTasks().filter(t => t.catId === cat.id && t.col === col.key && !isDone(t)));
-          const sec = el("div","card"); sec.style.marginBottom = "14px";
-          const head = el("div","col-head"); head.style.cssText = "padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center";
-          const headLeft = el("div",""); headLeft.style.cssText = "display:flex;align-items:center;gap:8px";
-          headLeft.append(el("span","",col.name), el("span","count",String(tasks.length)));
-          const colPlusBtn = el("button","btn","＋ הוסף");
-          colPlusBtn.type = "button";
-          colPlusBtn.style.cssText = "padding:4px 10px;font-size:11px;min-height:28px;border-radius:999px;background:color-mix(in srgb,var(--accent) 14%,var(--card2));border-color:color-mix(in srgb,var(--accent) 38%,var(--border));color:var(--accent2)";
-          colPlusBtn.onclick = () => openQuickAddTask(cat, col.key);
-          head.append(headLeft, colPlusBtn);
-          sec.append(head);
-          const list = el("div","list");
-          tasks.forEach(t => list.append(taskRow(t)));
-          if (!tasks.length) list.append(emptyFun());
-          sec.append(list);
-          wrap.append(sec);
-        });
-      } else {
-        const board = el("div","kanban");
-        getColumns(cat).forEach(col => {
-          const colEl = el("section","col");
-          const tasks = applyDueFilter(filteredTasks().filter(t => t.catId === cat.id && t.col === col.key && !isDone(t)));
-          const head = el("div","col-head");
-          const headLeft = el("div",""); headLeft.style.cssText = "display:flex;align-items:center;gap:8px";
-          headLeft.append(el("span","",col.name), el("span","count", String(tasks.length)));
-          const colPlusBtn = el("button","","＋");
-          colPlusBtn.type = "button";
-          colPlusBtn.title = "הוסף משימה לעמודה";
-          colPlusBtn.style.cssText = "border:1.5px solid color-mix(in srgb,var(--accent) 38%,var(--border));background:color-mix(in srgb,var(--accent) 12%,var(--card2));color:var(--accent2);border-radius:50%;width:26px;height:26px;font-size:15px;display:grid;place-items:center;cursor:pointer;transition:.18s;flex:0 0 auto;line-height:1";
-          colPlusBtn.onmouseenter = () => { colPlusBtn.style.background = "var(--accent)"; colPlusBtn.style.color = "#fff"; };
-          colPlusBtn.onmouseleave = () => { colPlusBtn.style.background = "color-mix(in srgb,var(--accent) 12%,var(--card2))"; colPlusBtn.style.color = "var(--accent2)"; };
-          colPlusBtn.onclick = () => openQuickAddTask(cat, col.key);
-          head.append(headLeft, colPlusBtn);
-          const drop = el("div","drop");
-          drop.dataset.col = col.key;
-          drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
-          drop.ondragleave = () => drop.classList.remove("over");
-          drop.ondrop = () => moveDragged(cat.id, col.key);
-          tasks.forEach(task => drop.append(taskCard(task, true)));
-          if (!tasks.length) drop.append(emptyFun());
-          colEl.append(head, drop);
-          board.append(colEl);
-        });
-        wrap.append(board);
-      }
+      const openTasks = applyDueFilter(filteredTasks().filter(t => t.catId === cat.id && !isDone(t)));
+      openTasks.sort((a, b) => {
+        if (!a.due && !b.due) return 0;
+        if (!a.due) return 1;
+        if (!b.due) return -1;
+        return a.due < b.due ? -1 : a.due > b.due ? 1 : 0;
+      });
+      const sec = el("div","card");
+      const list = el("div","list");
+      openTasks.forEach(t => list.append(taskRow(t)));
+      if (!openTasks.length) list.append(emptyFun());
+      sec.append(list);
+      wrap.append(sec);
 
       const completedTasks = filteredTasks().filter(t => t.catId === cat.id && isDone(t));
       if (completedTasks.length > 0) {
@@ -5118,6 +5098,85 @@
         console.error("Jewish holidays import failed", err);
         toast("לא הצלחתי לייבא חגים יהודיים כרגע");
       }
+    }
+
+    function icsEscape(str){
+      return String(str).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");
+    }
+
+    function openListExportMenu(anchor, cat){
+      closeSharedItemMenu();
+      closeSharedAddMenu();
+      const menu = el("div","shared-item-menu");
+      const r = anchor.getBoundingClientRect();
+      menu.style.top = (r.bottom + 4) + "px";
+      menu.style.left = Math.max(8, r.left - 90) + "px";
+      const txtBtn = el("button","","📄 ייצוא לטקסט");
+      txtBtn.type = "button";
+      txtBtn.onclick = () => { closeSharedItemMenu(); exportCatText(cat); };
+      const gcalBtn = el("button","","📅 ייצוא ל-Google Calendar");
+      gcalBtn.type = "button";
+      gcalBtn.onclick = () => { closeSharedItemMenu(); exportCatGCal(cat); };
+      menu.append(txtBtn, gcalBtn);
+      document.body.append(menu);
+      setTimeout(() => document.addEventListener("click", closeSharedItemMenu, true), 0);
+    }
+
+    // ייצוא כל המשימות ברשימה נתונה לטקסט עברי נקי, בלי JSON או יישור טכני —
+    // רק שורות "שדה: ערך" מסודרות, מופרדות במקף לכל משימה.
+    function exportCatText(cat){
+      const tasks = state.tasks.filter(t => t.catId === cat.id);
+      if (!tasks.length) return toast("אין משימות לייצוא ברשימה הזו");
+      const cols = getColumns(cat);
+      const colName = key => cols.find(c => c.key === key)?.name || key;
+      const lines = [`רשימה: ${cat.name}`, `תאריך ייצוא: ${formatDateShort(toDateKey(new Date()))}`, `סה"כ משימות: ${tasks.length}`, ""];
+      tasks.forEach((t, i) => {
+        lines.push(`משימה: ${t.name}`);
+        lines.push(`סטטוס: ${isDone(t) ? "הושלם" : "פתוח"}`);
+        lines.push(`עמודה: ${colName(t.col)}`);
+        lines.push(`תאריך יעד: ${t.due ? formatDateShort(t.due) : "ללא"}`);
+        if (t.tags?.length) lines.push(`תגיות: ${t.tags.join(", ")}`);
+        if (t.subs?.length) {
+          lines.push("תתי-משימות:");
+          t.subs.forEach(s => lines.push(`  ${s.done ? "☑" : "☐"} ${s.text}`));
+        }
+        if (i < tasks.length - 1) { lines.push(""); lines.push("---"); lines.push(""); }
+      });
+      const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${cat.name}-משימות.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast(`יוצאו ${tasks.length} משימות לטקסט ✓`);
+    }
+
+    // ייצוא המשימות עם תאריך יעד ברשימה נתונה כקובץ .ics, כל משימה כאירוע
+    // יום-שלם עם שם הרשימה בכותרת ותתי-המשימות בתיאור — מוכן לייבוא
+    // ישיר ל-Google Calendar (Settings → Import & export → Import).
+    function exportCatGCal(cat){
+      const tasks = state.tasks.filter(t => t.catId === cat.id && t.due);
+      if (!tasks.length) return toast("אין משימות עם תאריך יעד ברשימה הזו");
+      const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//TaskFlow//HE","CALSCALE:GREGORIAN"];
+      tasks.forEach(t => {
+        const dateStr = t.due.replace(/-/g,"");
+        lines.push("BEGIN:VEVENT");
+        lines.push("UID:" + uid("gcal") + "@taskflow");
+        lines.push("DTSTART;VALUE=DATE:" + dateStr);
+        lines.push("DTEND;VALUE=DATE:" + dateStr);
+        lines.push("SUMMARY:" + icsEscape(`${cat.name}: ${t.name}`));
+        if (t.subs?.length) lines.push("DESCRIPTION:" + icsEscape(t.subs.map(s => `${s.done ? "[v]" : "[ ]"} ${s.text}`).join("\n")));
+        lines.push("STATUS:" + (isDone(t) ? "COMPLETED" : "CONFIRMED"));
+        lines.push("END:VEVENT");
+      });
+      lines.push("END:VCALENDAR");
+      const blob = new Blob([lines.join("\r\n")], { type: "text/calendar" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${cat.name}-tasks.ics`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast(`יוצאו ${tasks.length} משימות ליומן ✓`);
     }
 
     function exportIcs(){
