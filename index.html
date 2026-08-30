@@ -5111,7 +5111,7 @@
       const r = anchor.getBoundingClientRect();
       menu.style.top = (r.bottom + 4) + "px";
       menu.style.left = Math.max(8, r.left - 90) + "px";
-      const txtBtn = el("button","","📄 ייצוא לטקסט");
+      const txtBtn = el("button","","📄 העתקת טקסט");
       txtBtn.type = "button";
       txtBtn.onclick = () => { closeSharedItemMenu(); exportCatText(cat); };
       const gcalBtn = el("button","","📅 ייצוא ל-Google Calendar");
@@ -5124,9 +5124,9 @@
 
     // ייצוא כל המשימות ברשימה נתונה לטקסט עברי נקי, בלי JSON או יישור טכני —
     // רק שורות "שדה: ערך" מסודרות, מופרדות במקף לכל משימה.
-    function exportCatText(cat){
+    async function exportCatText(cat){
       const tasks = state.tasks.filter(t => t.catId === cat.id);
-      if (!tasks.length) return toast("אין משימות לייצוא ברשימה הזו");
+      if (!tasks.length) return toast("אין משימות להעתקה ברשימה הזו");
       const cols = getColumns(cat);
       const colName = key => cols.find(c => c.key === key)?.name || key;
       const lines = [`רשימה: ${cat.name}`, `תאריך ייצוא: ${formatDateShort(toDateKey(new Date()))}`, `סה"כ משימות: ${tasks.length}`, ""];
@@ -5142,13 +5142,13 @@
         }
         if (i < tasks.length - 1) { lines.push(""); lines.push("---"); lines.push(""); }
       });
-      const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${cat.name}-משימות.txt`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-      toast(`יוצאו ${tasks.length} משימות לטקסט ✓`);
+      const text = lines.join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        toast(`הועתקו ${tasks.length} משימות ללוח ✓`);
+      } catch {
+        prompt("העתק את הטקסט:", text);
+      }
     }
 
     // ייצוא המשימות עם תאריך יעד ברשימה נתונה כקובץ .ics, כל משימה כאירוע
