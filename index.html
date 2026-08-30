@@ -5132,10 +5132,11 @@
       cols.forEach(col => {
         const colTasks = tasks.filter(t => t.col === col.key);
         if (!colTasks.length) return;
-        const items = colTasks.map(t => t.due ? `${t.name} עד ה-${formatDateShort(t.due)}` : t.name);
-        lines.push(`${col.name}: ${items.join(", ")}`);
+        lines.push(`${col.name}:`);
+        colTasks.forEach(t => lines.push(`- ${t.due ? `${t.name} עד ה-${formatDateShort(t.due)}` : t.name}`));
+        lines.push("");
       });
-      const text = lines.join("\n");
+      const text = lines.join("\n").trim();
       try {
         await navigator.clipboard.writeText(text);
         toast(`הועתקו ${tasks.length} משימות ללוח ✓`);
