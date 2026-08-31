@@ -210,6 +210,10 @@
     .cat-mark small{display:none}
     .shared-home-card{cursor:default}
     .shared-home-grid{margin-top:18px}
+    .shared-members{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+    .shared-member{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:3px 11px 3px 3px;font-size:11px;font-weight:700;color:var(--muted)}
+    .shared-member img{width:20px;height:20px;border-radius:50%;object-fit:cover;flex:0 0 auto}
+    .shared-member .initials{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:10px;font-weight:900;flex:0 0 auto}
     .shared-home-card:hover{transform:none;box-shadow:var(--shadow)}
     .shared-home-card-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
     .shared-home-card-head .cat-title{margin:0;flex:1 1 auto;min-width:0}
@@ -2327,26 +2331,23 @@
 
       if (!cloudReady || !userDoc) return;
 
+      let lastPrivateState = JSON.stringify(cleanState(state));
       unsub = onSnapshot(userDoc, (docSnap) => {
         if (!docSnap.exists()) return;
         if (docSnap.metadata.hasPendingWrites) return;
-        const cloudData = docSnap.data();
-        const cloudState = cloudData.state || {};
-        const cloudTs = cloudData.updatedAt?.toMillis?.() || 0;
-        let localTs = 0;
-        try {
-          const localRaw = localStorage.getItem(localKey);
-          if (localRaw) {
-            const localParsed = JSON.parse(localRaw);
-            localTs = localParsed._savedAt || 0;
-          }
-        } catch {}
-        if (cloudTs <= localTs) return;
+        const cloudState = docSnap.data().state || {};
+        // השוואה לפי תוכן, לא לפי חותמת זמן — חותמות זמן שמושוו בין
+        // Date.now() (המכשיר) ל-serverTimestamp() (הענן) לא אמינות בין
+        // שני מכשירים שונים (הפרשי שעון), וזו הייתה הסיבה שהעדכונים
+        // ממכשיר אחד לפעמים לא הגיעו למכשיר השני.
+        const incomingSignature = JSON.stringify(cloudState);
+        if (incomingSignature === lastPrivateState) return;
         suppressSave = true;
         mergeState(cloudState, false);
-        saveLocalWithTimestamp(cloudTs);
+        saveLocalWithTimestamp(docSnap.data().updatedAt?.toMillis?.() || Date.now());
         render();
         suppressSave = false;
+        lastPrivateState = JSON.stringify(cleanState(state));
       });
     }
 
@@ -2374,11 +2375,11 @@
         }
         const data = snap.data();
         if (!data.members?.[user.uid]) {
-          await setDoc(ref, { members: { [user.uid]: "editor" }, memberNames: { [user.uid]: myDisplayName() }, updatedAt: serverTimestamp() }, { merge: true });
-        } else if (data.memberNames?.[user.uid] !== myDisplayName()) {
-          // Keep our own display name fresh for other members to see, and
-          // backfill it for shared lists that predate this field.
-          setDoc(ref, { memberNames: { [user.uid]: myDisplayName() } }, { merge: true }).catch(() => {});
+          await setDoc(ref, { members: { [user.uid]: "editor" }, memberNames: { [user.uid]: myDisplayName() }, memberPhotos: { [user.uid]: user.photoURL || null }, updatedAt: serverTimestamp() }, { merge: true });
+        } else if (data.memberNames?.[user.uid] !== myDisplayName() || data.memberPhotos?.[user.uid] !== (user.photoURL || null)) {
+          // Keep our own display name/photo fresh for other members to see, and
+          // backfill them for shared lists that predate these fields.
+          setDoc(ref, { memberNames: { [user.uid]: myDisplayName() }, memberPhotos: { [user.uid]: user.photoURL || null } }, { merge: true }).catch(() => {});
         }
         if (unsub) unsub();
         clearTimeout(saveTimer);
@@ -2412,6 +2413,8 @@
           activeList.name = next.name || activeList.name;
           activeList.role = next.members?.[user.uid] || activeList.role;
           activeList.kind = next.kind || activeList.kind;
+          activeList.memberNames = next.memberNames || {};
+          activeList.memberPhotos = next.memberPhotos || {};
           mergeState(incomingState, true);
           forceSharedView();
           render();
@@ -3793,6 +3796,44 @@
       exportWrap.append(exportBtn);
       topBar.append(editCatBtn, exportWrap);
       wrap.append(topBar);
+
+      if (activeList.type === "shared") {
+        const membersRow = el("div","shared-members");
+        const names = activeList.memberNames || {};
+        const photos = activeList.memberPhotos || {};
+        Object.keys(names).forEach(uid => {
+          const chip = el("span","shared-member");
+          const photo = photos[uid];
+          if (photo) {
+            const img = document.createElement("img");
+            img.src = photo;
+            img.alt = "";
+            chip.append(img);
+          } else {
+            chip.append(el("span","initials", (names[uid] || "?").trim().charAt(0).toUpperCase()));
+          }
+          chip.append(el("span","",names[uid] || "משתמש"));
+          membersRow.append(chip);
+        });
+        if (membersRow.children.length) wrap.append(membersRow);
+
+        if (cat.semesterId) {
+          const banner = el("div","card");
+          banner.style.cssText = "margin-bottom:12px;border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--surface));padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap";
+          banner.append(el("div","",`נראה שהרשימה הזו נקלטה כאן בטעות מסמסטר פרטי`));
+          const cleanBtn = el("button","btn","🧹 הסרה מהשיתוף");
+          cleanBtn.type = "button";
+          cleanBtn.onclick = () => {
+            if (!confirm("להסיר את הרשימה הזו מהשיתוף? הפעולה לא הפיכה.")) return;
+            state.cats = state.cats.filter(c => c.id !== cat.id);
+            state.tasks = state.tasks.filter(t => t.catId !== cat.id);
+            save(); navigate("home");
+            toast("הוסרה ✓");
+          };
+          banner.append(cleanBtn);
+          wrap.append(banner);
+        }
+      }
 
       const dueFilterBar = el("div","view-toggle");
       dueFilterBar.style.marginBottom = "12px";
