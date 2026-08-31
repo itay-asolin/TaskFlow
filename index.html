@@ -2841,11 +2841,21 @@
     const SHARED_CARD_PALETTE = ["#6d5dfc","#22c55e","#f59e0b","#ec4899","#06b6d4","#ef4444","#a855f7","#14b8a6"];
     let expandedSharedIds = new Set();
     let sharedPeekCache = {};
-
+    let sharedPeekInFlight = {};
 
     // One-off (non-subscribing) look at the categories inside a list, used to
-    // populate an accordion strip when it's expanded. Doesn't touch activeDoc/unsub,
+    // populate an accordion strip when it's expanded, and to show live task
+    // counts on the home-page shared cards. Doesn't touch activeDoc/unsub,
     // so it never changes which list is actually open.
+    //
+    // IMPORTANT: this always re-fetches from Firestore for lists that aren't
+    // the currently active one (instead of trusting a cached result forever).
+    // Previously the first successful fetch was cached in-memory for the rest
+    // of the session, so tasks added/changed by other members in a shared
+    // list never showed up on the home page until you actually entered that
+    // list (which reads live `state` instead). We keep a short-lived
+    // in-flight map only to dedupe concurrent calls for the same id, not to
+    // skip fresh reads.
     async function loadSharedPeek(id){
       const toPeek = (cats, tasks = []) => ({
         catNames: cats.map(c => c.name),
@@ -2865,33 +2875,44 @@
       if (id !== "__private" && activeList.type === "shared" && activeList.id === id) {
         return (sharedPeekCache[id] = toPeek(state.cats, state.tasks));
       }
-      if (sharedPeekCache[id]) return sharedPeekCache[id];
-      try {
-        if (id === "__private") {
-          if (activeList.type === "private") {
+      // Dedupe concurrent requests for the same id (e.g. a fast double-render),
+      // but never reuse a result from a previous call — that's the staleness bug.
+      if (sharedPeekInFlight[id]) return sharedPeekInFlight[id];
+      const fetchPromise = (async () => {
+        try {
+          if (id === "__private") {
+            if (activeList.type === "private") {
+              sharedPeekCache[id] = toPeek(state.cats, state.tasks);
+            } else if (cloudReady && userDoc) {
+              const snap = await getDoc(userDoc);
+              const s = snap.exists() ? (snap.data().state || {}) : {};
+              sharedPeekCache[id] = toPeek(s.cats || [], s.tasks || []);
+            } else {
+              sharedPeekCache[id] = toPeek([]);
+            }
+          } else if (activeList.type === "shared" && activeList.id === id) {
             sharedPeekCache[id] = toPeek(state.cats, state.tasks);
-          } else if (cloudReady && userDoc) {
-            const snap = await getDoc(userDoc);
+          } else if (cloudReady) {
+            const ref = doc(db, "sharedLists", id);
+            const snap = await getDoc(ref);
             const s = snap.exists() ? (snap.data().state || {}) : {};
             sharedPeekCache[id] = toPeek(s.cats || [], s.tasks || []);
           } else {
             sharedPeekCache[id] = toPeek([]);
           }
-        } else if (activeList.type === "shared" && activeList.id === id) {
-          sharedPeekCache[id] = toPeek(state.cats, state.tasks);
-        } else if (cloudReady) {
-          const ref = doc(db, "sharedLists", id);
-          const snap = await getDoc(ref);
-          const s = snap.exists() ? (snap.data().state || {}) : {};
-          sharedPeekCache[id] = toPeek(s.cats || [], s.tasks || []);
-        } else {
-          sharedPeekCache[id] = toPeek([]);
+        } catch (err) {
+          console.error("Shared peek error", err);
+          // Don't cache the error — next call should retry against Firestore
+          // instead of showing "לא הצלחתי לטעון" forever for the rest of the session.
+          delete sharedPeekCache[id];
+          return { catNames: [], cats: [], error: true };
+        } finally {
+          delete sharedPeekInFlight[id];
         }
-      } catch (err) {
-        console.error("Shared peek error", err);
-        sharedPeekCache[id] = { catNames: [], cats: [], error: true };
-      }
-      return sharedPeekCache[id];
+        return sharedPeekCache[id];
+      })();
+      sharedPeekInFlight[id] = fetchPromise;
+      return fetchPromise;
     }
 
     // Copies a shared list's join code, and lets a shared group grow another
@@ -6089,12 +6110,6 @@
       
       const tools = el("div","task-tools");
       
-      if (isActiveSharedTask()) {
-        const copyBtn = tool("העתק קוד", "🔗", () => copyShareCode());
-        copyBtn.style.color = "var(--accent2)";
-        tools.append(copyBtn);
-      }
-      
       tools.append(tool("ערוך", "✎", () => openTaskModal(task)), tool("מחק", "×", () => deleteTask(task.id)));
       top.append(check, titleWrap, tools);
       card.append(top);
@@ -6149,7 +6164,7 @@
       }
       
       card.onclick = (e) => {
-          if (!e.target.closest("button") && !e.target.closest("input")) {
+          if (!e.target.closest("button") && !e.target.closest("input") && !e.target.closest(".subs") && !e.target.closest(".subs-header")) {
               openTaskModal(task);
           }
       };
