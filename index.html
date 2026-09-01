@@ -5344,32 +5344,84 @@
     }
 
     // ── מודל אישור ייבוא .ics ──
-    // מאפשר, בדומה להוספת אירוע ידנית, לשייך את כל האירועים המיובאים לרשימת
-    // משימות (קורס) אחת. כל הייבוא מתויג ב-icsImportId ייחודי כדי שאפשר יהיה
-    // בהמשך למחוק בלחיצה אחת את כל האירועים שהגיעו מקובץ ה-ics הזה.
+    // כל אירוע משויך אוטומטית לקורס לפי CATEGORIES.
+    // אין בחירה של "קורס אחד לכל הקובץ", כי קובץ ICS יכול להכיל כמה קורסים.
+    function normalizeIcsCourseName(value){
+      return String(value || "")
+        .normalize("NFKC")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLocaleLowerCase("he-IL");
+    }
+
+    function findIcsCourseMatch(event){
+      const cats = Array.isArray(state.cats) ? state.cats : [];
+      const importedCategories = (event?.categories || []).map(normalizeIcsCourseName).filter(Boolean);
+      if (!importedCategories.length) return null;
+
+      // Primary and intentional matching key: CATEGORIES == course/list name.
+      for (const cat of cats) {
+        const name = normalizeIcsCourseName(cat.name);
+        if (name && importedCategories.includes(name)) return cat;
+      }
+
+      return null;
+    }
+
     function openIcsImportModal(parsed, fileName){
+      const matches = parsed.map(e => findIcsCourseMatch(e));
+      const matched = matches.filter(Boolean).length;
+      const unmatched = parsed.length - matched;
+
       openModal("ייבוא לוח שנה", `נמצאו ${parsed.length} אירועים בקובץ ${fileName}`, (form) => {
-        let catSelect = null;
-        if (state.cats?.length) {
-          const catWrap = el("div","field"), catLabel = el("label","","שייך את כל האירועים המיובאים לרשימת משימות / קורס (לא חובה)");
-          catSelect = document.createElement("select"); catSelect.id = "icsImportCatId";
-          const noneOpt = el("option","","— ללא —"); noneOpt.value = ""; catSelect.append(noneOpt);
-          state.cats.forEach(c => {
-            const o = el("option","",c.name); o.value = c.id; catSelect.append(o);
-          });
-          catWrap.append(catLabel, catSelect); form.append(catWrap);
-        } else {
-          form.append(el("p","meta","אין עדיין רשימות משימות לשייך אליהן אירועים — אפשר ליצור רשימה, ואז ייבוא הבא יוכל להשתייך אליה."));
-        }
-        form.append(el("p","meta","הייבוא הזה יסומן בנפרד כך שאפשר יהיה למחוק בעתיד את כל האירועים שלו בלחיצה אחת, ברשימת \"ייבואי לוח שנה קודמים\" בהגדרות."));
+        const summary = el("div","mode-note");
+        summary.innerHTML =
+          `<strong>שיוך אוטומטי לקורסים</strong><br>` +
+          `המערכת תשתמש בשדה <code>CATEGORIES</code> של כל אירוע כדי לשייך אותו לקורס המתאים.` +
+          `<br>✓ ${matched} אירועים נמצאה להם התאמה` +
+          (unmatched ? `<br>⚠️ ${unmatched} אירועים לא נמצאה להם התאמה ויישארו ללא שיוך` : "");
+        form.append(summary);
+
+        form.append(el("p","meta",
+          "אין צורך לבחור קורס. הקובץ יכול להכיל אירועים של כמה קורסים, וכל אירוע ישויך בנפרד."
+        ));
+
+        form.append(el("p","meta",
+          "הייבוא הזה יסומן בנפרד כך שאפשר יהיה למחוק בעתיד את כל האירועים שלו בלחיצה אחת."
+        ));
+
         form.append(footer("ייבא אירועים", () => {
-          const catId = catSelect?.value || null;
           const importId = uid("icsimp");
-          const tagged = parsed.map(e => ({ ...e, catId: catId || e.catId || null, icsImportId: importId }));
+
+          const tagged = parsed.map((e, i) => {
+            const cat = matches[i];
+            return {
+              ...e,
+              catId: cat?.id || e.catId || null,
+              icsAutoMatched: !!cat,
+              icsImportId: importId
+            };
+          });
+
           state.events = [...(state.events || []), ...tagged];
-          state.icsImports = [...(state.icsImports || []), { id: importId, fileName, importedAt: Date.now(), count: tagged.length, catId }];
-          closeModal(); save(); render();
-          toast(`יובאו ${tagged.length} אירועים${catId ? " ושויכו לרשימה" : ""}`);
+          state.icsImports = [...(state.icsImports || []), {
+            id: importId,
+            fileName,
+            importedAt: Date.now(),
+            count: tagged.length,
+            catId: null,
+            autoMatched: matched
+          }];
+
+          closeModal();
+          save();
+          render();
+
+          toast(
+            `יובאו ${tagged.length} אירועים` +
+            (matched ? ` · ${matched} שויכו אוטומטית לקורסים` : "") +
+            (unmatched ? ` · ${unmatched} ללא שיוך` : "")
+          );
         }));
       });
     }
@@ -5715,6 +5767,9 @@
         if (baseKey === "DESCRIPTION") ev.desc = val;
         if (baseKey === "LOCATION") ev.location = val;
         if (baseKey === "COLOR" || baseKey === "X-APPLE-CALENDAR-COLOR") ev.color = val;
+        if (baseKey === "CATEGORIES") {
+          ev.categories = val.split(",").map(v => v.trim()).filter(Boolean);
+        }
       });
       return events;
     }
@@ -5807,6 +5862,7 @@
         color: ev.color || "",
         desc: ev.desc || "",
         location: ev.location || "",
+        categories: Array.isArray(ev.categories) ? [...ev.categories] : [],
         rruleSummary: ev.rrule || ""
       };
     }
