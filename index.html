@@ -4356,9 +4356,10 @@
       addEvBtn.classList.add("cal-add-event");
       addEvBtn.type = "button";
       addEvBtn.onclick = () => openEventModal(null, state.calDate);
-      const jewishBtn = el("button","btn","✡ חגים");
+      const jewishBtn = el("button","btn","✡ עדכון חגים");
       jewishBtn.classList.add("cal-holidays");
       jewishBtn.type = "button";
+      jewishBtn.title = "עדכון חגי ישראל לשנה הנוכחית ולשנה הבאה";
       jewishBtn.onclick = () => importJewishHolidays(anchor.getFullYear());
 
       const conflicts = detectConflicts();
@@ -5351,7 +5352,6 @@
         .replace(/[\u200B-\u200D\uFEFF]/g, "")
         .replace(/[‐‑‒–—−-]/g, "")
         .replace(/["'׳״.,:;!?()[\]{}]/g, " ")
-        .replace(/[‐‑‒–—−-]/g, "")
         .replace(/\s+/g, " ")
         .trim()
         .toLocaleLowerCase("he-IL");
@@ -5517,34 +5517,59 @@
     }
 
     async function importJewishHolidays(year){
-      const y = Number(year) || new Date().getFullYear();
-      const source = `hebcal-jewish-holidays-${y}`;
-      const url = `https://www.hebcal.com/hebcal?v=1&cfg=json&year=${y}&maj=on&min=off&mod=off&nx=off&ss=off&mf=off&c=off&geo=none&i=off&lg=he`;
+      const startYear = Number(year) || new Date().getFullYear();
+      const endYear = startYear + 1;
+
+      // Hebcal supports Gregorian date ranges and an explicit Israel schedule.
+      // We import two calendar years so an academic year (e.g. 2026-2027)
+      // is covered completely.
+      const source = `hebcal-israel-holidays-${startYear}-${endYear}`;
+      const start = `${startYear}-01-01`;
+      const end = `${endYear}-12-31`;
+      const url =
+        `https://www.hebcal.com/hebcal?v=1&cfg=json` +
+        `&start=${start}&end=${end}` +
+        `&i=on&maj=on&min=on&mod=on&mf=off` +
+        `&nx=off&ss=off&yto=off&c=off&geo=none&lg=he`;
+
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error("bad response");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+
         const items = (data.items || [])
-          .filter(item => item.category === "holiday" && item.date && item.title)
+          .filter(item =>
+            item.category === "holiday" &&
+            item.date &&
+            (item.subcat === "major" ||
+             item.subcat === "minor" ||
+             item.subcat === "modern" ||
+             !item.subcat)
+          )
           .map(item => ({
             id: uid("jh"),
             title: item.hebrew || item.title,
-            date: item.date.slice(0,10),
+            date: String(item.date).slice(0,10),
             endDate: "",
             time: "",
             endTime: "",
             color: "#f59e0b",
             source
           }));
-        if (!items.length) return toast("לא נמצאו חגים יהודיים לשנה הזו");
-        const existing = new Set((state.events || []).map(e => `${e.source}|${e.date}|${e.title}`));
-        const fresh = items.filter(e => !existing.has(`${e.source}|${e.date}|${e.title}`));
-        if (!fresh.length) return toast(`החגים היהודיים של ${y} כבר בלוח`);
-        state.events = [...(state.events || []), ...fresh];
-        save(); render(); toast(`יובאו ${fresh.length} חגים יהודיים`);
+
+        if (!items.length) return toast("לא נמצאו חגים יהודיים לטווח שנבחר");
+
+        // "Update" means replace the holidays previously imported by this
+        // exact range, rather than silently keeping stale dates.
+        state.events = (state.events || []).filter(e => e.source !== source);
+        state.events = [...state.events, ...items];
+
+        save();
+        render();
+        toast(`חגי ישראל עודכנו: ${items.length} חגים (${startYear}–${endYear})`);
       } catch (err) {
         console.error("Jewish holidays import failed", err);
-        toast("לא הצלחתי לייבא חגים יהודיים כרגע");
+        toast("לא הצלחתי לעדכן את חגי ישראל כרגע");
       }
     }
 
