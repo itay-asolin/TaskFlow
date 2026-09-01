@@ -3872,11 +3872,17 @@
           if (ev.date) g.dates.push(ev.date);
         });
 
-        return [...groups.values()].sort((a,b) =>
-          (a.dow - b.dow) ||
-          (a.time || "").localeCompare(b.time || "") ||
-          ((a.dates[0] || "").localeCompare(b.dates[0] || ""))
-        );
+        // Strict chronological order:
+        // sort by the actual first calendar date, NOT by weekday.
+        // ISO YYYY-MM-DD strings sort chronologically, so a Sunday in
+        // November correctly comes after a Tuesday in October.
+        return [...groups.values()].sort((a,b) => {
+          const ad = a.dates.length ? [...a.dates].sort()[0] : "9999-99-99";
+          const bd = b.dates.length ? [...b.dates].sort()[0] : "9999-99-99";
+          return ad.localeCompare(bd) ||
+            (a.time || "").localeCompare(b.time || "") ||
+            (a.title || "").localeCompare(b.title || "", "he");
+        });
       }
 
       function showCompactSeriesPopup(group, anchorEl){
