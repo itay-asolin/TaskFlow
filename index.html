@@ -3828,19 +3828,118 @@
       topBar.append(editCatBtn, exportWrap);
       wrap.append(topBar);
 
-      // Events linked to this list (via evCatId in the event modal) — shown
-      // right on the list page so you don't have to jump to the calendar.
+      // Events linked to this list are displayed compactly:
+      // recurring weekly classes are grouped into one row instead of showing
+      // every occurrence separately. Clicking the row shows the dates.
       const linkedEvents = (state.events || [])
         .filter(e => e.catId === cat.id)
         .sort((a, b) => (a.date + (a.time||"")).localeCompare(b.date + (b.time||"")));
+
+      function compactEventGroups(events){
+        const DOW = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+        const groups = new Map();
+
+        events.forEach(ev => {
+          const d = ev.date ? parseDate(ev.date) : null;
+          const dow = d ? d.getDay() : -1;
+          const key = [
+            ev.title || "",
+            ev.time || "",
+            ev.endTime || "",
+            dow,
+            ev.location || "",
+            ev.seriesId || ""
+          ].join("|");
+
+          if (!groups.has(key)) groups.set(key, {
+            title: ev.title || "אירוע",
+            time: ev.time || "",
+            endTime: ev.endTime || "",
+            dow,
+            location: ev.location || "",
+            color: ev.color || cat.color || state.accent,
+            dates: [],
+            events: []
+          });
+
+          const g = groups.get(key);
+          g.events.push(ev);
+          if (ev.date) g.dates.push(ev.date);
+        });
+
+        return [...groups.values()].sort((a,b) => {
+          const ad = a.dates[0] || "", bd = b.dates[0] || "";
+          return (a.dow - b.dow) || (a.time || "").localeCompare(b.time || "") || ad.localeCompare(bd);
+        });
+      }
+
+      function showCompactSeriesPopup(group, anchorEl){
+        closeEvPopup();
+        const popup = el("div","ev-popup");
+        popup.style.position = "fixed";
+
+        const closeBtn = el("button","ev-popup-close","×");
+        closeBtn.onclick = closeEvPopup;
+        popup.append(closeBtn);
+
+        const titleEl = el("div","ev-popup-title", group.title);
+        titleEl.style.borderRight = `4px solid ${group.color}`;
+        titleEl.style.paddingRight = "10px";
+        popup.append(titleEl);
+
+        const timeText = group.time
+          ? `${group.dow >= 0 ? DOW[group.dow] : ""} · ${group.time}${group.endTime ? " – " + group.endTime : ""}`
+          : (group.dow >= 0 ? DOW[group.dow] : "");
+        if (timeText) popup.append(el("div","ev-popup-meta",`🕐 ${timeText}`));
+
+        const dates = [...new Set(group.dates)].sort();
+        if (dates.length > 1) {
+          const datesBox = el("div","ev-popup-meta");
+          datesBox.style.cssText = "display:block;max-height:180px;overflow:auto;margin-top:6px";
+          datesBox.innerHTML = `<div style="margin-bottom:5px">📅 ${dates.length} תאריכים:</div>` +
+            dates.map(d => {
+              const x = parseDate(d);
+              return `<div style="font-size:11px;margin:2px 0">${x.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}</div>`;
+            }).join("");
+          popup.append(datesBox);
+        }
+
+        if (group.location) popup.append(el("div","ev-popup-meta",`📍 ${group.location}`));
+
+        const editBtn = el("button","btn primary","✎ ערוך");
+        editBtn.type = "button";
+        editBtn.onclick = () => {
+          closeEvPopup();
+          openEventModal(group.events[0]);
+        };
+        const actions = el("div","ev-popup-actions");
+        actions.append(editBtn);
+        popup.append(actions);
+
+        document.body.append(popup);
+        _evPopup = popup;
+
+        const rect = anchorEl.getBoundingClientRect();
+        let top = rect.bottom + 8;
+        let left = rect.left;
+        if (left + 320 > window.innerWidth) left = window.innerWidth - 328;
+        if (left < 8) left = 8;
+        if (top + 300 > window.innerHeight) top = Math.max(8, rect.top - 300);
+        popup.style.top = top + "px";
+        popup.style.left = left + "px";
+
+        setTimeout(() => document.addEventListener("click", closeEvPopup, {once:true}), 0);
+      }
+
       {
         const evSec = el("div","card");
         evSec.style.marginBottom = "14px";
         const evHead = el("div","col-head");
         evHead.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px";
         const evHeadLeft = el("div","");
+        const groups = compactEventGroups(linkedEvents);
         evHeadLeft.style.cssText = "display:flex;align-items:center;gap:8px";
-        evHeadLeft.append(el("span","","📅 אירועים מקושרים"), el("span","count",String(linkedEvents.length)));
+        evHeadLeft.append(el("span","","📅 אירועים מקושרים"), el("span","count",String(groups.length)));
         const addEvBtn = el("button","btn","+ אירוע");
         addEvBtn.type = "button";
         addEvBtn.onclick = (e) => {
@@ -3849,81 +3948,35 @@
         };
         evHead.append(evHeadLeft, addEvBtn);
         evSec.append(evHead);
-        if (linkedEvents.length) {
+
+        if (groups.length) {
           const evList = el("div","list");
-          const today = toDateKey(new Date());
-          linkedEvents.forEach(ev => {
+          groups.forEach(group => {
             const row = el("div","card");
             row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;margin-top:8px;cursor:pointer";
-            if (ev.date < today) row.style.opacity = ".6";
+
             const info = el("div","");
-            const dateLabel = new Date(ev.date + "T00:00:00").toLocaleDateString("he-IL", { day:"numeric", month:"short" });
-            info.append(el("div","",ev.title));
-            const meta = el("div","meta", dateLabel + (ev.time ? ` · ${ev.time}` : ""));
+            const title = el("div","",group.title);
+            title.style.fontWeight = "700";
+            const day = group.dow >= 0 ? DOW[group.dow] : "";
+            const metaText = `${day}${day && group.time ? " · " : ""}${group.time || ""}${group.endTime ? "–" + group.endTime : ""}` +
+              (group.dates.length > 1 ? ` · ${group.dates.length} מועדים` : "");
+            const meta = el("div","meta",metaText);
             meta.style.fontSize = "12px";
-            info.append(meta);
-            row.append(info);
-            row.onclick = () => openEventModal(ev);
+            info.append(title, meta);
+
+            const arrow = el("span","meta",group.dates.length > 1 ? "▸" : "");
+            row.append(info, arrow);
+            row.onclick = (e) => {
+              e.stopPropagation();
+              showCompactSeriesPopup(group, row);
+            };
             evList.append(row);
           });
           evSec.append(evList);
         }
         wrap.append(evSec);
       }
-
-      if (activeList.type === "shared") {
-        const membersRow = el("div","shared-members");
-        const names = activeList.memberNames || {};
-        const photos = activeList.memberPhotos || {};
-        Object.keys(names).forEach(uid => {
-          const chip = el("span","shared-member");
-          const photo = photos[uid];
-          if (photo) {
-            const img = document.createElement("img");
-            img.src = photo;
-            img.alt = "";
-            chip.append(img);
-          } else {
-            chip.append(el("span","initials", (names[uid] || "?").trim().charAt(0).toUpperCase()));
-          }
-          chip.append(el("span","",names[uid] || "משתמש"));
-          membersRow.append(chip);
-        });
-        if (membersRow.children.length) wrap.append(membersRow);
-
-        if (cat.semesterId) {
-          const banner = el("div","card");
-          banner.style.cssText = "margin-bottom:12px;border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--surface));padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap";
-          banner.append(el("div","",`נראה שהרשימה הזו נקלטה כאן בטעות מסמסטר פרטי`));
-          const cleanBtn = el("button","btn","🧹 הסרה מהשיתוף");
-          cleanBtn.type = "button";
-          cleanBtn.onclick = () => {
-            if (!confirm("להסיר את הרשימה הזו מהשיתוף? הפעולה לא הפיכה.")) return;
-            state.cats = state.cats.filter(c => c.id !== cat.id);
-            state.tasks = state.tasks.filter(t => t.catId !== cat.id);
-            save(); navigate("home");
-            toast("הוסרה ✓");
-          };
-          banner.append(cleanBtn);
-          wrap.append(banner);
-        }
-      }
-
-      const dueFilterBar = el("div","view-toggle");
-      dueFilterBar.style.marginBottom = "12px";
-      const dueFilters = [
-        { key: "all", label: "הכל" },
-        { key: "today", label: "היום" },
-        { key: "week", label: "השבוע" },
-        { key: "none", label: "ללא תאריך" }
-      ];
-      dueFilters.forEach(f => {
-        const btn = el("button", (state.dueFilterMode || "all") === f.key ? "active" : "", f.label);
-        btn.type = "button";
-        btn.onclick = () => { state.dueFilterMode = f.key; render(); };
-        dueFilterBar.append(btn);
-      });
-      wrap.append(dueFilterBar);
 
       // Manual ordering toggle: lets you drag tasks (or use the ↑/↓ buttons)
       // to set your own order for this list, instead of always sorting by
@@ -5518,58 +5571,64 @@
 
     async function importJewishHolidays(year){
       const startYear = Number(year) || new Date().getFullYear();
-      const endYear = startYear + 1;
-
-      // Hebcal supports Gregorian date ranges and an explicit Israel schedule.
-      // We import two calendar years so an academic year (e.g. 2026-2027)
-      // is covered completely.
-      const source = `hebcal-israel-holidays-${startYear}-${endYear}`;
-      const start = `${startYear}-01-01`;
-      const end = `${endYear}-12-31`;
-      const url =
-        `https://www.hebcal.com/hebcal?v=1&cfg=json` +
-        `&start=${start}&end=${end}` +
-        `&i=on&maj=on&min=on&mod=on&mf=off` +
-        `&nx=off&ss=off&yto=off&c=off&geo=none&lg=he`;
+      const years = [startYear, startYear + 1];
+      const source = `hebcal-israel-holidays-${startYear}-${startYear+1}`;
 
       try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const allItems = [];
 
-        const items = (data.items || [])
-          .filter(item =>
-            item.category === "holiday" &&
-            item.date &&
-            (item.subcat === "major" ||
-             item.subcat === "minor" ||
-             item.subcat === "modern" ||
-             !item.subcat)
-          )
-          .map(item => ({
-            id: uid("jh"),
-            title: item.hebrew || item.title,
-            date: String(item.date).slice(0,10),
-            endDate: "",
-            time: "",
-            endTime: "",
-            color: "#f59e0b",
-            source
-          }));
+        for (const y of years) {
+          const url =
+            `https://www.hebcal.com/hebcal?v=1&cfg=json` +
+            `&year=${y}&yt=G&i=on&maj=on&min=off&mod=on&mf=off` +
+            `&nx=off&ss=off&c=off&lg=he`;
 
-        if (!items.length) return toast("לא נמצאו חגים יהודיים לטווח שנבחר");
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
 
-        // "Update" means replace the holidays previously imported by this
-        // exact range, rather than silently keeping stale dates.
-        state.events = (state.events || []).filter(e => e.source !== source);
+          (data.items || []).forEach(item => {
+            if (item.category !== "holiday" || !item.date) return;
+            // Major Jewish holidays + modern Israeli national holidays.
+            if (!["major","modern"].includes(item.subcat)) return;
+
+            const date = String(item.date).slice(0,10);
+            const title = item.hebrew || item.title || "";
+            if (!title) return;
+
+            allItems.push({
+              id: uid("jh"),
+              title,
+              date,
+              endDate: "",
+              time: "",
+              endTime: "",
+              color: "#f59e0b",
+              source,
+              isHoliday: true
+            });
+          });
+        }
+
+        const unique = new Map();
+        allItems.forEach(e => unique.set(`${e.date}|${e.title}`, e));
+        const items = [...unique.values()].sort((a,b) => a.date.localeCompare(b.date));
+
+        if (!items.length) {
+          return toast("לא נמצאו חגים לעדכון");
+        }
+
+        // Replace only the holidays imported by this updater. They have no
+        // catId, so they are never attached to any task list.
+        state.events = (state.events || []).filter(e => e.source !== source && !e.isHoliday);
         state.events = [...state.events, ...items];
 
         save();
         render();
-        toast(`חגי ישראל עודכנו: ${items.length} חגים (${startYear}–${endYear})`);
+        toast(`החגים עודכנו: ${items.length} חגים (${startYear}–${startYear+1})`);
       } catch (err) {
         console.error("Jewish holidays import failed", err);
-        toast("לא הצלחתי לעדכן את חגי ישראל כרגע");
+        toast("עדכון החגים נכשל — בדוק חיבור לאינטרנט");
       }
     }
 
