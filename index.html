@@ -1941,6 +1941,7 @@
       calView: "month",
       calDate: null,
       events: [],
+      icsImports: [],
       profile: { name: "", student: null, onboarded: false },
       workReport: { enabled: false },
       meetingsSettings: { showSummary: true, showList: true },
@@ -5334,14 +5335,74 @@
           const text = await file.text();
           const parsed = parseIcs(text);
           if (!parsed.length) return toast("לא נמצאו אירועים בקובץ");
-          if (!confirm(`ייבא ${parsed.length} אירועים מ-${file.name}?`)) return;
-          state.events = [...(state.events || []), ...parsed];
-          save(); render(); toast(`יובאו ${parsed.length} אירועים`);
+          openIcsImportModal(parsed, file.name);
         } catch(e) {
           toast("קובץ ה-.ics לא נקרא");
         }
       };
       input.click();
+    }
+
+    // ── מודל אישור ייבוא .ics ──
+    // מאפשר, בדומה להוספת אירוע ידנית, לשייך את כל האירועים המיובאים לרשימת
+    // משימות (קורס) אחת. כל הייבוא מתויג ב-icsImportId ייחודי כדי שאפשר יהיה
+    // בהמשך למחוק בלחיצה אחת את כל האירועים שהגיעו מקובץ ה-ics הזה.
+    function openIcsImportModal(parsed, fileName){
+      openModal("ייבוא לוח שנה", `נמצאו ${parsed.length} אירועים בקובץ ${fileName}`, (form) => {
+        let catSelect = null;
+        if (state.cats?.length) {
+          const catWrap = el("div","field"), catLabel = el("label","","שייך את כל האירועים המיובאים לרשימת משימות / קורס (לא חובה)");
+          catSelect = document.createElement("select"); catSelect.id = "icsImportCatId";
+          const noneOpt = el("option","","— ללא —"); noneOpt.value = ""; catSelect.append(noneOpt);
+          state.cats.forEach(c => {
+            const o = el("option","",c.name); o.value = c.id; catSelect.append(o);
+          });
+          catWrap.append(catLabel, catSelect); form.append(catWrap);
+        } else {
+          form.append(el("p","meta","אין עדיין רשימות משימות לשייך אליהן אירועים — אפשר ליצור רשימה, ואז ייבוא הבא יוכל להשתייך אליה."));
+        }
+        form.append(el("p","meta","הייבוא הזה יסומן בנפרד כך שאפשר יהיה למחוק בעתיד את כל האירועים שלו בלחיצה אחת, ברשימת \"ייבואי לוח שנה קודמים\" בהגדרות."));
+        form.append(footer("ייבא אירועים", () => {
+          const catId = catSelect?.value || null;
+          const importId = uid("icsimp");
+          const tagged = parsed.map(e => ({ ...e, catId: catId || e.catId || null, icsImportId: importId }));
+          state.events = [...(state.events || []), ...tagged];
+          state.icsImports = [...(state.icsImports || []), { id: importId, fileName, importedAt: Date.now(), count: tagged.length, catId }];
+          closeModal(); save(); render();
+          toast(`יובאו ${tagged.length} אירועים${catId ? " ושויכו לרשימה" : ""}`);
+        }));
+      });
+    }
+
+    // רשימת ייבואי .ics קודמים, עם אפשרות למחוק בלחיצה אחת את כל האירועים
+    // ששייכים לייבוא נתון (זיהוי לפי icsImportId שהוצמד להם בזמן הייבוא).
+    function icsImportsManager(){
+      const imports = state.icsImports || [];
+      if (!imports.length) return null;
+      const wrap = el("div","field");
+      wrap.style.marginTop = "10px";
+      wrap.append(el("label","","ייבואי לוח שנה קודמים"));
+      let rows = 0;
+      [...imports].reverse().forEach(imp => {
+        const remaining = (state.events || []).filter(e => e.icsImportId === imp.id).length;
+        if (!remaining) { state.icsImports = (state.icsImports || []).filter(i => i.id !== imp.id); return; }
+        const cat = imp.catId ? state.cats?.find(c => c.id === imp.catId) : null;
+        const row = el("div","row");
+        row.style.cssText = "align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px";
+        const info = el("span","meta", `📅 ${imp.fileName} · ${remaining} אירועים${cat ? " · " + cat.name : ""} · ${new Date(imp.importedAt).toLocaleDateString("he-IL")}`);
+        const delBtn = el("button","btn danger","🗑️ מחק את כל האירועים");
+        delBtn.type = "button";
+        delBtn.onclick = () => {
+          if (!confirm(`למחוק את כל ${remaining} האירועים שיובאו מ-${imp.fileName}?`)) return;
+          state.events = (state.events || []).filter(e => e.icsImportId !== imp.id);
+          state.icsImports = (state.icsImports || []).filter(i => i.id !== imp.id);
+          save(); render(); toast("האירועים נמחקו");
+        };
+        row.append(info, delBtn);
+        wrap.append(row);
+        rows++;
+      });
+      return rows ? wrap : null;
     }
 
     async function importJewishHolidays(year){
@@ -6323,6 +6384,8 @@
       const icsRow = el("div","ics-section");
       icsRow.append(el("span","meta","לוח שנה:"), icsBtn, icsExBtn, icsCourseBtn);
       backup.append(icsRow);
+      const icsImportsList = icsImportsManager();
+      if (icsImportsList) backup.append(icsImportsList);
       
       const account = el("section","card");
       account.append(el("h3","", "חשבון והתחברות"));
@@ -7963,6 +8026,7 @@
         state.semesters = Array.isArray(data.semesters) ? data.semesters : state.semesters;
         state.meetingsDate = data.meetingsDate || state.meetingsDate;
         state.plannerWindowDate = data.plannerWindowDate !== undefined ? data.plannerWindowDate : state.plannerWindowDate;
+        state.icsImports = Array.isArray(data.icsImports) ? data.icsImports : (state.icsImports || []);
         if (!state.cats.find(c => c.id === state.currentCatId)) {
           state.currentCatId = state.cats[0]?.id || null;
         }
@@ -8039,6 +8103,7 @@
         cats: s.cats || [],
         tasks: s.tasks || [],
         events: s.events || [],
+        icsImports: s.icsImports || [],
         schedule: s.schedule || [],
         flow: s.flow || []
       };
