@@ -1967,7 +1967,7 @@
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
     let activeListReady = true;
     let knownSharedDoc = null, unsubKnown = null, knownSharedCache = [];
-    let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null;
+    let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null, liveReorderTargetId = null;
     let selectedPlannerTaskId = null, draggedPlannerTaskId = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
     let undoStack = []; 
@@ -6295,10 +6295,12 @@
       card.ondragstart = (e) => {
           e.stopPropagation();
           draggedTaskId = task.id;
+          liveReorderTargetId = null;
           e.dataTransfer?.setData("taskId", task.id);
           showAgendaDropBubble();
       };
       card.ondragend = () => {
+          liveReorderTargetId = null;
           hideAgendaDropBubble();
       };
       card.ondragover = (e) => {
@@ -6306,15 +6308,23 @@
           e.preventDefault();
           e.stopPropagation();
           card.classList.add("drop-target");
+          // סדר ידני: מחליפים מקומות מיד כשגוררים משימה מעל משימה אחרת,
+          // בלי לחכות לשחרור (drop) — כמו ברוב אפליקציות ה-drag&drop.
+          // liveReorderTargetId מוודא שההחלפה קורית פעם אחת בלבד לכל
+          // משימה שנכנסים אליה, ולא בכל אירוע dragover (שיורה שוב ושוב).
+          if (opts.manualReorder && liveReorderTargetId !== task.id) {
+            liveReorderTargetId = task.id;
+            reorderTaskDrop(draggedTaskId, task.id);
+          }
       };
       card.ondragleave = () => card.classList.remove("drop-target");
       card.ondrop = (e) => {
           e.preventDefault();
           e.stopPropagation();
           card.classList.remove("drop-target");
-          if (opts.manualReorder) reorderTaskDrop(draggedTaskId, task.id);
-          else moveDraggedOntoTask(task.id);
+          if (!opts.manualReorder) moveDraggedOntoTask(task.id);
           draggedTaskId = null;
+          liveReorderTargetId = null;
       };
       const top = el("div","task-top");
       if (opts.number) {
