@@ -372,10 +372,11 @@
     .drop{padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;max-height:calc(3 * 140px + 2 * 10px)}
     .drop:empty{padding:10px}
     .drop.over{outline:2px dashed var(--accent);outline-offset:-8px}
-    .task.drop-target{outline:2px dashed var(--accent);outline-offset:-4px}
+    .task.drop-target{box-shadow:0 0 0 2px var(--accent) inset,0 6px 18px rgba(0,0,0,.12);background:color-mix(in srgb,var(--card) 90%,var(--accent))}
+    .task.dragging{opacity:.5;box-shadow:none}
     .task{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-right:5px solid var(--accent);border-radius:10px;padding:12px 13px;box-shadow:0 2px 10px rgba(0,0,0,.08);max-height:260px;min-width:0}
     .task::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:color-mix(in srgb,var(--accent) 58%,transparent);opacity:.55;pointer-events:none}
-    .task,.card,.day-task,.agenda-row{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}
+    .task,.card,.day-task,.agenda-row{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease,opacity .18s ease}
     .task:hover,.cat-card:hover,.agenda-row:hover{transform:translateY(-1px)}
     .task:hover{border-color:color-mix(in srgb,var(--accent) 34%,var(--border));box-shadow:0 6px 18px rgba(0,0,0,.12);background:color-mix(in srgb,var(--card) 92%,var(--accent))}
     .task[draggable="true"]{cursor:grab}
@@ -5379,6 +5380,97 @@
       return String(str).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");
     }
 
+    function hashStr(s){
+      let h = 0;
+      for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+      return Math.abs(h).toString(36);
+    }
+
+    // ── ייצוא אירועים המקושרים לקורס כ-.ics עם RRULE אמיתי ──
+    // במקום לפלוט מופע נפרד לכל תאריך (מה שגורם ליומן היעד להציג
+    // "אותו שיעור" עשרות פעמים), האירועים מקובצים לפי קורס+כותרת+שעה+יום
+    // בשבוע לכדי VEVENT יחיד עם RRULE:WEEKLY. פערים בין המופעים הקיימים
+    // (למשל שבוע של חופשה שכבר לא נוצר לו אירוע באפליקציה) מזוהים אוטומטית
+    // ונכנסים כ-EXDATE, כך שהסדרה החוזרת מדלגת עליהם בלי לשנות את הנתונים במערכת.
+    function exportCoursesIcs(){
+      const catEvents = (state.events||[]).filter(e => e.catId && e.date);
+      if (!catEvents.length) return toast("אין אירועים המקושרים לקורס");
+
+      const DOW = ["SU","MO","TU","WE","TH","FR","SA"];
+      const groups = new Map();
+      catEvents.forEach(e => {
+        const dow = parseDate(e.date).getDay();
+        const key = [e.catId, e.title, e.time || "", e.endTime || "", dow].join("|");
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(e);
+      });
+
+      const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//TaskFlow//HE","CALSCALE:GREGORIAN"];
+      let seriesCount = 0;
+
+      groups.forEach(evs => {
+        evs.sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+        const first = evs[0];
+        const last = evs[evs.length - 1];
+        const cat = state.cats.find(c => c.id === first.catId);
+        const catName = cat ? cat.name : "";
+        const summary = catName ? `${catName}: ${first.title}` : first.title;
+        const dow = parseDate(first.date).getDay();
+        const dateDigits = first.date.replace(/-/g,"");
+        const uidBase = "course_" + (first.catId || "x") + "_" + hashStr(first.title + "|" + first.time + "|" + dow) + "@taskflow-he";
+
+        lines.push("BEGIN:VEVENT");
+        lines.push("UID:" + uidBase);
+        lines.push("SUMMARY:" + icsEscape(summary));
+        if (catName) lines.push("CATEGORIES:" + icsEscape(catName));
+        if (first.location) lines.push("LOCATION:" + icsEscape(first.location));
+
+        if (first.time) {
+          const startT = first.time.replace(":","") + "00";
+          const endT = (first.endTime || first.time).replace(":","") + "00";
+          lines.push("DTSTART;TZID=Asia/Jerusalem:" + dateDigits + "T" + startT);
+          lines.push("DTEND;TZID=Asia/Jerusalem:" + dateDigits + "T" + endT);
+        } else {
+          lines.push("DTSTART;VALUE=DATE:" + dateDigits);
+          lines.push("DTEND;VALUE=DATE:" + dateDigits);
+        }
+
+        if (evs.length > 1) {
+          lines.push("RRULE:FREQ=WEEKLY;BYDAY=" + DOW[dow] + ";UNTIL=" + last.date.replace(/-/g,"") + "T235959Z");
+          const present = new Set(evs.map(e => e.date));
+          const exdates = [];
+          let cursor = parseDate(first.date);
+          const lastDate = parseDate(last.date);
+          cursor.setDate(cursor.getDate() + 7);
+          while (cursor <= lastDate) {
+            const dk = toDateKey(cursor);
+            if (!present.has(dk)) exdates.push(dk.replace(/-/g,""));
+            cursor.setDate(cursor.getDate() + 7);
+          }
+          if (exdates.length) {
+            if (first.time) {
+              const t = first.time.replace(":","") + "00";
+              lines.push("EXDATE;TZID=Asia/Jerusalem:" + exdates.map(dk => dk + "T" + t).join(","));
+            } else {
+              lines.push("EXDATE;VALUE=DATE:" + exdates.join(","));
+            }
+          }
+        }
+
+        lines.push("END:VEVENT");
+        seriesCount++;
+      });
+
+      lines.push("END:VCALENDAR");
+      const blob = new Blob([lines.join("\r\n")], { type:"text/calendar" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `taskflow-courses-${toDateKey(new Date())}.ics`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast(`יוצאו ${seriesCount} סדרות שיעורים (במקום ${catEvents.length} מופעים בודדים) ✓`);
+    }
+
     function openListExportMenu(anchor, cat){
       closeSharedItemMenu();
       closeSharedAddMenu();
@@ -6226,8 +6318,10 @@
       icsBtn.type = "button"; icsBtn.onclick = importIcs;
       const icsExBtn = el("button","btn","📤 ייצוא .ics");
       icsExBtn.type = "button"; icsExBtn.onclick = exportIcs;
+      const icsCourseBtn = el("button","btn","🎓 ייצוא קורסים (חוזר)");
+      icsCourseBtn.type = "button"; icsCourseBtn.onclick = exportCoursesIcs;
       const icsRow = el("div","ics-section");
-      icsRow.append(el("span","meta","לוח שנה:"), icsBtn, icsExBtn);
+      icsRow.append(el("span","meta","לוח שנה:"), icsBtn, icsExBtn, icsCourseBtn);
       backup.append(icsRow);
       
       const account = el("section","card");
@@ -6292,12 +6386,14 @@
         card.style.backgroundColor = state.accent + "12"; 
       }
       card.draggable = draggable;
+      if (task.id === draggedTaskId) card.classList.add("dragging");
       card.ondragstart = (e) => {
           e.stopPropagation();
           draggedTaskId = task.id;
           liveReorderTargetId = null;
           e.dataTransfer?.setData("taskId", task.id);
           showAgendaDropBubble();
+          requestAnimationFrame(() => card.classList.add("dragging"));
       };
       card.ondragend = () => {
           liveReorderTargetId = null;
@@ -6307,7 +6403,11 @@
           if (!draggedTaskId || draggedTaskId === task.id) return;
           e.preventDefault();
           e.stopPropagation();
-          card.classList.add("drop-target");
+          // בסדר ידני ההחלפה עצמה (למטה) היא כבר המשוב החזותי — החלפת
+          // המקומות ברשימה — כך שאין צורך גם במסגרת מקווקוות שרק מהבהבת
+          // בכל רינדור-מחדש ויוצרת תחושת "רעד". במקרים אחרים (גרירה כדי
+          // לשנות קטגוריה) עדיין מדגישים את היעד.
+          if (!opts.manualReorder) card.classList.add("drop-target");
           // סדר ידני: מחליפים מקומות מיד כשגוררים משימה מעל משימה אחרת,
           // בלי לחכות לשחרור (drop) — כמו ברוב אפליקציות ה-drag&drop.
           // liveReorderTargetId מוודא שההחלפה קורית פעם אחת בלבד לכל
