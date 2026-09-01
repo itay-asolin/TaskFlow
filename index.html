@@ -3973,22 +3973,24 @@
         if (groups.length) {
           const evGrid = el("div","");
           evGrid.style.cssText =
-            "display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));" +
+            "display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));" +
             "gap:8px;margin-top:9px";
 
           groups.forEach(group => {
             const tile = el("div","");
             tile.style.cssText =
-              "min-height:62px;padding:9px 10px;border-radius:10px;" +
+              "min-height:72px;padding:10px 12px;border-radius:10px;" +
               "border:1px solid rgba(120,180,230,.22);" +
               "background:rgba(15,45,68,.55);cursor:pointer;" +
               "display:flex;flex-direction:column;justify-content:center;" +
-              "transition:transform .12s ease,background .12s ease";
+              "transition:transform .12s ease,background .12s ease;" +
+              "min-width:150px;";
 
+            // Full title: allow wrapping instead of truncating with "...".
             const title = el("div","",group.title);
             title.style.cssText =
-              "font-weight:700;font-size:12px;white-space:nowrap;" +
-              "overflow:hidden;text-overflow:ellipsis";
+              "font-weight:700;font-size:12px;line-height:1.35;" +
+              "white-space:normal;overflow-wrap:anywhere;word-break:break-word";
 
             const day = group.dow >= 0 ? DOW_HE[group.dow] : "";
             const time = group.time
@@ -3997,13 +3999,23 @@
 
             const meta = el("div","meta",time);
             meta.style.cssText =
-              "font-size:11px;margin-top:3px;white-space:nowrap;" +
-              "overflow:hidden;text-overflow:ellipsis";
+              "font-size:11px;margin-top:4px;line-height:1.3;" +
+              "white-space:normal;overflow-wrap:anywhere";
 
-            const count = el("div","meta",
-              group.dates.length > 1 ? `${group.dates.length} מועדים  ›` : "פרטים  ›"
-            );
-            count.style.cssText = "font-size:10px;margin-top:3px;opacity:.8";
+            // Single occurrence: show its actual date directly on the tile.
+            // Recurring group: show the number of dates; clicking still shows all.
+            let countText;
+            if (group.dates.length === 1) {
+              const d = parseDate(group.dates[0]);
+              countText = `📅 ${d.toLocaleDateString("he-IL", {
+                day:"2-digit", month:"2-digit", year:"numeric"
+              })}  ›`;
+            } else {
+              countText = `${group.dates.length} מועדים  ›`;
+            }
+
+            const count = el("div","meta",countText);
+            count.style.cssText = "font-size:10px;margin-top:4px;opacity:.85";
 
             tile.append(title, meta, count);
 
