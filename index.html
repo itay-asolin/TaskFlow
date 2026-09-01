@@ -3971,41 +3971,60 @@
         evSec.append(evHead);
 
         if (groups.length) {
-          const evList = el("div","list");
+          const evGrid = el("div","");
+          evGrid.style.cssText =
+            "display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));" +
+            "gap:8px;margin-top:9px";
 
           groups.forEach(group => {
-            const row = el("div","card");
-            row.style.cssText =
-              "display:flex;align-items:center;justify-content:space-between;gap:10px;" +
-              "padding:10px 12px;margin-top:8px;cursor:pointer";
+            const tile = el("div","");
+            tile.style.cssText =
+              "min-height:62px;padding:9px 10px;border-radius:10px;" +
+              "border:1px solid rgba(120,180,230,.22);" +
+              "background:rgba(15,45,68,.55);cursor:pointer;" +
+              "display:flex;flex-direction:column;justify-content:center;" +
+              "transition:transform .12s ease,background .12s ease";
 
-            const info = el("div","");
             const title = el("div","",group.title);
-            title.style.fontWeight = "700";
+            title.style.cssText =
+              "font-weight:700;font-size:12px;white-space:nowrap;" +
+              "overflow:hidden;text-overflow:ellipsis";
 
             const day = group.dow >= 0 ? DOW_HE[group.dow] : "";
-            const metaText =
-              `${day}${day && group.time ? " · " : ""}${group.time || ""}` +
-              `${group.endTime ? "–" + group.endTime : ""}` +
-              `${group.dates.length > 1 ? ` · ${group.dates.length} מועדים` : ""}`;
+            const time = group.time
+              ? `${day}${day ? " · " : ""}${group.time}${group.endTime ? "–" + group.endTime : ""}`
+              : day;
 
-            const meta = el("div","meta",metaText);
-            meta.style.fontSize = "12px";
+            const meta = el("div","meta",time);
+            meta.style.cssText =
+              "font-size:11px;margin-top:3px;white-space:nowrap;" +
+              "overflow:hidden;text-overflow:ellipsis";
 
-            info.append(title, meta);
+            const count = el("div","meta",
+              group.dates.length > 1 ? `${group.dates.length} מועדים  ›` : "פרטים  ›"
+            );
+            count.style.cssText = "font-size:10px;margin-top:3px;opacity:.8";
 
-            const arrow = el("span","meta",group.dates.length > 1 ? "▸" : "");
-            row.append(info, arrow);
+            tile.append(title, meta, count);
 
-            row.onclick = (e) => {
-              e.stopPropagation();
-              showCompactSeriesPopup(group, row);
+            tile.onmouseenter = () => {
+              tile.style.transform = "translateY(-1px)";
+              tile.style.background = "rgba(20,58,84,.75)";
+            };
+            tile.onmouseleave = () => {
+              tile.style.transform = "translateY(0)";
+              tile.style.background = "rgba(15,45,68,.55)";
             };
 
-            evList.append(row);
+            tile.onclick = (e) => {
+              e.stopPropagation();
+              showCompactSeriesPopup(group, tile);
+            };
+
+            evGrid.append(tile);
           });
 
-          evSec.append(evList);
+          evSec.append(evGrid);
         }
 
         wrap.append(evSec);
