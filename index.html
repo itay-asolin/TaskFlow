@@ -2650,7 +2650,15 @@
         knownSharedCache = docSnap.exists() ? (docSnap.data().items || []) : [];
         try { localStorage.setItem("taskflow_knownShared", JSON.stringify(knownSharedCache)); } catch {}
         if ($("sharedPanel")?.classList.contains("open")) renderSharedPanelContent();
-        else if (state.currentView === "home") render();
+        if (state.currentView === "home") render();
+        // "כל המשימות" בונה רשימת שיתופים מיד עם הכניסה לעמוד, לפעמים לפני
+        // שההודעה הזו מה-Firestore הגיעה — ואז המשימות המשותפות נשארות
+        // חסרות עד שיוצאים ונכנסים חזרה. אם היינו כרגע בעמוד הזה, נבטל את
+        // המטמון ונטען מחדש כדי שהן יופיעו בלי לצאת מהעמוד.
+        if (state.currentView === "all") {
+          allTasksAgg = null;
+          loadAllTasksAggregate().then(() => { if (state.currentView === "all") render(); });
+        }
       }, (err) => {
         console.error("Known shared sync failed", err);
         toast("סנכרון השיתופים בין מכשירים נכשל (בדוק Firestore Rules).");
@@ -4098,6 +4106,8 @@
       }
     }
 
+    function allTasksHideShared(){ return localStorage.getItem("taskflow_all_hideShared") === "1"; }
+
     function filteredAllTasks(){
       const source = allTasksAgg ? allTasksAgg.tasks : state.tasks;
       const q = state.search.toLowerCase();
@@ -4105,6 +4115,7 @@
         ? source.filter(t => [t.name, ...(t.subs || []).map(s => s.text)].join(" ").toLowerCase().includes(q))
         : [...source];
       if (state.filterTag) tasks = tasks.filter(t => (t.tags || []).includes(state.filterTag));
+      if (allTasksHideShared()) tasks = tasks.filter(t => t.__listType !== "shared");
       return tasks;
     }
 
@@ -4153,6 +4164,14 @@
       refreshBtn.style.cssText = "margin-right:6px";
       refreshBtn.onclick = () => { loadAllTasksAggregate(true).then(() => render()); toast("מרענן..."); };
       sortBar.append(refreshBtn);
+
+      const hideShared = allTasksHideShared();
+      const sharedToggleBtn = el("button","mini", hideShared ? "👁️ הצג משותפות" : "🙈 הסתר משותפות");
+      sharedToggleBtn.type = "button";
+      sharedToggleBtn.title = "הצג או הסתר את המשימות המשותפות ברשימה הזו";
+      sharedToggleBtn.style.cssText = "margin-right:6px";
+      sharedToggleBtn.onclick = () => { localStorage.setItem("taskflow_all_hideShared", hideShared ? "0" : "1"); render(); };
+      sortBar.append(sharedToggleBtn);
       wrap.append(sortBar);
 
       const tags = allTags();
