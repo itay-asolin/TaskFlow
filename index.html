@@ -4010,14 +4010,101 @@
     }
 
     function allTags(){
+      const source = (state.currentView === "all" && allTasksAgg) ? allTasksAgg.tasks : state.tasks;
       const tags = new Set();
-      state.tasks.forEach(t => (t.tags||[]).forEach(g => tags.add(g)));
+      source.forEach(t => (t.tags||[]).forEach(g => tags.add(g)));
       return [...tags].sort();
     }
 
     function filteredTasksWithTag(){
       let tasks = filteredTasks();
       if (state.filterTag) tasks = tasks.filter(t => (t.tags||[]).includes(state.filterTag));
+      return tasks;
+    }
+
+    // Aggregate of tasks/cats across ALL lists (private + every shared list
+    // you're a member of) for the "כל המשימות" page — previously that page
+    // only ever showed the currently-open list's tasks (private, or whichever
+    // single shared list happened to be active), so shared-list tasks never
+    // showed up there unless that specific shared list was the active one.
+    // Each item is tagged with __listType/__listId/__listName so the UI can
+    // tell which list it came from and route clicks safely.
+    let allTasksAgg = null;
+    let allTasksAggInFlight = null;
+
+    async function loadAllTasksAggregate(force){
+      if (!force && allTasksAgg) return allTasksAgg;
+      if (allTasksAggInFlight) return allTasksAggInFlight;
+      allTasksAggInFlight = (async () => {
+        const cats = [];
+        const tasks = [];
+        const tag = (arr, type, id, name) => { arr.forEach(x => { x.__listType = type; x.__listId = id; x.__listName = name; }); return arr; };
+
+        if (activeList.type === "private") {
+          cats.push(...tag(state.cats.map(x => ({ ...x })), "private", null, "הרשימה הפרטית"));
+          tasks.push(...tag(state.tasks.map(x => ({ ...x })), "private", null, "הרשימה הפרטית"));
+        } else if (cloudReady && userDoc) {
+          try {
+            const snap = await getDoc(userDoc);
+            const s = snap.exists() ? (snap.data().state || {}) : {};
+            cats.push(...tag((s.cats || []).map(x => ({ ...x })), "private", null, "הרשימה הפרטית"));
+            tasks.push(...tag((s.tasks || []).map(x => ({ ...x })), "private", null, "הרשימה הפרטית"));
+          } catch (err) { console.error("Aggregate private fetch failed", err); }
+        }
+
+        for (const item of getKnownSharedLists()) {
+          const listName = item.name || "רשימה משותפת";
+          if (activeList.type === "shared" && activeList.id === item.id) {
+            cats.push(...tag(state.cats.map(x => ({ ...x })), "shared", item.id, listName));
+            tasks.push(...tag(state.tasks.map(x => ({ ...x })), "shared", item.id, listName));
+            continue;
+          }
+          if (!cloudReady) continue;
+          try {
+            const ref = doc(db, "sharedLists", item.id);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+              const s = snap.data().state || {};
+              cats.push(...tag((s.cats || []).map(x => ({ ...x })), "shared", item.id, listName));
+              tasks.push(...tag((s.tasks || []).map(x => ({ ...x })), "shared", item.id, listName));
+            }
+          } catch (err) { console.error("Aggregate shared fetch failed", item.id, err); }
+        }
+
+        allTasksAgg = { tasks, cats, loadedAt: Date.now() };
+        allTasksAggInFlight = null;
+        return allTasksAgg;
+      })();
+      return allTasksAggInFlight;
+    }
+
+    function isForeignTask(task){
+      if (!task.__listType) return false;
+      if (task.__listType === "private") return activeList.type !== "private";
+      return !(activeList.type === "shared" && activeList.id === task.__listId);
+    }
+
+    // Safe navigation for a task that belongs to a list other than the one
+    // currently open — switches the active document to that list (private or
+    // a specific shared list) and lands on the right category, instead of
+    // trying to edit an object that isn't part of the live `state`.
+    function jumpToTaskList(task){
+      if (task.__listType === "private") {
+        state.currentCatId = task.catId;
+        state.currentView = "kanban";
+        subscribePrivateList();
+      } else if (task.__listType === "shared" && task.__listId) {
+        openSharedCategory(task.__listId, task.catId);
+      }
+    }
+
+    function filteredAllTasks(){
+      const source = allTasksAgg ? allTasksAgg.tasks : state.tasks;
+      const q = state.search.toLowerCase();
+      let tasks = q
+        ? source.filter(t => [t.name, ...(t.subs || []).map(s => s.text)].join(" ").toLowerCase().includes(q))
+        : [...source];
+      if (state.filterTag) tasks = tasks.filter(t => (t.tags || []).includes(state.filterTag));
       return tasks;
     }
 
@@ -4052,6 +4139,20 @@
       });
       sortSel.onchange = () => { state.sortAll = sortSel.value; render(); };
       sortBar.append(sortSel);
+
+      // Pull in tasks from every shared list too (not just whichever one is
+      // currently open), so "כל המשימות" really means all of them. First
+      // render uses whatever's cached/available immediately; the fetch runs
+      // in the background and re-renders once it lands.
+      if (!allTasksAgg) {
+        loadAllTasksAggregate().then(() => { if (state.currentView === "all") render(); });
+      }
+      const refreshBtn = el("button","mini","🔄");
+      refreshBtn.type = "button";
+      refreshBtn.title = "רענן מכל הרשימות";
+      refreshBtn.style.cssText = "margin-right:6px";
+      refreshBtn.onclick = () => { loadAllTasksAggregate(true).then(() => render()); toast("מרענן..."); };
+      sortBar.append(refreshBtn);
       wrap.append(sortBar);
 
       const tags = allTags();
@@ -4069,16 +4170,34 @@
         wrap.append(tb);
       }
 
-      const tasks = filteredTasksWithTag().filter(t => !isDone(t)).sort((a,b) => {
+      const tasks = filteredAllTasks().filter(t => !isDone(t)).sort((a,b) => {
         if (state.sortAll === "due") return (a.due||"9999").localeCompare(b.due||"9999");
         if (state.sortAll === "name") return a.name.localeCompare(b.name, "he");
         if (state.sortAll === "cat") return (a.catId||"").localeCompare(b.catId||"");
         return 0;
       });
-      $("pageSub").textContent = `${tasks.length} משימות פתוחות`;
+      $("pageSub").textContent = `${tasks.length} משימות פתוחות` + (allTasksAgg ? "" : " (טוען רשימות משותפות...)");
 
       const list = el("div","list");
       if (!tasks.length) list.append(emptyFun());
+
+      const catsSource = allTasksAgg ? allTasksAgg.cats : state.cats;
+      function buildAllRow(task){
+        const foreign = isForeignTask(task);
+        const row = taskRow(task, foreign ? { draggable: false, foreign: true, onOpen: () => jumpToTaskList(task) } : {});
+        const cat = catsSource.find(c => c.id === task.catId && (c.__listId ?? null) === (task.__listId ?? null));
+        const col = cat?.columns?.find(c => c.id === task.col);
+        const titleEl = row.querySelector(".task-title");
+        if (titleEl && !row.querySelector(".all-breadcrumb")) {
+          const bc = document.createElement("div");
+          bc.className = "all-breadcrumb";
+          const listPrefix = foreign ? `${task.__listName} · ` : "";
+          const catPart = cat ? (col ? `${cat.name} › ${col.name}` : cat.name) : "";
+          bc.textContent = listPrefix + catPart;
+          titleEl.after(bc);
+        }
+        return row;
+      }
 
       if (state.sortAll === "tag") {
         // קיבוץ לפי תגית (קורס) — משימות ללא תגית מקובצות בסוף תחת "ללא תגית"
@@ -4101,42 +4220,14 @@
           groupHead.style.cssText = "display:flex;align-items:center;gap:8px;padding:14px 4px 6px;font-weight:900;font-size:13px;color:var(--accent2)";
           groupHead.append(el("span","",tagName === "ללא תגית" ? "ללא תגית" : "# " + tagName), el("span","count",String(groupTasks.length)));
           list.append(groupHead);
-          groupTasks.forEach(task => {
-            const row = taskRow(task);
-            const cat = state.cats.find(c => c.id === task.catId);
-            if (cat) {
-              const col = cat.columns?.find(c => c.id === task.col);
-              const titleEl = row.querySelector(".task-title");
-              if (titleEl && !row.querySelector(".all-breadcrumb")) {
-                const bc = document.createElement("div");
-                bc.className = "all-breadcrumb";
-                bc.textContent = col ? `${cat.name} › ${col.name}` : cat.name;
-                titleEl.after(bc);
-              }
-            }
-            list.append(row);
-          });
+          groupTasks.forEach(task => list.append(buildAllRow(task)));
         });
         wrap.append(list);
         $("content").replaceChildren(wrap);
         return;
       }
 
-      tasks.forEach(task => {
-        const row = taskRow(task);
-        const cat = state.cats.find(c => c.id === task.catId);
-        if (cat) {
-          const col = cat.columns?.find(c => c.id === task.col);
-          const titleEl = row.querySelector(".task-title");
-          if (titleEl && !row.querySelector(".all-breadcrumb")) {
-            const bc = document.createElement("div");
-            bc.className = "all-breadcrumb";
-            bc.textContent = col ? `${cat.name} › ${col.name}` : cat.name;
-            titleEl.after(bc);
-          }
-        }
-        list.append(row);
-      });
+      tasks.forEach(task => list.append(buildAllRow(task)));
       wrap.append(list);
       $("content").replaceChildren(wrap);
     }
@@ -6214,7 +6305,8 @@
         top.append(numBadge);
       }
       const check = el("button","check" + (isDone(task) ? " done" : ""), isDone(task) ? "✓" : "");
-      check.type = "button"; check.ariaLabel = "סמן משימה"; check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
+      check.type = "button"; check.ariaLabel = "סמן משימה";
+      check.onclick = (e) => { e.stopPropagation(); if (opts.foreign) (opts.onOpen || openTaskModal)(task); else toggleTask(task.id); };
       const titleWrap = el("div","task-title-wrap");
       const title = el("div","task-title" + (isDone(task) ? " done" : ""), task.name);
       titleWrap.append(title);
@@ -6227,7 +6319,11 @@
           tool("הזז למטה", "↓", () => moveTaskOrder(task.id, 1))
         );
       }
-      tools.append(tool("ערוך", "✎", () => openTaskModal(task)), tool("מחק", "×", () => deleteTask(task.id)));
+      if (opts.foreign) {
+        tools.append(tool("פתח ברשימה שלה", "↗", () => (opts.onOpen || openTaskModal)(task)));
+      } else {
+        tools.append(tool("ערוך", "✎", () => openTaskModal(task)), tool("מחק", "×", () => deleteTask(task.id)));
+      }
       top.append(check, titleWrap, tools);
       card.append(top);
       const due = dueInfo(task.due);
@@ -6263,7 +6359,8 @@
         task.subs.forEach(sub => {
           const row = el("label","subtask" + (sub.done ? " done" : ""));
           const cb = document.createElement("input");
-          cb.type = "checkbox"; cb.checked = sub.done; cb.onchange = () => toggleSub(task.id, sub.id);
+          cb.type = "checkbox"; cb.checked = sub.done;
+          if (opts.foreign) cb.disabled = true; else cb.onchange = () => toggleSub(task.id, sub.id);
           const textSpan = el("span","",sub.text);
           row.append(cb, textSpan);
           subs.append(row);
@@ -6282,16 +6379,16 @@
       
       card.onclick = (e) => {
           if (!e.target.closest("button") && !e.target.closest("input") && !e.target.closest(".subs") && !e.target.closest(".subs-header")) {
-              openTaskModal(task);
+              (opts.foreign ? (opts.onOpen || openTaskModal) : openTaskModal)(task);
           }
       };
-      enableAgendaPointerDrag(card, task);
+      if (!opts.foreign) enableAgendaPointerDrag(card, task);
       
       return card;
     }
 
     function taskRow(task, opts = {}){
-      const row = taskCard(task, true, opts);
+      const row = taskCard(task, opts.draggable === false ? false : true, opts);
       row.classList.add("task-row", "task-list-card");
       if (opts.manualReorder) row.classList.add("manual-reorder");
 
@@ -6946,6 +7043,10 @@
     
     function navigate(view){
       const cameFromShared = view === "home" && activeList.type === "shared";
+      // Force a fresh cross-list fetch whenever the "all tasks" page is
+      // (re-)entered, so it doesn't keep showing whatever shared-list data
+      // happened to be cached from earlier in the session.
+      if (view === "all" && state.currentView !== "all") allTasksAgg = null;
       state.currentView = view;
       if (view !== "kanban") state.currentCatId = view === "home" ? null : state.currentCatId;
       hideCalendarSearchResults();
