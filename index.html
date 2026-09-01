@@ -5344,26 +5344,85 @@
     }
 
     // ── מודל אישור ייבוא .ics ──
-    // כל אירוע משויך אוטומטית לקורס לפי CATEGORIES.
-    // אין בחירה של "קורס אחד לכל הקובץ", כי קובץ ICS יכול להכיל כמה קורסים.
+    // קובץ ICS יכול להכיל כמה קורסים. כל אירוע משויך בנפרד לקורס המתאים.
     function normalizeIcsCourseName(value){
       return String(value || "")
         .normalize("NFKC")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/[‐‑‒–—−-]/g, "")
+        .replace(/["'׳״.,:;!?()[\]{}]/g, " ")
         .replace(/\s+/g, " ")
         .trim()
         .toLocaleLowerCase("he-IL");
     }
 
+    function icsCourseTokens(value){
+      return normalizeIcsCourseName(value)
+        .split(" ")
+        .filter(Boolean);
+    }
+
+    function icsCourseBaseFromEvent(event){
+      const values = [
+        ...(Array.isArray(event?.categories) ? event.categories : []),
+        event?.title || ""
+      ];
+      return values.map(v => String(v).replace(/^\s*מבחן\s+/, "").trim())
+        .map(v => v.replace(/\s*[—–-]\s*(הרצאה|תרגול|מועד\s*[אב׳']+)\s*$/u, "").trim())
+        .filter(Boolean);
+    }
+
+    function icsCourseSimilarity(a, b){
+      const na = normalizeIcsCourseName(a), nb = normalizeIcsCourseName(b);
+      if (!na || !nb) return 0;
+      if (na === nb) return 1;
+
+      const ta = new Set(icsCourseTokens(na));
+      const tb = new Set(icsCourseTokens(nb));
+      const intersection = [...ta].filter(x => tb.has(x)).length;
+      const union = new Set([...ta, ...tb]).size;
+      const jaccard = union ? intersection / union : 0;
+
+      // Small Hebrew connector-word differences should not prevent a match.
+      const stop = new Set(["של","אל","ה","ו"]);
+      const sa = new Set([...ta].filter(x => !stop.has(x)));
+      const sb = new Set([...tb].filter(x => !stop.has(x)));
+      const commonMeaningful = [...sa].filter(x => sb.has(x)).length;
+      const meaningfulBase = Math.max(sa.size, sb.size, 1);
+      const meaningful = commonMeaningful / meaningfulBase;
+
+      return Math.max(jaccard, meaningful * 0.98);
+    }
+
     function findIcsCourseMatch(event){
       const cats = Array.isArray(state.cats) ? state.cats : [];
-      const importedCategories = (event?.categories || []).map(normalizeIcsCourseName).filter(Boolean);
-      if (!importedCategories.length) return null;
+      if (!cats.length || !event) return null;
 
-      // Primary and intentional matching key: CATEGORIES == course/list name.
-      for (const cat of cats) {
-        const name = normalizeIcsCourseName(cat.name);
-        if (name && importedCategories.includes(name)) return cat;
+      const imported = icsCourseBaseFromEvent(event);
+      if (!imported.length) return null;
+
+      // 1. Exact/normalized name match.
+      for (const cat of cats){
+        for (const value of imported){
+          if (normalizeIcsCourseName(cat.name) === normalizeIcsCourseName(value)) return cat;
+        }
       }
+
+      // 2. Known harmless naming variation: e.g. with/without a hyphen.
+      // The normalization above already handles punctuation, so this mainly
+      // covers small wording differences such as "של" vs "אל".
+      let bestCat = null;
+      let bestScore = 0;
+      for (const cat of cats){
+        for (const value of imported){
+          const score = icsCourseSimilarity(cat.name, value);
+          if (score > bestScore){
+            bestScore = score;
+            bestCat = cat;
+          }
+        }
+      }
+      if (bestCat && bestScore >= 0.66) return bestCat;
 
       return null;
     }
@@ -5373,26 +5432,30 @@
       const matched = matches.filter(Boolean).length;
       const unmatched = parsed.length - matched;
 
+      // Show which course names the importer recognizes, so a bad name can be
+      // spotted before anything is added to the calendar.
+      const recognized = [...new Set(matches.filter(Boolean).map(c => c.name))];
+
       openModal("ייבוא לוח שנה", `נמצאו ${parsed.length} אירועים בקובץ ${fileName}`, (form) => {
         const summary = el("div","mode-note");
         summary.innerHTML =
           `<strong>שיוך אוטומטי לקורסים</strong><br>` +
-          `המערכת תשתמש בשדה <code>CATEGORIES</code> של כל אירוע כדי לשייך אותו לקורס המתאים.` +
+          `כל אירוע משויך בנפרד לפי <code>CATEGORIES</code> ושם הקורס.` +
           `<br>✓ ${matched} אירועים נמצאה להם התאמה` +
-          (unmatched ? `<br>⚠️ ${unmatched} אירועים לא נמצאה להם התאמה ויישארו ללא שיוך` : "");
+          (unmatched ? `<br>⚠️ ${unmatched} אירועים ללא התאמה` : "") +
+          (recognized.length ? `<br><small>קורסים שזוהו: ${recognized.join(" · ")}</small>` : "");
         form.append(summary);
 
         form.append(el("p","meta",
-          "אין צורך לבחור קורס. הקובץ יכול להכיל אירועים של כמה קורסים, וכל אירוע ישויך בנפרד."
+          "אין צורך לבחור קורס. הקובץ יכול להכיל אירועים של כמה קורסים, וכל אירוע ישויך לקורס שלו."
         ));
 
         form.append(el("p","meta",
-          "הייבוא הזה יסומן בנפרד כך שאפשר יהיה למחוק בעתיד את כל האירועים שלו בלחיצה אחת."
+          "הייבוא הזה מסומן בנפרד כדי שאפשר יהיה למחוק בעתיד את כל האירועים שיובאו ממנו בלחיצה אחת."
         ));
 
         form.append(footer("ייבא אירועים", () => {
           const importId = uid("icsimp");
-
           const tagged = parsed.map((e, i) => {
             const cat = matches[i];
             return {
@@ -5416,12 +5479,7 @@
           closeModal();
           save();
           render();
-
-          toast(
-            `יובאו ${tagged.length} אירועים` +
-            (matched ? ` · ${matched} שויכו אוטומטית לקורסים` : "") +
-            (unmatched ? ` · ${unmatched} ללא שיוך` : "")
-          );
+          toast(`יובאו ${tagged.length} אירועים${matched ? ` · ${matched} שויכו אוטומטית לקורסים` : ""}${unmatched ? ` · ${unmatched} ללא שיוך` : ""}`);
         }));
       });
     }
@@ -5863,6 +5921,7 @@
         desc: ev.desc || "",
         location: ev.location || "",
         categories: Array.isArray(ev.categories) ? [...ev.categories] : [],
+        catId: ev.catId || null,
         rruleSummary: ev.rrule || ""
       };
     }
