@@ -3818,6 +3818,49 @@
       topBar.append(editCatBtn, exportWrap);
       wrap.append(topBar);
 
+      // Events linked to this list (via evCatId in the event modal) — shown
+      // right on the list page so you don't have to jump to the calendar.
+      const linkedEvents = (state.events || [])
+        .filter(e => e.catId === cat.id)
+        .sort((a, b) => (a.date + (a.time||"")).localeCompare(b.date + (b.time||"")));
+      {
+        const evSec = el("div","card");
+        evSec.style.marginBottom = "14px";
+        const evHead = el("div","col-head");
+        evHead.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px";
+        const evHeadLeft = el("div","");
+        evHeadLeft.style.cssText = "display:flex;align-items:center;gap:8px";
+        evHeadLeft.append(el("span","","📅 אירועים מקושרים"), el("span","count",String(linkedEvents.length)));
+        const addEvBtn = el("button","btn","+ אירוע");
+        addEvBtn.type = "button";
+        addEvBtn.onclick = (e) => {
+          e.stopPropagation();
+          openEventModal(null, toDateKey(new Date()), undefined, undefined, cat.id);
+        };
+        evHead.append(evHeadLeft, addEvBtn);
+        evSec.append(evHead);
+        if (linkedEvents.length) {
+          const evList = el("div","list");
+          const today = toDateKey(new Date());
+          linkedEvents.forEach(ev => {
+            const row = el("div","card");
+            row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;margin-top:8px;cursor:pointer";
+            if (ev.date < today) row.style.opacity = ".6";
+            const info = el("div","");
+            const dateLabel = new Date(ev.date + "T00:00:00").toLocaleDateString("he-IL", { day:"numeric", month:"short" });
+            info.append(el("div","",ev.title));
+            const meta = el("div","meta", dateLabel + (ev.time ? ` · ${ev.time}` : ""));
+            meta.style.fontSize = "12px";
+            info.append(meta);
+            row.append(info);
+            row.onclick = () => openEventModal(ev);
+            evList.append(row);
+          });
+          evSec.append(evList);
+        }
+        wrap.append(evSec);
+      }
+
       if (activeList.type === "shared") {
         const membersRow = el("div","shared-members");
         const names = activeList.memberNames || {};
@@ -3872,16 +3915,66 @@
       });
       wrap.append(dueFilterBar);
 
+      // Manual ordering toggle: lets you drag tasks (or use the ↑/↓ buttons)
+      // to set your own order for this list, instead of always sorting by
+      // due date.
+      if (!state.manualSort) state.manualSort = {};
+      const manualMode = !!state.manualSort[cat.id];
+      const sortToggleBar = el("div","view-toggle");
+      sortToggleBar.style.marginBottom = "12px";
+      const dueSortBtn = el("button", manualMode ? "" : "active", "📅 לפי תאריך");
+      dueSortBtn.type = "button";
+      const manualSortBtn = el("button", manualMode ? "active" : "", "↕ סדר ידני");
+      manualSortBtn.type = "button";
+      dueSortBtn.onclick = () => { state.manualSort[cat.id] = false; save(); render(); };
+      manualSortBtn.onclick = () => {
+        if (!manualMode) {
+          // First time switching to manual mode for this list: seed the
+          // order field from the current due-date order, so nothing jumps
+          // around unexpectedly.
+          const current = filteredTasks().filter(t => t.catId === cat.id && !isDone(t)).sort((a, b) => {
+            if (!a.due && !b.due) return 0;
+            if (!a.due) return 1;
+            if (!b.due) return -1;
+            return a.due < b.due ? -1 : a.due > b.due ? 1 : 0;
+          });
+          current.forEach((t, i) => { if (t.order === undefined) t.order = i; });
+        }
+        state.manualSort[cat.id] = true; save(); render();
+      };
+      sortToggleBar.append(dueSortBtn, manualSortBtn);
+      wrap.append(sortToggleBar);
+      if (manualMode) {
+        const hint = el("div","meta","גררו משימה על משימה אחרת, או השתמשו בחצים ↑↓ כדי לסדר אותן");
+        hint.style.cssText = "margin:-6px 0 12px;font-size:12px";
+        wrap.append(hint);
+      }
+
+      // Numbering: an independent on/off toggle that shows the tasks'
+      // position (1, 2, 3…) in whichever order is currently displayed —
+      // due-date order or manual order.
+      if (!state.showNumbering) state.showNumbering = {};
+      const numberingOn = !!state.showNumbering[cat.id];
+      const numberBtn = el("button","cp-sort-btn" + (numberingOn ? " active" : ""), numberingOn ? "🔢 בטל מספור" : "🔢 הצג מספור");
+      numberBtn.type = "button";
+      numberBtn.style.marginBottom = "12px";
+      numberBtn.onclick = () => { state.showNumbering[cat.id] = !numberingOn; save(); render(); };
+      wrap.append(numberBtn);
+
       const openTasks = applyDueFilter(filteredTasks().filter(t => t.catId === cat.id && !isDone(t)));
-      openTasks.sort((a, b) => {
-        if (!a.due && !b.due) return 0;
-        if (!a.due) return 1;
-        if (!b.due) return -1;
-        return a.due < b.due ? -1 : a.due > b.due ? 1 : 0;
-      });
+      if (manualMode) {
+        openTasks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      } else {
+        openTasks.sort((a, b) => {
+          if (!a.due && !b.due) return 0;
+          if (!a.due) return 1;
+          if (!b.due) return -1;
+          return a.due < b.due ? -1 : a.due > b.due ? 1 : 0;
+        });
+      }
       const sec = el("div","card");
       const list = el("div","list");
-      openTasks.forEach(t => list.append(taskRow(t)));
+      openTasks.forEach((t, i) => list.append(taskRow(t, { manualReorder: manualMode, number: numberingOn ? i + 1 : null })));
       if (!openTasks.length) list.append(emptyFun());
       sec.append(list);
       wrap.append(sec);
@@ -5005,7 +5098,7 @@
       return wrap;
     }
 
-    function openEventModal(ev, dateKey, endDateKey, suggestedTime){
+    function openEventModal(ev, dateKey, endDateKey, suggestedTime, presetCatId){
       const defTime = suggestedTime !== undefined ? suggestedTime : (ev ? ev.time || "" : roundToQuarter().start);
       const defEndTime = ev ? ev.endTime || "" : (suggestedTime ? (() => { const [h,m]=suggestedTime.split(":").map(Number); const e=(h*60+m+60); return String(Math.floor(Math.min(23*60+59,e)/60)).padStart(2,"0")+":"+String(e%60).padStart(2,"0"); })() : roundToQuarter().end);
       openModal(ev ? "ערוך אירוע" : "אירוע חדש", "", (form) => {
@@ -5022,6 +5115,15 @@
         form.append(field("כותרת","evTitle","text", ev?.title || ""));
         const kindWrap=el("div","field"),kindLabel=el("label","","סוג"),kindSelect=document.createElement("select");kindSelect.id="evKind";
         [["event","📅 אירוע רגיל"],["meeting","🤝 פגישה / שיעור פרטי"],["work","⏱️ עבודה / שעות לדיווח"]].forEach(([v,t])=>{const o=el("option","",t);o.value=v;if(v===eventKind(ev))o.selected=true;kindSelect.append(o)});kindWrap.append(kindLabel,kindSelect);form.append(kindWrap);
+        if (state.cats?.length) {
+          const catWrap = el("div","field"), catLabel = el("label","","קשר לרשימת משימות (לא חובה)");
+          const catSelect = document.createElement("select"); catSelect.id = "evCatId";
+          const noneOpt = el("option","","— ללא —"); noneOpt.value = ""; catSelect.append(noneOpt);
+          state.cats.forEach(c => {
+            const o = el("option","",c.name); o.value = c.id; if ((ev?.catId || presetCatId) === c.id) o.selected = true; catSelect.append(o);
+          });
+          catWrap.append(catLabel, catSelect); form.append(catWrap);
+        }
         form.append(field("תאריך","evDate","date", ev?.date || dateKey || ""));
         const two2 = el("div","two");
         two2.append(field("שעת התחלה","evTime","time", defTime));
@@ -5091,7 +5193,8 @@
             color: document.querySelector("[name=evColor]:checked")?.value || state.accent,
             source: "manual",
             kind: $("evKind").value,
-            isMeeting: $("evKind").value === "meeting"
+            isMeeting: $("evKind").value === "meeting",
+            catId: $("evCatId")?.value || null
           };
           if (!data.date) return toast("צריך תאריך");
           if (ev) {
@@ -6071,7 +6174,7 @@
       return line;
     }
     
-    function taskCard(task, draggable){
+    function taskCard(task, draggable, opts = {}){
       const cat = state.cats.find(c => c.id === task.catId);
       const card = el("article","task");
       card.style.borderRightColor = task.color || cat?.color || state.accent;
@@ -6099,9 +6202,17 @@
           e.preventDefault();
           e.stopPropagation();
           card.classList.remove("drop-target");
-          moveDraggedOntoTask(task.id);
+          if (opts.manualReorder) reorderTaskDrop(draggedTaskId, task.id);
+          else moveDraggedOntoTask(task.id);
+          draggedTaskId = null;
       };
       const top = el("div","task-top");
+      if (opts.number) {
+        top.style.gridTemplateColumns = "auto auto minmax(0,1fr) auto";
+        const numBadge = el("div","", String(opts.number) + ".");
+        numBadge.style.cssText = "flex:0 0 auto;font-weight:900;color:var(--faint);font-size:13px;min-width:18px;align-self:center";
+        top.append(numBadge);
+      }
       const check = el("button","check" + (isDone(task) ? " done" : ""), isDone(task) ? "✓" : "");
       check.type = "button"; check.ariaLabel = "סמן משימה"; check.onclick = (e) => { e.stopPropagation(); toggleTask(task.id); };
       const titleWrap = el("div","task-title-wrap");
@@ -6110,6 +6221,12 @@
       
       const tools = el("div","task-tools");
       
+      if (opts.manualReorder) {
+        tools.append(
+          tool("הזז למעלה", "↑", () => moveTaskOrder(task.id, -1)),
+          tool("הזז למטה", "↓", () => moveTaskOrder(task.id, 1))
+        );
+      }
       tools.append(tool("ערוך", "✎", () => openTaskModal(task)), tool("מחק", "×", () => deleteTask(task.id)));
       top.append(check, titleWrap, tools);
       card.append(top);
@@ -6173,9 +6290,10 @@
       return card;
     }
 
-    function taskRow(task){
-      const row = taskCard(task, true);
+    function taskRow(task, opts = {}){
+      const row = taskCard(task, true, opts);
       row.classList.add("task-row", "task-list-card");
+      if (opts.manualReorder) row.classList.add("manual-reorder");
 
       // Swipe-to-action on mobile only
       if (window.matchMedia("(max-width:820px)").matches) {
@@ -7290,6 +7408,41 @@
       if (sub) { sub.done = !sub.done; save(); render(); }
     }
 
+    // Manual reordering (drag-and-drop) within the same list. Tasks are
+    // ordered by their `order` field; dropping task `sourceId` onto task
+    // `targetId` moves it to sit right before the target within the same
+    // list, leaving the rest of the order untouched.
+    function reorderTaskDrop(sourceId, targetId){
+      if (!sourceId || sourceId === targetId) return;
+      const source = state.tasks.find(t => t.id === sourceId);
+      const target = state.tasks.find(t => t.id === targetId);
+      if (!source || !target || source.catId !== target.catId) return;
+      const siblings = state.tasks
+        .filter(t => t.catId === source.catId && !isDone(t))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const withoutSource = siblings.filter(t => t.id !== source.id);
+      const targetIdx = withoutSource.findIndex(t => t.id === target.id);
+      withoutSource.splice(targetIdx, 0, source);
+      withoutSource.forEach((t, i) => { t.order = i; });
+      save(); render();
+    }
+
+    // Move a task one step up/down (dir -1/+1) among its open siblings in
+    // the same list — the button-based alternative to dragging, for touch.
+    function moveTaskOrder(taskId, dir){
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      const siblings = state.tasks
+        .filter(t => t.catId === task.catId && !isDone(t))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const idx = siblings.findIndex(t => t.id === taskId);
+      const swapIdx = idx + dir;
+      if (idx === -1 || swapIdx < 0 || swapIdx >= siblings.length) return;
+      [siblings[idx], siblings[swapIdx]] = [siblings[swapIdx], siblings[idx]];
+      siblings.forEach((t, i) => { t.order = i; });
+      save(); render();
+    }
+
     function moveDraggedOntoTask(targetTaskId){
       const source = state.tasks.find(t => t.id === draggedTaskId);
       const target = state.tasks.find(t => t.id === targetTaskId);
@@ -7647,6 +7800,8 @@
         semesters: s.semesters || [],
         filterTag: s.filterTag || null,
         sortAll: s.sortAll || null,
+        manualSort: s.manualSort || {},
+        showNumbering: s.showNumbering || {},
         kanbanListMode: !!s.kanbanListMode,
         collapsedSubs: s.collapsedSubs || {},
         dailyAgenda: normalizeDailyAgenda(s.dailyAgenda),
