@@ -624,9 +624,9 @@
     #dailyMemoBtn .memo-dot{position:absolute;top:-4px;left:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--warn);color:#fff;border:2px solid var(--bg);display:none;align-items:center;justify-content:center;font-size:11px;font-weight:800;line-height:1}
     #dailyMemoBtn.has-content .memo-dot{display:flex}
     @media(max-width:820px){ #dailyMemoBtn{bottom:calc(76px + env(safe-area-inset-bottom));right:14px;width:48px;height:48px;font-size:20px} }
-    #dailyMemoPanel{position:fixed;bottom:88px;right:20px;z-index:91;width:min(300px,calc(100vw - 32px));max-height:min(420px,calc(100vh - 120px));display:none;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);direction:rtl;text-align:right;overflow:hidden;animation:briefPop .24s cubic-bezier(.34,1.3,.64,1)}
+    #dailyMemoPanel{position:fixed;bottom:88px;right:20px;z-index:91;width:min(300px,calc(100vw - 32px));max-height:min(420px,calc(100vh - 120px));display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);direction:rtl;text-align:right;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px) scale(.97);transform-origin:bottom left;transition:opacity .18s ease,transform .2s cubic-bezier(.34,1.3,.64,1),visibility 0s linear .2s}
     @media(max-width:820px){ #dailyMemoPanel{bottom:calc(132px + env(safe-area-inset-bottom));right:14px} }
-    #dailyMemoPanel.show{display:flex}
+    #dailyMemoPanel.show{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1);transition:opacity .2s ease,transform .22s cubic-bezier(.34,1.3,.64,1),visibility 0s linear 0s}
     .memo-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
     .memo-head-title{font-size:14px;font-weight:900;color:var(--text)}
     .memo-head-sub{font-size:10.5px;color:var(--faint);margin-top:2px;font-weight:700}
@@ -642,6 +642,28 @@
     .memo-line-check:hover{color:var(--green)}
     .memo-add{margin:2px 12px 12px;border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:8px;padding:7px;font-size:12px;font-weight:800;cursor:pointer}
     .memo-add:hover{border-color:var(--accent);color:var(--accent2)}
+    /* ── רשימת קניות (Shopping List edge notch) ── */
+    #shopListTab{position:fixed;top:50%;left:0;z-index:89;width:32px;height:96px;border:1px solid var(--border);border-left:none;border-radius:0 16px 16px 0;background:var(--card2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;box-shadow:4px 0 16px rgba(0,0,0,.2);cursor:pointer;transform:translateY(-50%);transition:width .16s ease,transform .16s ease,box-shadow .16s ease}
+    #shopListTab:hover{width:37px;box-shadow:6px 0 18px rgba(0,0,0,.26)}
+    #shopListTab .shop-tab-emoji{font-size:17px;line-height:1}
+    #shopListTab .shop-tab-label{writing-mode:vertical-rl;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.5px}
+    #shopListTab .shop-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--warn);color:#fff;border:2px solid var(--bg);display:none;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;line-height:1}
+    #shopListTab.has-items .shop-badge{display:flex}
+    @media(max-width:820px){ #shopListTab{width:26px;height:80px} #shopListTab:hover{width:26px} #shopListTab .shop-tab-label{display:none} }
+    #shopListTab.dragging{transition:none;box-shadow:6px 0 22px rgba(0,0,0,.32);width:37px;cursor:grabbing}
+    #shopListPanel{position:fixed;top:50%;left:0;z-index:90;width:min(320px,calc(100vw - 32px));max-height:min(480px,calc(100vh - 100px));display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:0 18px 18px 0;box-shadow:var(--shadow);direction:rtl;text-align:right;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-14px) scale(.97);transform-origin:right center;transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.3,.64,1),visibility 0s linear .22s}
+    #shopListPanel.show{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0) scale(1);transition:opacity .2s ease,transform .24s cubic-bezier(.34,1.3,.64,1),visibility 0s linear 0s}
+    @media(max-width:820px){ #shopListPanel{top:auto;bottom:calc(14px + env(safe-area-inset-bottom))} }
+    .shop-item{display:flex;align-items:center;gap:8px}
+    .shop-item-text{flex:1;font-size:13px;color:var(--text);overflow-wrap:anywhere}
+    .shop-item.done .shop-item-text{color:var(--faint);text-decoration:line-through}
+    .shop-check{flex:0 0 auto;width:22px;height:22px;border:1.5px solid var(--border);background:transparent;color:transparent;font-size:13px;font-weight:900;border-radius:6px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center}
+    .shop-item.done .shop-check{background:var(--green);border-color:var(--green);color:#fff}
+    .shop-add-row{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border)}
+    .shop-add-row input{flex:1;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12.5px;outline:0}
+    .shop-add-row input:focus{border-color:var(--accent)}
+    .shop-add-row button{flex:0 0 auto;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:0 12px;font-weight:800;font-size:12.5px;cursor:pointer}
+    .shop-add-row button:hover{filter:brightness(1.08)}
     #agendaDropBubble{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120px) scale(.92);z-index:140;min-width:190px;min-height:62px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:9px;color:var(--text);font-weight:900;opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.34,1.3,.64,1),opacity .18s,border-color .16s,background .16s;backdrop-filter:blur(14px)}
     #agendaDropBubble.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1)}
     #agendaDropBubble.over{background:var(--accent);border-color:var(--accent);color:#fff;transform:translateX(-50%) translateY(-4px) scale(1.04)}
@@ -1882,6 +1904,26 @@
     <button id="dailyMemoAdd" class="memo-add" type="button">+ הוסף שורה</button>
   </div>
 
+  <button id="shopListTab" class="hidden" type="button" title="רשימת קניות" aria-label="רשימת קניות">
+    <span class="shop-tab-emoji">🛒</span>
+    <span class="shop-tab-label">קניות</span>
+    <span class="shop-badge"></span>
+  </button>
+  <div id="shopListPanel" role="dialog" aria-modal="true" aria-label="רשימת קניות">
+    <div class="memo-head">
+      <div>
+        <div class="memo-head-title">🛒 רשימת קניות</div>
+        <div class="memo-head-sub">נשמר על המכשיר הזה</div>
+      </div>
+      <button id="shopListClose" type="button" aria-label="סגור">×</button>
+    </div>
+    <div id="shopListItems" class="memo-lines"></div>
+    <div class="shop-add-row">
+      <input id="shopListInput" type="text" placeholder="הוסיפו פריט לרשימה..." />
+      <button id="shopListAddBtn" type="button">+ הוסף</button>
+    </div>
+  </div>
+
   <div id="agendaDropBubble" class="hidden" aria-label="הוסף למיקוד">
     <span class="bubble-icon">☀️</span>
     <span>שחרר למיקוד</span>
@@ -2209,9 +2251,10 @@
     }
 
     function setAppFloatersVisible(visible){
-      ["dailyMemoBtn", "agendaDropBubble"].forEach(id => $(id)?.classList.toggle("hidden", !visible));
+      ["dailyMemoBtn", "shopListTab", "agendaDropBubble"].forEach(id => $(id)?.classList.toggle("hidden", !visible));
       if (!visible) {
         $("dailyMemoPanel")?.classList.remove("show");
+        $("shopListPanel")?.classList.remove("show");
         hideAgendaDropBubble();
       }
     }
@@ -10031,6 +10074,7 @@
         openAddMenuEl = null;
       });
       initDailyMemo();
+      initShopList();
     });
 
     /* ── Daily Memo: מטלות קטנות מסונכרנות, בלי לשנות משימות מקוריות ── */
@@ -10284,6 +10328,207 @@
         const path = e.composedPath ? e.composedPath() : [];
         if (path.includes(panel) || path.includes(btn) || panel.contains(e.target) || btn.contains(e.target)) return;
         closeDailyMemo();
+      });
+    }
+
+    /* ── רשימת קניות: notch בצד המסך, נשמר מקומית במכשיר ── */
+    const SHOP_LIST_KEY = "taskflow_shopping_list";
+
+    function normalizeShopList(list){
+      if (!Array.isArray(list)) return [];
+      return list
+        .filter(it => it && typeof it === "object")
+        .map(it => ({ id: it.id || uid("shop"), text: String(it.text || "").slice(0, 200), done: !!it.done }));
+    }
+    function loadShopList(){
+      try { return normalizeShopList(JSON.parse(localStorage.getItem(SHOP_LIST_KEY) || "[]")); }
+      catch { return []; }
+    }
+    function saveShopList(list){
+      shopListState = normalizeShopList(list);
+      try { localStorage.setItem(SHOP_LIST_KEY, JSON.stringify(shopListState)); } catch {}
+      updateShopBadge();
+    }
+    function updateShopBadge(){
+      const tab = $("shopListTab");
+      if (!tab) return;
+      const pending = shopListState.filter(it => !it.done).length;
+      tab.classList.toggle("has-items", pending > 0);
+      const badge = tab.querySelector(".shop-badge");
+      if (badge) badge.textContent = pending > 0 ? String(pending) : "";
+    }
+
+    let shopListState = [];
+
+    function renderShopList(){
+      const wrap = $("shopListItems");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      if (!shopListState.length) {
+        wrap.append(empty("הרשימה ריקה — הוסיפו פריט למטה 🛒"));
+        return;
+      }
+      shopListState.forEach((item) => {
+        const row = el("div", "memo-line shop-item" + (item.done ? " done" : ""));
+        const check = el("button", "shop-check", item.done ? "✓" : "");
+        check.type = "button";
+        check.title = "סמן כנקנה";
+        check.onclick = () => {
+          item.done = !item.done;
+          saveShopList(shopListState);
+          renderShopList();
+        };
+        const text = el("span", "shop-item-text", item.text);
+        const del = el("button", "memo-line-del", "×");
+        del.type = "button";
+        del.title = "מחק פריט";
+        del.onclick = () => {
+          shopListState = shopListState.filter(it => it.id !== item.id);
+          saveShopList(shopListState);
+          renderShopList();
+        };
+        row.append(check, text, del);
+        wrap.append(row);
+      });
+    }
+
+    function addShopItem(text){
+      const clean = (text || "").trim();
+      if (!clean) return;
+      shopListState.push({ id: uid("shop"), text: clean, done: false });
+      saveShopList(shopListState);
+      renderShopList();
+    }
+
+    function positionShopListPanel(){
+      const tab = $("shopListTab"), panel = $("shopListPanel");
+      if (!tab || !panel) return;
+      if (window.innerWidth <= 820) return; // בנייד הפאנל מוצמד לפינה ב-CSS, לא צריך מיקום דינמי
+      const r = tab.getBoundingClientRect();
+      const margin = 10;
+      const panelH = panel.offsetHeight || 420;
+      let top = r.top + r.height / 2 - panelH / 2;
+      top = Math.min(Math.max(top, margin), window.innerHeight - margin - panelH);
+      panel.style.top = top + "px";
+    }
+
+    function openShopList(){
+      shopListState = loadShopList();
+      renderShopList();
+      positionShopListPanel();
+      $("shopListPanel").classList.add("show");
+      setTimeout(() => $("shopListInput")?.focus(), 180);
+    }
+    function closeShopList(){
+      $("shopListPanel").classList.remove("show");
+    }
+
+    function setupShopTabDrag(){
+      const tab = $("shopListTab");
+      if (!tab) return;
+      const STORE_KEY = "taskflow_shoplist_tab_pos";
+      const LONG_PRESS_MS = 420;
+      const MOVE_CANCEL_PX = 6;
+      let pressTimer = null, dragging = false, moved = false, suppressClick = false;
+      let startX = 0, startY = 0, startTop = 0;
+
+      function clampTop(y){
+        const r = tab.getBoundingClientRect();
+        const maxY = Math.max(6, window.innerHeight - r.height - 6);
+        return Math.min(Math.max(y, 6), maxY);
+      }
+      function applyTop(y){
+        tab.style.top = y + "px";
+        tab.style.transform = "none";
+      }
+      function loadSavedPos(){
+        try {
+          const raw = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+          if (raw && typeof raw.top === "number") applyTop(clampTop(raw.top));
+        } catch {}
+      }
+      function cancelPressTimer(){
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      }
+      function beginDragMode(){
+        dragging = true;
+        suppressClick = true;
+        tab.classList.add("dragging");
+        if (navigator.vibrate) { try { navigator.vibrate(12); } catch {} }
+      }
+
+      tab.addEventListener("pointerdown", (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        moved = false;
+        const r = tab.getBoundingClientRect();
+        startTop = r.top;
+        startX = e.clientX; startY = e.clientY;
+        try { tab.setPointerCapture(e.pointerId); } catch {}
+        cancelPressTimer();
+        pressTimer = setTimeout(() => {
+          pressTimer = null;
+          if (!moved) beginDragMode();
+        }, LONG_PRESS_MS);
+      });
+      tab.addEventListener("pointermove", (e) => {
+        const dx = e.clientX - startX, dy = e.clientY - startY;
+        if (!moved && (Math.abs(dx) > MOVE_CANCEL_PX || Math.abs(dy) > MOVE_CANCEL_PX)) {
+          moved = true;
+          if (!dragging) cancelPressTimer(); // זז לפני שהלחיצה הארוכה הופעלה - לא נחשב גרירה
+        }
+        if (!dragging) return;
+        applyTop(clampTop(startTop + dy));
+        if ($("shopListPanel").classList.contains("show")) positionShopListPanel();
+      });
+      function finishPointer(){
+        cancelPressTimer();
+        if (dragging) {
+          dragging = false;
+          tab.classList.remove("dragging");
+          const r = tab.getBoundingClientRect();
+          try { localStorage.setItem(STORE_KEY, JSON.stringify({ top: r.top })); } catch {}
+        }
+        if (suppressClick) setTimeout(() => { suppressClick = false; }, 0);
+      }
+      tab.addEventListener("pointerup", finishPointer);
+      tab.addEventListener("pointercancel", finishPointer);
+      tab.addEventListener("click", (e) => {
+        if (suppressClick) { e.preventDefault(); e.stopPropagation(); suppressClick = false; }
+      }, true);
+      window.addEventListener("resize", () => {
+        if (tab.style.top && tab.style.transform === "none") applyTop(clampTop(parseFloat(tab.style.top)));
+        if (window.innerWidth <= 820) $("shopListPanel").style.top = "";
+        else if ($("shopListPanel").classList.contains("show")) positionShopListPanel();
+      });
+
+      loadSavedPos();
+    }
+
+    function initShopList(){
+      if (!$("shopListTab")) return;
+      shopListState = loadShopList();
+      updateShopBadge();
+      setupShopTabDrag();
+      $("shopListTab").onclick = () => {
+        $("shopListPanel").classList.contains("show") ? closeShopList() : openShopList();
+      };
+      $("shopListClose").onclick = closeShopList;
+      const submit = () => {
+        const input = $("shopListInput");
+        addShopItem(input.value);
+        input.value = "";
+        input.focus();
+      };
+      $("shopListAddBtn").onclick = submit;
+      $("shopListInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); submit(); }
+      });
+      document.addEventListener("click", (e) => {
+        const panel = $("shopListPanel"), tab = $("shopListTab");
+        if (!panel || !panel.classList.contains("show")) return;
+        const path = e.composedPath ? e.composedPath() : [];
+        if (path.includes(panel) || path.includes(tab) || panel.contains(e.target) || tab.contains(e.target)) return;
+        closeShopList();
       });
     }
 
