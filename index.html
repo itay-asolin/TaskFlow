@@ -2022,6 +2022,10 @@
     let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
     let activeListReady = true;
     let knownSharedDoc = null, unsubKnown = null, knownSharedCache = [];
+    // מטמון לתוכן הנקודתי של כרטיסי הרשימות המשותפות בעמוד הבית, כדי שרינדור
+    // חוזר (שקורה בכל עדכון מ-Firestore) לא יאפס כל כרטיס בחזרה ל"טוען…"
+    // וייצור קפיצה חזותית — נשתמש בנתונים השמורים עד שמגיע עדכון טרי.
+    const sharedHomePeekCache = {};
     let cloudReady = false, saveTimer = null, suppressSave = false, draggedTaskId = null, draggedEventId = null, agendaPointerDrag = null, liveReorderTargetId = null;
     let selectedPlannerTaskId = null, draggedPlannerTaskId = null;
     let activeList = { type: "private", id: null, name: "הרשימה הפרטית", role: "owner" };
@@ -3456,13 +3460,10 @@
 
 
       const listHead = el("div","home-section-title");
-      listHead.style.cssText = "margin-top:10px;padding:2px 4px;display:flex;align-items:center;gap:10px";
-      const listHeadTitle = el("div","");
-      listHeadTitle.style.cssText = "font-size:13px;font-weight:800;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
-      listHeadTitle.textContent = `הרשימות שלך · ${state.cats.length} רשימות`;
+      listHead.style.cssText = "margin-top:10px;padding:6px;display:flex;align-items:center;justify-content:flex-end;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:999px";
 
       const addWrap = el("div","");
-      addWrap.style.cssText = "position:relative;margin-inline-start:auto";
+      addWrap.style.cssText = "position:relative";
       const unifiedAddBtn = el("button","home-add-btn","+ חדש ▾");
       unifiedAddBtn.type = "button";
       unifiedAddBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);background:var(--accent);color:#fff;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 28%,transparent);transition:.18s";
@@ -3525,8 +3526,6 @@
       };
 
       addWrap.append(unifiedAddBtn, addMenu);
-      listHead.append(listHeadTitle);
-
       if (state.cats.length > 0) {
         const selectToggleBtn = el("button","cat-select-toggle", catSelectMode ? "✕ בטל בחירה" : "☑ בחירה מרובה");
         selectToggleBtn.type = "button";
@@ -3821,10 +3820,8 @@
           head.append(headActions);
           card.append(head);
 
-          const listsBox = el("div","shared-home-card-lists", "טוען…");
-          card.append(listsBox);
-          sharedGrid.append(card);
-          loadSharedPeek(s.id).then(res => {
+          const listsBox = el("div","shared-home-card-lists");
+          const paintPeek = (res) => {
             listsBox.replaceChildren();
             if (res.error) { listsBox.textContent = "לא הצלחתי לטעון"; return; }
             if (!res.cats.length) { listsBox.textContent = "אין רשימות עדיין"; return; }
@@ -3835,6 +3832,15 @@
               item.onclick = (e) => { e.stopPropagation(); openSharedCategory(s.id, c.id); };
               listsBox.append(item);
             });
+          };
+          const cached = sharedHomePeekCache[s.id];
+          if (cached) paintPeek(cached);
+          else listsBox.textContent = "טוען…";
+          card.append(listsBox);
+          sharedGrid.append(card);
+          loadSharedPeek(s.id).then(res => {
+            sharedHomePeekCache[s.id] = res;
+            paintPeek(res);
           });
         });
       }
@@ -10405,6 +10411,31 @@
           renderShopList();
         };
         const text = el("span", "shop-item-text", item.text);
+        text.title = "לחץ לעריכה";
+        text.onclick = () => {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.value = item.text;
+          input.maxLength = 200;
+          input.style.cssText = "flex:1;min-width:0;font-size:13px;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--text)";
+          let done = false;
+          const commit = () => {
+            if (done) return;
+            done = true;
+            const val = input.value.trim();
+            if (val) item.text = val.slice(0, 200);
+            saveShopList(state.shopList);
+            renderShopList();
+          };
+          input.onblur = commit;
+          input.onkeydown = (e) => {
+            if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+            else if (e.key === "Escape") { e.preventDefault(); done = true; renderShopList(); }
+          };
+          row.replaceChild(input, text);
+          input.focus();
+          input.select();
+        };
         const del = el("button", "memo-line-del", "×");
         del.type = "button";
         del.title = "מחק פריט";
