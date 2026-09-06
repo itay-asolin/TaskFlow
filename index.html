@@ -630,8 +630,8 @@
     .memo-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
     .memo-head-title{font-size:14px;font-weight:900;color:var(--text)}
     .memo-head-sub{font-size:10.5px;color:var(--faint);margin-top:2px;font-weight:700}
-    #dailyMemoClose{border:0;background:transparent;font-size:19px;color:var(--faint);cursor:pointer;padding:2px 6px;border-radius:8px;line-height:1}
-    #dailyMemoClose:hover{color:var(--text)}
+    #dailyMemoClose,#shopListClose{border:0;background:transparent;font-size:19px;color:var(--faint);cursor:pointer;padding:2px 6px;border-radius:8px;line-height:1}
+    #dailyMemoClose:hover,#shopListClose:hover{color:var(--text)}
     .memo-lines{overflow-y:auto;padding:10px 12px;display:grid;gap:6px;flex:1}
     .memo-line{display:flex;align-items:center;gap:6px}
     .memo-line input{flex:1;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;padding:7px 9px;font-size:12.5px;outline:0}
@@ -643,7 +643,7 @@
     .memo-add{margin:2px 12px 12px;border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:8px;padding:7px;font-size:12px;font-weight:800;cursor:pointer}
     .memo-add:hover{border-color:var(--accent);color:var(--accent2)}
     /* ── רשימת קניות (Shopping List edge notch) ── */
-    #shopListTab{position:fixed;top:50%;left:0;z-index:89;width:32px;height:96px;border:1px solid var(--border);border-left:none;border-radius:0 16px 16px 0;background:var(--card2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;box-shadow:4px 0 16px rgba(0,0,0,.2);cursor:pointer;transform:translateY(-50%);transition:width .16s ease,transform .16s ease,box-shadow .16s ease}
+    #shopListTab{position:fixed;top:50%;left:0;z-index:89;width:32px;height:96px;border:1px solid var(--border);border-left:none;border-radius:0 16px 16px 0;background:var(--card2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;box-shadow:4px 0 16px rgba(0,0,0,.2);cursor:pointer;transform:translateY(-50%);transition:width .16s ease,transform .16s ease,box-shadow .16s ease;touch-action:none;user-select:none;-webkit-touch-callout:none;-webkit-user-select:none}
     #shopListTab:hover{width:37px;box-shadow:6px 0 18px rgba(0,0,0,.26)}
     #shopListTab .shop-tab-emoji{font-size:17px;line-height:1}
     #shopListTab .shop-tab-label{writing-mode:vertical-rl;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.5px}
@@ -651,9 +651,15 @@
     #shopListTab.has-items .shop-badge{display:flex}
     @media(max-width:820px){ #shopListTab{width:26px;height:80px} #shopListTab:hover{width:26px} #shopListTab .shop-tab-label{display:none} }
     #shopListTab.dragging{transition:none;box-shadow:6px 0 22px rgba(0,0,0,.32);width:37px;cursor:grabbing}
+    /* ── מצב הצמדה לצד ימין (אחרי גרירה לצד השני) ── */
+    #shopListTab.side-right{left:auto;right:0;border-left:1px solid var(--border);border-right:none;border-radius:16px 0 0 16px;box-shadow:-4px 0 16px rgba(0,0,0,.2)}
+    #shopListTab.side-right:hover{box-shadow:-6px 0 18px rgba(0,0,0,.26)}
+    #shopListTab.side-right.dragging{box-shadow:-6px 0 22px rgba(0,0,0,.32)}
     #shopListPanel{position:fixed;top:50%;left:0;z-index:90;width:min(320px,calc(100vw - 32px));max-height:min(480px,calc(100vh - 100px));display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:0 18px 18px 0;box-shadow:var(--shadow);direction:rtl;text-align:right;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-14px) scale(.97);transform-origin:right center;transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.3,.64,1),visibility 0s linear .22s}
     #shopListPanel.show{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0) scale(1);transition:opacity .2s ease,transform .24s cubic-bezier(.34,1.3,.64,1),visibility 0s linear 0s}
-    @media(max-width:820px){ #shopListPanel{top:auto;bottom:calc(14px + env(safe-area-inset-bottom))} }
+    #shopListPanel.side-right{left:auto;right:0;border-radius:18px 0 0 18px;transform-origin:left center;transform:translateX(14px) scale(.97)}
+    #shopListPanel.side-right.show{transform:translateX(0) scale(1)}
+    @media(max-width:820px){ #shopListPanel{top:auto;bottom:calc(14px + env(safe-area-inset-bottom))} #shopListPanel.side-right{left:auto;right:0} }
     .shop-item{display:flex;align-items:center;gap:8px}
     .shop-item-text{flex:1;font-size:13px;color:var(--text);overflow-wrap:anywhere}
     .shop-item.done .shop-item-text{color:var(--faint);text-decoration:line-through}
@@ -1913,7 +1919,7 @@
     <div class="memo-head">
       <div>
         <div class="memo-head-title">🛒 רשימת קניות</div>
-        <div class="memo-head-sub">נשמר על המכשיר הזה</div>
+        <div class="memo-head-sub">מסונכרן בין המכשירים שלך</div>
       </div>
       <button id="shopListClose" type="button" aria-label="סגור">×</button>
     </div>
@@ -1991,6 +1997,7 @@
       meetingsDate: null,
       dailyAgenda: { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
       dailyMemo: { lines: [""] },
+      shopList: [],
       filterTag: null,
       plannerWindowDate: null,
       schedule: [],
@@ -2631,7 +2638,8 @@
             events: payload.events || [],
             schedule: payload.schedule || [],
             dailyAgenda: payload.dailyAgenda || { date: null, taskIds: [], manualIds: [], deferredIds: [], skippedDate: null, promptedDate: null, closedDate: null },
-            dailyMemo: payload.dailyMemo || { lines: [""] }
+            dailyMemo: payload.dailyMemo || { lines: [""] },
+            shopList: payload.shopList || []
           };
           meta = { name: activeList.name, state: sharedPayload, updatedAt: serverTimestamp(), updatedBy: user?.uid || null };
         } else {
@@ -2650,6 +2658,10 @@
       if ($("dailyMemoPanel")?.classList.contains("show")) {
         dailyMemoState = getDailyMemo();
         renderDailyMemo();
+      }
+      updateShopBadge();
+      if ($("shopListPanel")?.classList.contains("show")) {
+        renderShopList();
       }
       setupAgendaDropBubble();
       
@@ -8328,6 +8340,7 @@
       state.flow = Array.isArray(data.flow) ? data.flow : (state.flow || []);
       state.dailyAgenda = normalizeDailyAgenda(data.dailyAgenda || state.dailyAgenda);
       state.dailyMemo = normalizeDailyMemo(data.dailyMemo || state.dailyMemo);
+      state.shopList = normalizeShopList(data.shopList || state.shopList);
 
       // מיגרציה חד-פעמית: תזמון ישן שנשמר כ-property על המטלה עצמה -> מועבר למערך schedule נפרד, לא נוגע בשדות המטלה
       (state.tasks||[]).forEach(t => {
@@ -8435,6 +8448,7 @@
         collapsedSubs: s.collapsedSubs || {},
         dailyAgenda: normalizeDailyAgenda(s.dailyAgenda),
         dailyMemo: normalizeDailyMemo(s.dailyMemo),
+        shopList: normalizeShopList(s.shopList),
         cats: s.cats || [],
         tasks: s.tasks || [],
         events: s.events || [],
@@ -10331,7 +10345,7 @@
       });
     }
 
-    /* ── רשימת קניות: notch בצד המסך, נשמר מקומית במכשיר ── */
+    /* ── רשימת קניות: notch בצד המסך, מסונכרן בענן כמו שאר הנתונים ── */
     const SHOP_LIST_KEY = "taskflow_shopping_list";
 
     function normalizeShopList(list){
@@ -10341,41 +10355,49 @@
         .map(it => ({ id: it.id || uid("shop"), text: String(it.text || "").slice(0, 200), done: !!it.done }));
     }
     function loadShopList(){
-      try { return normalizeShopList(JSON.parse(localStorage.getItem(SHOP_LIST_KEY) || "[]")); }
-      catch { return []; }
+      // מיגרציה חד-פעמית מהאחסון המקומי הישן (מלפני שהרשימה סונכרנה בענן)
+      if (!state.shopList.length) {
+        try {
+          const old = JSON.parse(localStorage.getItem(SHOP_LIST_KEY) || "null");
+          if (Array.isArray(old) && old.length) {
+            state.shopList = normalizeShopList(old);
+            localStorage.removeItem(SHOP_LIST_KEY);
+            save();
+          }
+        } catch {}
+      }
+      return state.shopList;
     }
     function saveShopList(list){
-      shopListState = normalizeShopList(list);
-      try { localStorage.setItem(SHOP_LIST_KEY, JSON.stringify(shopListState)); } catch {}
+      state.shopList = normalizeShopList(list);
+      save();
       updateShopBadge();
     }
     function updateShopBadge(){
       const tab = $("shopListTab");
       if (!tab) return;
-      const pending = shopListState.filter(it => !it.done).length;
+      const pending = state.shopList.filter(it => !it.done).length;
       tab.classList.toggle("has-items", pending > 0);
       const badge = tab.querySelector(".shop-badge");
       if (badge) badge.textContent = pending > 0 ? String(pending) : "";
     }
 
-    let shopListState = [];
-
     function renderShopList(){
       const wrap = $("shopListItems");
       if (!wrap) return;
       wrap.innerHTML = "";
-      if (!shopListState.length) {
+      if (!state.shopList.length) {
         wrap.append(empty("הרשימה ריקה — הוסיפו פריט למטה 🛒"));
         return;
       }
-      shopListState.forEach((item) => {
+      state.shopList.forEach((item) => {
         const row = el("div", "memo-line shop-item" + (item.done ? " done" : ""));
         const check = el("button", "shop-check", item.done ? "✓" : "");
         check.type = "button";
         check.title = "סמן כנקנה";
         check.onclick = () => {
           item.done = !item.done;
-          saveShopList(shopListState);
+          saveShopList(state.shopList);
           renderShopList();
         };
         const text = el("span", "shop-item-text", item.text);
@@ -10383,8 +10405,8 @@
         del.type = "button";
         del.title = "מחק פריט";
         del.onclick = () => {
-          shopListState = shopListState.filter(it => it.id !== item.id);
-          saveShopList(shopListState);
+          state.shopList = state.shopList.filter(it => it.id !== item.id);
+          saveShopList(state.shopList);
           renderShopList();
         };
         row.append(check, text, del);
@@ -10395,8 +10417,8 @@
     function addShopItem(text){
       const clean = (text || "").trim();
       if (!clean) return;
-      shopListState.push({ id: uid("shop"), text: clean, done: false });
-      saveShopList(shopListState);
+      state.shopList.push({ id: uid("shop"), text: clean, done: false });
+      saveShopList(state.shopList);
       renderShopList();
     }
 
@@ -10413,7 +10435,7 @@
     }
 
     function openShopList(){
-      shopListState = loadShopList();
+      loadShopList();
       renderShopList();
       positionShopListPanel();
       $("shopListPanel").classList.add("show");
@@ -10427,11 +10449,27 @@
       const tab = $("shopListTab");
       if (!tab) return;
       const STORE_KEY = "taskflow_shoplist_tab_pos";
+      const SIDE_KEY = "taskflow_shoplist_tab_side";
       const LONG_PRESS_MS = 420;
       const MOVE_CANCEL_PX = 6;
+      const FLIP_PX = 70; // כמה צריך לגרור אופקית כדי לקפוץ לצד השני
+      const MAX_PULL = 90; // כמה "למתוח" חזותית תוך כדי גרירה, לפני שהיא נקלטת כקפיצה
       let pressTimer = null, dragging = false, moved = false, suppressClick = false;
-      let startX = 0, startY = 0, startTop = 0;
+      let startX = 0, startY = 0, startTop = 0, lastDX = 0;
+      let side = "left";
 
+      function applySide(next){
+        side = next === "right" ? "right" : "left";
+        tab.classList.toggle("side-right", side === "right");
+        $("shopListPanel")?.classList.toggle("side-right", side === "right");
+        try { localStorage.setItem(SIDE_KEY, side); } catch {}
+      }
+      function loadSavedSide(){
+        try {
+          const raw = localStorage.getItem(SIDE_KEY);
+          if (raw === "right" || raw === "left") applySide(raw);
+        } catch {}
+      }
       function clampTop(y){
         const r = tab.getBoundingClientRect();
         const maxY = Math.max(6, window.innerHeight - r.height - 6);
@@ -10439,7 +10477,9 @@
       }
       function applyTop(y){
         tab.style.top = y + "px";
-        tab.style.transform = "none";
+      }
+      function applyPull(px){
+        tab.style.transform = px ? `translateX(${px}px)` : "none";
       }
       function loadSavedPos(){
         try {
@@ -10463,6 +10503,7 @@
         const r = tab.getBoundingClientRect();
         startTop = r.top;
         startX = e.clientX; startY = e.clientY;
+        lastDX = 0;
         try { tab.setPointerCapture(e.pointerId); } catch {}
         cancelPressTimer();
         pressTimer = setTimeout(() => {
@@ -10477,7 +10518,12 @@
           if (!dragging) cancelPressTimer(); // זז לפני שהלחיצה הארוכה הופעלה - לא נחשב גרירה
         }
         if (!dragging) return;
+        lastDX = dx;
         applyTop(clampTop(startTop + dy));
+        // מתיחה חזותית לכיוון הצד הנגדי בלבד — מראה שאפשר "לגרור" את הטאב לצד השני
+        const towardOther = side === "left" ? dx : -dx;
+        const pull = Math.max(0, Math.min(towardOther, MAX_PULL));
+        applyPull(side === "left" ? pull : -pull);
         if ($("shopListPanel").classList.contains("show")) positionShopListPanel();
       });
       function finishPointer(){
@@ -10485,8 +10531,12 @@
         if (dragging) {
           dragging = false;
           tab.classList.remove("dragging");
+          applyPull(0);
+          const towardOther = side === "left" ? lastDX : -lastDX;
+          if (towardOther > FLIP_PX) applySide(side === "left" ? "right" : "left");
           const r = tab.getBoundingClientRect();
           try { localStorage.setItem(STORE_KEY, JSON.stringify({ top: r.top })); } catch {}
+          if ($("shopListPanel").classList.contains("show")) positionShopListPanel();
         }
         if (suppressClick) setTimeout(() => { suppressClick = false; }, 0);
       }
@@ -10496,17 +10546,18 @@
         if (suppressClick) { e.preventDefault(); e.stopPropagation(); suppressClick = false; }
       }, true);
       window.addEventListener("resize", () => {
-        if (tab.style.top && tab.style.transform === "none") applyTop(clampTop(parseFloat(tab.style.top)));
+        if (tab.style.top) applyTop(clampTop(parseFloat(tab.style.top)));
         if (window.innerWidth <= 820) $("shopListPanel").style.top = "";
         else if ($("shopListPanel").classList.contains("show")) positionShopListPanel();
       });
 
+      loadSavedSide();
       loadSavedPos();
     }
 
     function initShopList(){
       if (!$("shopListTab")) return;
-      shopListState = loadShopList();
+      loadShopList();
       updateShopBadge();
       setupShopTabDrag();
       $("shopListTab").onclick = () => {
