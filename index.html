@@ -2103,15 +2103,7 @@
       // Update logout functionality for the new top nav button
       if($("logoutBtnTop")) $("logoutBtnTop").onclick = logout;
       
-      $("themeToggleBtn").onclick = () => {
-        const pairs = {
-          "sky": "light", "light": "sky",
-          "forest": "green", "green": "forest",
-          "white": "black", "black": "white"
-        };
-        state.theme = pairs[state.theme] || (state.theme.endsWith("dark") ? "light" : "dark");
-        save(); render();
-      };
+      $("themeToggleBtn").onclick = toggleThemeMode;
 
       $("modalClose").onclick = closeModal;
       $("modalBack").onclick = (e) => { if (e.target === $("modalBack")) closeModal(); };
@@ -2658,6 +2650,15 @@
       }, 350);
     }
 
+    function toggleThemeMode(){
+      const pairs = {
+        "sky": "light", "light": "sky",
+        "forest": "green", "green": "forest",
+        "white": "black", "black": "white"
+      };
+      state.theme = pairs[state.theme] || (state.theme.endsWith("dark") ? "light" : "dark");
+      save(); render();
+    }
     function render(){
       updateGreeting();
       applyTheme();
@@ -2680,6 +2681,9 @@
       $("searchBox").classList.toggle("hidden", !searchActiveView);
       $("searchWrap").classList.toggle("hidden", !searchActiveView);
       $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
+      const onHome = state.currentView === "home";
+      $("themeToggleBtn")?.classList.toggle("hidden", onHome);
+      $("briefBtn")?.classList.toggle("hidden", onHome);
       $("content").style.removeProperty("--accent");
       $("content").style.removeProperty("--accent2");
       
@@ -3460,7 +3464,19 @@
 
 
       const listHead = el("div","home-section-title");
-      listHead.style.cssText = "margin-top:10px;padding:6px;display:flex;align-items:center;justify-content:flex-end;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:999px";
+      listHead.style.cssText = "margin-top:10px;padding:6px;display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:999px";
+
+      // מצב לילה/יום ותכנון שבועי מוצגים בדרך כלל למעלה בכותרת הקבועה, אבל
+      // בעמוד הבית הם עוברים לשורת הבקרה המאוחדת כאן במקום להיות כפולים.
+      const homeThemeBtn = el("button","topbar-btn js-theme-toggle");
+      homeThemeBtn.type = "button";
+      homeThemeBtn.onclick = toggleThemeMode;
+      const homeBriefBtn = el("button","topbar-btn","✨ תכנון");
+      homeBriefBtn.type = "button";
+      homeBriefBtn.title = "תכנון שבועי";
+      homeBriefBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text)";
+      homeBriefBtn.onclick = openBrief;
+      listHead.append(homeThemeBtn, homeBriefBtn);
 
       const addWrap = el("div","");
       addWrap.style.cssText = "position:relative";
@@ -3857,6 +3873,7 @@
 
       if (catSelectMode) wrap.append(renderCatSelectBar());
       $("content").replaceChildren(wrap);
+      applyTheme();
     }
 
     function renderKanban(){
@@ -8301,17 +8318,20 @@
       const metaTC = document.getElementById("themeColorMeta");
       if (metaTC) metaTC.content = themeColors[state.theme] || "#05121e";
 
-      // Pill toggle
-      if ($("themeToggleBtn")) {
+      // Pill toggle — syncs the header button and the home-page control-bar clone alike
+      const themeToggleEls = document.querySelectorAll("#themeToggleBtn, .js-theme-toggle");
+      if (themeToggleEls.length) {
         const lightThemes = ["light", "green", "white", "peach"];
         const isLight = lightThemes.includes(state.theme);
         const icon = isLight ? "☀️" : "🌙";
         const modeClass = isLight ? "light-mode" : "dark-mode";
-        $("themeToggleBtn").classList.add("theme-toggle");
-        $("themeToggleBtn").classList.remove("light-mode", "dark-mode");
-        $("themeToggleBtn").classList.add(modeClass);
-        $("themeToggleBtn").innerHTML = `<span class="theme-pill"><span class="theme-icon">${icon}</span></span>`;
-        $("themeToggleBtn").title = isLight ? "עבור למצב כהה" : "עבור למצב בהיר";
+        themeToggleEls.forEach(btn => {
+          btn.classList.add("theme-toggle");
+          btn.classList.remove("light-mode", "dark-mode");
+          btn.classList.add(modeClass);
+          btn.innerHTML = `<span class="theme-pill"><span class="theme-icon">${icon}</span></span>`;
+          btn.title = isLight ? "עבור למצב כהה" : "עבור למצב בהיר";
+        });
       }
 
       // Pulse addBtn when no lists
