@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8" />
@@ -6,10 +6,10 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="☀️ TaskFlow" />
-  <meta id="themeColorMeta" name="theme-color" content="#05121e" />
-  <title>☀️ TaskFlow</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23051F33'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-size='38'%3E%E2%98%80%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+  <meta name="apple-mobile-web-app-title" content="TaskFlow" />
+  <meta id="themeColorMeta" name="theme-color" content="#0d1117" />
+  <title>TaskFlow</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233b6ef6'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-size='38' font-weight='800' fill='white'%3ET%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -19,27 +19,27 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/he.js"></script>
   <style>
     :root{
-      --accent:#6d5dfc;--accent2:#a99bff;--green:#22c55e;--warn:#f59e0b;--danger:#ef4444;
-      --bg:#0a0a10;--surface:#11111a;--card:#171722;--card2:#1f2030;--border:#2a2b3d;
-      --text:#f4f4fb;--muted:#a4a5bd;--faint:#696b82;--shadow:0 18px 50px rgba(0,0,0,.28);
-      --r:10px;--rs:7px;
+      --accent:#3b6ef6;--accent2:color-mix(in srgb,var(--accent) 62%,#fff);--green:#22c55e;--warn:#f59e0b;--danger:#ef4444;
+      --bg:#0d1117;--surface:#12171f;--card:#171d27;--card2:#1e2530;--border:#283040;
+      --text:#e8edf5;--muted:#9aa6b8;--faint:#6b778a;--shadow:0 8px 24px rgba(0,0,0,.22);
+      --r:12px;--rs:8px;
     }
-    /* ── כחול בהיר (ברירת מחדל) ── */
-    [data-theme="light"]{--bg:#c8dff5;--surface:#d8ecfb;--card:#e8f4ff;--card2:#c2d8f0;--border:#90bade;--text:#0a1828;--muted:#2a4a6a;--faint:#4a6a8a;--shadow:0 10px 30px rgba(10,24,40,.14)}
-    /* ── ירוק כהה ── */
-    [data-theme="forest"]{--bg:#06100a;--surface:#0c1a11;--card:#112518;--card2:#173020;--border:#224d2e;--text:#d8f5e0;--muted:#5ea870;--faint:#3d7050;--shadow:0 18px 50px rgba(0,0,0,.38)}
-    /* ── ירוק בהיר ── */
-    [data-theme="green"]{--bg:#d4ede0;--surface:#e4f5eb;--card:#f0faf3;--card2:#d8f0e3;--border:#a8d8bc;--text:#0b1f14;--muted:#2e6644;--faint:#5a8f6e;--shadow:0 10px 30px rgba(11,31,20,.12)}
-    /* ── שמיים/ים ── */
-    [data-theme="sky"]{--bg:#05121e;--surface:#081c2d;--card:#0d2539;--card2:#132f48;--border:#1e4563;--text:#cce8ff;--muted:#5b9ec9;--faint:#3a6e8e;--shadow:0 18px 50px rgba(0,0,0,.38)}
-    /* ── לבן נקי ── */
-    [data-theme="white"]{--bg:#ffffff;--surface:#f8f8f8;--card:#ffffff;--card2:#f0f0f0;--border:#e0e0e0;--text:#111111;--muted:#555555;--faint:#999999;--shadow:0 8px 24px rgba(0,0,0,.08)}
-    /* ── שחור מלא ── */
-    [data-theme="black"]{--bg:#000000;--surface:#0a0a0a;--card:#111111;--card2:#1a1a1a;--border:#2a2a2a;--text:#f0f0f0;--muted:#888888;--faint:#555555;--shadow:0 18px 50px rgba(0,0,0,.6)}
-    /* ── כתום בהיר ── */
-    [data-theme="peach"]{--bg:#fff4ed;--surface:#ffe8d6;--card:#fff8f3;--card2:#fde8d0;--border:#f4b98a;--text:#3d1a00;--muted:#a0522d;--faint:#c47843;--shadow:0 10px 30px rgba(61,26,0,.13)}
-    /* ── כתום כהה ── */
-    [data-theme="ember"]{--bg:#130800;--surface:#1e0f00;--card:#2a1600;--card2:#351c00;--border:#6b3000;--text:#ffe8cc;--muted:#e07830;--faint:#a04820;--shadow:0 18px 50px rgba(0,0,0,.45)}
+    /* כהה (ברירת מחדל) */
+    [data-theme="sky"]{--bg:#0d1117;--surface:#12171f;--card:#171d27;--card2:#1e2530;--border:#283040;--text:#e8edf5;--muted:#9aa6b8;--faint:#6b778a;--shadow:0 8px 24px rgba(0,0,0,.22)}
+    /* בהיר */
+    [data-theme="light"]{--bg:#f4f6fa;--surface:#ffffff;--card:#ffffff;--card2:#eef1f6;--border:#dfe4ec;--text:#101828;--muted:#4a5568;--faint:#8591a5;--shadow:0 6px 20px rgba(16,24,40,.07);--accent2:color-mix(in srgb,var(--accent) 88%,#000)}
+    /* ירוק כהה */
+    [data-theme="forest"]{--bg:#0c1210;--surface:#111a16;--card:#16211c;--card2:#1c2923;--border:#2a3a32;--text:#e4efe8;--muted:#9bb3a4;--faint:#6a8576;--shadow:0 8px 24px rgba(0,0,0,.25)}
+    /* ירוק בהיר */
+    [data-theme="green"]{--bg:#f2f7f4;--surface:#ffffff;--card:#ffffff;--card2:#e8f1ec;--border:#d5e3db;--text:#0f1f17;--muted:#46604f;--faint:#809488;--shadow:0 6px 20px rgba(15,31,23,.07);--accent2:color-mix(in srgb,var(--accent) 88%,#000)}
+    /* חם כהה */
+    [data-theme="ember"]{--bg:#14100d;--surface:#1a1511;--card:#211b16;--card2:#29221b;--border:#3a3027;--text:#f3ebe3;--muted:#b7a899;--faint:#857665;--shadow:0 8px 24px rgba(0,0,0,.28)}
+    /* חם בהיר */
+    [data-theme="peach"]{--bg:#faf5f0;--surface:#ffffff;--card:#ffffff;--card2:#f3ebe3;--border:#e6dccf;--text:#2a1d12;--muted:#6e5a47;--faint:#a39080;--shadow:0 6px 20px rgba(42,29,18,.07);--accent2:color-mix(in srgb,var(--accent) 88%,#000)}
+    /* לבן */
+    [data-theme="white"]{--bg:#ffffff;--surface:#fafafa;--card:#ffffff;--card2:#f2f2f2;--border:#e6e6e6;--text:#111111;--muted:#555555;--faint:#999999;--shadow:0 6px 20px rgba(0,0,0,.06);--accent2:color-mix(in srgb,var(--accent) 88%,#000)}
+    /* שחור */
+    [data-theme="black"]{--bg:#000000;--surface:#0a0a0a;--card:#111111;--card2:#1a1a1a;--border:#262626;--text:#f0f0f0;--muted:#888888;--faint:#555555;--shadow:0 8px 24px rgba(0,0,0,.5)}
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Heebo,system-ui,sans-serif;overflow-x:hidden}
     button,input,select,textarea{font:inherit}
@@ -74,7 +74,7 @@
     .theme-toggle .theme-dot.dot-auto{left:50%;transform:translate(-50%,-50%)}
     .theme-toggle .theme-dot.dot-light{right:11px}
     .theme-toggle .theme-icon{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;position:absolute;top:2px;transition:left .22s cubic-bezier(.34,1.3,.64,1),background .22s;box-shadow:0 1px 5px rgba(0,0,0,.3);line-height:1;z-index:1}
-    .theme-toggle.dark-mode .theme-pill{background:rgba(109,93,252,.18);border-color:rgba(109,93,252,.4)}
+    .theme-toggle.dark-mode .theme-pill{background:rgba(59,110,246,.18);border-color:rgba(59,110,246,.4)}
     .theme-toggle.dark-mode .theme-icon{left:2px;background:var(--accent)}
     .theme-toggle.auto-mode .theme-pill{background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.45)}
     .theme-toggle.auto-mode .theme-icon{left:24px;background:var(--muted);color:#fff}
@@ -84,8 +84,6 @@
     .theme-toggle.auto-mode .theme-dot.dot-auto,
     .theme-toggle.light-mode .theme-dot.dot-light{opacity:0}
     .auth-msg{min-height:19px;color:var(--danger);font-size:12px;margin-top:10px}
-    .show-pass{display:flex;align-items:center;gap:7px;margin-top:8px;color:var(--muted);font-size:12px;font-weight:700}
-    .show-pass input{width:auto}
     .mode-note{font-size:12px;color:var(--faint);line-height:1.55;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:10px;margin-top:14px}
     .app{display:flex;flex-direction:column;min-height:100vh;position:relative}
 
@@ -114,7 +112,7 @@
       border-radius: 999px; padding: 9px 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: .2s;
     }
     #topNav .nav button:hover { background: var(--card); color: var(--text); }
-    #topNav .nav button.active { background: rgba(109,93,252,.14); color: var(--accent2); border-color: rgba(109,93,252,.35); }
+    #topNav .nav button.active { background: rgba(59,110,246,.14); color: var(--accent2); border-color: rgba(59,110,246,.35); }
 
     main{flex:1;min-width:0}
     main{padding:24px;min-width:0; max-width: 1400px; margin: 0 auto; width: 100%;}
@@ -131,15 +129,14 @@
        home-page card) has its own "add list" and "link" buttons. */
     #sharedPanelBtn{display:none!important}
     #topBarBtns .theme-toggle{height:30px;min-height:30px;min-width:58px;max-width:58px;padding:0}
-    #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);border:1.5px solid rgba(109,93,252,.45);border-radius:16px;box-shadow:0 18px 46px rgba(109,93,252,.22),var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
+    #sharedPanel{display:none;position:fixed;left:12px;top:56px;width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);border:1.5px solid rgba(59,110,246,.45);border-radius:16px;box-shadow:0 18px 46px rgba(59,110,246,.22),var(--shadow);z-index:57;direction:rtl;text-align:right;transform:translateY(-10px) scale(.98);opacity:0;transition:transform .22s ease,opacity .2s ease}
     #sharedPanel.open{display:block;transform:translateY(0) scale(1);opacity:1}
-    .shared-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid rgba(109,93,252,.25);background:linear-gradient(135deg,rgba(109,93,252,.14),transparent)}
-    .shared-panel-title{font-size:15px;font-weight:900;color:#6d5dfc}
+    .shared-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid rgba(59,110,246,.25);background:linear-gradient(135deg,rgba(59,110,246,.14),transparent)}
+    .shared-panel-title{font-size:15px;font-weight:900;color:#3b6ef6}
     .shared-panel-sub{font-size:11px;font-weight:800;color:var(--faint);margin-top:2px}
     #sharedPanelClose{border:0;background:transparent;color:var(--faint);font-size:20px;line-height:1;padding:2px 7px;border-radius:8px;cursor:pointer}
     #sharedPanelClose:hover{background:var(--card2);color:var(--text)}
     #sharedPanelContent{padding:12px}
-    #sharedPanelContent .shared-wheel{margin:0;box-shadow:none}
     .search-wrap{position:relative;max-width:380px;flex:1 1 auto}
     .search{max-width:none;width:100%}
     .search-results{position:absolute;top:calc(100% + 6px);right:0;left:0;max-height:340px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);z-index:60;padding:6px}
@@ -158,7 +155,7 @@
 /* --- Modern Peek Cards --- */
     .cat-card {
       position: relative;
-      background: linear-gradient(135deg,color-mix(in srgb,var(--cat-color,#6d5dfc) 16%,var(--card)),var(--card));
+      background: linear-gradient(135deg,color-mix(in srgb,var(--cat-color,#3b6ef6) 16%,var(--card)),var(--card));
       border: 1px solid color-mix(in srgb, var(--cat-color, var(--border)) 30%, var(--border));
       border-radius: 14px;
       padding: 12px;
@@ -215,8 +212,6 @@
     @media (max-width:820px){
       .cat-select-bar{bottom:76px;left:12px;right:12px;transform:none;justify-content:space-between}
     }
-    .cat-mark{display:none}
-    .cat-mark small{display:none}
     .shared-home-card{cursor:default}
     .shared-home-grid{margin-top:18px}
     .shared-members{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
@@ -234,11 +229,7 @@
     .shared-home-card-list-item:hover{background:color-mix(in srgb,var(--cat-color,var(--accent)) 20%,var(--card2))}
     .shared-home-card-list-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .shared-home-card-list-meta{font-size:10px;font-weight:600;color:var(--faint);margin-top:2px}
-    .shared-home-add-card{align-items:center;justify-content:center;display:flex;flex-direction:column;gap:6px;border-style:dashed;background:var(--card)}
     .shared-home-badge{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--cat-color,var(--accent));background:color-mix(in srgb,var(--cat-color,var(--accent)) 18%,transparent);padding:2px 8px;border-radius:999px}
-    .shared-home-add-card::before{content:none}
-    .shared-home-add-icon{font-size:22px}
-    .shared-home-add-label{font-size:12px;font-weight:800;color:var(--muted)}
     .cat-title {
       font-size: 16px; font-weight: 900; margin: 0 10px 8px 0; line-height: 1.2; padding-left:72px;
       color: color-mix(in srgb, var(--cat-color, var(--text)) 55%, var(--text));
@@ -277,7 +268,6 @@
     .cat-detail-stat{background:color-mix(in srgb,var(--surface) 82%,transparent);border:1px solid var(--border);border-radius:10px;padding:9px;text-align:center}
     .cat-detail-stat strong{display:block;font-size:18px;line-height:1;color:var(--text)}
     .cat-detail-stat span{display:block;font-size:10px;font-weight:900;color:var(--faint);margin-top:5px}
-    .cat-detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
     .cat-detail-actions .primary{grid-column:1/-1}
     .cat-detail-list{display:grid;gap:8px;max-height:34vh;overflow:auto;padding-inline-end:2px}
     .cat-detail-task{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 10px;cursor:pointer}
@@ -299,8 +289,6 @@
     .lists-wheel .cat-card:nth-child(4n+2){transform:translateX(-8px) rotate(-.25deg)}
     .lists-wheel .cat-card:nth-child(4n+3){transform:translateX(4px) rotate(.18deg)}
     .lists-wheel .cat-card:hover{transform:translateY(-2px) scale(1.01)}
-    .home-secondary{display:grid;grid-template-columns:1fr minmax(260px,380px);gap:10px;margin-top:0}
-    .home-secondary > *{min-width:0}
     .shared-wheel.compact{grid-template-columns:1fr;margin:0;padding:10px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);max-width:100%;overflow:hidden}
     .shared-wheel.compact .shared-wheel-head{margin-bottom:7px}
     .shared-wheel.compact .shared-wheel-title{font-size:12px;color:var(--muted)}
@@ -315,7 +303,6 @@
     .shared-wheel.compact .shared-wheel-meta{font-size:9px}
     .shared-wheel.compact .shared-wheel-controls{display:none}
     .meta{font-size:12px;color:var(--faint)}
-    .taskListHome{position:relative;z-index:3;margin-top:auto;min-height:42px;display:grid;gap:6px}
     .agenda-list{display:grid;gap:10px}
     .agenda-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:var(--rs);border-right:4px solid var(--accent);min-width:0}
     .agenda-title{font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
@@ -440,7 +427,6 @@
     .day.other{opacity:.38}.day:not(.other):hover{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)22}
     .day-head{display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0;margin-bottom:2px}
     .day-num{font-size:12px;font-weight:900;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s}
-    .day-count{display:none}
     .day-task{border-radius:4px;padding:2px 5px;font-size:10.5px;font-weight:700;white-space:normal;overflow:hidden;margin-top:1px;line-height:1.35;min-height:17px;display:flex;align-items:flex-start;word-break:break-word}
     .day-task.is-meeting{border-radius:4px 4px 4px 0;border-right:3px solid currentColor;border-bottom:1px solid currentColor;padding-right:4px;font-weight:600;letter-spacing:0;position:relative}
     .day-task.is-meeting::after{content:"🤝";font-size:8px;position:absolute;bottom:1px;left:3px;opacity:.7}
@@ -472,7 +458,7 @@
     .pass-wrap input{padding-left:38px}
     .pass-eye{position:absolute;left:8px;border:0;background:transparent;font-size:17px;padding:2px;line-height:1;color:var(--faint);cursor:pointer}
     .pass-eye:hover{color:var(--text)}
-    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(109,93,252,.15)}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,110,246,.15)}
     .cal-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
     .cal-toolbar .row{flex-wrap:wrap}
     .cal-toolbar .btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -486,7 +472,7 @@
     .cal-time-col{display:grid;gap:0}
     .cal-hour{height:56px;display:flex;align-items:flex-start;justify-content:flex-end;padding:4px 6px 0;font-size:10px;color:var(--faint);font-weight:700}
     .cal-week-day-head{text-align:center;font-size:12px;font-weight:900;padding:6px;border-radius:var(--rs);background:var(--card);border:1px solid var(--border)}
-    .cal-week-day-head.today{background:rgba(109,93,252,.18);border-color:var(--accent)}
+    .cal-week-day-head.today{background:rgba(59,110,246,.18);border-color:var(--accent)}
     .cal-day-col{position:relative;border:1px solid var(--border);border-radius:var(--rs);background:var(--card);min-height:840px}
     .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:500;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:2px;line-height:1.3}
     .cal-event.is-meeting{border-radius:6px 6px 6px 0}
@@ -502,7 +488,7 @@
     .ics-section{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;border-radius:999px;padding:2px 7px;background:var(--card2);border:1px solid var(--border);color:var(--muted);cursor:pointer}
     .tag:hover{border-color:var(--accent);color:var(--accent2)}
-    .tag.active-tag{background:rgba(109,93,252,.18);border-color:var(--accent);color:var(--accent2)}
+    .tag.active-tag{background:rgba(59,110,246,.18);border-color:var(--accent);color:var(--accent2)}
     .tags-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
     .tag-group-head{border-bottom:1.5px solid var(--border)}
     .tag-group-head:first-child{padding-top:4px!important}
@@ -527,11 +513,10 @@
     .date-chip-clear:hover{background:var(--danger);color:#fff}
     .char-count.warn{color:var(--warn)}
     .est-badge{font-size:10px;color:var(--faint);display:inline-flex;align-items:center;gap:3px;margin-top:4px}
-    .repeat-badge{font-size:10px;font-weight:800;color:var(--accent2);background:rgba(109,93,252,.12);border:1px solid rgba(109,93,252,.25);border-radius:999px;padding:1px 7px;display:inline-flex;align-items:center;gap:3px;margin-top:4px}
+    .repeat-badge{font-size:10px;font-weight:800;color:var(--accent2);background:rgba(59,110,246,.12);border:1px solid rgba(59,110,246,.25);border-radius:999px;padding:1px 7px;display:inline-flex;align-items:center;gap:3px;margin-top:4px}
     .kbd-hint{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--muted);z-index:60;pointer-events:none;opacity:0;transition:.2s}
     .kbd-hint.show{opacity:1}
     kbd{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:11px;color:var(--text)}
-    .meetings-weeks{display:grid;gap:24px;margin-top:4px}
     .meetings-dashboard{display:grid;gap:16px;margin-top:4px}
     .meetings-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--border);border-radius:var(--rs);background:var(--card)}
     .meetings-month-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -546,7 +531,7 @@
     .meetings-grid{display:grid;grid-template-columns:54px repeat(7,1fr);gap:0}
     .mg-corner{background:var(--card2);border-bottom:1px solid var(--border);border-left:1px solid var(--border)}
     .mg-day-head{padding:8px 4px;text-align:center;font-size:11px;font-weight:900;background:var(--card2);border-bottom:1px solid var(--border);border-left:1px solid var(--border);color:var(--muted)}
-    .mg-day-head.today{background:rgba(109,93,252,.18);color:var(--accent2)}
+    .mg-day-head.today{background:rgba(59,110,246,.18);color:var(--accent2)}
     .mg-day-head .day-date{font-size:18px;font-weight:900;color:var(--text);line-height:1.1}
     .mg-day-head.today .day-date{color:var(--accent2)}
     .mg-time-col{display:flex;flex-direction:column}
@@ -555,13 +540,12 @@
     .mg-slot{position:relative;cursor:pointer;transition:background .15s}
     .mg-slot-quarter{height:12px;border-bottom:1px solid rgba(42,43,61,.2)}
     .mg-slot-quarter:nth-child(4n){border-bottom:1px solid rgba(42,43,61,.6)}
-    .mg-slot:hover{background:rgba(109,93,252,.1)}
+    .mg-slot:hover{background:rgba(59,110,246,.1)}
     .mg-slot-hover-tip{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:5;pointer-events:none}
     .mg-slot:hover .mg-slot-hover-tip{display:flex}
-    .mg-slot-tip-inner{background:var(--accent);color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 10px rgba(109,93,252,.4)}
+    .mg-slot-tip-inner{background:var(--accent);color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 10px rgba(59,110,246,.4)}
     .mg-event{position:absolute;left:2px;right:2px;border-radius:5px;padding:2px 4px;font-size:10px;font-weight:500;overflow:hidden;cursor:pointer;z-index:3;transition:opacity .15s;display:flex;flex-direction:column;gap:1px}
     .mg-event:hover{opacity:.82}
-    .meetings-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px;color:var(--faint);font-size:13px}
     .repeat-picker{border:1px solid var(--border);background:var(--card2);border-radius:var(--rs);padding:10px;margin-top:8px}
     .repeat-picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
     .repeat-picker-title{font-size:12px;font-weight:800;color:var(--muted)}
@@ -591,7 +575,7 @@
     .daily-focus-tags{display:flex;gap:4px;flex-wrap:wrap}
     .daily-focus-tag{display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:900;background:var(--card2);border:1px solid var(--border);color:var(--faint);white-space:nowrap}
     .daily-focus-tag.must{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.34);color:var(--danger)}
-    .daily-focus-tag.manual{background:rgba(109,93,252,.14);border-color:rgba(109,93,252,.35);color:var(--accent2)}
+    .daily-focus-tag.manual{background:rgba(59,110,246,.14);border-color:rgba(59,110,246,.35);color:var(--accent2)}
     .daily-focus-tag.carried{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.34);color:var(--warn)}
     .daily-focus-tag.suggested{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.32);color:var(--green)}
     .daily-focus-tools{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
@@ -692,13 +676,9 @@
     .drum-item{height:40px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:18px;font-weight:800;color:var(--faint);cursor:pointer;transition:color .15s,font-size .15s;user-select:none}
     .drum-item.active{color:var(--text);font-size:22px}
     .drum-item:hover{color:var(--accent2)}
-    .drum-highlight{position:absolute;top:50%;left:6px;right:6px;height:40px;transform:translateY(-50%);border-radius:8px;background:rgba(109,93,252,.15);border:1px solid rgba(109,93,252,.3);pointer-events:none;z-index:1}
-    .drum-selected-display{font-size:13px;font-weight:900;color:var(--accent2);text-align:center;letter-spacing:.04em;margin-top:2px}
+    .drum-highlight{position:absolute;top:50%;left:6px;right:6px;height:40px;transform:translateY(-50%);border-radius:8px;background:rgba(59,110,246,.15);border:1px solid rgba(59,110,246,.3);pointer-events:none;z-index:1}
     .mg-now-line{position:absolute;left:0;right:0;height:2px;background:var(--danger);z-index:10;pointer-events:none}
     .mg-now-line::before{content:'';position:absolute;right:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--danger)}
-    .cp-wrap{display:flex;flex-direction:column;gap:10px}
-    .cp-sortbar{display:flex;gap:6px;align-items:center;font-size:11px}
-    .cp-sortbar span{color:var(--faint);font-weight:700}
     .cp-sort-btn{padding:5px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card2);color:var(--faint);font-size:11px;font-weight:800;cursor:pointer;transition:.15s}
     .cp-sort-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
     .cp-pool{position:relative;display:flex;flex-wrap:wrap;gap:10px 8px;padding:16px 12px 12px;border-radius:18px;background:radial-gradient(ellipse at top,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%),var(--card2);border:1px dashed var(--border);min-height:52px;align-items:center}
@@ -713,17 +693,12 @@
     .cp-bubble.selected::before{background:var(--accent);border-color:var(--accent)}
     .cp-bubble.dragging{opacity:.35}
     .cp-bubble.overdue{border-color:color-mix(in srgb,#ef4444 55%,var(--border))}
-    .cp-bubble-late{font-size:11px}
     .cp-bubble-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
-    .cp-hint{font-size:11px;font-weight:800;color:var(--accent2);text-align:center;padding:2px 4px;min-height:16px}
-    .cp-timeline-scroll{max-height:340px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;border:1px solid var(--border);border-radius:14px}
-    .cp-timeline{position:relative;display:grid;grid-template-columns:40px 1fr}
 
     /* ── Flow Chart (שרשרת משימות) ── */
     .flow-wrap{display:flex;flex-direction:column;gap:0;max-width:560px;margin:0 auto}
     .flow-pool-label{font-size:12px;font-weight:800;color:var(--faint);margin-bottom:8px}
     .flow-drop-indicator{height:8px;margin:2px 34px 2px 14px;border-radius:6px;background:color-mix(in srgb,var(--accent) 45%,transparent);border:1px dashed var(--accent)}
-    .flow-additem{display:flex;gap:8px;margin-bottom:16px}
     .flow-additem select,.flow-additem input{flex:1}
     .flow-empty{font-size:13px;font-weight:700;color:var(--faint);text-align:center;padding:26px 10px;border:1px dashed var(--border);border-radius:14px}
     .flow-item{display:flex;flex-direction:column;align-items:stretch}
@@ -750,54 +725,14 @@
     .flow-mini-input{display:flex;gap:6px;padding:6px 0 10px 34px;margin-right:14px}
     .flow-mini-input input{flex:1;padding:7px 10px;font-size:12px}
     .flow-hint{font-size:11px;color:var(--faint);text-align:center;margin-top:14px}
-    .cp-time-labels{display:flex;flex-direction:column;border-right:1px solid var(--border)}
-    .cp-time-label{height:34px;display:flex;align-items:flex-start;justify-content:center;padding-top:2px;font-size:8px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--border)}
-    .cp-slots-col{position:relative}
-    .cp-slot{height:17px;border-bottom:1px solid rgba(42,43,61,.15);cursor:pointer;transition:background .15s}
-    .cp-slot:nth-child(2n){border-bottom:1px solid rgba(42,43,61,.5)}
-    .cp-slot:hover{background:rgba(109,93,252,.10)}
-    .cp-slot.can-drop{background:rgba(109,93,252,.18)}
-    .cp-task-chip{--cp-color:#6d5dfc;position:absolute;left:6px;right:6px;top:0;background:var(--cp-color);border-radius:4px 16px 14px 14px;padding:4px 8px 6px;font-size:10.5px;font-weight:800;color:#fff;overflow:visible;cursor:grab;z-index:4;box-shadow:0 3px 8px rgba(0,0,0,.2);touch-action:none}
-    .cp-task-chip::before{content:"";position:absolute;top:-6px;right:8px;width:14px;height:14px;border-radius:50%;background:var(--cp-color);z-index:-1}
-    .cp-task-chip::after{content:"";position:absolute;top:-3px;right:20px;width:10px;height:10px;border-radius:50%;background:var(--cp-color);z-index:-1}
     .cp-task-chip.dragging{opacity:.55;cursor:grabbing}
-    .cp-chip-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
-    .cp-chip-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
-    .cp-chip-x{flex:0 0 auto;width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;cursor:pointer}
-    .cp-chip-x:hover{background:rgba(255,255,255,.5)}
-    .cp-resize-handle{position:absolute;left:0;right:0;bottom:0;height:9px;cursor:ns-resize;display:flex;align-items:flex-end;justify-content:center;touch-action:none}
-    .cp-resize-handle::after{content:"";width:22px;height:3px;border-radius:3px;background:rgba(255,255,255,.55);margin-bottom:2px}
-    .cp-event-chip{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--faint);background:color-mix(in srgb,var(--border) 60%,transparent);overflow:hidden;z-index:2;pointer-events:none;opacity:.75}
-    .cp-days-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 10px}
-    .cp-nav-arrow{flex:0 0 auto;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid var(--border);background:var(--card2);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;cursor:pointer;transition:.15s}
-    .cp-nav-arrow:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-    .cp-nav-center{display:flex;align-items:center;gap:8px;flex:0 1 auto}
-    .cp-today-btn{padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card2);color:var(--faint);font-size:11px;font-weight:800;cursor:pointer;transition:.15s;white-space:nowrap}
     .cp-today-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
     .cp-today-btn:not(.active):hover{border-color:var(--accent);color:var(--text)}
-    .cp-range-label{font-size:12px;font-weight:800;color:var(--faint);min-width:96px;text-align:center;white-space:nowrap}
-    .cp-days-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
-    .cp-day-block{min-width:0}
-    .cp-day-head{font-size:11px;font-weight:900;color:var(--accent2);margin-bottom:4px;text-align:center}
-    .cp-quick-add{display:flex;gap:6px;margin-top:8px}
     @media (max-width:820px){.cp-days-row{grid-template-columns:1fr}}
-    .shared-wheel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;margin:0 0 18px;padding:13px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.10)}
-    .shared-wheel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-    .shared-wheel-title{font-size:14px;font-weight:900;color:var(--text)}
-    .shared-wheel-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
     .shared-wheel-actions .btn{min-height:30px;padding:5px 9px;font-size:11px;border-radius:8px}
-    .shared-wheel-stage{position:relative;height:340px;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--card);isolation:isolate}
-    .shared-wheel-stage::before,.shared-wheel-stage::after{content:"";position:absolute;left:0;right:0;height:42px;z-index:2;pointer-events:none}
-    .shared-wheel-stage::before{top:0;background:linear-gradient(var(--card),transparent)}
-    .shared-wheel-stage::after{bottom:0;background:linear-gradient(transparent,var(--card))}
-    .shared-wheel-track{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;padding:58px 8px;display:grid;gap:8px}
-    .shared-wheel-track::-webkit-scrollbar{display:none}
-    .shared-wheel-item{min-height:50px;scroll-snap-align:center;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--text);text-align:right;transition:transform .16s,border-color .16s,background .16s,opacity .16s;opacity:.72}
-    .shared-wheel-del{font-size:14px;opacity:.55;padding:4px 6px;border-radius:8px;line-height:1}
-    .shared-wheel-del:hover{opacity:1;background:var(--card2)}
     .shared-add-wrap{position:relative}
-    .shared-add-btn{width:32px;height:32px;border-radius:10px;border:1.5px solid rgba(109,93,252,.5);background:rgba(109,93,252,.12);color:#6d5dfc;font-size:18px;font-weight:900;cursor:pointer;display:grid;place-items:center;line-height:1}
-    .shared-add-btn:hover{background:#6d5dfc;color:#fff}
+    .shared-add-btn{width:32px;height:32px;border-radius:10px;border:1.5px solid rgba(59,110,246,.5);background:rgba(59,110,246,.12);color:#3b6ef6;font-size:18px;font-weight:900;cursor:pointer;display:grid;place-items:center;line-height:1}
+    .shared-add-btn:hover{background:#3b6ef6;color:#fff}
     .shared-add-menu{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);z-index:66;min-width:180px;padding:6px;direction:rtl;text-align:right}
     .shared-add-menu button{display:block;width:100%;text-align:right;border:0;background:transparent;color:var(--text);padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer}
     .shared-add-menu button:hover{background:var(--card2)}
@@ -805,19 +740,9 @@
     .shared-item-menu button{display:block;width:100%;text-align:right;border:0;background:transparent;color:var(--text);padding:8px 10px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer}
     .shared-item-menu button:hover{background:var(--card2)}
     .shared-item-menu button.danger{color:#e0455a}
-    .shared-wheel-dots{font-size:16px;opacity:.6;padding:4px 8px;border-radius:8px;line-height:1;cursor:pointer}
-    .shared-wheel-dots:hover{opacity:1;background:var(--card2)}
-    .shared-wheel-item:hover{opacity:1;border-color:var(--accent)}
     .shared-wheel-item.active{opacity:1;transform:scale(1.02);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 24%,transparent)}
     .shared-wheel-item.muted{cursor:default;opacity:.55}
-    .shared-wheel-mark{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--card2);font-size:15px;flex:0 0 auto}
-    .shared-wheel-name{font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .shared-wheel-meta{font-size:10.5px;color:var(--faint);font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .shared-wheel-go{font-size:17px;color:var(--faint)}
-    .shared-wheel-controls{display:grid;gap:8px}
-    .shared-wheel-controls button{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:900;cursor:pointer}
-    .shared-wheel-controls button:hover{border-color:var(--accent);color:var(--accent2)}
-    .cat-btn.shared{border-style:dashed;border-color:rgba(109,93,252,.3)}
+    .cat-btn.shared{border-style:dashed;border-color:rgba(59,110,246,.3)}
 
     /* --- Shared panel cards ---
        Standalone styles for the "שיתופים" purple panel, deliberately NOT
@@ -830,8 +755,8 @@
     .shared-card-grid{display:grid;gap:10px}
     .shared-card{
       position:relative;
-      background:linear-gradient(135deg,color-mix(in srgb,var(--shared-color,#6d5dfc) 16%,var(--card)),var(--card));
-      border:1px solid color-mix(in srgb,var(--shared-color,#6d5dfc) 30%,var(--border));
+      background:linear-gradient(135deg,color-mix(in srgb,var(--shared-color,#3b6ef6) 16%,var(--card)),var(--card));
+      border:1px solid color-mix(in srgb,var(--shared-color,#3b6ef6) 30%,var(--border));
       border-radius:14px;
       padding:12px 14px;
       overflow:hidden;
@@ -843,13 +768,13 @@
     }
     .shared-card::before{
       content:"";position:absolute;top:0;right:0;bottom:0;width:6px;
-      background:var(--shared-color,#6d5dfc);transition:width .25s ease;
+      background:var(--shared-color,#3b6ef6);transition:width .25s ease;
     }
     .shared-card.active{
-      border-color:var(--shared-color,#6d5dfc);
-      box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--shared-color,#6d5dfc) 45%,transparent);
+      border-color:var(--shared-color,#3b6ef6);
+      box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--shared-color,#3b6ef6) 45%,transparent);
     }
-    .shared-card.open{border-color:var(--shared-color,#6d5dfc)}
+    .shared-card.open{border-color:var(--shared-color,#3b6ef6)}
     .shared-card.open::before{width:8px}
     .shared-card.muted{opacity:.6}
     .shared-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -857,12 +782,12 @@
     .shared-card.muted .shared-card-head{cursor:default}
     .shared-card-mark{
       width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
-      background:color-mix(in srgb,var(--shared-color,#6d5dfc) 22%,var(--card2));
+      background:color-mix(in srgb,var(--shared-color,#3b6ef6) 22%,var(--card2));
       font-size:15px;flex:0 0 auto;
     }
     .shared-card-name{
       font-size:14px;font-weight:900;line-height:1.2;
-      color:color-mix(in srgb,var(--shared-color,#6d5dfc) 55%,var(--text));
+      color:color-mix(in srgb,var(--shared-color,#3b6ef6) 55%,var(--text));
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
     .shared-card-meta{
@@ -876,7 +801,7 @@
     .shared-card-chevron:hover{opacity:1;background:var(--card2)}
     .shared-card-body{
       margin-top:6px;padding-top:10px;margin-right:41px;
-      border-top:1px dashed color-mix(in srgb,var(--shared-color,#6d5dfc) 30%,var(--border));
+      border-top:1px dashed color-mix(in srgb,var(--shared-color,#3b6ef6) 30%,var(--border));
       display:grid;gap:8px;
     }
     .shared-card-code-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -896,13 +821,6 @@
       .shared-card-actions{justify-content:space-between}
     }
     .cat-btn.shared .dot{background:transparent;border:2px solid currentColor;box-sizing:border-box}
-    .toggle-switch{display:inline-flex;align-items:center;cursor:pointer;gap:0}
-    .toggle-switch input{display:none}
-    .toggle-track{width:38px;height:22px;background:var(--card2);border:1px solid var(--border);border-radius:999px;position:relative;transition:.2s}
-    .toggle-thumb{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--faint);transition:.2s}
-    .toggle-switch input:checked + .toggle-track{background:var(--accent);border-color:var(--accent)}
-    .toggle-switch input:checked + .toggle-track .toggle-thumb{right:calc(100% - 18px);background:#fff}
-    .mobile-menu{display:none;position:fixed;top:14px;right:14px;z-index:45;box-shadow:var(--shadow)}
     
     @media(max-width:820px){
       html,body{width:100%;max-width:100%;overflow-x:hidden}
@@ -926,21 +844,15 @@
       .actions{display:grid;grid-template-columns:1fr auto;gap:6px;width:100%;min-width:0;order:3}
       .actions .search-wrap{grid-column:1/-1;width:100%;max-width:none;min-width:0}
       #addBtn{grid-column:1/-1;width:100%}
-      .shared-wheel{grid-template-columns:1fr;gap:10px;margin:0 0 14px;padding:10px;width:100%;max-width:100%}
-      .shared-wheel-controls{grid-template-columns:1fr 1fr}
-      .shared-wheel-controls button{width:100%}
-      .shared-wheel-actions{justify-content:flex-start}
       .meetings-grid{grid-template-columns:40px repeat(7,1fr)}
       .mg-hour-label{font-size:8px;padding:2px 3px 0 0}
       .app{flex-direction:column}
 
-      .mobile-menu{display:none!important}
       .mobile-menu.hidden{display:none!important}
       .top{align-items:stretch}
       .actions{width:100%}
       .search-wrap{max-width:none;flex:1 1 160px}
       .grid{grid-template-columns:1fr;gap:14px}
-      .cat-solar{min-height:220px}
       .agenda-row{grid-template-columns:1fr auto;padding:10px 12px}
       .agenda-title{font-size:13px}
       .cal-toolbar{display:grid;grid-template-columns:1fr;gap:6px;align-items:stretch}
@@ -949,8 +861,6 @@
       .cal-title{order:-1;width:100%;min-width:0;font-size:13px;white-space:normal;line-height:1.35}
       .cal-toolbar-secondary{display:flex;gap:4px;width:100%}
       .cal-toolbar-secondary .btn{flex:1;font-size:11px;padding:5px 6px}
-      .btn-jewish-label::after{content:"✡ חגים"}
-      .btn-today-label::after{content:"היום"}
       .cal-wrapper{overflow-x:auto;margin-inline:0;padding-inline:0}
       .day-view{min-width:0;width:100%;grid-template-columns:36px minmax(0,1fr)}
       .cal-week,.cal-week-head{min-width:0;grid-template-columns:36px repeat(7,minmax(0,1fr));gap:0}
@@ -1022,7 +932,7 @@
       .bnav-btn .bnav-icon { font-size: 20px; line-height: 1; }
       .bnav-btn.active { color: var(--accent2); }
       .bnav-btn.active .bnav-icon { 
-        background: rgba(109,93,252,.18);
+        background: rgba(59,110,246,.18);
         border-radius: 8px;
         padding: 2px 8px;
       }
@@ -1276,7 +1186,6 @@
       .lists-wheel{min-height:200px;padding:0 8px;overflow:hidden;position:relative;mask-image:none;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 6%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--accent) 16%,var(--border));border-radius:14px;margin-top:10px}
       .lists-wheel .grid{padding-block:0;position:relative;display:block;overflow:visible}
       .lists-wheel .cat-card{position:relative;margin-bottom:0}
-      .home-secondary{grid-template-columns:1fr;gap:8px;margin-top:0}
       .shared-wheel.compact{padding:8px}
       .shared-wheel.compact .shared-wheel-head{margin-bottom:6px}
       .shared-wheel.compact .shared-wheel-actions .btn{min-height:26px}
@@ -1303,10 +1212,6 @@
       .cat-progress-bg{height:4px}
       .cat-peek{display:none!important}
       .cat-open-hint{display:none}
-      .cat-sun{width:116px;height:116px}
-      .cat-orbit{width:68px;min-height:68px}
-      .cat-orbit strong{font-size:17px}
-      .cat-orbit span{font-size:8px;max-width:52px}
       .kanban{
         display:flex;
         gap:12px;
@@ -1377,7 +1282,7 @@
         place-items:center;
         font-size:18px;
       }
-      .bnav-btn.active{background:rgba(109,93,252,.10)}
+      .bnav-btn.active{background:rgba(59,110,246,.10)}
       .bnav-btn.active .bnav-icon{padding:0}
       .modal-back{
         align-items:end;
@@ -1410,17 +1315,6 @@
         gap:3px;
       }
       .day{min-height:64px;border-radius:8px}
-      .day-count{
-        display:inline-flex;
-        align-self:flex-start;
-        font-size:9px;
-        color:var(--accent2);
-        background:rgba(109,93,252,.14);
-        border-radius:999px;
-        padding:1px 5px;
-        margin-top:auto;
-        font-weight:900;
-      }
       .week-block{overflow-x:auto}
       .meetings-grid{min-width:680px}
       .cal-week,.cal-week-head{
@@ -1471,7 +1365,6 @@
     @media(max-width:380px){
       main{padding-inline:10px!important}
       .bnav-btn{font-size:9px}
-      .cat-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
       #topBarBtns{gap:3px}
       #topBarBtns button{font-size:9px!important;padding-inline:6px!important}
     }
@@ -1726,12 +1619,98 @@
     .swipe-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:10px;font-weight:900;border:0;cursor:pointer;flex:1}
     .swipe-btn .swipe-icon{font-size:17px;line-height:1}
     .swipe-btn-memo{background:color-mix(in srgb,var(--accent) 85%,#000);color:#fff}
-    .swipe-btn-edit{background:color-mix(in srgb,var(--accent) 85%,#000);color:#fff}
-    .swipe-btn-delete{background:var(--danger);color:#fff}
     .task-swipe-inner{transition:transform .18s ease;position:relative;z-index:1}
     .task-swipe-wrap.swiped .task-swipe-inner{transform:translateX(-88px)}
     .task-swipe-wrap.swiped .task-swipe-actions{transform:translateX(0)}
 
+
+    /* ══════════ Design refinement: one lead colour, flat surfaces, calmer proportions ══════════ */
+    ::selection{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+    body{font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+    h1{font-size:24px;font-weight:800;letter-spacing:-.01em}
+    .logo{font-size:24px;font-weight:800;letter-spacing:-.02em}
+    .logo span{color:var(--accent)}
+    .sub,.top p{color:var(--faint)}
+    label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0}
+    input,select,textarea{border-radius:var(--rs);padding:10px 12px;background:var(--surface);transition:border-color .15s,box-shadow .15s}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .btn{border-radius:var(--rs);font-weight:700;background:var(--card);transition:border-color .15s,background .15s,color .15s,transform .15s}
+    .btn:hover{border-color:var(--accent);color:var(--accent2)}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .btn.primary:hover{color:#fff;filter:brightness(1.08)}
+    .auth-box{border-radius:16px;padding:32px;box-shadow:var(--shadow)}
+    .tabs{background:var(--card2);border:0}
+    .tab{font-weight:700;border-radius:6px}
+    .tab.active{background:var(--accent);color:#fff}
+
+    .google-btn,.google-btn:hover{background:#fff;color:#3c4043;border-color:#dadce0}
+    .google-btn:hover{background:#f8f8f8}
+
+    /* Navigation */
+    #topNav{padding:10px 28px;box-shadow:none;background:color-mix(in srgb,var(--bg) 88%,transparent)}
+    #topNav .nav button{font-weight:600;padding:8px 14px;font-size:13.5px}
+    #topNav .nav button.active{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent2);border-color:transparent}
+    main{padding:28px 24px}
+    #bottomNav{box-shadow:none;background:var(--surface)}
+    .bnav-btn{font-weight:600}
+    .bnav-btn.active{background:transparent}
+
+    /* Flat cards: border + soft shadow only, no gradients */
+    .card,.week-block,.col,.modal,#sharedPanel,#briefPanel,#dailyAgendaCard{box-shadow:none}
+    .card{padding:18px;border-radius:var(--r)}
+    .modal{border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+    .modal-back{backdrop-filter:blur(4px);background:rgba(8,10,14,.55)}
+    .grid{gap:16px}
+    .cat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 16px 14px;min-height:112px;box-shadow:none}
+    .cat-card::before{width:4px;border-radius:0 var(--r) var(--r) 0}
+    .cat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--cat-color) 55%,var(--border))}
+    .cat-card:hover::before{width:4px}
+    .cat-title{font-size:15.5px;font-weight:700;color:var(--text);margin:0 6px 10px 0}
+    .cat-progress-stats{font-weight:600;color:var(--faint)}
+    .cat-progress-bg,.bar,.daily-focus-progress-bg{height:4px}
+    .lists-wheel .cat-card:nth-child(n){transform:none}
+    .lists-wheel .cat-card:hover{transform:translateY(-2px)}
+    .cat-peek-item{background:transparent;padding:4px 0;border-radius:0}
+    .cat-detail-hero,.daily-focus-card{background:var(--card);border-color:var(--border)}
+    .countdown-item{background:var(--card);border-color:var(--border);border-radius:var(--r);padding:14px 16px}
+    .countdown-item:hover{box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--cat-color,var(--accent)) 50%,var(--border))}
+    .countdown-badge{background:color-mix(in srgb,var(--cat-color,var(--accent)) 12%,var(--card2));border-width:1px}
+
+    /* Tasks */
+    .task{border-radius:var(--r);box-shadow:none;border-right-width:3px;padding:12px 14px}
+    .task::before{display:none}
+    .task:hover{box-shadow:var(--shadow);background:var(--card);border-color:var(--border)}
+    .task-title{font-weight:700;font-size:14.5px}
+    .col{background:var(--surface);border-radius:var(--r)}
+    .col-head{font-weight:700;font-size:13.5px}
+    .chip{font-weight:700;padding:2px 9px}
+    .agenda-row{background:var(--card);border:1px solid var(--border);border-right-width:3px;border-radius:var(--rs)}
+    .check{border-width:1.5px}
+
+    /* Calendar */
+    .day{border-radius:var(--rs)}
+    .day.today{box-shadow:none;border-color:var(--accent)}
+    .calendar-view .cal-toolbar{box-shadow:none;border-radius:var(--r);background:var(--surface)}
+    .cal-week-day-head.today{background:color-mix(in srgb,var(--accent) 14%,var(--card))}
+
+    /* Floating helpers */
+    #dailyMemoBtn{box-shadow:0 6px 18px rgba(0,0,0,.25);background:var(--accent)}
+    #shopListTab{box-shadow:none}
+    .toast{border-radius:12px;background:var(--text);color:var(--bg);border:0;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .toast-undo button{background:color-mix(in srgb,var(--bg) 25%,transparent);color:var(--bg)}
+
+    /* Theme toggle + pills */
+    .theme-toggle .theme-pill{box-shadow:none}
+    .empty{border-radius:var(--r);background:transparent}
+    .swatch.active{border-color:var(--text)}
+    ::-webkit-scrollbar{width:8px;height:8px}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+    @media(max-width:820px){
+      main{padding:calc(58px + env(safe-area-inset-top)) 14px calc(92px + env(safe-area-inset-bottom))!important}
+      .card,.task,.col,.week-block{box-shadow:none}
+      .cat-card{padding:10px 12px;min-height:0}
+      .grid{gap:10px}
+    }
 </style>
 </head>
 <body data-theme="sky">
@@ -1987,20 +1966,20 @@
     const hasFirebaseConfig = !firebaseConfig.apiKey.includes("PASTE_");
     const localKey = "taskflow_local_state_v2";
     const THEMES = [
-      { key:"sky",     label:"שמיים",     icon:"🌊" },
-      { key:"light",   label:"כחול בהיר", icon:"🌤" },
+      { key:"sky",     label:"כהה",     icon:"🌊" },
+      { key:"light",   label:"בהיר", icon:"🌤" },
       { key:"forest",  label:"ירוק כהה",  icon:"🌲" },
       { key:"green",   label:"ירוק בהיר", icon:"🌿" },
-      { key:"peach",   label:"כתום בהיר", icon:"🍑" },
-      { key:"ember",   label:"כתום כהה",  icon:"🔥" },
+      { key:"peach",   label:"חם בהיר", icon:"🍑" },
+      { key:"ember",   label:"חם כהה",  icon:"🔥" },
       { key:"white",   label:"לבן",       icon:"⬜" },
       { key:"black",   label:"שחור",      icon:"⬛" },
     ];
-    const colors = ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#166534", "#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1", "#6d5dfc", "#8b5cf6", "#d946ef", "#ec4899", "#64748b"];
+    const colors = ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#166534", "#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1", "#3b6ef6", "#8b5cf6", "#d946ef", "#ec4899", "#64748b"];
     const state = {
       theme: "sky",
       themeMode: "dark",
-      accent: "#6d5dfc",
+      accent: "#3b6ef6",
       currentView: "home",
       currentCatId: null,
       search: "",
@@ -2025,7 +2004,7 @@
       dueFilterMode: "all",
       autoCollapse: false,
       cats: [
-        {id: uid("c"), name: "לימודים", columns: [{id:"col1",name:"לעשות"},{id:"col2",name:"בתהליך"},{id:"col3",name:"הושלם"}], color: "#6d5dfc"},
+        {id: uid("c"), name: "לימודים", columns: [{id:"col1",name:"לעשות"},{id:"col2",name:"בתהליך"},{id:"col3",name:"הושלם"}], color: "#3b6ef6"},
         {id: uid("c"), name: "אישי", columns: [{id:"col1",name:"פתוח"},{id:"col2",name:"השבוע"},{id:"col3",name:"בוצע"}], color: "#22c55e"}
       ],
       tasks: []
@@ -2868,109 +2847,9 @@
       document.removeEventListener("click", closeSharedItemMenu, true);
     }
 
-    function openSharedItemMenu(anchor, item){
-      closeSharedItemMenu();
-      closeSharedAddMenu();
-      const menu = el("div", "shared-item-menu");
-      const r = anchor.getBoundingClientRect();
-      menu.style.top = (r.bottom + 4) + "px";
-      menu.style.left = Math.max(8, r.left - 120) + "px";
-      const openBtn = el("button", "", "פתיחה");
-      openBtn.type = "button";
-      openBtn.onclick = () => { closeSharedItemMenu(); subscribeSharedList(item.id); };
-      const copyBtn = el("button", "", "📋 העתקת קוד");
-      copyBtn.type = "button";
-      copyBtn.onclick = async () => {
-        closeSharedItemMenu();
-        try { await navigator.clipboard.writeText(item.id); toast("קוד השיתוף הועתק"); }
-        catch { prompt("העתק את קוד השיתוף:", item.id); }
-      };
-      const delBtn = el("button", "danger", "🗑 מחיקת שיתוף");
-      delBtn.type = "button";
-      delBtn.onclick = () => { closeSharedItemMenu(); deleteSharedList({ id: item.id, name: item.name }); };
-      menu.append(openBtn, copyBtn, delBtn);
-      document.body.append(menu);
-      setTimeout(() => document.addEventListener("click", closeSharedItemMenu, true), 0);
-    }
 
-    function renderSharedWheel(compact = false){
-      const box = el("section", "shared-wheel" + (compact ? " compact" : ""));
-      box.id = "sharedWheel";
 
-      const main = el("div", "");
-      const head = el("div", "shared-wheel-head");
-      head.append(el("div", "shared-wheel-title", "שיתופים"));
-      const actions = el("div", "shared-wheel-actions");
-      const privateBtn = el("button", "btn", "הרשימה הפרטית");
-      privateBtn.type = "button";
-      privateBtn.onclick = subscribePrivateList;
-      const addWrap = el("div", "shared-add-wrap");
-      const addBtn = el("button", "shared-add-btn", "+");
-      addBtn.type = "button";
-      addBtn.title = "רשימה חדשה או הצטרפות עם קוד";
-      addBtn.onclick = (e) => { e.stopPropagation(); openSharedAddMenu(addBtn); };
-      addWrap.append(addBtn);
-      actions.append(privateBtn, addWrap);
-      if (activeList.type === "shared") {
-        const copy = el("button", "btn", "העתק קוד");
-        copy.type = "button";
-        copy.onclick = copyShareCode;
-        actions.append(copy);
-      }
-      head.append(actions);
-
-      const stage = el("div", "shared-wheel-stage");
-      const track = el("div", "shared-wheel-track");
-      const known = getKnownSharedLists();
-      const items = [
-        { id: "__private", name: "הרשימה הפרטית", meta: "המשימות האישיות שלך", icon: "⌂", active: activeList.type === "private", action: subscribePrivateList },
-        ...known.map(s => ({ id: s.id, name: s.name || "שיתוף ללא שם", meta: `${sharedKindLabel(s.kind)} · ${s.id}`, icon: s.kind === "task" ? "✓" : "↔", active: activeList.type === "shared" && activeList.id === s.id, deletable: true, action: () => subscribeSharedList(s.id) }))
-      ];
-
-      if (!known.length) {
-        items.push({ id: "__tip", name: "שיתוף חדש יופיע כאן", meta: "לחצו על + כדי ליצור או להצטרף", icon: "·", muted: true });
-      }
-
-      items.forEach(item => {
-        const row = el("button", "shared-wheel-item" + (item.active ? " active" : "") + (item.muted ? " muted" : ""));
-        row.type = "button";
-        row.dataset.sharedId = item.id;
-        row.append(el("span", "shared-wheel-mark", item.icon), el("div", "", ""));
-        const text = row.children[1];
-        text.append(el("div", "shared-wheel-name", item.name), el("div", "shared-wheel-meta", item.meta));
-        if (!item.muted) row.onclick = item.action;
-        if (item.deletable) {
-          const dots = el("span", "shared-wheel-dots", "⋮");
-          dots.title = "פעולות";
-          dots.onclick = (e) => { e.stopPropagation(); openSharedItemMenu(dots, { id: item.id, name: item.name }); };
-          row.append(dots);
-        } else {
-          row.append(el("span", "shared-wheel-go", item.muted ? "" : "›"));
-        }
-        track.append(row);
-      });
-
-      stage.append(track);
-      const controls = el("div", "shared-wheel-controls");
-      const up = el("button", "", "⌃");
-      const down = el("button", "", "⌄");
-      up.type = down.type = "button";
-      up.title = "למעלה";
-      down.title = "למטה";
-      up.onclick = () => track.scrollBy({ top: -58, behavior: "smooth" });
-      down.onclick = () => track.scrollBy({ top: 58, behavior: "smooth" });
-      controls.append(up, down);
-      main.append(head, stage);
-      box.append(main, controls);
-
-      requestAnimationFrame(() => {
-        const active = track.querySelector(".shared-wheel-item.active") || track.querySelector(".shared-wheel-item");
-        active?.scrollIntoView(compact ? { inline: "center", block: "nearest" } : { block: "center" });
-      });
-      return box;
-    }
-
-    const SHARED_CARD_PALETTE = ["#6d5dfc","#22c55e","#f59e0b","#ec4899","#06b6d4","#ef4444","#a855f7","#14b8a6"];
+    const SHARED_CARD_PALETTE = ["#3b6ef6","#22c55e","#f59e0b","#ec4899","#06b6d4","#ef4444","#a855f7","#14b8a6"];
     let expandedSharedIds = new Set();
     let sharedPeekCache = {};
     let sharedPeekInFlight = {};
@@ -4340,11 +4219,6 @@
       return [...tags].sort();
     }
 
-    function filteredTasksWithTag(){
-      let tasks = filteredTasks();
-      if (state.filterTag) tasks = tasks.filter(t => (t.tags||[]).includes(state.filterTag));
-      return tasks;
-    }
 
     // Aggregate of tasks/cats across ALL lists (private + every shared list
     // you're a member of) for the "כל המשימות" page — previously that page
@@ -6493,7 +6367,6 @@
       const ALL_TIMES = [];
       MEETING_HOURS.forEach(h => [0,15,30,45].forEach(m => ALL_TIMES.push({h,m})));
 
-      function timeKey(h,m){ return h*100+m; }
       function fmtTime(h,m){ return String(h).padStart(2,"0")+":"+(m===0?"00":String(m)); }
 
       openModal("🤝 פגישה / שיעור חדש", dateStr, (form) => {
@@ -6865,15 +6738,7 @@
       $("content").replaceChildren(wrap);
     }
 
-    function isActiveSharedTask(){
-      return activeList.type === "shared" && activeList.kind === "task" && !!activeList.id;
-    }
 
-    function sharedTaskCodeLine(){
-      const line = el("div","meta", `קוד שיתוף: ${activeList.id}`);
-      line.style.cssText = "margin-top:4px;direction:ltr;text-align:right;font-weight:800;color:var(--accent2);word-break:break-all";
-      return line;
-    }
     
     function taskCard(task, draggable, opts = {}){
       const cat = state.cats.find(c => c.id === task.catId);
@@ -7094,25 +6959,10 @@
       return chip;
     }
 
-    function dayCell(date, other){
-      const cell = el("div","day" + (other ? " other" : ""));
-      const today = new Date(); today.setHours(0,0,0,0);
-      const check = new Date(date); check.setHours(0,0,0,0);
-      if (today.getTime() === check.getTime()) cell.classList.add("today");
-      cell.append(el("div","day-num", String(date.getDate())));
-      const dateKey = toDateKey(date);
-      filteredTasks().filter(t => t.due === dateKey).slice(0,3).forEach(t => {
-        const item = el("div","day-task", t.name);
-        item.style.background = (t.color || state.accent) + "33";
-        item.style.color = t.color || state.accent;
-        cell.append(item);
-      });
-      return cell;
-    }
 
     function sharedCodeBox(){
       const box = el("div","field");
-      box.style.cssText = "border:1px dashed var(--accent);background:rgba(109,93,252,.1);border-radius:var(--rs);padding:10px;margin-bottom:12px";
+      box.style.cssText = "border:1px dashed var(--accent);background:rgba(59,110,246,.1);border-radius:var(--rs);padding:10px;margin-bottom:12px";
       box.append(el("label","", "קוד שיתוף למשימה"));
       const row = el("div","row");
       row.style.alignItems = "stretch";
@@ -7153,7 +7003,7 @@
 
         if (cat && activeList.type === "shared" && activeList.id) {
           const sharedBox = el("div", "field");
-          sharedBox.style.cssText = "border:1px dashed var(--accent); background:rgba(109,93,252,.1); border-radius:var(--rs); padding:10px; margin-bottom:12px;";
+          sharedBox.style.cssText = "border:1px dashed var(--accent); background:rgba(59,110,246,.1); border-radius:var(--rs); padding:10px; margin-bottom:12px;";
           sharedBox.append(el("label", "", "קוד שיתוף ייחודי לרשימה זו"));
           const row = el("div", "row");
           const codeInput = document.createElement("input");
@@ -8180,14 +8030,6 @@
       save(); render();
     }
 
-    function moveDragged(catId, col){
-      const task = state.tasks.find(t => t.id === draggedTaskId);
-      if (task && task.catId === catId) {
-        task.col = col;
-        save(); render();
-      }
-      draggedTaskId = null;
-    }
 
     function exportJson(){
       const blob = new Blob([JSON.stringify(cleanState(state), null, 2)], { type: "application/json" });
@@ -8359,27 +8201,21 @@
       return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
     }
 
-    function updateProgress(){
-      const subs = state.tasks.flatMap(t => t.subs || []);
-      const pct = subs.length ? Math.round(subs.filter(s => s.done).length / subs.length * 100) : 0;
-      if($("globalPct")) $("globalPct").textContent = pct + "%";
-      if($("globalBar")) $("globalBar").style.width = pct + "%";
-    }
 
     function applyTheme(){
       if ((state.themeMode || "dark") === "auto") {
         state.theme = resolveThemeForMode("auto", familyOfTheme(state.theme));
       }
       document.body.dataset.theme = state.theme || "dark";
-      document.documentElement.style.setProperty("--accent", state.accent || "#6d5dfc");
+      document.documentElement.style.setProperty("--accent", state.accent || "#3b6ef6");
 
       // Dynamic theme-color for browser chrome
       const themeColors = {
-        sky:"#05121e", black:"#000000", forest:"#06100a", ember:"#130800",
-        light:"#c8dff5", green:"#d4ede0", white:"#f8f8f8", peach:"#fff4ed"
+        sky:"#0d1117", black:"#000000", forest:"#0c1210", ember:"#14100d",
+        light:"#f4f6fa", green:"#f2f7f4", white:"#ffffff", peach:"#faf5f0"
       };
       const metaTC = document.getElementById("themeColorMeta");
-      if (metaTC) metaTC.content = themeColors[state.theme] || "#05121e";
+      if (metaTC) metaTC.content = themeColors[state.theme] || "#0d1117";
 
       // Pill toggle — syncs the header button and the home-page control-bar clone alike
       // 3 עצירות: כהה / אוטומט (לפי מצב המערכת) / בהיר
@@ -8454,7 +8290,7 @@
         // העדפות תצוגה אישיות - רק ברשימה הפרטית, לא רלוונטי לרשימה משותפת
         state.theme = data.theme || state.theme;
         state.themeMode = data.themeMode || state.themeMode || "dark";
-        state.accent = data.accent || state.accent;
+        state.accent = (data.accent && data.accent !== "#6d5dfc") ? data.accent : (data.accent ? "#3b6ef6" : state.accent);
         state.currentView = data.currentView || state.currentView;
         state.currentCatId = data.currentCatId !== undefined ? data.currentCatId : state.currentCatId;
         state.calView = data.calView || state.calView;
@@ -8525,7 +8361,7 @@
       const raw = {
         theme: s.theme || "sky",
         themeMode: s.themeMode || "dark",
-        accent: s.accent || "#6d5dfc",
+        accent: s.accent || "#3b6ef6",
         currentView: s.currentView || "home",
         currentCatId: s.currentCatId || null,
         calView: s.calView || "month",
@@ -8820,12 +8656,6 @@
       save(); render();
     }
 
-    function flowAddTaskRef(taskId){
-      if (!taskId) return;
-      if (state.flow.some(n => n.taskId === taskId)) { toast("המשימה כבר בשרשרת"); return; }
-      state.flow.push({ id: uid("fl"), taskId, title: "", done: false });
-      save(); render();
-    }
 
     function flowInsertTaskAt(taskId, index){
       if (!taskId) return;
@@ -9082,423 +8912,22 @@
 
     // ---------- Cloud daily planner (תכנון היום) — לא בשימוש יותר, הוחלף בשרשרת המשימות למעלה ----------
     const PLANNER_SLOT_MIN = 30, PLANNER_SLOT_H = 17;
-    function plannerBounds(){
-      return { start: MEETING_HOURS[0], end: MEETING_HOURS[MEETING_HOURS.length-1] + 1 };
-    }
-    function cpSortMode(){ return localStorage.getItem("taskflow_planner_sort") || "list"; }
-    function cpSetSortMode(mode){ localStorage.setItem("taskflow_planner_sort", mode); }
 
-    function sortPlannerPool(tasks, mode){
-      const copy = [...tasks];
-      if (mode === "due") {
-        copy.sort((a,b) => (a.due||"9999-99-99").localeCompare(b.due||"9999-99-99") || a.name.localeCompare(b.name,"he"));
-      } else {
-        copy.sort((a,b) => {
-          const ca = state.cats.find(c=>c.id===a.catId)?.name || "";
-          const cb = state.cats.find(c=>c.id===b.catId)?.name || "";
-          return ca.localeCompare(cb,"he") || a.name.localeCompare(b.name,"he");
-        });
-      }
-      return copy;
-    }
 
     // ── תזמון: state.schedule הוא מערך נפרד לגמרי מהמטלות, מקשר taskId->{date,time,duration}. לעולם לא נוגעים בשדות המטלה עצמה ──
-    function findScheduleEntry(taskId){
-      return state.schedule.find(e => e.taskId === taskId);
-    }
 
-    function scheduleTaskAt(taskId, h, m, dateKey){
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task) return;
-      const dk = dateKey || toDateKey(new Date());
-      let entry = findScheduleEntry(taskId);
-      if (!entry) {
-        entry = { id: uid("sch"), taskId, duration: 30 };
-        state.schedule.push(entry);
-      }
-      entry.date = dk;
-      entry.time = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
-      if (!entry.duration) entry.duration = 30;
-      save(); render();
-    }
 
     // ── חלון תצוגה של 3 ימים בענן, עם דפדוף. נשמר ב-state (מסונכרן), ולא נשאר תקוע על יום שעבר ──
-    function plannerWindowDates(){
-      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-      let base = state.plannerWindowDate ? new Date(state.plannerWindowDate) : null;
-      if (base) base.setHours(0,0,0,0);
-      if (!base || base < todayStart) base = todayStart; // אין צורך לשמור על יום שעבר
-      return [0,1,2].map(i => { const d = new Date(base); d.setDate(d.getDate()+i); return d; });
-    }
-    function plannerShiftWindow(days){
-      const [firstDay] = plannerWindowDates();
-      const base = new Date(firstDay);
-      base.setDate(base.getDate() + days);
-      state.plannerWindowDate = toDateKey(base);
-      save(); render();
-    }
-    function plannerResetToday(){
-      state.plannerWindowDate = null;
-      save(); render();
-    }
 
     // יוצר "מטלה קטנה" ישירות בענן, בלי לעבור דרך רשימה קיימת
-    function createQuickPlannerTask(name){
-      name = (name || "").trim();
-      if (!name) return null;
-      const cat = state.cats[0];
-      if (!cat) { toast("קודם צריך ליצור רשימה אחת לפחות"); return null; }
-      const task = { id: uid("t"), createdAt: Date.now(), name, catId: cat.id, col: cat.columns?.[0]?.id || "col1", color: cat.color };
-      state.tasks.push(task);
-      save(); render();
-      return task;
-    }
 
-    function unscheduleTask(taskId){
-      const idx = state.schedule.findIndex(e => e.taskId === taskId);
-      if (idx === -1) return;
-      const task = state.tasks.find(t => t.id === taskId);
-      state.schedule.splice(idx, 1);
-      save(); render();
-      if (task) toast(`"${task.name}" חזר לענן ☁️`);
-    }
 
-    function setTaskPlannedDuration(taskId, minutes){
-      const entry = findScheduleEntry(taskId);
-      if (!entry) return;
-      entry.duration = Math.max(15, minutes);
-      save(); render();
-    }
 
     // y (client coords) -> snapped {h,m,topPx} within slotsCol, snapMin granularity
-    function cpTimeFromY(slotsCol, clientY, snapMin){
-      const { start, end } = plannerBounds();
-      const rect = slotsCol.getBoundingClientRect();
-      const totalRangeMin = (end - start) * 60;
-      let y = clientY - rect.top;
-      y = Math.max(0, Math.min((totalRangeMin/PLANNER_SLOT_MIN)*PLANNER_SLOT_H - 1, y));
-      const totalMin = (y / PLANNER_SLOT_H) * PLANNER_SLOT_MIN;
-      let snapped = Math.round(totalMin / snapMin) * snapMin;
-      snapped = Math.max(0, Math.min(totalRangeMin - snapMin, snapped));
-      const h = start + Math.floor(snapped/60);
-      const m = snapped % 60;
-      return { h, m, topPx: (snapped/PLANNER_SLOT_MIN)*PLANNER_SLOT_H };
-    }
 
-    function buildCloudPlanner(focusTasks){
-      const { start: startH, end: endH } = plannerBounds();
-      const wrap = el("div","cp-wrap");
-      const dates = plannerWindowDates();
-      const todayKey = toDateKey(new Date());
 
-      // sort bar
-      const sortbar = el("div","cp-sortbar");
-      sortbar.append(el("span","","מיון:"));
-      const mode = cpSortMode();
-      const byList = el("button","cp-sort-btn"+(mode==="list"?" active":""),"לפי רשימה"); byList.type="button";
-      const byDue = el("button","cp-sort-btn"+(mode==="due"?" active":""),"לפי תאריך הגשה"); byDue.type="button";
-      byList.onclick = () => { cpSetSortMode("list"); render(); };
-      byDue.onclick = () => { cpSetSortMode("due"); render(); };
-      sortbar.append(byList, byDue);
-      wrap.append(sortbar);
 
-      // דפדוף בין חלונות של 3 ימים
-      const daysNav = el("div","cp-days-nav");
-      const prevBtn = el("button","cp-nav-arrow"); prevBtn.type="button";
-      prevBtn.title = "3 ימים קודמים";
-      prevBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">▶</span>';
-      prevBtn.onclick = () => plannerShiftWindow(-3);
-      const fmt = d => d.toLocaleDateString("he-IL",{day:"numeric",month:"short"});
-      const isTodayWindow = toDateKey(dates[0]) === todayKey;
-      const navCenter = el("div","cp-nav-center");
-      const todayBtn = el("button","cp-today-btn"+(isTodayWindow?" active":""),"היום"); todayBtn.type="button";
-      todayBtn.onclick = plannerResetToday;
-      const rangeLabel = el("span","cp-range-label", `${fmt(dates[0])} – ${fmt(dates[2])}`);
-      navCenter.append(todayBtn, rangeLabel);
-      const nextBtn = el("button","cp-nav-arrow"); nextBtn.type="button";
-      nextBtn.title = "3 ימים הבאים";
-      nextBtn.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate">◀</span>';
-      nextBtn.onclick = () => plannerShiftWindow(3);
-      daysNav.append(prevBtn, navCenter, nextBtn);
-      wrap.append(daysNav);
 
-      // pool (הענן)
-      const unscheduled = focusTasks.filter(t => !findScheduleEntry(t.id));
-      const pool = el("div","cp-pool");
-      const sortedUnscheduled = sortPlannerPool(unscheduled, mode);
-      const dayColsList = []; // {dateKey, slotsCol}
-      const getDayCols = () => dayColsList;
-
-      if (!sortedUnscheduled.length) {
-        pool.append(el("div","cp-pool-empty", focusTasks.length ? "כל המשימות מתוזמנות 🎉" : "אין משימות פתוחות להצגה"));
-      } else {
-        sortedUnscheduled.forEach(task => {
-          const isOverdue = task.due && task.due < todayKey;
-          const bubble = el("div","cp-bubble"+(selectedPlannerTaskId===task.id?" selected":"")+(isOverdue?" overdue":""));
-          const dot = el("span","cp-bubble-dot"); dot.style.background = task.color || state.accent;
-          bubble.append(dot);
-          if (isOverdue) { bubble.append(el("span","cp-bubble-late","⏰")); bubble.title = "באיחור — עדיין אפשר לתזמן"; }
-          bubble.append(document.createTextNode(task.name));
-          bubble.draggable = false;
-          pool.append(bubble);
-          attachPoolBubbleDrag(bubble, task, getDayCols);
-        });
-      }
-      wrap.append(pool);
-
-      // יצירת "מטלה קטנה" ישירות לענן, בלי לפתוח מטלה מוכנה מראש
-      const quickRow = el("div","cp-quick-add");
-      const quickInput = document.createElement("input");
-      quickInput.type = "text"; quickInput.placeholder = "➕ מטלה קטנה חדשה לענן...";
-      const quickBtn = el("button","btn primary","הוסף"); quickBtn.type="button";
-      const submitQuick = () => {
-        const val = quickInput.value.trim();
-        if (!val) return;
-        if (createQuickPlannerTask(val)) { quickInput.value = ""; toast("נוסף לענן ☁️"); }
-      };
-      quickBtn.onclick = submitQuick;
-      quickInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submitQuick(); } });
-      quickRow.append(quickInput, quickBtn);
-      wrap.append(quickRow);
-
-      const hint = el("div","cp-hint", selectedPlannerTaskId ? "בחר יום ושעה בציר הזמן כדי לתזמן ✨ (או גרור ישירות)" : "גררו בועה מהענן לאחד הימים כדי לתזמן");
-      wrap.append(hint);
-
-      // 3 ציר-זמן, יום ליד יום
-      const daysRow = el("div","cp-days-row");
-      dates.forEach(d => {
-        const dKey = toDateKey(d);
-        const dayBlock = el("div","cp-day-block");
-        const dayHead = el("div","cp-day-head");
-        dayHead.textContent = (dKey===todayKey ? "היום · " : "") + d.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"short"});
-        dayBlock.append(dayHead);
-
-        const scrollWrap = el("div","cp-timeline-scroll");
-        const timeline = el("div","cp-timeline");
-        const timeLabels = el("div","cp-time-labels");
-        const slotsCol = el("div","cp-slots-col");
-        const totalSlots = (endH - startH) * (60/PLANNER_SLOT_MIN);
-        slotsCol.style.height = (totalSlots * PLANNER_SLOT_H) + "px";
-        for (let h=startH; h<endH; h++) timeLabels.append(el("div","cp-time-label", h+":00"));
-
-        for (let h=startH; h<endH; h++) {
-          [0,30].forEach(m => {
-            const slot = el("div","cp-slot");
-            slot.dataset.h = h; slot.dataset.m = m;
-            slot.onclick = () => {
-              if (!selectedPlannerTaskId) return;
-              scheduleTaskAt(selectedPlannerTaskId, h, m, dKey);
-              selectedPlannerTaskId = null;
-            };
-            slotsCol.append(slot);
-          });
-        }
-
-        // אירועי היום הזה בלוח השנה, לצפייה בלבד
-        (state.events||[]).filter(ev=>ev.date===dKey && ev.time).forEach(ev => {
-          const [sh,sm] = ev.time.split(":").map(Number);
-          const [eh,em] = (ev.endTime||ev.time).split(":").map(Number);
-          let evStartH = sh+sm/60, evEndH = eh+em/60;
-          if (evEndH <= evStartH) evEndH = evStartH + 0.5;
-          if (evEndH <= startH || evStartH >= endH) return;
-          const clampedStart = Math.max(evStartH, startH), clampedEnd = Math.min(evEndH, endH);
-          const top = (clampedStart-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
-          const height = Math.max(10, (clampedEnd-clampedStart) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
-          const chip = el("div","cp-event-chip");
-          chip.style.top = top+"px"; chip.style.height = height+"px";
-          chip.textContent = "📅 " + ev.title;
-          slotsCol.append(chip);
-        });
-
-        // משימות מתוזמנות ליום הזה — נשלף מ-state.schedule, לא משדה על המטלה
-        state.schedule.filter(e => e.date === dKey).forEach(entry => {
-          const task = focusTasks.find(t => t.id === entry.taskId);
-          if (!task) return;
-          const [h,m] = entry.time.split(":").map(Number);
-          const startMin = (h - startH)*60 + m;
-          if (startMin < 0 || startMin >= (endH-startH)*60) return;
-          const duration = entry.duration || 30;
-          const top = (startMin/PLANNER_SLOT_MIN) * PLANNER_SLOT_H;
-          const height = Math.max(16, (duration/PLANNER_SLOT_MIN) * PLANNER_SLOT_H - 2);
-          const chip = el("div","cp-task-chip");
-          chip.style.setProperty("--cp-color", task.color || state.accent);
-          chip.style.top = top+"px"; chip.style.height = height+"px";
-          const row = el("div","cp-chip-row");
-          row.append(el("span","cp-chip-title", `${entry.time} · ${task.name}`));
-          const xBtn = el("span","cp-chip-x","×");
-          xBtn.onclick = (e) => { e.stopPropagation(); unscheduleTask(task.id); };
-          row.append(xBtn);
-          chip.append(row);
-          const handle = el("div","cp-resize-handle");
-          chip.append(handle);
-          slotsCol.append(chip);
-          attachChipReposition(chip, task, () => slotsCol, dKey);
-          attachChipResize(handle, chip, task, () => slotsCol);
-        });
-
-        timeline.append(timeLabels, slotsCol);
-        scrollWrap.append(timeline);
-        dayBlock.append(scrollWrap);
-        daysRow.append(dayBlock);
-        dayColsList.push({ dateKey: dKey, slotsCol });
-
-        setTimeout(() => {
-          const now = new Date();
-          const nowH = now.getHours() + now.getMinutes()/60;
-          const targetH = Math.max(startH, Math.min(endH, nowH) - 1.5);
-          scrollWrap.scrollTop = Math.max(0, (targetH-startH) * (60/PLANNER_SLOT_MIN) * PLANNER_SLOT_H);
-        }, 0);
-      });
-      wrap.append(daysRow);
-
-      return wrap;
-    }
-
-    function attachPoolBubbleDrag(bubble, task, getDayCols){
-      let startX=0, startY=0, dragging=false, moved=false, ghost=null, indicator=null, indicatorCol=null;
-      const THRESH = 8;
-      function clearIndicator(){ if (indicator) { indicator.remove(); indicator = null; indicatorCol = null; } }
-      function findCol(clientX, clientY){
-        const cols = getDayCols();
-        for (const c of cols) {
-          const rect = c.slotsCol.getBoundingClientRect();
-          if (clientX>=rect.left && clientX<=rect.right && clientY>=rect.top && clientY<=rect.bottom) return c;
-        }
-        return null;
-      }
-      function onMove(e){
-        const dx = e.clientX-startX, dy = e.clientY-startY;
-        if (!dragging && Math.hypot(dx,dy) > THRESH) {
-          dragging = true;
-          bubble.classList.add("dragging");
-          ghost = bubble.cloneNode(true);
-          ghost.classList.remove("dragging");
-          ghost.style.position = "fixed"; ghost.style.pointerEvents = "none"; ghost.style.zIndex = "999";
-          ghost.style.opacity = ".92"; ghost.style.left = "0px"; ghost.style.top = "0px";
-          document.body.append(ghost);
-        }
-        if (!dragging) return;
-        e.preventDefault();
-        moved = true;
-        ghost.style.transform = `translate(${e.clientX - ghost.offsetWidth/2}px, ${e.clientY - ghost.offsetHeight/2}px)`;
-        const col = findCol(e.clientX, e.clientY);
-        if (col) {
-          const { h, m, topPx } = cpTimeFromY(col.slotsCol, e.clientY, PLANNER_SLOT_MIN);
-          if (indicatorCol !== col.slotsCol) {
-            clearIndicator();
-            indicator = el("div","");
-            indicator.style.cssText = "position:absolute;left:6px;right:6px;height:16px;border-radius:8px;background:color-mix(in srgb,var(--accent) 35%,transparent);border:1px dashed var(--accent);z-index:6;pointer-events:none";
-            col.slotsCol.append(indicator);
-            indicatorCol = col.slotsCol;
-          }
-          indicator.style.top = topPx+"px";
-          indicator.textContent = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
-          indicator.style.fontSize = "9px"; indicator.style.fontWeight="900"; indicator.style.color="var(--accent2)"; indicator.style.textAlign="center";
-        } else {
-          clearIndicator();
-        }
-      }
-      function finish(commit, e){
-        document.removeEventListener("pointermove", onMove);
-        document.removeEventListener("pointerup", onUp);
-        document.removeEventListener("pointercancel", onCancel);
-        if (dragging && commit && e) {
-          const col = findCol(e.clientX, e.clientY);
-          if (col) {
-            const { h, m } = cpTimeFromY(col.slotsCol, e.clientY, PLANNER_SLOT_MIN);
-            scheduleTaskAt(task.id, h, m, col.dateKey);
-          }
-        } else if (!dragging && !moved) {
-          selectedPlannerTaskId = selectedPlannerTaskId===task.id ? null : task.id;
-          render();
-        }
-        clearIndicator();
-        if (ghost) ghost.remove();
-        bubble.classList.remove("dragging");
-        dragging=false; moved=false; ghost=null;
-      }
-      const onUp = (e) => finish(true, e);
-      const onCancel = () => finish(false, null);
-      bubble.addEventListener("pointerdown", (e) => {
-        if (e.button===2) return;
-        startX=e.clientX; startY=e.clientY; dragging=false; moved=false;
-        document.addEventListener("pointermove", onMove, { passive:false });
-        document.addEventListener("pointerup", onUp);
-        document.addEventListener("pointercancel", onCancel);
-      });
-    }
-
-    function attachChipReposition(chip, task, getSlotsCol, dateKey){
-      let startY=0, grabOffsetY=0, dragging=false, moved=false;
-      const THRESH = 6;
-      function onMove(e){
-        if (Math.abs(e.clientY-startY) > THRESH) dragging = true;
-        if (!dragging) return;
-        e.preventDefault(); moved = true;
-        chip.classList.add("dragging");
-        const slotsCol = getSlotsCol();
-        const { topPx } = cpTimeFromY(slotsCol, e.clientY - grabOffsetY, PLANNER_SLOT_MIN);
-        chip.style.top = topPx + "px";
-      }
-      function finish(commit, e){
-        document.removeEventListener("pointermove", onMove);
-        document.removeEventListener("pointerup", onUp);
-        document.removeEventListener("pointercancel", onCancel);
-        chip.classList.remove("dragging");
-        if (dragging && commit && e) {
-          const slotsCol = getSlotsCol();
-          const { h, m } = cpTimeFromY(slotsCol, e.clientY - grabOffsetY, PLANNER_SLOT_MIN);
-          scheduleTaskAt(task.id, h, m, dateKey);
-        }
-        dragging=false; moved=false;
-      }
-      const onUp = (e) => finish(true, e);
-      const onCancel = () => finish(false, null);
-      chip.addEventListener("pointerdown", (e) => {
-        if (e.target.closest(".cp-resize-handle") || e.target.closest(".cp-chip-x")) return;
-        startY = e.clientY;
-        grabOffsetY = e.clientY - chip.getBoundingClientRect().top;
-        dragging=false; moved=false;
-        document.addEventListener("pointermove", onMove, { passive:false });
-        document.addEventListener("pointerup", onUp);
-        document.addEventListener("pointercancel", onCancel);
-      });
-    }
-
-    function attachChipResize(handle, chip, task, getSlotsCol){
-      let startY=0, startDuration=30, dragging=false;
-      function onMove(e){
-        e.preventDefault();
-        dragging = true;
-        const delta = e.clientY - startY;
-        const deltaMin = Math.round((delta/PLANNER_SLOT_H)*PLANNER_SLOT_MIN/15)*15;
-        const { end } = plannerBounds(), { start } = plannerBounds();
-        const entry = findScheduleEntry(task.id);
-        if (!entry) return;
-        const [h,m] = entry.time.split(":").map(Number);
-        const startMin = (h-start)*60+m;
-        const maxDuration = (end-start)*60 - startMin;
-        const newDuration = Math.max(15, Math.min(maxDuration, startDuration + deltaMin));
-        chip.style.height = Math.max(16, (newDuration/PLANNER_SLOT_MIN)*PLANNER_SLOT_H - 2) + "px";
-        chip._cpNewDuration = newDuration;
-      }
-      function finish(commit){
-        document.removeEventListener("pointermove", onMove);
-        document.removeEventListener("pointerup", onUp);
-        document.removeEventListener("pointercancel", onCancel);
-        if (commit && dragging && chip._cpNewDuration) setTaskPlannedDuration(task.id, chip._cpNewDuration);
-        dragging = false;
-      }
-      const onUp = () => finish(true);
-      const onCancel = () => finish(false);
-      handle.addEventListener("pointerdown", (e) => {
-        e.stopPropagation(); e.preventDefault();
-        startY = e.clientY; startDuration = findScheduleEntry(task.id)?.duration || 30; dragging = false;
-        document.addEventListener("pointermove", onMove, { passive:false });
-        document.addEventListener("pointerup", onUp);
-        document.addEventListener("pointercancel", onCancel);
-      });
-    }
 
     function moveTaskInDailyAgenda(taskId, when = "tomorrow"){
       const agenda = ensureDailyAgenda();
@@ -10738,6 +10167,7 @@
     function authError(err){
       const code = err?.code || "";
       console.error("Firebase auth error", err);
+      if (code.includes("requests-from-referer")) return `מפתח ה-API של Firebase חסום לדומיין הזה (${location.origin}). יש להוסיף אותו ב-Google Cloud → APIs & Services → Credentials → Browser key → Website restrictions.`;
       if (code.includes("invalid-credential")) return "האימייל או הסיסמה לא נכונים.";
       if (code.includes("email-already-in-use")) return "האימייל כבר רשום.";
       if (code.includes("operation-not-allowed")) return "התחברות עם Google לא מופעלת ב-Firebase Authentication (יש להפעיל את הספק Google בקונסולת Firebase).";
