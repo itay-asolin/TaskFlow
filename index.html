@@ -2096,6 +2096,19 @@
       .lc-shared{min-height:0}
       .quick-strip{display:none}
     }
+  
+    /* ── v6.3: desktop home fills the whole screen ── */
+    @media(min-width:821px){
+      main{max-width:1800px;padding-inline:36px}
+      .home-v4{max-width:none;width:100%}
+      .lgrid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;justify-content:stretch}
+      .lgrid-shared{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+      .lc{min-height:150px;padding:16px 18px;border-radius:20px}
+      .lc-add{min-height:150px}
+      .lc-num strong{font-size:34px}
+      .lc-name{font-size:17px}
+      .lc-peek-item{font-size:12.5px}
+    }
   </style>
 </head>
 <body data-theme="sky">
