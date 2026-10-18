@@ -1711,7 +1711,169 @@
       .cat-card{padding:10px 12px;min-height:0}
       .grid{gap:10px}
     }
-</style>
+
+    /* ═════════ v3 shell ═════════ */
+    #dailyMemoBtn,#shopListTab{display:none!important}
+    .more-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;max-width:880px}
+    .more-card{display:flex;align-items:center;gap:14px;text-align:right;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);transition:border-color .15s,transform .15s}
+    .more-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .more-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:color-mix(in srgb,var(--accent) 12%,var(--card2));flex:0 0 auto}
+    .more-title{font-weight:800;font-size:14.5px}
+    .more-sub{font-size:12px;color:var(--faint);margin-top:2px}
+    .qs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .qs-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px 10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);font-weight:700;font-size:13.5px;transition:border-color .15s,transform .15s}
+    .qs-tile:hover,.qs-tile:active{border-color:var(--accent);transform:translateY(-2px)}
+    .qs-tile:last-child:nth-child(odd){grid-column:1/-1}
+    .qs-ico{font-size:26px;line-height:1}
+    .bnav-add{flex:0 0 56px;align-self:center;width:54px;height:54px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:30px;font-weight:300;line-height:1;padding:0;margin:0 4px;transform:translateY(-14px);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 45%,transparent);transition:transform .15s}
+    .bnav-add:active{transform:translateY(-12px) scale(.94)}
+
+    /* ═════════ v4: lists-first look ═════════ */
+    #briefBtn,#timeGreeting,#addBtn.hidden{display:none!important}
+    .home-v4{display:grid;gap:22px;max-width:1100px}
+    .lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+    .lc{position:relative;display:flex;flex-direction:column;gap:6px;min-height:156px;padding:16px;border-radius:22px;text-align:right;color:var(--text);background:color-mix(in srgb,var(--c,var(--accent)) 14%,var(--card));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 30%,var(--border));cursor:pointer;overflow:hidden;transition:transform .16s,box-shadow .16s,border-color .16s}
+    .lc::after{content:"";position:absolute;inset-inline-end:-34px;bottom:-34px;width:104px;height:104px;border-radius:50%;background:color-mix(in srgb,var(--c,var(--accent)) 20%,transparent);pointer-events:none}
+    .lc:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(0,0,0,.16);border-color:var(--c,var(--accent))}
+    .lc.drop{border-color:var(--c,var(--accent));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--accent)) 35%,transparent)}
+    .lc.selected{border-color:var(--danger);box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 30%,transparent)}
+    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;position:relative;z-index:1}
+    .lc-num strong{display:block;font-size:38px;line-height:1;font-weight:800;color:var(--c,var(--accent));font-variant-numeric:tabular-nums}
+    .lc-num span{display:block;margin-top:4px;font-size:11px;font-weight:700;color:var(--faint)}
+    .lc-more{width:32px;height:32px;border-radius:50%;border:0;display:grid;place-items:center;padding:0;font-size:17px;font-weight:800;line-height:1;background:color-mix(in srgb,var(--c,var(--accent)) 16%,transparent);color:var(--text)}
+    .lc-more:hover{background:color-mix(in srgb,var(--c,var(--accent)) 32%,transparent)}
+    .lc-acts{display:flex;gap:6px}
+    .lc-name{margin:6px 0 0;font-size:17px;font-weight:800;line-height:1.25;position:relative;z-index:1;overflow-wrap:anywhere}
+    .lc-peek{display:grid;gap:2px;position:relative;z-index:1}
+    .lc-peek-item{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lc-peek-item::before{content:"• ";color:var(--c,var(--accent))}
+    .lc-peek-empty{font-size:12px;color:var(--faint)}
+    .lc-bar{height:5px;margin-top:auto;border-radius:99px;background:color-mix(in srgb,var(--c,var(--accent)) 20%,transparent);overflow:hidden;position:relative;z-index:1}
+    .lc-bar i{display:block;height:100%;border-radius:inherit;background:var(--c,var(--accent));transition:width .3s}
+    .lc-add{align-items:center;justify-content:center;gap:8px;background:transparent;border:2px dashed var(--border);color:var(--faint);font-weight:700;font-size:14px}
+    .lc-add::after{display:none}
+    .lc-add:hover{color:var(--accent2);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent)}
+    .lc-plus{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-weight:300;background:var(--card2);color:var(--text)}
+    .lc-shared{cursor:default;min-height:0}
+    .lc-shared:hover{transform:none;box-shadow:none}
+    .lc-badge{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:800;background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--text)}
+    .lc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;position:relative;z-index:1;font-size:12px;color:var(--faint)}
+    .lc-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:99px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--border));background:var(--card);color:var(--text);font-size:12px;font-weight:700}
+    .lc-chip em{font-style:normal;font-size:11px;font-weight:800;color:var(--c)}
+    .lc-chip:hover{background:color-mix(in srgb,var(--c) 18%,var(--card))}
+    .lgrid-shared{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+    .lsec-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 12px;flex-wrap:wrap}
+    .lsec-head h2{margin:0;font-size:15px;font-weight:800}
+    .lsec-btns{display:flex;gap:6px}
+    .lsec-btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:99px;padding:6px 12px;font-size:12px;font-weight:700}
+    .lsec-btn:hover{border-color:var(--accent);color:var(--accent2)}
+    .lsec-empty{padding:16px;border:1px dashed var(--border);border-radius:var(--r);color:var(--faint);font-size:13px}
+    .back-btn{align-self:flex-start}
+    .am-list{display:grid;gap:8px}
+    .am-btn{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:700;font-size:14.5px;text-align:right}
+    .am-btn:hover{border-color:var(--accent)}
+    .am-btn.danger{color:var(--danger)}
+    .am-ico{width:32px;text-align:center;font-size:18px}
+    @media(max-width:820px){
+      .home-v4{gap:18px}
+      .lgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+      .lgrid-shared{grid-template-columns:1fr}
+      .lc{min-height:140px;padding:13px;border-radius:20px}
+      .lc-num strong{font-size:32px}
+      .lc-name{font-size:15.5px}
+    }
+
+    .kb-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;align-items:start}
+    .kb-main{min-width:0}
+    .kb-layout .back-btn{display:none}
+    .lists-rail{position:sticky;top:76px;display:grid;gap:4px;padding:10px;border-radius:18px;background:var(--card);border:1px solid var(--border);max-height:calc(100vh - 100px);overflow:auto}
+    .rail-head{display:flex;justify-content:space-between;align-items:center;padding:4px 8px 8px;font-size:12px;font-weight:800;color:var(--faint)}
+    .rail-all{border:0;background:transparent;color:var(--accent2);font-weight:700;font-size:12px}
+    .rail-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:0;background:transparent;color:var(--text);font-weight:700;font-size:13.5px;text-align:right}
+    .rail-item:hover{background:var(--card2)}
+    .rail-item.active{background:color-mix(in srgb,var(--c) 18%,transparent)}
+    .rail-dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:0 0 auto}
+    .rail-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rail-count{font-style:normal;font-size:11.5px;font-weight:800;color:var(--faint)}
+    .rail-item.active .rail-count{color:var(--c)}
+    .rail-add{margin-top:6px;padding:10px;border-radius:12px;border:1px dashed var(--border);background:transparent;color:var(--faint);font-weight:700;font-size:12.5px}
+    .rail-add:hover{color:var(--accent2);border-color:var(--accent)}
+    @media(max-width:820px){
+      .top{position:relative}
+      .top #topBarBtns{position:absolute!important;top:2px!important;left:0!important;width:auto!important;display:flex!important;order:0!important;grid-template-columns:none!important}
+      #addBtn{display:none!important}
+    }
+
+    /* ═════════ v5: glass floating nav, calmer UI, soft palettes ═════════ */
+    [data-theme="dusk"]{--bg:#131119;--surface:#1a1723;--card:#211e2c;--card2:#292636;--border:#373348;--text:#ece9f4;--muted:#aaa4bd;--faint:#7c7691;--shadow:0 8px 24px rgba(0,0,0,.24)}
+    [data-theme="lilac"]{--bg:#f4f2f9;--surface:#ffffff;--card:#ffffff;--card2:#ece9f4;--border:#dcd7e8;--text:#1e1930;--muted:#554e6b;--faint:#8a84a0;--shadow:0 6px 20px rgba(30,25,48,.07);--accent2:color-mix(in srgb,var(--accent) 88%,#000)}
+    [data-theme="lagoon"]{--bg:#0b1416;--surface:#111c1f;--card:#162428;--card2:#1d2e33;--border:#2a4045;--text:#e1eff0;--muted:#95b3b7;--faint:#668489;--shadow:0 8px 24px rgba(0,0,0,.26)}
+    [data-theme="seafoam"]{--bg:#eef6f6;--surface:#ffffff;--card:#ffffff;--card2:#e1eeef;--border:#cde2e3;--text:#0e2326;--muted:#44646a;--faint:#7f9ea3;--shadow:0 6px 20px rgba(14,35,38,.07);--accent2:color-mix(in srgb,var(--accent) 88%,#000)}
+    [data-theme="slate"]{--bg:#111519;--surface:#171c21;--card:#1d2328;--card2:#252c33;--border:#333b44;--text:#e5eaef;--muted:#9eaab6;--faint:#707c88;--shadow:0 8px 24px rgba(0,0,0,.25)}
+    [data-theme="mist"]{--bg:#f0f3f5;--surface:#ffffff;--card:#ffffff;--card2:#e7ecef;--border:#d6dde2;--text:#14202a;--muted:#4b5b68;--faint:#86939e;--shadow:0 6px 20px rgba(20,32,42,.07);--accent2:color-mix(in srgb,var(--accent) 88%,#000)}
+
+    :root{--glass-hi:rgba(255,255,255,.14);--glass-brd:rgba(255,255,255,.13);--glass-mix:50%;--glass-sh:0 12px 32px rgba(0,0,0,.34)}
+    [data-theme="light"],[data-theme="green"],[data-theme="peach"],[data-theme="white"],[data-theme="lilac"],[data-theme="seafoam"],[data-theme="mist"]{--glass-hi:rgba(255,255,255,.85);--glass-brd:rgba(255,255,255,.75);--glass-mix:58%;--glass-sh:0 10px 28px rgba(20,30,50,.16)}
+
+    /* quieter UI: no hover jumps, no floating/pulsing decorations */
+    .lc::after{display:none}
+    .lc{box-shadow:none;background:color-mix(in srgb,var(--c,var(--accent)) 9%,var(--card))}
+    .lc:hover,.more-card:hover,.qs-tile:hover,.qs-tile:active,.countdown-item:hover,.daily-agenda-option:hover,.daily-focus-item:hover,.task:hover{transform:none;box-shadow:none}
+    .empty-fun{animation:none}
+    #addBtn.pulse{animation:none}
+    .toast{backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);background:color-mix(in srgb,var(--text) 82%,transparent);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+
+    /* page-to-page flow */
+    @keyframes v5inL{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+    @keyframes v5inR{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+    @keyframes v5fade{from{opacity:0}to{opacity:1}}
+    #content.v5-from-l{animation:v5inL .24s ease-out}
+    #content.v5-from-r{animation:v5inR .24s ease-out}
+    #content.v5-fade{animation:v5fade .18s ease-out}
+    @media(prefers-reduced-motion:reduce){#content.v5-from-l,#content.v5-from-r,#content.v5-fade{animation:none}}
+
+    @media(max-width:820px){
+      #bottomNav{
+        left:14px!important;right:14px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;
+        height:64px!important;padding:6px!important;gap:2px;border-radius:26px;
+        border:1px solid var(--glass-brd);
+        background:linear-gradient(180deg,var(--glass-hi),transparent 60%),color-mix(in srgb,var(--surface) var(--glass-mix),transparent);
+        -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+        box-shadow:var(--glass-sh),inset 0 1px 0 var(--glass-hi);
+        transition:transform .25s ease,opacity .2s ease;
+      }
+      #bottomNav .bnav-btn{min-height:0;height:100%;border-radius:20px;padding:4px 2px;gap:1px;color:var(--muted);transition:color .18s,background .18s}
+      #bottomNav .bnav-btn.active{background:color-mix(in srgb,var(--accent) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 32%,transparent);color:var(--text)}
+      #bottomNav .bnav-btn .bnav-icon{height:22px;font-size:18px}
+      #bottomNav .bnav-btn.active .bnav-icon{background:transparent;padding:0}
+      #bottomNav .bnav-add{flex:0 0 46px;width:46px;height:46px;transform:none;margin:0 6px;font-size:26px;box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 38%,transparent)}
+      #bottomNav .bnav-add:active{transform:scale(.92)}
+      main{padding-bottom:calc(108px + env(safe-area-inset-bottom))!important}
+      .toast{bottom:calc(90px + env(safe-area-inset-bottom))}
+      body.v5-kb #bottomNav{transform:translateY(150%);opacity:0;pointer-events:none}
+      /* inside a list: fewer, smaller controls */
+      #content.v5-kanban .back-btn{display:none}
+      #content.v5-kanban > div > .row{gap:8px;flex-wrap:nowrap}
+      #content.v5-kanban > div > .row .btn{padding:7px 12px;font-size:13px;min-height:0}
+      #content.v5-kanban .card.v5-slim{padding:4px 2px;border:0;background:transparent;box-shadow:none}
+      #content.v5-kanban .card.v5-slim .col-head{padding:0;border:0;background:transparent}
+      #content.v5-kanban .card.v5-slim .btn{padding:3px 10px!important;font-size:12px!important;min-height:0!important;height:28px;background:transparent;color:var(--muted);border-color:transparent}
+      #content.v5-kanban .card.v5-slim .col-head{min-height:0;margin:0;font-size:12.5px;color:var(--muted)}
+      #content.v5-kanban .card.v5-slim{margin:0!important;padding:0 2px!important}
+      /* glass pill bars */
+      #searchBox{border-radius:999px;padding-inline:18px;background:color-mix(in srgb,var(--card) 70%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+      #content.v5-kanban > div > .row .btn{border-radius:999px;background:color-mix(in srgb,var(--card) 70%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-color:var(--border)}
+      .v5-toolbar{display:flex;gap:8px;align-items:center;margin:2px 0 12px}
+      .v5-toolbar .view-toggle{display:flex;gap:2px;padding:3px;margin:0;border-radius:999px;border:1px solid var(--border);background:color-mix(in srgb,var(--card) 70%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:none}
+      .v5-toolbar .view-toggle:first-child{flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+      .v5-toolbar .view-toggle:first-child::-webkit-scrollbar{display:none}
+      .v5-toolbar .view-toggle:last-child{flex:0 0 auto}
+      .v5-toolbar .view-toggle button{flex:1 0 auto;white-space:nowrap;padding:6px 12px;border-radius:999px;border:0;background:transparent;color:var(--muted);font-size:12.5px;font-weight:700;transition:background .18s,color .18s}
+      .v5-toolbar .view-toggle:last-child button{padding:6px 11px;font-size:14px;line-height:1}
+      .v5-toolbar .view-toggle button.active{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 36%,transparent)}
+      #content.v5-kanban .cp-sort-btn.v5-hide{display:none}
+    }
+  </style>
 </head>
 <body data-theme="sky">
 
@@ -1757,13 +1919,13 @@
       <div id="userLabel" class="user" style="font-size:12px; color:var(--faint);"></div>
     </div>
     <nav class="nav" aria-label="ניווט ראשי">
-      <button data-view="home" class="active" type="button"><span>🏠 רשימות</span></button>
+      <button data-view="home" class="active" type="button"><span>🗂️ רשימות</span></button>
       <button data-view="all" type="button"><span>✅ משימות</span></button>
-      <button data-view="calendar" type="button"><span>📅 לוח שנה</span></button>
-      <button data-view="meetings" type="button"><span>🤝 פגישות</span></button>
-      <button data-view="settings" type="button"><span>⚙️ הגדרות</span></button>
+      <button data-view="calendar" type="button"><span>📅 יומן</span></button>
+      <button data-view="more" type="button"><span>☰ עוד</span></button>
     </nav>
     <div class="top-nav-right">
+      <button id="topAddBtn" class="btn primary" type="button">+ הוסף</button>
       <button id="logoutBtnTop" class="btn danger" type="button">התנתק</button>
     </div>
     <div id="catNav" class="hidden"></div>
@@ -1771,7 +1933,7 @@
     <div id="sidebarMiniCal" class="hidden"></div>
   </header>
 
-  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v2.5</div>
+  <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v4.0</div>
 
     <main>
       <div class="top">
@@ -1797,7 +1959,7 @@
     </main>
     <nav id="bottomNav" aria-label="ניווט תחתון">
       <button class="bnav-btn active" data-bnav="home" type="button">
-        <span class="bnav-icon">🏠</span>
+        <span class="bnav-icon">🗂️</span>
         <span>רשימות</span>
       </button>
       <button class="bnav-btn" data-bnav="all" type="button">
@@ -1805,19 +1967,15 @@
         <span class="bnav-icon">✅</span>
         <span>משימות</span>
       </button>
+      <button class="bnav-add" id="bnavAdd" type="button" aria-label="הוספה מהירה">+</button>
       <button class="bnav-btn" data-bnav="calendar" type="button">
         <span class="bnav-badge" id="bnavBadgeCal"></span>
         <span class="bnav-icon">📅</span>
-        <span>לוח שנה</span>
+        <span>יומן</span>
       </button>
-      <button class="bnav-btn" data-bnav="meetings" type="button">
-        <span class="bnav-badge" id="bnavBadgeMeet"></span>
-        <span class="bnav-icon">🤝</span>
-        <span>פגישות</span>
-      </button>
-      <button class="bnav-btn" data-bnav="settings" type="button">
-        <span class="bnav-icon">⚙️</span>
-        <span>הגדרות</span>
+      <button class="bnav-btn" data-bnav="more" type="button">
+        <span class="bnav-icon">☰</span>
+        <span>עוד</span>
       </button>
     </nav>
   </section>
@@ -1974,6 +2132,20 @@
       { key:"ember",   label:"חם כהה",  icon:"🔥" },
       { key:"white",   label:"לבן",       icon:"⬜" },
       { key:"black",   label:"שחור",      icon:"⬛" },
+      { key:"dusk",    label:"דמדומים כהה", icon:"🔮" },
+      { key:"lilac",   label:"דמדומים בהיר", icon:"🪻" },
+      { key:"lagoon",  label:"לגונה כהה", icon:"🐚" },
+      { key:"seafoam", label:"לגונה בהיר", icon:"🫧" },
+      { key:"slate",   label:"אבן כהה", icon:"🪨" },
+      { key:"mist",    label:"אבן בהיר", icon:"☁️" },
+    ];
+    const PALETTE_PRESETS = [
+      { label:"דמדומים", dark:"dusk",   light:"lilac",   accent:"#8b7cf6", dbg:"#1a1723", lbg:"#f4f2f9" },
+      { label:"לגונה",   dark:"lagoon", light:"seafoam", accent:"#2fb5a5", dbg:"#111c1f", lbg:"#eef6f6" },
+      { label:"אבן",     dark:"slate",  light:"mist",    accent:"#6f8fd6", dbg:"#171c21", lbg:"#f0f3f5" },
+      { label:"שקיעה",   dark:"ember",  light:"peach",   accent:"#e8805a", dbg:"#1a1511", lbg:"#faf5f0" },
+      { label:"יער",     dark:"forest", light:"green",   accent:"#5db984", dbg:"#111a16", lbg:"#f2f7f4" },
+      { label:"קלאסי",   dark:"sky",    light:"light",   accent:"#3b6ef6", dbg:"#12171f", lbg:"#f4f6fa" },
     ];
     const colors = ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#166534", "#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1", "#3b6ef6", "#8b5cf6", "#d946ef", "#ec4899", "#64748b"];
     const state = {
@@ -2097,6 +2269,8 @@
       if($("logoutBtnTop")) $("logoutBtnTop").onclick = logout;
       
       $("themeToggleBtn").onclick = toggleThemeMode;
+      if ($("topAddBtn")) $("topAddBtn").onclick = openQuickSheet;
+      if ($("bnavAdd")) $("bnavAdd").onclick = () => { if (state.currentView === "kanban" && activeCat()) openTaskModal(); else openQuickSheet(); };
 
       $("modalClose").onclick = closeModal;
       $("modalBack").onclick = (e) => { if (e.target === $("modalBack")) closeModal(); };
@@ -2135,9 +2309,7 @@
         }
       });
 
-      if ("Notification" in window && Notification.permission === "default") {
-        setTimeout(() => Notification.requestPermission(), 3000);
-      }
+      /* v5: no automatic notification-permission popup (still available from the reminders UI) */
     }
 
     function setAuthMode(mode){
@@ -2285,9 +2457,7 @@
       setAppFloatersVisible(true);
       updateUserLabel(label);
       
-      if (state.currentView === "settings") {
-        state.currentView = "home";
-      }
+      if (state.currentView !== "kanban") state.currentView = "home";
 
       // קשר כפתורי Brief
       $("briefBtn").onclick = openBrief;
@@ -2309,7 +2479,7 @@
           const intro = $("startupBriefIntro");
           const introContent = $("startupBriefContent");
 
-          if (intro && introContent && shouldShowStartupBrief()){
+          if (false && intro && introContent && shouldShowStartupBrief()){
             renderBriefContent(false);
             introContent.innerHTML = $("briefContent").innerHTML;
 
@@ -2335,13 +2505,13 @@
               }
             }, 6500);
           } else {
-            showTodayAlert(() => showDailyAgendaIfNeeded());
+            /* v3: handled by the Today screen */
           }
         } catch(e){}
       }, 900);
 
       
-      setTimeout(() => { if (!state.profile?.onboarded) openOnboarding(); }, 7000);
+      /* v5: onboarding no longer pops up by itself (profile is editable in settings) */
       render();
     }
 
@@ -2665,6 +2835,9 @@
       forest: { dark: "forest", light: "green" },
       ember:  { dark: "ember",  light: "peach" },
       bw:     { dark: "black",  light: "white" },
+      dusk:   { dark: "dusk",   light: "lilac" },
+      lagoon: { dark: "lagoon", light: "seafoam" },
+      slate:  { dark: "slate",  light: "mist" },
     };
     function familyOfTheme(key){
       return Object.values(THEME_FAMILIES).find(f => f.dark === key || f.light === key) || THEME_FAMILIES.sky;
@@ -2696,37 +2869,32 @@
     function render(){
       updateGreeting();
       applyTheme();
-      prepareDailyAgendaForToday(true);
-      updateDailyMemoBadge();
-      if ($("dailyMemoPanel")?.classList.contains("show")) {
-        dailyMemoState = getDailyMemo();
-        renderDailyMemo();
-      }
+      if (state.currentView === "today") state.currentView = "home";
       updateShopBadge();
       if ($("shopListPanel")?.classList.contains("show")) {
         renderShopList();
       }
-      setupAgendaDropBubble();
-      
-      document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === state.currentView));
-      document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === state.currentView));
+
+      const _nk = navKey(state.currentView);
+      document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === _nk));
+      document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === _nk));
       
       const searchActiveView = ["all","kanban","calendar","meetings"].includes(state.currentView);
       $("searchBox").classList.toggle("hidden", !searchActiveView);
       $("searchWrap").classList.toggle("hidden", !searchActiveView);
       $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
-      const onHome = state.currentView === "home";
-      $("themeToggleBtn")?.classList.toggle("hidden", onHome);
-      $("briefBtn")?.classList.toggle("hidden", onHome);
+      $("themeToggleBtn")?.classList.remove("hidden");
       $("content").style.removeProperty("--accent");
       $("content").style.removeProperty("--accent2");
+      $("pageTitle").style.removeProperty("color");
       
       if (state.currentView === "home") renderHome();
-      if (state.currentView === "kanban") renderKanban();
+      if (state.currentView === "kanban") { renderKanban(); if (!window.matchMedia("(max-width:820px)").matches) wrapWithListsRail(); }
       if (state.currentView === "all") renderAll();
       if (state.currentView === "calendar") renderCalendar();
       if (state.currentView === "meetings") renderMeetings();
       if (state.currentView === "settings") renderSettings();
+      if (state.currentView === "more") renderMore();
       checkTaskReminders(false);
       
       // רענן את תוכן פאנל התכנון אם הוא פתוח
@@ -3070,111 +3238,203 @@
       }, 220);
     }
 
+
+        /* ═════════ v4 shell: lists-first app ═════════ */
+    function navKey(view){
+      return ({ home:"home", kanban:"home", all:"all", calendar:"calendar", meetings:"calendar", settings:"more", more:"more" })[view] || "home";
+    }
+
+    function openJoinModal(){
+      openModal("הצטרפות עם קוד", "הדבק את קוד השיתוף שקיבלת", (form) => {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "קוד שיתוף";
+        input.style.cssText = "direction:ltr;text-align:left;font-weight:800";
+        const go = el("button","btn primary","הצטרף");
+        go.type = "button";
+        go.style.cssText = "width:100%;margin-top:12px";
+        const run = async () => {
+          const code = input.value.trim();
+          if (!code) return toast("צריך להדביק קוד שיתוף");
+          const ok = await subscribeSharedList(code);
+          if (ok) { closeModal(); render(); }
+        };
+        go.onclick = run;
+        input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); run(); } };
+        form.append(input, go);
+      });
+    }
+
+    function openQuickSheet(){
+      const todayKey = toDateKey(new Date());
+      const cat = state.currentView === "kanban" ? activeCat() : null;
+      openModal("הוספה מהירה", cat ? `הרשימה הפתוחה: ${cat.name}` : "מה מוסיפים?", (form) => {
+        const grid = el("div","qs-grid");
+        const tiles = [];
+        if (cat) tiles.push(["📝", "משימה לרשימה הזו", () => openTaskModal()]);
+        else tiles.push(["📝", "משימה", () => openHomeTaskPicker()]);
+        tiles.push(["📋", "רשימה חדשה", () => openCategoryModal()]);
+        tiles.push(["👥", "רשימה משותפת", () => openCategoryModal(null, true)]);
+        tiles.push(["🔗", "הצטרפות עם קוד", () => openJoinModal()]);
+        tiles.push(["📅", "אירוע", () => openEventModal(null, todayKey)]);
+        tiles.push(["🤝", "פגישה / שיעור", () => openMeetingModal(todayKey, Math.min(22, Math.max(7, new Date().getHours() + 1)), 0)]);
+        tiles.forEach(([ico, label, fn]) => {
+          const b = el("button","qs-tile");
+          b.type = "button";
+          b.append(el("span","qs-ico",ico), el("span","",label));
+          b.onclick = () => { closeModal(); setTimeout(fn, 40); };
+          grid.append(b);
+        });
+        form.append(grid);
+      });
+    }
+
+    function openListMenu(cat){
+      openModal(cat.name, "פעולות לרשימה", (form) => {
+        $("modalBack").style.setProperty("--accent", cat.color || state.accent);
+        const acts = [
+          ["✎", "עריכה", () => openCategoryModal(cat)],
+          ["⧉", "שכפול", () => duplicateCategory(cat.id)],
+          ["☑", "בחירה מרובה", () => enterCatSelectMode(cat.id)],
+          ["🗑", "מחיקה", () => deleteCategory(cat.id), true]
+        ];
+        const box = el("div","am-list");
+        acts.forEach(([ico, label, fn, danger]) => {
+          const b = el("button","am-btn" + (danger ? " danger" : ""));
+          b.type = "button";
+          b.append(el("span","am-ico",ico), el("span","",label));
+          b.onclick = () => { closeModal(); setTimeout(fn, 40); };
+          box.append(b);
+        });
+        form.append(box);
+      });
+    }
+
+    function wrapWithListsRail(){
+      const content = $("content");
+      const cur = activeCat();
+      if (!cur || !content.firstChild) return;
+      const main = el("div","kb-main");
+      while (content.firstChild) main.append(content.firstChild);
+      const rail = el("aside","lists-rail");
+      const head = el("div","rail-head");
+      head.append(el("span","", activeList.type === "shared" ? (activeList.name || "משותפת") : "הרשימות שלי"));
+      const all = el("button","rail-all","הכל ›");
+      all.type = "button";
+      all.onclick = () => navigate("home");
+      head.append(all);
+      rail.append(head);
+      state.cats.forEach(c => {
+        const open = state.tasks.filter(t => t.catId === c.id && !isDone(t)).length;
+        const item = el("button","rail-item" + (c.id === cur.id ? " active" : ""));
+        item.type = "button";
+        item.style.setProperty("--c", c.color || state.accent);
+        item.append(el("span","rail-dot"), el("span","rail-name",c.name), el("em","rail-count",String(open)));
+        item.onclick = () => openCat(c.id);
+        rail.append(item);
+      });
+      const add = el("button","rail-add","+ רשימה חדשה");
+      add.type = "button";
+      add.onclick = () => openCategoryModal();
+      rail.append(add);
+      const layout = el("div","kb-layout");
+      layout.append(rail, main);
+      content.replaceChildren(layout);
+    }
+
+    function renderMore(){
+      $("pageTitle").textContent = "עוד";
+      $("pageSub").textContent = "";
+      const pendingShop = (state.shopList || []).filter(i => !i.done).length;
+      const items = [
+        ["🔗","שרשרת משימות","סדר משימות עם חצים", () => { localStorage.setItem("taskflow_all_view","flow"); navigate("all"); }],
+        ["🛒","רשימת קניות", pendingShop ? `${pendingShop} לקנות` : "ריקה", () => setTimeout(openShopList, 0)],
+        ["👥","ניהול משותפות","קודים, שיתוף והסרה", () => setTimeout(openSharedPanel, 0)],
+        ["➕","הצטרפות עם קוד","לרשימה משותפת", () => openJoinModal()],
+        ["⚙️","הגדרות וגיבוי","עיצוב, ייצוא, חשבון", () => navigate("settings")]
+      ];
+      const grid = el("div","more-grid");
+      items.forEach(([ico, title, sub, fn]) => {
+        const card = el("button","more-card");
+        card.type = "button";
+        const txt = el("div","");
+        txt.append(el("div","more-title",title), el("div","more-sub",sub));
+        card.append(el("span","more-ico",ico), txt);
+        card.onclick = fn;
+        grid.append(card);
+      });
+      $("content").replaceChildren(grid);
+    }
+
     function renderHome(){
-      $("pageTitle").textContent = "רשימות";
-      $("pageSub").textContent = cloudReady ? "" : "מצב מקומי במכשיר הזה";
-      if (activeList.type === "shared") {
+      const inShared = activeList.type === "shared";
+      const openTotal = state.tasks.filter(t => !isDone(t)).length;
+      $("pageTitle").textContent = inShared ? (activeList.name || "רשימה משותפת") : "הרשימות שלי";
+      $("pageSub").textContent = (cloudReady ? "" : "מצב מקומי · ") + `${state.cats.length} רשימות · ${openTotal} משימות פתוחות`;
+      if (inShared) {
         const shareSpan = el("span", "", ` | 🔗 קוד שיתוף: ${activeList.id} (לחץ להעתקה)`);
         shareSpan.style.cssText = "color:var(--accent2); font-weight:bold; cursor:pointer; margin-right:8px;";
         shareSpan.onclick = () => copyShareCode();
         $("pageSub").append(shareSpan);
       }
-      
-      const grid = el("div","grid");
-      const todayStr = toDateKey(new Date());
-      if (!state.cats.length) {
-        const firstRun = el("div","empty");
-        firstRun.append(el("div","","עדיין אין רשימות. בוא ניצור את הראשונה ✨"));
-        const firstRunBtn = el("button","btn primary","+ רשימה חדשה");
-        firstRunBtn.type = "button";
-        firstRunBtn.style.cssText = "margin-top:12px";
-        firstRunBtn.onclick = () => openCategoryModal();
-        firstRun.append(firstRunBtn);
-        grid.append(firstRun);
+
+      const wrap = el("div","home-v4");
+
+      if (inShared) {
+        const back = el("button","btn back-btn","→ חזרה לרשימות שלי");
+        back.type = "button";
+        back.onclick = () => subscribePrivateList();
+        wrap.append(back);
       }
-      
-	state.cats.forEach(cat => {
-        const card = el("article","card cat-card" + (catSelectMode ? " select-mode" : "") + (selectedCatIds.has(cat.id) ? " selected" : ""));
-        const catColor = cat.color || state.accent;
-        card.style.setProperty('--cat-color', catColor);
-        
-        if (activeList.type === "shared") card.style.backgroundColor = state.accent + "1A";
 
+      const buildCard = (cat) => {
+        const all = state.tasks.filter(t => t.catId === cat.id);
+        const open = all.filter(t => !isDone(t));
+        const pct = all.length ? Math.round((all.length - open.length) / all.length * 100) : 0;
+        const color = cat.color || state.accent;
+        const card = el("article","lc" + (catSelectMode ? " select-mode" : "") + (selectedCatIds.has(cat.id) ? " selected" : ""));
+        card.style.setProperty("--c", color);
+
+        const top = el("div","lc-top");
+        const num = el("div","lc-num");
+        num.append(el("strong","",String(open.length)), el("span","", open.length === 1 ? "משימה פתוחה" : "משימות פתוחות"));
+        top.append(num);
         if (catSelectMode) {
-          // Selection mode: show a checkbox instead of the edit/duplicate/delete tools,
-          // so a tap can't accidentally trigger one of those actions.
           const checkWrap = el("label","cat-select-check");
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.checked = selectedCatIds.has(cat.id);
-          checkbox.onclick = (e) => { e.stopPropagation(); toggleCatSelected(cat.id); };
-          checkWrap.append(checkbox);
-          card.append(checkWrap);
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.checked = selectedCatIds.has(cat.id);
+          cb.onclick = (e) => { e.stopPropagation(); toggleCatSelected(cat.id); };
+          checkWrap.append(cb);
+          top.append(checkWrap);
         } else {
-          // Tools
-          const tools = el("div","cat-tools");
-          tools.append(
-            tool("שכפל רשימה", "⧉", () => duplicateCategory(cat.id)),
-            tool("ערוך רשימה", "✎", () => openCategoryModal(cat)),
-            tool("מחק רשימה", "🗑", () => deleteCategory(cat.id))
-          );
-          card.append(tools);
+          const more = el("button","lc-more","⋯");
+          more.type = "button";
+          more.title = "אפשרויות";
+          more.onclick = (e) => { e.stopPropagation(); openListMenu(cat); };
+          top.append(more);
         }
+        card.append(top, el("h3","lc-name",cat.name));
 
-        // Title
-        card.append(el("h3", "cat-title", cat.name));
-
-        const allTasks = state.tasks.filter(t => t.catId === cat.id);
-        const doneTasks = allTasks.filter(t => isDone(t));
-        const openTasks = allTasks.filter(t => !isDone(t));
-        const pct = allTasks.length ? Math.round((doneTasks.length / allTasks.length) * 100) : 0;
-
-        // Progress Bar
-        const progWrap = el("div", "cat-progress-wrap");
-        const progStats = el("div", "cat-progress-stats");
-        progStats.innerHTML = `<span>${openTasks.length} פתוחות</span><span>${pct}% הושלמו</span>`;
-        const progBg = el("div", "cat-progress-bg");
-        const progFill = el("div", "cat-progress-fill");
-        progFill.style.width = pct + "%";
-        progBg.append(progFill);
-        progWrap.append(progStats, progBg);
-        card.append(progWrap);
-        card.append(el("span", "cat-open-hint", "פתח פרטים"));
-
-        // Hover Peek Section (Interactive reveal)
-        const peek = el("div", "cat-peek");
-        peek.append(el("div", "cat-peek-title", "משימות קרובות:"));
-        
-        // Get up to 3 upcoming tasks
-        const upcoming = openTasks
-          .sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"))
-          .slice(0, 3);
-
-        if (upcoming.length > 0) {
-          upcoming.forEach(t => {
-            const item = el("div", "cat-peek-item", t.name);
-            peek.append(item);
-          });
-        } else {
-          const emptyMsg = el("div", "meta");
-          emptyMsg.style.fontSize = "11px";
-          emptyMsg.textContent = "הכל נקי. זמן להפסקה קומית? ☕";
-          peek.append(emptyMsg);
-        }
+        const peek = el("div","lc-peek");
+        const next = open.slice().sort((a,b) => (a.due || "9999").localeCompare(b.due || "9999")).slice(0, 2);
+        if (next.length) next.forEach(t => peek.append(el("div","lc-peek-item",t.name)));
+        else peek.append(el("div","lc-peek-empty", all.length ? "הכל הושלם ✨" : "רשימה ריקה"));
         card.append(peek);
 
-        // Click to open (or toggle selection while in select mode)
+        const bar = el("div","lc-bar");
+        const fill = document.createElement("i");
+        fill.style.width = pct + "%";
+        bar.append(fill);
+        card.append(bar);
+
+        let longPressFired = false;
         card.onclick = (e) => {
           if (longPressFired) { longPressFired = false; return; }
-          if (e.target.closest('.cat-tools')) return;
-          if (e.target.closest('.cat-select-check')) return;
+          if (e.target.closest(".lc-more") || e.target.closest(".cat-select-check")) return;
           if (catSelectMode) return toggleCatSelected(cat.id);
-          if (window.matchMedia("(max-width:820px)").matches) openCategoryDetailModal(cat.id);
-          else openCat(cat.id);
+          openCat(cat.id);
         };
-
-        // Long-press (mobile) to enter/extend selection mode without opening the list
-        let longPressFired = false;
         card.addEventListener("touchstart", () => {
           longPressFired = false;
           startLongPress(cat.id, () => { longPressFired = true; });
@@ -3182,628 +3442,93 @@
         card.addEventListener("touchend", cancelLongPress, { passive: true });
         card.addEventListener("touchmove", cancelLongPress, { passive: true });
 
-        // Drag & Drop
-        card.ondragover = (e) => { e.preventDefault(); card.style.borderColor = "var(--accent)"; };
-        card.ondragleave = () => { card.style.borderColor = "var(--border)"; };
+        card.ondragover = (e) => { e.preventDefault(); card.classList.add("drop"); };
+        card.ondragleave = () => card.classList.remove("drop");
         card.ondrop = (e) => {
-            e.preventDefault();
-            card.style.borderColor = "var(--border)";
-            const task = state.tasks.find(t => t.id === draggedTaskId);
-            if (task && task.catId !== cat.id) {
-                task.catId = cat.id;
-                task.col = getColumns(cat)[0].key;
-                save(); render();
-            }
-            draggedTaskId = null;
-        };
-
-        grid.append(card);
-      });
-      const weekFromNow = new Date();
-      weekFromNow.setDate(weekFromNow.getDate() + 7);
-      const weekFromNowStr = toDateKey(weekFromNow);
-      const agendaOpenTasks = state.tasks.filter(t => {
-        if (isDone(t)) return false;
-        if (!t.due) return false;
-        return t.due >= todayStr && t.due <= weekFromNowStr;
-      }).sort((a, b) => (a.due || "").localeCompare(b.due || ""));
-      const todayEvents = (state.events||[]).filter(e => e.date === todayStr);
-
-      // === Widget: ספירה לאחור לדדליינים הקרובים ===
-      const upcomingDeadlines = state.tasks
-        .filter(t => !isDone(t) && t.due && t.due >= todayStr)
-        .sort((a,b) => (a.due||"").localeCompare(b.due||""))
-        .slice(0, 3);
-
-      let countdownWidget = null;
-      if (upcomingDeadlines.length) {
-        countdownWidget = el("div","countdown-widget");
-        const items = el("div","countdown-items");
-        upcomingDeadlines.forEach(t => {
-          const info = dueInfo(t.due);
-          const cat = state.cats.find(c => c.id === t.catId);
-          const item = el("div","countdown-item" + (info?.cls === "soon" ? " urgent" : ""));
-          item.style.setProperty("--cat-color", t.color || cat?.color || state.accent);
-          const daysNum = Math.max(0, Math.round((parseDate(t.due) - new Date(new Date().setHours(0,0,0,0))) / 86400000));
-          const badge = el("div","countdown-badge");
-          if (daysNum === 0) {
-            badge.append(el("div","countdown-big is-today","היום"));
-          } else {
-            badge.append(el("div","countdown-big",String(daysNum)), el("div","countdown-unit", daysNum === 1 ? "יום" : "ימים"));
-          }
-          const info2 = el("div","countdown-info");
-          info2.append(el("div","countdown-name", t.name), el("div","countdown-meta", cat ? cat.name : ""));
-          item.append(badge, info2);
-          item.onclick = (e) => showCalItemPopup(e, t, t.due);
-          items.append(item);
-        });
-        const titleRow = el("div","countdown-title");
-        titleRow.append(el("span","","⏳ הדדליינים הקרובים"));
-        if (upcomingDeadlines.length > 1) {
-          const dots = el("div","countdown-dots");
-          upcomingDeadlines.forEach((_,i) => dots.append(el("span", i===0 ? "active" : "")));
-          titleRow.append(dots);
-          items.addEventListener("scroll", () => {
-            const firstItem = items.querySelector(".countdown-item");
-            const step = firstItem ? firstItem.getBoundingClientRect().height + 10 : items.clientHeight;
-            const idx = Math.round(items.scrollTop / Math.max(1, step));
-            [...dots.children].forEach((d,i) => d.classList.toggle("active", i===idx));
-          }, { passive:true });
-        }
-        countdownWidget.append(titleRow, items);
-      }
-
-      // === כרטיס מאוחד: סדר יום + מיקוד יומי ===
-      const unifiedCard = el("div","");
-      unifiedCard.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.1)";
-
-      // Tab bar
-      const tabBar = el("div","");
-      tabBar.style.cssText = "display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)";
-      const tabAgenda = el("button","");
-      tabAgenda.type = "button";
-      tabAgenda.textContent = `☀️ סדר יום · ${agendaOpenTasks.length + todayEvents.length}`;
-      const tabFocus = el("button","");
-      tabFocus.type = "button";
-      tabFocus.textContent = "🎯 מיקוד יומי";
-
-      const focusTasks = dailyAgendaTasks();
-
-      function styleTab(btn, active) {
-        btn.style.cssText = `padding:10px 8px;font-size:12px;font-weight:900;border:none;cursor:pointer;transition:.18s;${
-          active
-            ? "background:var(--card);color:var(--accent2);border-bottom:2px solid var(--accent)"
-            : "background:var(--card2);color:var(--faint);border-bottom:2px solid transparent"
-        }`;
-      }
-
-      let activeTab = localStorage.getItem("taskflow_home_tab") || "agenda";
-
-      const paneAgenda = el("div","");
-      paneAgenda.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
-      const paneFocus = el("div","");
-      paneFocus.style.cssText = "padding:10px 12px 12px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent";
-
-      // Fill agenda pane
-      if (!agendaOpenTasks.length && !todayEvents.length) {
-        paneAgenda.append(el("div","meta","אין משימות לשבוע הקרוב 🎉"));
-      } else {
-        const list = el("div","agenda-list");
-        todayEvents.sort((a,b)=>(a.time||"").localeCompare(b.time||"")).forEach(ev => {
-          const row = el("div","agenda-row");
-          row.style.borderRightColor = ev.color || state.accent;
-          row.style.cursor = "pointer";
-          row.append(el("strong","agenda-title",ev.title), el("span","agenda-date",ev.time||"כל היום"));
-          row.onclick = (e) => showCalItemPopup(e, ev, ev.date);
-          list.append(row);
-        });
-        agendaOpenTasks.forEach(t => {
-          const row = el("div","agenda-row");
-          row.style.borderRightColor = t.color || state.accent;
-          row.style.cursor = "pointer";
-          const dateText = t.due ? formatDateShort(t.due) : "פתוחה";
-          const date = el("span","agenda-date"+(t.due===todayStr?" today":""),dateText);
-          if (t.due===todayStr) date.prepend(el("span","agenda-bang","!"));
-          const tw = el("div",""); tw.style.cssText = "min-width:0;overflow:hidden";
-          tw.append(el("strong","agenda-title",t.name));
-          const cat = state.cats.find(c=>c.id===t.catId);
-          if (cat) {
-            const colName = cat.columns?.find(c=>c.id===t.col)?.name;
-            const bc = el("div",""); bc.style.cssText = "font-size:11px;font-weight:700;color:var(--faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
-            bc.textContent = colName ? `${cat.name} › ${colName}` : cat.name;
-            tw.append(bc);
-          }
-          row.append(tw, date);
-          row.onclick = (e) => showCalItemPopup(e, t, t.due||todayStr);
-          list.append(row);
-        });
-        paneAgenda.append(list);
-      }
-
-      // Fill focus pane
-      const agendaForProgress = ensureDailyAgenda();
-      const totalForToday = todayEvents.length + focusTasks.length + (agendaForProgress.completedToday || 0);
-      if (totalForToday > 0) {
-        const doneForToday = agendaForProgress.completedToday || 0;
-        const pct = Math.round((doneForToday / totalForToday) * 100);
-        const progWrap = el("div","daily-focus-progress-wrap");
-        const progStats = el("div","daily-focus-progress-stats");
-        progStats.innerHTML = `<span>${doneForToday}/${totalForToday} הושלם</span><span>${pct}%</span>`;
-        const progBg = el("div","daily-focus-progress-bg");
-        const progFill = el("div","daily-focus-progress-fill");
-        progFill.style.width = pct + "%";
-        progBg.append(progFill);
-        progWrap.append(progStats, progBg);
-        paneFocus.append(progWrap);
-      }
-
-      if (todayEvents.length) {
-        todayEvents.sort((a,b)=>(a.time||"").localeCompare(b.time||"")).forEach(ev => {
-          const row = el("div","daily-focus-event-row");
-          row.style.borderRightColor = ev.color || state.accent;
-          row.append(el("div","daily-focus-name",ev.title), el("span","daily-focus-meta",ev.time||"כל היום"));
-          row.onclick = (e) => showCalItemPopup(e, ev, ev.date);
-          paneFocus.append(row);
-        });
-      }
-
-      if (!focusTasks.length) {
-        const emptyMsg = el("div","daily-focus-empty", todayAgenda().skippedDate===toDateKey(new Date()) ? "דילגת על מיקוד להיום" : "עוד לא נבחר מיקוד להיום");
-        const startBtn = el("button","btn primary","בחר מיקוד"); startBtn.type="button";
-        startBtn.style.cssText = "margin-top:8px;width:100%";
-        startBtn.onclick = () => openDailyAgendaModal(true);
-        paneFocus.append(emptyMsg, startBtn);
-      } else {
-        const focusList = el("div","daily-focus-list");
-        focusTasks.forEach(task => {
-          const row = el("div","daily-focus-item");
-          const check = el("button","daily-focus-check","✓"); check.type="button";
-          check.title = "הסר מהמיקוד בלי להשלים את המטלה";
-          check.onclick = (e) => { e.stopPropagation(); removeTaskFromDailyAgenda(task.id, true); };
-          const text = el("div","daily-focus-main");
-          const reason = agendaReason(task);
-          const tags = el("div","daily-focus-tags");
-          tags.append(el("span","daily-focus-tag "+reason.cls, reason.label));
-          text.append(el("div","daily-focus-name",task.name), el("div","daily-focus-meta",taskContext(task)), tags);
-          const tools = el("div","daily-focus-tools");
-          const tomorrow = el("button","mini","מחר"); tomorrow.type="button";
-          tomorrow.onclick = (e) => { e.stopPropagation(); moveTaskInDailyAgenda(task.id,"tomorrow"); };
-          const rm = el("button","mini","×"); rm.type="button";
-          rm.onclick = (e) => { e.stopPropagation(); removeTaskFromDailyAgenda(task.id); };
-          tools.append(tomorrow, rm);
-          row.append(check, text, tools);
-          row.onclick = (e) => showCalItemPopup(e, task, task.due||toDateKey(new Date()));
-          focusList.append(row);
-        });
-        const editFocusBtn = el("button","btn","✏️ ערוך מיקוד"); editFocusBtn.type="button";
-        editFocusBtn.style.cssText = "margin-top:8px;width:100%;font-size:11px";
-        editFocusBtn.onclick = () => openDailyAgendaModal(true);
-        paneFocus.append(focusList, editFocusBtn);
-      }
-
-      function switchTab(tab) {
-        activeTab = tab;
-        localStorage.setItem("taskflow_home_tab", tab);
-        styleTab(tabAgenda, tab==="agenda");
-        styleTab(tabFocus, tab==="focus");
-        paneAgenda.style.display = tab==="agenda" ? "" : "none";
-        paneFocus.style.display = tab==="focus" ? "" : "none";
-      }
-
-      tabAgenda.onclick = () => switchTab("agenda");
-      tabFocus.onclick = () => switchTab("focus");
-      tabBar.append(tabFocus, tabAgenda);
-      unifiedCard.append(tabBar, paneAgenda, paneFocus);
-      switchTab(activeTab);
-
-
-      const listHead = el("div","home-section-title");
-      listHead.style.cssText = "margin-top:10px;padding:6px;display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:999px";
-
-      // מצב לילה/יום ותכנון שבועי מוצגים בדרך כלל למעלה בכותרת הקבועה, אבל
-      // בעמוד הבית הם עוברים לשורת הבקרה המאוחדת כאן במקום להיות כפולים.
-      const homeThemeBtn = el("button","topbar-btn js-theme-toggle");
-      homeThemeBtn.type = "button";
-      homeThemeBtn.onclick = toggleThemeMode;
-      const homeBriefBtn = el("button","topbar-btn","✨ תכנון");
-      homeBriefBtn.type = "button";
-      homeBriefBtn.title = "תכנון שבועי";
-      homeBriefBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text)";
-      homeBriefBtn.onclick = openBrief;
-      listHead.append(homeThemeBtn, homeBriefBtn);
-
-      const addWrap = el("div","");
-      addWrap.style.cssText = "position:relative";
-      const unifiedAddBtn = el("button","home-add-btn","+ חדש ▾");
-      unifiedAddBtn.type = "button";
-      unifiedAddBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);background:var(--accent);color:#fff;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 28%,transparent);transition:.18s";
-      unifiedAddBtn.onmouseenter = () => unifiedAddBtn.style.transform = "translateY(-1px)";
-      unifiedAddBtn.onmouseleave = () => unifiedAddBtn.style.transform = "";
-
-      const addMenu = el("div","home-add-menu");
-      addMenu.style.cssText = "position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;display:none;z-index:20;min-width:150px";
-      const menuListBtn = el("button","","📋  רשימה חדשה");
-      menuListBtn.type = "button";
-      menuListBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer";
-      menuListBtn.onmouseenter = () => menuListBtn.style.background = "var(--card2)";
-      menuListBtn.onmouseleave = () => menuListBtn.style.background = "transparent";
-      menuListBtn.onclick = () => { addMenu.style.display = "none"; openAddMenuEl = null; openCategoryModal(); };
-      const menuTaskBtn = el("button","","📝  מטלה חדשה");
-      menuTaskBtn.type = "button";
-      menuTaskBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer";
-      menuTaskBtn.onmouseenter = () => menuTaskBtn.style.background = "var(--card2)";
-      menuTaskBtn.onmouseleave = () => menuTaskBtn.style.background = "transparent";
-      menuTaskBtn.onclick = () => { addMenu.style.display = "none"; openAddMenuEl = null; openHomeTaskPicker(); };
-      const menuJoinBtn = el("button","","🔗  הצטרפות עם קוד");
-      menuJoinBtn.type = "button";
-      menuJoinBtn.style.cssText = "display:block;width:100%;text-align:right;padding:10px 12px;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:700;cursor:pointer";
-      menuJoinBtn.onmouseenter = () => menuJoinBtn.style.background = "var(--card2)";
-      menuJoinBtn.onmouseleave = () => menuJoinBtn.style.background = "transparent";
-      menuJoinBtn.onclick = () => {
-        addMenu.style.display = "none"; openAddMenuEl = null;
-        joinRow.style.display = joinRow.style.display === "none" ? "flex" : "none";
-        if (joinRow.style.display === "flex") setTimeout(() => joinInput.focus(), 0);
-      };
-      addMenu.append(menuListBtn, menuTaskBtn, menuJoinBtn);
-
-      // Inline "join with code" row, shown right on the home page instead of
-      // a native prompt() popup.
-      const joinRow = el("div","");
-      joinRow.style.cssText = "display:none;align-items:center;gap:8px;margin-top:10px";
-      const joinInput = document.createElement("input");
-      joinInput.type = "text"; joinInput.placeholder = "הדבק קוד שיתוף";
-      joinInput.style.cssText = "flex:1 1 auto;min-width:0";
-      const joinConfirm = el("button","btn primary","הצטרף");
-      joinConfirm.type = "button";
-      const joinCancel = el("button","btn icon","×");
-      joinCancel.type = "button";
-      joinCancel.onclick = () => { joinRow.style.display = "none"; joinInput.value = ""; };
-      joinConfirm.onclick = async () => {
-        const code = joinInput.value.trim();
-        if (!code) return toast("צריך להדביק קוד שיתוף");
-        const ok = await subscribeSharedList(code);
-        if (ok) { joinRow.style.display = "none"; joinInput.value = ""; render(); }
-      };
-      joinInput.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); joinConfirm.click(); } };
-      joinRow.append(joinInput, joinConfirm, joinCancel);
-
-
-      unifiedAddBtn.onclick = (e) => {
-        e.stopPropagation();
-        const isOpen = addMenu.style.display === "block";
-        addMenu.style.display = isOpen ? "none" : "block";
-        openAddMenuEl = isOpen ? null : addMenu;
-      };
-
-      addWrap.append(unifiedAddBtn, addMenu);
-      if (state.cats.length > 0) {
-        const selectToggleBtn = el("button","cat-select-toggle", catSelectMode ? "✕ בטל בחירה" : "☑ בחירה מרובה");
-        selectToggleBtn.type = "button";
-        selectToggleBtn.style.cssText = "font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text)";
-        selectToggleBtn.onclick = () => toggleCatSelectMode();
-        listHead.append(selectToggleBtn);
-      }
-
-      listHead.append(addWrap);
-
-      const listsWheel = el("div","lists-wheel");
-      listsWheel.append(grid);
-
-      // Carousel: 3 cards visible VERTICALLY, infinite loop, one step at a time (mobile)
-      if (window.matchMedia("(max-width:820px)").matches && state.cats.length > 0) {
-        const origCards = [...grid.querySelectorAll(".cat-card")];
-        const total = origCards.length;
-        let current = 0; // logical real index (0..total-1), derived from vCurrent
-        let vCurrent = 0; // continuous virtual slot index, only ever incremented/decremented
-
-        // Reset grid to block
-        grid.style.cssText = "padding:0;margin:0;gap:0;display:block;height:auto;overflow:visible";
-
-        // Fixed slot height in px — locked, predictable, no layout-dependent math
-        const SLOT_H = 112;
-        const GAP = 6;
-        const ROW_H = SLOT_H + GAP;
-        // Show one slot per list, up to a max of 3 — so with fewer than 3 lists
-        // the wheel shrinks to fit instead of leaving empty slot space.
-        const VISIBLE_SLOTS = Math.min(3, total);
-        const CENTER_ROW = total < 3 ? 0 : Math.floor((VISIBLE_SLOTS - 1) / 2);
-        const VIEWPORT_H = SLOT_H * VISIBLE_SLOTS + GAP * (VISIBLE_SLOTS - 1);
-
-        // Build slider container (vertical)
-        const sliderOuter = el("div","");
-        sliderOuter.style.cssText = `display:flex;align-items:stretch;height:${VIEWPORT_H}px`;
-
-        const slider = el("div","");
-        slider.style.cssText = `overflow:hidden;position:relative;border-radius:14px;flex:1;min-width:0;height:${VIEWPORT_H}px`;
-
-        // For true seamless infinite scroll, build a long track of repeated
-        // cycles and walk a continuous virtual index that only ever
-        // increments/decrements — never resets to 0, so it never jumps back.
-        const CYCLES = total >= 3 ? 5 : 1;
-        const MID_CYCLE = Math.floor(CYCLES / 2);
-        const allItems = []; // {node, realIdx}
-        for (let cyc = 0; cyc < CYCLES; cyc++) {
-          origCards.forEach((c, i) => {
-            allItems.push({ node: cyc === 0 ? c : c.cloneNode(true), realIdx: i });
-          });
-        }
-
-        const track = el("div","");
-        track.style.cssText = "display:flex;flex-direction:column;will-change:transform;position:absolute;left:0;right:0;top:0";
-
-        allItems.forEach(({ node, realIdx }, slotIdx) => {
-          node.style.position = "";
-          node.style.top = "";
-          node.style.left = "";
-          node.style.right = "";
-          node.style.width = "100%";
-          node.style.height = `${SLOT_H}px`;
-          node.style.transition = "";
-          node.style.transform = "";
-          node.style.opacity = "1";
-          node.style.boxShadow = "";
-          node.style.pointerEvents = "auto";
-          node.style.zIndex = "";
-          node.style.boxSizing = "border-box";
-          node.style.overflow = "hidden";
-          node.style.willChange = "transform,opacity";
-          node.style.backfaceVisibility = "hidden";
-
-          const wrap = el("div","");
-          wrap.style.cssText = `flex:0 0 ${SLOT_H}px;height:${SLOT_H}px;margin-bottom:${GAP}px;box-sizing:border-box;display:flex`;
-
-          // cloneNode never carries JS-assigned onclick/addEventListener handlers, so
-          // every clone's inner tool buttons + the card itself need fresh handlers
-          // wired directly to this slot's real category (including selection mode).
-          const slotCat = state.cats[realIdx];
-          const dupBtn = node.querySelector('.cat-tools .mini[title="שכפל רשימה"]');
-          const editBtn = node.querySelector('.cat-tools .mini[title="ערוך רשימה"]');
-          const delBtn = node.querySelector('.cat-tools .mini[title="מחק רשימה"]');
-          if (dupBtn) dupBtn.onclick = (e) => { e.stopPropagation(); duplicateCategory(slotCat.id); };
-          if (editBtn) editBtn.onclick = (e) => { e.stopPropagation(); openCategoryModal(slotCat); };
-          if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteCategory(slotCat.id); };
-          const checkInput = node.querySelector('.cat-select-check input');
-          if (checkInput) checkInput.onclick = (e) => { e.stopPropagation(); toggleCatSelected(slotCat.id); };
-
-          let slotLongPressFired = false;
-          node.ontouchstart = () => {
-            slotLongPressFired = false;
-            startLongPress(slotCat.id, () => { slotLongPressFired = true; });
-          };
-          node.ontouchend = cancelLongPress;
-          node.ontouchmove = cancelLongPress;
-
-          node.onclick = (e) => {
-            if (slotLongPressFired) { slotLongPressFired = false; return; }
-            if (slotIdx !== vCurrent) {
-              e.stopPropagation();
-              goTo(vCurrent + (slotIdx - vCurrent));
-              return;
-            }
-            if (e.target.closest(".cat-tools")) return;
-            if (e.target.closest(".cat-select-check")) return;
-            if (catSelectMode) return toggleCatSelected(slotCat.id);
-            openCategoryDetailModal(slotCat.id);
-          };
-
-          wrap.append(node);
-          track.append(wrap);
-        });
-
-        grid.replaceChildren(sliderOuter);
-        slider.append(track);
-
-        let isAnimating = false;
-
-        function offsetForSlot(slotIdx) {
-          return slotIdx * ROW_H - CENTER_ROW * ROW_H; // shift so the center row lands in the right slot
-        }
-
-        function rewrapIfNeeded() {
-          if (CYCLES <= 1) return;
-          const cycleIdx = Math.floor(vCurrent / total);
-          if (cycleIdx <= 1 || cycleIdx >= CYCLES - 2) {
-            const shiftCycles = MID_CYCLE - cycleIdx;
-            vCurrent += shiftCycles * total;
-            track.style.transition = "none";
-            track.style.transform = `translate3d(0,${-offsetForSlot(vCurrent)}px,0)`;
-            // force reflow so the next transitioned move doesn't animate from the old spot
-            void track.offsetHeight;
-          }
-        }
-
-        function goTo(newVCurrent, animate = true) {
-          if (isAnimating && animate) return;
-          // With fewer than 3 lists there are no looped duplicates in the track
-          // (CYCLES <= 1), so drifting past the real slots would show blank
-          // space off-center. Clamp to the real range in that case instead.
-          if (CYCLES <= 1) newVCurrent = Math.max(0, Math.min(total - 1, newVCurrent));
-          const distance = Math.abs(newVCurrent - vCurrent);
-          vCurrent = newVCurrent;
-          current = ((vCurrent % total) + total) % total;
-          const offset = offsetForSlot(vCurrent);
-          const duration = animate ? Math.min(0.34 + (distance - 1) * 0.06, 0.6) : 0;
-          track.style.transition = animate ? `transform ${duration}s cubic-bezier(.25,.8,.25,1)` : "none";
-          track.style.transform = `translate3d(0,${-offset}px,0)`;
-          updateDots();
-          updateCardHighlight();
-
-          if (animate && total > 1) {
-            isAnimating = true;
-            setTimeout(() => {
-              isAnimating = false;
-              rewrapIfNeeded();
-            }, duration * 1000 + 16);
-          } else {
-            rewrapIfNeeded();
-          }
-        }
-
-        function updateCardHighlight() {
-          const WINDOW = 3;
-          allItems.forEach(({ node }, slotIdx) => {
-            if (Math.abs(slotIdx - vCurrent) > WINDOW) return;
-            const isCenter = slotIdx === vCurrent;
-            // Never fully fade out — keep neighbors clearly visible (active-ish)
-            node.style.opacity = isCenter ? "1" : "0.82";
-            node.style.transform = isCenter ? "translateZ(0) scale(1)" : "translateZ(0) scale(0.96)";
-            node.style.transition = "opacity .3s, transform .3s";
-          });
-        }
-
-        function updateLiveHighlight(currentOffset) {
-          // currentOffset = the track's top offset (pre-negation) while dragging.
-          // The viewport's center row is at 1*ROW_H. A slot is "centered" when
-          // its own top (slotIdx*ROW_H) minus currentOffset equals 1*ROW_H.
-          const WINDOW = 3;
-          allItems.forEach(({ node }, slotIdx) => {
-            if (Math.abs(slotIdx - vCurrent) > WINDOW) return;
-            const slotTop = slotIdx * ROW_H;
-            const distFromCenter = Math.abs((slotTop - currentOffset) - CENTER_ROW * ROW_H);
-            const t = Math.max(0, 1 - distFromCenter / ROW_H); // 1 at center, 0 one row away
-            const opacity = 0.82 + 0.18 * t;
-            const scale = 0.96 + 0.04 * t;
-            node.style.transition = "none";
-            node.style.opacity = opacity.toFixed(3);
-            node.style.transform = `translateZ(0) scale(${scale.toFixed(3)})`;
-          });
-        }
-
-        // Swipe support (vertical) — follows finger live, then snaps to center
-        let ty0 = 0, tx0 = 0, dragging = false, dragOffset = 0;
-        const baseOffset = () => offsetForSlot(vCurrent);
-
-        slider.addEventListener("touchstart", e => {
-          tx0 = e.touches[0].clientX;
-          ty0 = e.touches[0].clientY;
-          dragging = false;
-          dragOffset = 0;
-          track.style.transition = "none";
-        }, { passive: true });
-
-        slider.addEventListener("touchmove", e => {
-          const dx = e.touches[0].clientX - tx0;
-          const dy = e.touches[0].clientY - ty0;
-          if (!dragging) {
-            if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 6) dragging = true;
-            else return;
-          }
           e.preventDefault();
-          // Rubber-band slightly past edges for non-looping single/double item case
-          dragOffset = dy;
-          const offset = baseOffset() - dragOffset;
-          track.style.transform = `translate3d(0,${-offset}px,0)`;
-          updateLiveHighlight(offset);
-        }, { passive: false });
+          card.classList.remove("drop");
+          const task = state.tasks.find(t => t.id === draggedTaskId);
+          if (task && task.catId !== cat.id) {
+            task.catId = cat.id;
+            task.col = getColumns(cat)[0].key;
+            save(); render();
+          }
+          draggedTaskId = null;
+        };
+        return card;
+      };
 
-        slider.addEventListener("touchend", () => {
-          if (!dragging) return;
-          dragging = false;
-          // Move by however many rows were actually dragged, not just one step.
-          // dragOffset > 0 means dragging downward (content moves down → goes to previous slot).
-          const rawSteps = dragOffset / ROW_H;
-          const steps = dragOffset > 0 ? Math.ceil(rawSteps - 0.28) : Math.floor(rawSteps + 0.28);
-          goTo(vCurrent - steps);
-        }, { passive: true });
-
-        sliderOuter.append(slider);
-
-        // Dot indicators
-        const dots = el("div","");
-        dots.style.cssText = "display:flex;justify-content:center;gap:7px;padding:10px 0 2px";
-        origCards.forEach((_, i) => {
-          const dot = el("div","");
-          dot.style.cssText = `width:7px;height:7px;border-radius:50%;background:${i===0?"var(--accent)":"var(--border)"};transition:background .25s,transform .2s;cursor:pointer;flex:0 0 auto`;
-          dot.onclick = () => {
-            // jump to nearest occurrence of real index i relative to vCurrent
-            const diff = (((i - current) % total) + total) % total;
-            const diffAlt = diff - total;
-            const shortest = Math.abs(diff) <= Math.abs(diffAlt) ? diff : diffAlt;
-            goTo(vCurrent + shortest);
-          };
-          dots.append(dot);
-        });
-        function updateDots() {
-          [...dots.children].forEach((d,i) => {
-            d.style.background = i===current ? "var(--accent)" : "var(--border)";
-            d.style.transform = i===current ? "scale(1.4)" : "scale(1)";
-          });
-        }
-        listsWheel.append(dots);
-
-        // Lock the wheel container to the exact viewport height — no extra scroll, no jump
-        listsWheel.style.height = `${VIEWPORT_H}px`;
-        listsWheel.style.maxHeight = `${VIEWPORT_H}px`;
-        listsWheel.style.minHeight = `${VIEWPORT_H}px`;
-        listsWheel.style.overflow = "hidden";
-        listsWheel.style.touchAction = "pan-x";
-
-        vCurrent = MID_CYCLE * total;
-        goTo(vCurrent, false);
-      }
-
-      // Shared lists get their own colored cards, styled just like the private
-      // ones, but rendered in their own natural-flow section below the private
-      // lists — never inside the mobile "lists-wheel" carousel, which locks
-      // itself to a fixed height + overflow:hidden and virtualizes/clones its
-      // slides for infinite swipe. Mounting shared cards there clipped them and
-      // left them looking stuck instead of scrollable, so they get a separate
-      // grid mounted after the wheel instead.
-      const knownShared = getKnownSharedLists();
-      const sharedGrid = el("div","grid shared-home-grid");
+      const grid = el("div","lgrid");
+      state.cats.forEach(cat => grid.append(buildCard(cat)));
       if (!catSelectMode) {
-        knownShared.forEach((s, i) => {
-          const card = el("article","card cat-card shared-home-card");
-          const color = SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length];
-          card.style.setProperty("--cat-color", color);
+        const addTile = el("button","lc lc-add");
+        addTile.type = "button";
+        addTile.append(el("span","lc-plus","+"), el("span","", state.cats.length ? "רשימה חדשה" : "צור את הרשימה הראשונה"));
+        addTile.onclick = () => openCategoryModal();
+        grid.append(addTile);
+      }
+      wrap.append(grid);
 
-          const head = el("div","shared-home-card-head");
-          head.append(el("span","shared-home-badge","משותף"), el("h3","cat-title", s.name || "רשימה משותפת"));
-          const headActions = el("div","shared-home-card-actions");
-          const linkBtn = el("button","shared-home-mini-btn","🔗");
-          linkBtn.type = "button"; linkBtn.title = "העתקת קוד שיתוף";
-          linkBtn.onclick = (e) => { e.stopPropagation(); copySharedCode(s.id); };
-          const addBtn = el("button","shared-home-mini-btn","+");
-          addBtn.type = "button"; addBtn.title = "הוספת רשימה לקבוצה המשותפת";
-          addBtn.onclick = (e) => { e.stopPropagation(); addListToSharedGroup(s.id); };
-          headActions.append(linkBtn, addBtn);
-          head.append(headActions);
-          card.append(head);
+      // Shared groups: their own section, same card language as the private lists.
+      if (!inShared && !catSelectMode) {
+        const sec = el("section","lsec");
+        const head = el("div","lsec-head");
+        head.append(el("h2","","🔗 משותפות"));
+        const headBtns = el("div","lsec-btns");
+        const newShared = el("button","lsec-btn","+ חדשה");
+        newShared.type = "button";
+        newShared.onclick = () => openCategoryModal(null, true);
+        const joinBtn = el("button","lsec-btn","הצטרפות עם קוד");
+        joinBtn.type = "button";
+        joinBtn.onclick = openJoinModal;
+        headBtns.append(newShared, joinBtn);
+        head.append(headBtns);
+        sec.append(head);
 
-          const listsBox = el("div","shared-home-card-lists");
-          const paintPeek = (res) => {
-            listsBox.replaceChildren();
-            if (res.error) { listsBox.textContent = "לא הצלחתי לטעון"; return; }
-            if (!res.cats.length) { listsBox.textContent = "אין רשימות עדיין"; return; }
-            res.cats.forEach(c => {
-              const item = el("div","shared-home-card-list-item");
-              item.append(el("div","shared-home-card-list-name", c.name));
-              item.append(el("div","shared-home-card-list-meta", `${c.open} פתוחות`));
-              item.onclick = (e) => { e.stopPropagation(); openSharedCategory(s.id, c.id); };
-              listsBox.append(item);
-            });
-          };
-          const cached = sharedHomePeekCache[s.id];
-          if (cached) paintPeek(cached);
-          else listsBox.textContent = "טוען…";
-          card.append(listsBox);
-          sharedGrid.append(card);
-          loadSharedPeek(s.id).then(res => {
-            sharedHomePeekCache[s.id] = res;
-            paintPeek(res);
+        const knownShared = getKnownSharedLists();
+        if (!knownShared.length) {
+          sec.append(el("div","lsec-empty","רשימות שמשתפים איתך יופיעו כאן"));
+        } else {
+          const sgrid = el("div","lgrid lgrid-shared");
+          knownShared.forEach((sh, i) => {
+            const card = el("article","lc lc-shared");
+            card.style.setProperty("--c", SHARED_CARD_PALETTE[i % SHARED_CARD_PALETTE.length]);
+            const top = el("div","lc-top");
+            top.append(el("span","lc-badge","משותף"));
+            const acts = el("div","lc-acts");
+            const linkBtn = el("button","lc-more","🔗");
+            linkBtn.type = "button"; linkBtn.title = "העתקת קוד שיתוף";
+            linkBtn.onclick = (e) => { e.stopPropagation(); copySharedCode(sh.id); };
+            const plusBtn = el("button","lc-more","+");
+            plusBtn.type = "button"; plusBtn.title = "הוספת רשימה לקבוצה המשותפת";
+            plusBtn.onclick = (e) => { e.stopPropagation(); addListToSharedGroup(sh.id); };
+            acts.append(linkBtn, plusBtn);
+            top.append(acts);
+            card.append(top, el("h3","lc-name", sh.name || "רשימה משותפת"));
+
+            const chips = el("div","lc-chips");
+            const paint = (res) => {
+              chips.replaceChildren();
+              if (res.error) { chips.textContent = "לא הצלחתי לטעון"; return; }
+              if (!res.cats.length) { chips.textContent = "אין רשימות עדיין"; return; }
+              res.cats.forEach(c => {
+                const chip = el("button","lc-chip");
+                chip.type = "button";
+                chip.append(el("span","",c.name), el("em","",String(c.open)));
+                chip.onclick = (e) => { e.stopPropagation(); openSharedCategory(sh.id, c.id); };
+                chips.append(chip);
+              });
+            };
+            const cached = sharedHomePeekCache[sh.id];
+            if (cached) paint(cached); else chips.textContent = "טוען…";
+            card.append(chips);
+            sgrid.append(card);
+            loadSharedPeek(sh.id).then(res => { sharedHomePeekCache[sh.id] = res; paint(res); });
           });
-        });
+          sec.append(sgrid);
+        }
+        wrap.append(sec);
       }
-
-      const wrap = el("div","home-wrap");
-      if (countdownWidget) wrap.append(countdownWidget);
-      // הסדר יומי והמיקוד מוצגים רק בתוך פאנל התכנון (✨ תכנון) במובייל
-      const isMobileHome = window.matchMedia("(max-width:820px)").matches;
-      if (!isMobileHome) {
-        wrap.append(unifiedCard);
-      }
-      wrap.append(listHead, joinRow, listsWheel);
-      if (sharedGrid.children.length) wrap.append(sharedGrid);
 
       if (catSelectMode) wrap.append(renderCatSelectBar());
       $("content").replaceChildren(wrap);
@@ -3826,6 +3551,7 @@
       // Tint this view's accent with the list's own color, so buttons,
       // borders and highlights inside the list visually match it.
       const catColorMain = cat.color || state.accent;
+      $("pageTitle").style.color = catColorMain;
       $("content").style.setProperty("--accent", catColorMain);
       $("content").style.setProperty("--accent2", `color-mix(in srgb, ${catColorMain} 65%, white)`);
 
@@ -3841,7 +3567,10 @@
       exportBtn.type = "button";
       exportBtn.onclick = (e) => { e.stopPropagation(); openListExportMenu(exportBtn, cat); };
       exportWrap.append(exportBtn);
-      topBar.append(editCatBtn, exportWrap);
+      const backBtn = el("button","btn back-btn","→ כל הרשימות");
+      backBtn.type = "button";
+      backBtn.onclick = () => navigate("home");
+      topBar.append(backBtn, editCatBtn, exportWrap);
       wrap.append(topBar);
 
       // Events linked to this list are grouped by title + weekday + time.
@@ -4233,7 +3962,7 @@
     async function loadAllTasksAggregate(force){
       if (!force && allTasksAgg) return allTasksAgg;
       if (allTasksAggInFlight) return allTasksAggInFlight;
-      allTasksAggInFlight = (async () => {
+      const __p = (async () => {
         const cats = [];
         const tasks = [];
         const tag = (arr, type, id, name) => { arr.forEach(x => { x.__listType = type; x.__listId = id; x.__listName = name; }); return arr; };
@@ -4270,10 +3999,11 @@
         }
 
         allTasksAgg = { tasks, cats, loadedAt: Date.now() };
-        allTasksAggInFlight = null;
         return allTasksAgg;
       })();
-      return allTasksAggInFlight;
+      allTasksAggInFlight = __p;
+      __p.finally(() => { if (allTasksAggInFlight === __p) allTasksAggInFlight = null; });
+      return __p;
     }
 
     function isForeignTask(task){
@@ -4511,6 +4241,7 @@
         viewBtns.append(b);
       });
 
+      const hoursBtn = el("button","btn","⏱ שעות"); hoursBtn.type = "button"; hoursBtn.title = "יומן שעות ופגישות"; hoursBtn.onclick = () => navigate("meetings"); viewBtns.append(hoursBtn);
       const nav = el("div","cal-nav");
       const prev = el("button","btn","‹"); prev.type = "button";
       const next = el("button","btn","›"); next.type = "button";
@@ -6144,6 +5875,7 @@
       const month=document.createElement("input"); month.type="month"; month.value=`${selected.getFullYear()}-${String(selected.getMonth()+1).padStart(2,"0")}`; month.title="מעבר לחודש אחר"; month.onchange=()=>{if(month.value){state.meetingsDate=month.value+"-01";save();render();}};
       const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
       toolbar.append(prev,el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`),next,month);
+      const backBtn=el("button","btn","📅 חזרה ללוח"); backBtn.type="button"; backBtn.onclick=()=>navigate("calendar"); toolbar.prepend(backBtn);
       const wrap=el("div","meetings-dashboard"); wrap.append(toolbar,buildWeekBlock(weekStart,today,"הלוח השבועי"));
       const period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
       const showSummary = state.meetingsSettings?.showSummary!==false;
@@ -6609,6 +6341,26 @@
       
       const theme = el("section","card");
       theme.append(el("h3","", "ערכת נושא"));
+      {
+        theme.append(el("p","meta","פלטות מוכנות — גוונים רכים וניגודיות מתונה (הצבע המוביל מתעדכן יחד איתן)"));
+        const pg = el("div","");
+        pg.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:16px";
+        PALETTE_PRESETS.forEach(p => {
+          const fam = familyOfTheme(p.dark);
+          const active = (state.theme === p.dark || state.theme === p.light) && String(state.accent||"").toLowerCase() === p.accent.toLowerCase();
+          const b = el("button","");
+          b.type = "button";
+          b.style.cssText = `border:2px solid ${active ? "var(--accent)" : "var(--border)"};border-radius:12px;padding:10px 8px;background:var(--card2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px`;
+          b.innerHTML = `<span style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,${p.dbg} 50%,${p.lbg} 50%);display:grid;place-items:center;border:1px solid var(--border)"><i style="width:16px;height:16px;border-radius:50%;background:${p.accent};display:block"></i></span><span style="font-size:11px;font-weight:800;color:${active ? "var(--accent2)" : "var(--muted)"}">${p.label}</span>`;
+          b.onclick = () => {
+            state.theme = resolveThemeForMode(state.themeMode || "dark", fam);
+            state.accent = p.accent;
+            save(); render();
+          };
+          pg.append(b);
+        });
+        theme.append(pg);
+      }
       const themeGrid = el("div","");
       themeGrid.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:16px";
       THEMES.forEach(({key, label, icon}) => {
@@ -6873,7 +6625,6 @@
               (opts.foreign ? (opts.onOpen || openTaskModal) : openTaskModal)(task);
           }
       };
-      if (!opts.foreign) enableAgendaPointerDrag(card, task);
       
       return card;
     }
@@ -6894,11 +6645,11 @@
         const memoBtn = document.createElement("button");
         memoBtn.className = "swipe-btn swipe-btn-memo";
         memoBtn.type = "button";
-        memoBtn.innerHTML = `<span class="swipe-icon">📝</span><span>קטן</span>`;
+        memoBtn.innerHTML = `<span class="swipe-icon">🗑</span><span>מחק</span>`;
         memoBtn.onclick = (e) => {
           e.stopPropagation();
           wrap.classList.remove("swiped");
-          addTaskToDailyMemo(task);
+          deleteTask(task.id);
         };
 
         actions.append(memoBtn);
@@ -6909,11 +6660,11 @@
         const focusBtn = document.createElement("button");
         focusBtn.className = "swipe-btn swipe-btn-focus";
         focusBtn.type = "button";
-        focusBtn.innerHTML = `<span class="swipe-icon">☀️</span><span>מיקוד</span>`;
+        focusBtn.innerHTML = `<span class="swipe-icon">✓</span><span>בוצע</span>`;
         focusBtn.onclick = (e) => {
           e.stopPropagation();
           wrap.classList.remove("swiped-complete");
-          addTaskToDailyAgenda(task.id);
+          toggleTask(task.id);
         };
         completeActions.append(focusBtn);
 
@@ -7518,7 +7269,7 @@
     }
     
     function navigate(view){
-      const cameFromShared = view === "home" && activeList.type === "shared";
+      const cameFromShared = (view === "home" || view === "today") && activeList.type === "shared";
       // Force a fresh cross-list fetch whenever the "all tasks" page is
       // (re-)entered, so it doesn't keep showing whatever shared-list data
       // happened to be cached from earlier in the session.
@@ -8212,7 +7963,8 @@
       // Dynamic theme-color for browser chrome
       const themeColors = {
         sky:"#0d1117", black:"#000000", forest:"#0c1210", ember:"#14100d",
-        light:"#f4f6fa", green:"#f2f7f4", white:"#ffffff", peach:"#faf5f0"
+        light:"#f4f6fa", green:"#f2f7f4", white:"#ffffff", peach:"#faf5f0",
+        dusk:"#131119", lilac:"#f4f2f9", lagoon:"#0b1416", seafoam:"#eef6f6", slate:"#111519", mist:"#f0f3f5"
       };
       const metaTC = document.getElementById("themeColorMeta");
       if (metaTC) metaTC.content = themeColors[state.theme] || "#0d1117";
@@ -8392,7 +8144,7 @@
     }
 
     function updateGreeting(){
-      if (state.currentView !== "home") {
+      if (state.currentView !== "today") {
         if($("timeGreeting")) $("timeGreeting").style.display = "none";
         return;
       }
@@ -9748,6 +9500,13 @@
     function positionDailyMemoPanel(){
       const btn = $("dailyMemoBtn"), panel = $("dailyMemoPanel");
       if (!btn || !panel) return;
+      if (getComputedStyle(btn).display === "none") {
+        const pw = panel.offsetWidth || 300, ph = panel.offsetHeight || 360;
+        panel.style.right = "auto"; panel.style.bottom = "auto";
+        panel.style.left = Math.max(10, (window.innerWidth - pw) / 2) + "px";
+        panel.style.top = Math.max(10, (window.innerHeight - ph) / 2) + "px";
+        return;
+      }
       const r = btn.getBoundingClientRect();
       const margin = 10;
       const panelW = panel.offsetWidth || 300;
@@ -9975,7 +9734,14 @@
     function positionShopListPanel(){
       const tab = $("shopListTab"), panel = $("shopListPanel");
       if (!tab || !panel) return;
-      if (window.innerWidth <= 820) return; // בנייד הפאנל מוצמד לפינה ב-CSS, לא צריך מיקום דינמי
+      if (window.innerWidth <= 820) return;
+      if (getComputedStyle(tab).display === "none") {
+        const pw = panel.offsetWidth || 320, ph = panel.offsetHeight || 420;
+        panel.style.right = "auto";
+        panel.style.left = Math.max(10, (window.innerWidth - pw) / 2) + "px";
+        panel.style.top = Math.max(10, (window.innerHeight - ph) / 2) + "px";
+        return;
+      } // בנייד הפאנל מוצמד לפינה ב-CSS, לא צריך מיקום דינמי
       const r = tab.getBoundingClientRect();
       const margin = 10;
       const panelH = panel.offsetHeight || 420;
@@ -10179,6 +9945,202 @@
       if (code.includes("network")) return "יש בעיית רשת זמנית.";
       return `לא הצלחתי להתחבר. קוד שגיאה: ${code || "unknown"}.`;
     }
+
+    /* ═════════ v5: back button, swipe between tabs, page transitions ═════════ */
+    (function v5Flow(){
+      const TAB_ORDER = ["home","all","calendar","more"];   // visual order, right → left (RTL)
+      const isMobileNow = () => window.matchMedia("(max-width:820px)").matches;
+      const appVisible = () => !!$("appView") && !$("appView").classList.contains("hidden");
+      const tabIdx = (view) => TAB_ORDER.indexOf(navKey(view));
+
+      /* ---- overlays (modals / panels) that Back should close first ---- */
+      const OVERLAYS = [
+        { id:"modalBack",         open:e => !e.classList.contains("hidden"),        close:() => closeModal() },
+        { id:"sharedPanel",       open:e => e.classList.contains("open"),           close:() => closeSharedPanel() },
+        { id:"briefPanel",        open:e => e.style.display === "block" && e.style.opacity !== "0", close:() => closeBrief() },
+        { id:"shopListPanel",     open:e => e.classList.contains("show"),           close:() => closeShopList() },
+        { id:"dailyAgendaOverlay",open:e => e.style.display && e.style.display !== "none", close:() => closeDailyAgendaModal() },
+        { id:"todayAlert",        open:e => getComputedStyle(e).display !== "none" && getComputedStyle(e).visibility !== "hidden" && getComputedStyle(e).opacity !== "0", close:() => $("todayAlertDismiss")?.click() },
+      ];
+      const anyOverlayOpen = () => OVERLAYS.some(o => { const e = $(o.id); return e && o.open(e); });
+      const closeAllOverlays = () => OVERLAYS.forEach(o => { const e = $(o.id); if (e && o.open(e)) { try { o.close(); } catch(_){} } });
+
+      let popping = false, overlayTracked = false, ignorePops = 0;
+      const depth = () => (history.state && history.state.i) || 0;
+      const viewState = (i) => ({ tf:1, k:"v", v:state.currentView, c:state.currentCatId || null, i });
+      const sameView = (a, b) => a && b && a.v === b.v && (a.c || null) === (b.c || null);
+
+      function syncHistory(){
+        if (popping || !appVisible()) return;
+        const cur = history.state;
+        if (!cur || cur.tf !== 1) { history.replaceState(viewState(0), ""); return; }
+        if (cur.k === "o") return;
+        const vs = viewState(depth() + 1);
+        if (!sameView(cur, vs)) history.pushState(vs, "");
+      }
+
+      function onOverlayChange(){
+        const open = anyOverlayOpen();
+        if (open && !overlayTracked) {
+          if (ignorePops > 0) return;                       // a pop is still settling; retried afterwards
+          overlayTracked = true;
+          history.pushState({ tf:1, k:"o", i:depth() }, "");
+        } else if (!open && overlayTracked) {
+          overlayTracked = false;
+          if (history.state && history.state.k === "o") { ignorePops++; history.back(); }
+        }
+      }
+      const mo = new MutationObserver(onOverlayChange);
+      OVERLAYS.forEach(o => { const e = $(o.id); if (e) mo.observe(e, { attributes:true, attributeFilter:["class","style"] }); });
+
+      function restoreView(s){
+        popping = true;
+        try {
+          if (s.v === "kanban" && s.c && state.cats.some(c => c.id === s.c)) openCat(s.c);
+          else navigate(s.v === "kanban" ? "home" : s.v);
+        } finally { popping = false; }
+      }
+
+      window.addEventListener("popstate", (e) => {
+        if (!appVisible()) return;
+        if (ignorePops > 0) {
+          ignorePops--;
+          if (ignorePops === 0) { onOverlayChange(); syncHistory(); }
+          return;
+        }
+        if (anyOverlayOpen()) { overlayTracked = false; closeAllOverlays(); return; }   // Back = close the popup only
+        const s = e.state;
+        if (s && s.tf === 1 && s.k === "o") { ignorePops++; history.back(); return; }
+        if (s && s.tf === 1 && s.k === "v") restoreView(s);
+      });
+
+      /* ---- calmer list screen (mobile): shorter labels, slim empty events row, numbering only in manual mode ---- */
+      function declutter(){
+        const c = $("content"); if (!c) return;
+        const on = isMobileNow() && state.currentView === "kanban";
+        c.classList.toggle("v5-kanban", on);
+        if (!on) return;
+        c.querySelectorAll("button").forEach(b => {
+          const t = b.textContent.trim();
+          if (t === "✎ ערוך רשימה") { b.textContent = "✎ ערוך"; b.title = "ערוך רשימה"; }
+          else if (t === "⬇ ייצוא") { b.textContent = "⬇"; b.title = "ייצוא"; b.setAttribute("aria-label","ייצוא"); }
+        });
+        c.querySelectorAll(".card .col-head").forEach(h => {
+          if (h.querySelector(".count")?.textContent.trim() === "0" && h.textContent.includes("אירועים")) h.closest(".card").classList.add("v5-slim");
+        });
+        let toggles = c.querySelectorAll(".view-toggle");
+        if (toggles.length >= 2 && !toggles[0].parentElement.classList.contains("v5-toolbar")) {
+          const bar = document.createElement("div"); bar.className = "v5-toolbar";
+          toggles[0].before(bar); bar.append(toggles[0], toggles[1]);
+          toggles[1].querySelectorAll("button").forEach(b => {
+            const t = b.textContent.trim();
+            if (t.includes("לפי תאריך")) { b.textContent = "📅"; b.title = "לפי תאריך"; b.setAttribute("aria-label","לפי תאריך"); }
+            else if (t.includes("סדר ידני")) { b.textContent = "↕"; b.title = "סדר ידני"; b.setAttribute("aria-label","סדר ידני"); }
+          });
+          toggles = c.querySelectorAll(".view-toggle");
+        }
+        const manual = [...(toggles[1]?.querySelectorAll("button.active") || [])].some(b => b.textContent.includes("ידני") || b.title === "סדר ידני");
+        c.querySelectorAll(".cp-sort-btn").forEach(b => b.classList.toggle("v5-hide", !manual));
+      }
+
+      /* ---- render hook: keep history in sync + animate page changes ---- */
+      let prevTab = null, prevView = null, prevDepth = 0;
+      const _render = render;
+      render = function(){
+        const r = _render.apply(this, arguments);
+        try {
+          if (appVisible()) {
+            syncHistory();
+            declutter();
+            const t = tabIdx(state.currentView), v = state.currentView + "|" + (state.currentCatId || "");
+            if (prevView !== null && v !== prevView && isMobileNow()) {
+              const c = $("content");
+              let cls = "v5-fade";
+              if (t !== prevTab && t >= 0 && prevTab >= 0) cls = t > prevTab ? "v5-from-l" : "v5-from-r";
+              else if (depth() !== prevDepth) cls = depth() > prevDepth ? "v5-from-l" : "v5-from-r";
+              c.classList.remove("v5-from-l","v5-from-r","v5-fade");
+              void c.offsetWidth;
+              c.classList.add(cls);
+            }
+            prevTab = t; prevView = v; prevDepth = depth();
+          }
+        } catch(err){ console.warn("v5 flow", err); }
+        return r;
+      };
+
+      /* ---- swipe left/right between tabs ---- */
+      let sx = 0, sy = 0, st = 0, tracking = false, locked = false;
+      const BLOCK = "input,textarea,select,.flatpickr-calendar,.task-swipe-wrap,.lists-wheel,[draggable='true'],.drag-ghost,.drum,[data-noswipe]";
+      const resetContent = (animate) => {
+        const c = $("content"); if (!c) return;
+        c.style.transition = animate ? "transform .2s ease, opacity .2s ease" : "none";
+        c.style.transform = ""; c.style.opacity = "";
+        if (animate) setTimeout(() => { c.style.transition = ""; }, 220);
+      };
+
+      document.addEventListener("touchstart", (e) => {
+        tracking = false; locked = false;
+        if (!isMobileNow() || !appVisible() || e.touches.length !== 1) return;
+        if (anyOverlayOpen() || draggedTaskId || agendaPointerDrag) return;
+        const t = e.target;
+        if (!(t.closest("main") || t.closest("#bottomNav"))) return;
+        if (t.closest(BLOCK)) return;
+        for (let n = t; n && n !== document.body; n = n.parentElement) {
+          if (n.scrollWidth > n.clientWidth + 4) {
+            const ox = getComputedStyle(n).overflowX;
+            if (ox === "auto" || ox === "scroll") return;
+          }
+        }
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); tracking = true;
+      }, { passive:true });
+
+      document.addEventListener("touchmove", (e) => {
+        if (!tracking) return;
+        const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+        if (!locked) {
+          if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx) * 0.8) { tracking = false; return; }
+          if (Math.abs(dx) > 16 && Math.abs(dx) > Math.abs(dy) * 1.5) locked = true; else return;
+        }
+        const c = $("content");
+        c.style.transition = "none";
+        c.style.transform = `translateX(${dx * 0.3}px)`;
+        c.style.opacity = String(1 - Math.min(Math.abs(dx) / 700, 0.22));
+      }, { passive:true });
+
+      document.addEventListener("touchcancel", () => { if (locked) resetContent(true); tracking = false; locked = false; }, { passive:true });
+
+      document.addEventListener("touchend", (e) => {
+        if (!tracking || !locked) { tracking = false; locked = false; return; }
+        const dx = e.changedTouches[0].clientX - sx;
+        const fast = Date.now() - st < 420;
+        tracking = false; locked = false;
+        resetContent(true);
+        if (Math.abs(dx) < (fast ? 50 : 90)) return;
+        goBySwipe(dx > 0 ? 1 : -1);          // finger → right = next tab (it sits on the left in RTL)
+      }, { passive:true });
+
+      function goBySwipe(dir){
+        const idx = tabIdx(state.currentView);
+        const subPage = ["kanban","meetings","settings"].includes(state.currentView);
+        if (subPage && dir < 0) {                      // swipe "back" inside a sub-page
+          if (depth() > 0) history.back(); else navigate(navKey(state.currentView));
+          return;
+        }
+        const target = TAB_ORDER[idx + dir];
+        if (target) navigate(target);
+      }
+
+      /* ---- hide the floating bar while typing ---- */
+      document.addEventListener("focusin", (e) => {
+        if (isMobileNow() && e.target.matches && e.target.matches("input,textarea,select")) document.body.classList.add("v5-kb");
+      });
+      document.addEventListener("focusout", () => setTimeout(() => {
+        const a = document.activeElement;
+        if (!(a && a.matches && a.matches("input,textarea,select"))) document.body.classList.remove("v5-kb");
+      }, 60));
+
+      window.__v5 = { goBySwipe, syncHistory, anyOverlayOpen };
+    })();
   </script>
 </body>
 </html>
