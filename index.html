@@ -2109,6 +2109,33 @@
       .lc-name{font-size:17px}
       .lc-peek-item{font-size:12.5px}
     }
+  
+    /* ── recurrence builder ── */
+    .rp-box{border:1.5px solid var(--border);border-radius:18px;background:var(--card2);padding:12px;display:grid;gap:12px}
+    .rp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .rp-lbl{font-size:12.5px;font-weight:800;color:var(--muted)}
+    .rp .chip-opt{padding:6px 12px;font-size:12.5px}
+    .rp input.rp-num{width:72px!important;min-height:38px!important;padding:6px 10px!important;text-align:center!important;direction:ltr}
+    .rp input.rp-date{width:auto!important;min-height:38px!important;padding:6px 10px!important}
+    .rp-weekdays{display:flex;gap:6px}
+    .rp-wd{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-weight:900;font-size:13px;padding:0}
+    .rp-wd.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .rp-cal{max-height:300px;overflow-y:auto;display:grid;gap:14px;padding:4px;border-radius:14px;background:var(--card);border:1px solid var(--border);overscroll-behavior:contain}
+    .rp-month{padding:6px 8px}
+    .rp-month-title{font-size:13px;font-weight:900;margin-bottom:6px;color:var(--text);position:sticky;top:-4px;background:var(--card);padding:2px 0;z-index:1}
+    .rp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+    .rp-dn{text-align:center;font-size:10px;font-weight:800;color:var(--faint)}
+    .rp-day{height:34px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text);font-size:12.5px;font-weight:700;padding:0;transition:background .12s,transform .1s}
+    .rp-day:hover:not(:disabled){background:color-mix(in srgb,var(--accent) 14%,var(--card2))}
+    .rp-day:active:not(:disabled){transform:scale(.92)}
+    .rp-day.past{opacity:.28;cursor:default}
+    .rp-day.base{border:2px solid var(--accent);color:var(--accent2);font-weight:900}
+    .rp-day.active{background:var(--accent);color:#fff}
+    .rp-day.extra{border:1.5px dashed var(--accent);color:var(--accent2);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+    .rp-day.excluded{text-decoration:line-through;color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent);border:1px dashed color-mix(in srgb,var(--danger) 50%,transparent)}
+    .rp-more{border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:12px;padding:8px;font-weight:800;font-size:12.5px}
+    .rp-more:hover{border-color:var(--accent);color:var(--accent2)}
+    .rp-summary{font-size:12.5px;font-weight:800;color:var(--accent2)}
   </style>
 </head>
 <body data-theme="sky">
@@ -5318,49 +5345,238 @@
       return keys;
     }
 
+    // Recurrence builder: a repeat rule (every N days/weeks/months, chosen weekdays,
+    // ends after N occurrences or on a date) generates dates; a scrollable multi-month
+    // calendar then lets you cancel individual generated dates or add extra ones by hand.
     function repeatDatePicker(baseDateKey, preselected = []){
-      const selected = new Set(preselected.filter(Boolean));
-      const wrap = el("div","field");
-      wrap.append(el("label","", "חזרות באותה שעה"));
-      const box = el("div","repeat-picker");
-      const head = el("div","repeat-picker-head");
-      const title = el("div","repeat-picker-title", "בחר ימים נוספים");
-      const clear = el("button","repeat-picker-clear","נקה");
-      clear.type = "button";
-      head.append(title, clear);
-      const grid = el("div","repeat-picker-grid");
-      const summary = el("div","repeat-picker-summary");
-      box.append(head, grid, summary);
+      const HE_DAYS = ["א","ב","ג","ד","ה","ו","ש"];
+      const MAX_OCC = 400;
+      const cfg = { on:false, interval:1, unit:"week", weekdays:new Set(), weekdaysTouched:false, endType:"count", count:10, until:"" };
+      const excluded = new Set();
+      const extras = new Set(preselected.filter(Boolean));
+      let extraMonths = 0;
+      let baseKey = baseDateKey || toDateKey(new Date());
+
+      const wrap = el("div","field rp");
+      wrap.append(el("label","","חזרות באותה שעה"));
+      const box = el("div","rp-box");
       wrap.append(box);
 
-      function render(baseKey = $("evDate")?.value || baseDateKey || toDateKey(new Date())){
-        grid.replaceChildren();
-        ["א","ב","ג","ד","ה","ו","ש"].forEach(d => grid.append(el("div","repeat-picker-dayname",d)));
+      const addMonths = (d, n) => {
+        const r = new Date(d.getFullYear(), d.getMonth() + n, 1);
+        const last = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate();
+        r.setDate(Math.min(d.getDate(), last));
+        return r;
+      };
+
+      function generated(){
+        if (!cfg.on) return [];
         const base = parseDate(baseKey);
-        const first = new Date(base);
-        first.setDate(first.getDate() - first.getDay());
-        for (let i = 0; i < 35; i++) {
-          const d = new Date(first);
-          d.setDate(first.getDate() + i);
-          const dk = toDateKey(d);
-          const btn = el("button","repeat-picker-day" + (selected.has(dk) ? " active" : "") + (dk === baseKey ? " base" : ""), String(d.getDate()));
-          btn.type = "button";
-          btn.title = d.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
-          btn.disabled = dk === baseKey;
-          btn.onclick = () => {
-            if (selected.has(dk)) selected.delete(dk);
-            else selected.add(dk);
-            render(baseKey);
-          };
-          grid.append(btn);
+        const n = Math.max(1, cfg.interval | 0);
+        const days = new Set([baseKey]);
+        const limitOk = (dk, count) => cfg.endType === "until" ? (!cfg.until || dk <= cfg.until) : count < Math.max(1, cfg.count | 0);
+        const hardEnd = new Date(base); hardEnd.setFullYear(hardEnd.getFullYear() + 3);
+        if (cfg.unit === "day") {
+          for (let k = 1; days.size < MAX_OCC; k++) {
+            const d = new Date(base); d.setDate(base.getDate() + k * n);
+            const dk = toDateKey(d);
+            if (d > hardEnd || !limitOk(dk, days.size)) break;
+            days.add(dk);
+          }
+        } else if (cfg.unit === "week") {
+          const wds = cfg.weekdays.size ? [...cfg.weekdays].sort() : [base.getDay()];
+          const wk0 = new Date(base); wk0.setDate(base.getDate() - base.getDay());
+          let stop = false;
+          for (let w = 0; !stop && days.size < MAX_OCC; w++) {
+            for (const wd of wds) {
+              const d = new Date(wk0); d.setDate(wk0.getDate() + w * 7 * n + wd);
+              if (d <= base) continue;
+              const dk = toDateKey(d);
+              if (d > hardEnd || !limitOk(dk, days.size)) { stop = true; break; }
+              days.add(dk);
+            }
+          }
+        } else {
+          for (let k = 1; days.size < MAX_OCC; k++) {
+            const d = addMonths(base, k * n);
+            const dk = toDateKey(d);
+            if (d > hardEnd || !limitOk(dk, days.size)) break;
+            days.add(dk);
+          }
         }
-        summary.textContent = selected.size ? `ייווצרו ${selected.size + 1} מופעים כולל התאריך הראשי` : "לא נבחרו חזרות";
+        days.delete(baseKey);
+        return [...days].sort();
       }
 
-      clear.onclick = () => { selected.clear(); render(); };
-      wrap.getSelectedDates = () => [...selected].sort();
-      wrap.refreshRepeatPicker = render;
-      render();
+      function finalDates(){
+        const set = new Set(generated().filter(d => !excluded.has(d)));
+        extras.forEach(d => { if (d > baseKey) set.add(d); });
+        return [...set].sort();
+      }
+
+      const chip = (label, active, fn) => {
+        const b = el("button","chip-opt" + (active ? " active" : ""), label);
+        b.type = "button"; b.onclick = fn; return b;
+      };
+
+      function preset(p){
+        cfg.on = true; extras.clear(); excluded.clear();
+        const wd = parseDate(baseKey).getDay();
+        if (p === "daily") { cfg.unit = "day"; cfg.interval = 1; cfg.count = 14; }
+        else if (p === "weekdays") { cfg.unit = "week"; cfg.interval = 1; cfg.weekdays = new Set([0,1,2,3,4]); cfg.weekdaysTouched = true; cfg.count = 20; }
+        else if (p === "weekly") { cfg.unit = "week"; cfg.interval = 1; cfg.weekdays = new Set([wd]); cfg.weekdaysTouched = false; cfg.count = 10; }
+        else if (p === "biweekly") { cfg.unit = "week"; cfg.interval = 2; cfg.weekdays = new Set([wd]); cfg.weekdaysTouched = false; cfg.count = 8; }
+        else if (p === "monthly") { cfg.unit = "month"; cfg.interval = 1; cfg.count = 6; }
+        cfg.endType = "count";
+        draw();
+      }
+
+      function draw(){
+        const prevScroll = box.querySelector(".rp-cal")?.scrollTop || 0;
+        box.replaceChildren();
+        if (!cfg.weekdays.size && !cfg.weekdaysTouched) cfg.weekdays = new Set([parseDate(baseKey).getDay()]);
+
+        // quick presets
+        const pr = el("div","chip-select rp-presets");
+        [["ללא","none"],["כל יום","daily"],["ימי חול","weekdays"],["כל שבוע","weekly"],["כל שבועיים","biweekly"],["כל חודש","monthly"]].forEach(([l,k]) => {
+          const active = k === "none" ? !cfg.on : false;
+          pr.append(chip(l, active, () => {
+            if (k === "none") { cfg.on = false; excluded.clear(); draw(); }
+            else preset(k);
+          }));
+        });
+        box.append(pr);
+
+        if (cfg.on) {
+          // "every N [days|weeks|months]"
+          const row = el("div","rp-row");
+          row.append(el("span","rp-lbl","כל"));
+          const num = document.createElement("input");
+          num.type = "number"; num.min = "1"; num.max = "99"; num.value = String(cfg.interval); num.className = "rp-num";
+          num.onchange = () => { cfg.interval = Math.min(99, Math.max(1, parseInt(num.value) || 1)); draw(); };
+          row.append(num);
+          const units = el("div","chip-select");
+          [["day","ימים"],["week","שבועות"],["month","חודשים"]].forEach(([u,l]) => units.append(chip(l, cfg.unit === u, () => { cfg.unit = u; draw(); })));
+          row.append(units);
+          box.append(row);
+
+          if (cfg.unit === "week") {
+            const wr = el("div","rp-weekdays");
+            HE_DAYS.forEach((l, i) => {
+              const b = el("button","rp-wd" + (cfg.weekdays.has(i) ? " active" : ""), l);
+              b.type = "button";
+              b.title = "יום " + l + "׳";
+              b.onclick = () => {
+                cfg.weekdaysTouched = true;
+                if (cfg.weekdays.has(i)) { if (cfg.weekdays.size > 1) cfg.weekdays.delete(i); }
+                else cfg.weekdays.add(i);
+                draw();
+              };
+              wr.append(b);
+            });
+            box.append(wr);
+          }
+
+          // end condition
+          const er = el("div","rp-row");
+          er.append(el("span","rp-lbl","סיום"));
+          const ends = el("div","chip-select");
+          ends.append(
+            chip("אחרי מספר פעמים", cfg.endType === "count", () => { cfg.endType = "count"; draw(); }),
+            chip("עד תאריך", cfg.endType === "until", () => {
+              cfg.endType = "until";
+              if (!cfg.until) { const u = addMonths(parseDate(baseKey), 3); cfg.until = toDateKey(u); }
+              draw();
+            })
+          );
+          er.append(ends);
+          box.append(er);
+          const er2 = el("div","rp-row");
+          if (cfg.endType === "count") {
+            const c = document.createElement("input");
+            c.type = "number"; c.min = "2"; c.max = String(MAX_OCC); c.value = String(cfg.count); c.className = "rp-num";
+            c.onchange = () => { cfg.count = Math.min(MAX_OCC, Math.max(2, parseInt(c.value) || 2)); draw(); };
+            er2.append(c, el("span","rp-lbl","מופעים בסך הכול (כולל הראשון)"));
+          } else {
+            const u = document.createElement("input");
+            u.type = "date"; u.value = cfg.until; u.min = baseKey; u.className = "rp-date";
+            u.onchange = () => { cfg.until = u.value; draw(); };
+            er2.append(u);
+          }
+          box.append(er2);
+        }
+
+        // multi-month calendar: tap to cancel a generated date, or add an extra one
+        const gen = new Set(generated());
+        const fin = finalDates();
+        const base = parseDate(baseKey);
+        const lastKey = fin.length ? fin[fin.length - 1] : baseKey;
+        const lastD = parseDate(lastKey);
+        let monthsToShow = (lastD.getFullYear() - base.getFullYear()) * 12 + lastD.getMonth() - base.getMonth() + 1;
+        monthsToShow = Math.min(36, Math.max(3, monthsToShow) + extraMonths);
+
+        const cal = el("div","rp-cal");
+        for (let m = 0; m < monthsToShow; m++) {
+          const first = new Date(base.getFullYear(), base.getMonth() + m, 1);
+          const sec = el("div","rp-month");
+          sec.append(el("div","rp-month-title", first.toLocaleDateString("he-IL",{month:"long",year:"numeric"})));
+          const g = el("div","rp-grid");
+          HE_DAYS.forEach(d => g.append(el("div","rp-dn", d)));
+          for (let i = 0; i < first.getDay(); i++) g.append(el("div","rp-empty"));
+          const dim = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+          for (let day = 1; day <= dim; day++) {
+            const d = new Date(first.getFullYear(), first.getMonth(), day);
+            const dk = toDateKey(d);
+            let cls = "rp-day", title = "";
+            const isBase = dk === baseKey;
+            const before = dk < baseKey;
+            if (isBase) { cls += " base"; title = "התאריך הראשי"; }
+            else if (before) cls += " past";
+            else if (gen.has(dk) && excluded.has(dk)) { cls += " excluded"; title = "מבוטל — לחץ לשחזור"; }
+            else if (gen.has(dk)) { cls += " active"; title = "לחץ כדי לבטל תאריך זה"; }
+            else if (extras.has(dk)) { cls += " extra"; title = "נוסף ידנית — לחץ להסרה"; }
+            else title = "לחץ כדי להוסיף";
+            const b = el("button", cls, String(day));
+            b.type = "button"; b.title = title;
+            b.disabled = isBase || before;
+            b.onclick = () => {
+              if (gen.has(dk)) { excluded.has(dk) ? excluded.delete(dk) : excluded.add(dk); }
+              else { extras.has(dk) ? extras.delete(dk) : extras.add(dk); }
+              draw();
+            };
+            g.append(b);
+          }
+          sec.append(g);
+          cal.append(sec);
+        }
+        box.append(cal);
+        cal.scrollTop = prevScroll;
+
+        const more = el("button","rp-more","＋ הצג עוד חודשים");
+        more.type = "button";
+        more.onclick = () => { extraMonths += 3; draw(); const c = box.querySelector(".rp-cal"); if (c) c.scrollTop = c.scrollHeight; };
+        box.append(more);
+
+        const cancelled = [...excluded].filter(d => gen.has(d)).length;
+        const sum = el("div","rp-summary");
+        sum.textContent = fin.length
+          ? `ייווצרו ${fin.length + 1} מופעים כולל התאריך הראשי` + (cancelled ? ` · ${cancelled} תאריכים בוטלו` : "")
+          : "אירוע בודד — בחרו חזרה, או לחצו על תאריכים בלוח כדי להוסיף";
+        box.append(sum);
+        if (fin.length || extras.size || excluded.size) {
+          const clear = el("button","repeat-picker-clear","נקה הכול");
+          clear.type = "button";
+          clear.onclick = () => { cfg.on = false; extras.clear(); excluded.clear(); draw(); };
+          box.append(clear);
+        }
+      }
+
+      wrap.getSelectedDates = () => finalDates();
+      wrap.refreshRepeatPicker = (newBase) => {
+        if (newBase && newBase !== baseKey) { baseKey = newBase; excluded.clear(); extras.forEach(d => { if (d <= baseKey) extras.delete(d); }); if (cfg.until && cfg.until < baseKey) cfg.until = ""; }
+        draw();
+      };
+      draw();
       return wrap;
     }
 
