@@ -1873,6 +1873,201 @@
       .v5-toolbar .view-toggle button.active{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 36%,transparent)}
       #content.v5-kanban .cp-sort-btn.v5-hide{display:none}
     }
+
+    /* ── Calendar polish: נקי, שקט, עקבי עם שאר האפליקציה ── */
+    .calendar-view .cal-toolbar{background:var(--bg);border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;padding:2px 0;margin:0 0 4px}
+    /* בורר תצוגה (חודש / שבוע / יום) כפקד מקוטע */
+    .calendar-view .cal-toolbar > .row{flex-wrap:nowrap;gap:2px;padding:3px;background:var(--card);border:1px solid var(--border);border-radius:999px}
+    .calendar-view .cal-toolbar > .row .btn{border:0;background:transparent;color:var(--muted);border-radius:999px;font-weight:700;box-shadow:none}
+    .calendar-view .cal-toolbar > .row .btn:hover{background:var(--card2);color:var(--text)}
+    .calendar-view .cal-toolbar > .row .btn.active{background:var(--accent);color:#fff}
+    /* ניווט */
+    .calendar-view .cal-nav .btn{min-height:32px;border-radius:999px;background:transparent;border-color:transparent;color:var(--muted);font-size:18px;line-height:1}
+    .calendar-view .cal-nav .btn:hover{background:var(--card2);color:var(--text)}
+    .calendar-view .cal-title{font-weight:800;color:var(--text)}
+    /* כפתורים משניים: שקטים, רק "+ אירוע" בולט */
+    .calendar-view .cal-toolbar-secondary .btn:not(.primary){background:transparent;border-color:var(--border);color:var(--muted)}
+    .calendar-view .cal-toolbar-secondary .btn:not(.primary):hover{background:var(--card2);color:var(--text);border-color:var(--border)}
+    .week-load-bar{background:var(--card);padding:8px 12px;border-radius:12px}
+
+    /* תצוגת חודש */
+    .calendar-view .day-name{background:var(--bg);color:var(--faint);font-weight:700;letter-spacing:.02em}
+    .calendar-view .day{background:var(--card);border:1px solid color-mix(in srgb,var(--border) 55%,transparent);box-shadow:none}
+    /* סוף שבוע (ו׳ ו־ש׳) בגוון עדין */
+    .calendar-view .day:nth-child(7n+6),.calendar-view .day:nth-child(7n){background:color-mix(in srgb,var(--card2) 55%,var(--card))}
+    /* ימים מחוץ לחודש: בלי מסגרת ורקע */
+    .calendar-view .day.other{opacity:.45;background:transparent;border-color:transparent}
+    .calendar-view .day:not(.other):hover{border-color:color-mix(in srgb,var(--accent) 60%,var(--border));box-shadow:none}
+    .calendar-view .day-num{color:var(--muted);font-weight:700}
+    .calendar-view .day.today{background:color-mix(in srgb,var(--accent) 9%,var(--card));border-color:color-mix(in srgb,var(--accent) 55%,var(--border));box-shadow:none}
+    .calendar-view .day.today .day-num{background:var(--accent);color:#fff}
+    /* אירועים ומשימות בתוך היום */
+    .calendar-view .day-task{border-radius:5px;font-weight:600}
+    .calendar-view .day-task.is-meeting{border-bottom:0}
+    .calendar-view .day-task.is-meeting::after{display:none} /* האימוג'י 🤝 כבר מופיע בכותרת, היה כפול */
+    .calendar-view .day-more{font-weight:700}
+    /* מצבי גרירה (עד עכשיו לא היה להם עיצוב בכלל) */
+    .calendar-view .day.drag-selecting{background:color-mix(in srgb,var(--accent) 16%,var(--card));border-color:var(--accent)}
+    .calendar-view .day.drag-drop-hover{background:color-mix(in srgb,var(--accent) 12%,var(--card));border-color:var(--accent);border-style:dashed}
+
+    /* תצוגת שבוע ויום */
+    .calendar-view .cal-week-day-head{background:var(--bg);border:0;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;color:var(--muted);font-weight:700}
+    .calendar-view .cal-week-day-head.today{background:color-mix(in srgb,var(--accent) 10%,var(--bg));border-bottom:2px solid var(--accent);color:var(--accent2)}
+    .calendar-view .cal-day-col,.calendar-view .day-col{
+      border-color:color-mix(in srgb,var(--border) 60%,transparent);border-radius:8px;
+      background:
+        repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--cal-hour-h) - 1px), rgba(127,127,127,.09) calc(var(--cal-hour-h) - 1px), rgba(127,127,127,.09) var(--cal-hour-h)),
+        var(--card);
+    }
+    .calendar-view .cal-hour,.calendar-view .hour-label{color:var(--faint);font-weight:600}
+    .calendar-view .cal-event{font-weight:600}
+
+    /* דסקטופ: קצת יותר אוויר וקריאות (במובייל נשאר הפריסה הצפופה הקיימת) */
+    @media(min-width:821px){
+      .calendar-view .cal{gap:4px}
+      .calendar-view .cal-title{font-size:17px}
+      .calendar-view .day{border-radius:10px;padding:5px 6px}
+      .calendar-view .day-num{font-size:12.5px;min-width:22px;height:22px}
+      .calendar-view .day-task{font-size:10.5px;padding:2px 6px;min-height:17px;margin-top:1px}
+      .calendar-view .day-more{font-size:10px}
+    }
+
+    /* ── מטלות קטנות: חלון נקי במרכז (דסקטופ) / גיליון תחתון (מובייל) ── */
+    #dailyMemoPanel{
+      left:50%;top:50%;right:auto;bottom:auto;z-index:131;
+      width:min(420px,calc(100vw - 32px));max-height:min(560px,calc(100dvh - 64px));
+      border-radius:22px;
+      transform:translate(-50%,-46%) scale(.97);
+      transition:opacity .2s ease,transform .26s cubic-bezier(.2,.9,.3,1.1),visibility 0s linear .26s;
+    }
+    #dailyMemoPanel.show{
+      transform:translate(-50%,-50%) scale(1);
+      transition:opacity .2s ease,transform .26s cubic-bezier(.2,.9,.3,1.1),visibility 0s linear 0s;
+    }
+    #dailyMemoBackdrop{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s}
+    #dailyMemoPanel.show + #dailyMemoBackdrop{opacity:1;visibility:visible;transition:opacity .2s ease,visibility 0s}
+    .toast{z-index:200} /* שהודעת "ביטול" תופיע מעל החלון */
+
+    #dailyMemoPanel .memo-grab{display:none;flex:0 0 auto;width:38px;height:4px;border-radius:99px;background:var(--border);margin:9px auto 0}
+    #dailyMemoPanel .memo-head{padding:16px 18px 4px;border:0;gap:10px;align-items:flex-start}
+    #dailyMemoPanel .memo-head-text{flex:1;min-width:0}
+    #dailyMemoPanel .memo-head-title{font-size:18px;font-weight:900}
+    #dailyMemoPanel .memo-head-sub{font-size:12px;font-weight:600;color:var(--faint);margin-top:3px}
+    .memo-count{min-width:26px;height:26px;padding:0 9px;border-radius:999px;background:color-mix(in srgb,var(--accent) 16%,var(--card2));color:var(--accent2);font-size:12.5px;font-weight:800;display:inline-grid;place-items:center;margin-top:1px}
+    #dailyMemoClose{width:32px;height:32px;padding:0;border-radius:50%;display:grid;place-items:center;font-size:20px;background:var(--card2);color:var(--muted)}
+    #dailyMemoClose:hover{color:var(--text);background:var(--card)}
+
+    .memo-compose{display:flex;gap:8px;padding:12px 18px 12px}
+    .memo-compose input{flex:1;min-width:0;height:44px;padding:0 14px;border-radius:12px;font-size:14px;background:var(--card)}
+    .memo-add-btn{flex:0 0 44px;width:44px;height:44px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-size:24px;font-weight:300;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;transition:transform .12s,filter .15s}
+    .memo-add-btn:hover{filter:brightness(1.08)}
+    .memo-add-btn:active{transform:scale(.93)}
+
+    #dailyMemoLines.memo-lines{padding:2px 14px 18px;gap:6px;overflow-y:auto;overscroll-behavior:contain}
+    .memo-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:12px;background:var(--card);border:1px solid color-mix(in srgb,var(--border) 60%,transparent);transition:opacity .24s ease,transform .24s ease,border-color .15s}
+    .memo-item:hover,.memo-item:focus-within{border-color:color-mix(in srgb,var(--accent) 45%,var(--border))}
+    .memo-check{flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:2px solid var(--faint);background:transparent;display:grid;place-items:center;padding:0;cursor:pointer;transition:background .18s,border-color .18s}
+    .memo-check-mark{font-size:13px;font-weight:900;line-height:1;color:transparent;transition:color .18s}
+    .memo-check:hover{border-color:var(--green)}
+    .memo-check:hover .memo-check-mark{color:var(--green)}
+    .memo-item.done{opacity:.4;transform:translateX(-14px)}
+    .memo-item.done .memo-check{background:var(--green);border-color:var(--green)}
+    .memo-item.done .memo-check-mark{color:#fff}
+    .memo-item.done .memo-item-text{text-decoration:line-through;color:var(--faint)}
+    input.memo-item-text{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;padding:5px 2px;border-radius:6px;font-size:14px;font-weight:600;color:var(--text);text-overflow:ellipsis}
+    input.memo-item-text:focus{border:0;box-shadow:none;background:var(--card2)}
+    .memo-link{flex:0 0 auto;font-size:12px;opacity:.6}
+    .memo-del{flex:0 0 auto;width:26px;height:26px;border:0;border-radius:50%;background:transparent;color:var(--faint);font-size:17px;line-height:1;cursor:pointer;opacity:0;transition:opacity .15s,color .15s,background .15s}
+    .memo-item:hover .memo-del,.memo-item:focus-within .memo-del{opacity:1}
+    .memo-del:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent)}
+    @media(hover:none){.memo-del{opacity:.55}}
+    .memo-empty{text-align:center;padding:26px 16px 20px;color:var(--faint)}
+    .memo-empty-ico{font-size:30px;margin-bottom:6px}
+    .memo-empty-title{font-weight:800;font-size:14px;color:var(--muted)}
+    .memo-empty-sub{font-size:12px;margin-top:3px}
+
+    @media(max-width:820px){
+      #dailyMemoPanel{
+        left:0;right:0;top:auto;bottom:0;width:100%;max-height:min(80dvh,640px);
+        border-radius:24px 24px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom);
+        transform:translateY(105%);
+      }
+      #dailyMemoPanel.show{transform:translateY(0)}
+      #dailyMemoPanel .memo-grab{display:block}
+    }
+  
+    /* ═════════ v6: quick access, fresher modals, simpler settings ═════════ */
+    .qbtn{position:relative;font-size:15px;padding:5px 11px!important;min-width:38px}
+    .qbadge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;background:var(--warn);color:#fff;border:2px solid var(--bg);font-size:10px;font-weight:800;line-height:13px;text-align:center;display:none}
+    .qbadge.show{display:block}
+    #topBarBtns{gap:8px}
+    .quick-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:520px}
+    .quick-chip{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;text-align:right;background:color-mix(in srgb,var(--c) 11%,var(--card));border:1px solid color-mix(in srgb,var(--c) 32%,var(--border));transition:border-color .15s,background .15s}
+    .quick-chip:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,var(--card))}
+    .quick-chip-ico{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:20px;background:color-mix(in srgb,var(--c) 22%,var(--card2));flex:0 0 auto}
+    .quick-chip-txt{display:flex;flex-direction:column;min-width:0;flex:1}
+    .quick-chip-txt strong{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .quick-chip-txt small{font-size:11.5px;color:var(--faint);font-weight:700}
+    .quick-chip-plus{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-size:18px;font-weight:400;flex:0 0 auto;line-height:1}
+    @media(max-width:820px){
+      .quick-strip{gap:8px;max-width:none}
+      .quick-chip{padding:10px;gap:8px;border-radius:16px}
+      .quick-chip-ico{width:34px;height:34px;font-size:17px;border-radius:11px}
+      .quick-chip-txt strong{font-size:13px}
+      .quick-chip-plus{display:none}
+      .top #topBarBtns{gap:6px!important}
+    }
+
+    /* ── Modals (new task / new event / etc.) ── */
+    .modal-back{backdrop-filter:blur(8px);background:rgba(8,10,16,.6)}
+    .modal{position:relative;border-radius:24px;padding:0;overflow:auto;border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border));box-shadow:0 30px 80px rgba(0,0,0,.4);animation:modalPop .28s cubic-bezier(.2,.9,.3,1.15)}
+    @keyframes modalPop{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+    .modal .modal-head{margin:0;padding:22px 24px 16px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 24%,transparent),transparent 70%);border-bottom:1px solid color-mix(in srgb,var(--accent) 16%,var(--border))}
+    .modal h2{font-size:22px;font-weight:900;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+    .modal-sub{font-size:12.5px;font-weight:700;color:var(--accent2)}
+    .modal #modalClose{border-radius:50%;width:36px;height:36px;font-size:20px;background:var(--card2);border-color:transparent}
+    .modal #modalForm{padding:18px 24px 24px}
+    .modal .field{margin-bottom:16px}
+    .modal label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:7px}
+    .modal .field-ico{font-size:14px;line-height:1}
+    .modal input[type=text],.modal input[type=time],.modal input[type=date],.modal input[type=email],.modal input[type=month],.modal select,.modal textarea,.modal .date-input{border-radius:14px;padding:12px 14px;background:var(--card);border:1.5px solid var(--border);font-weight:600;min-height:46px}
+    .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .modal #taskName,.modal #evTitle,.modal #quickTaskName,.modal #meetName{font-size:18px;font-weight:800;padding:14px 16px;border-radius:16px;background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+    .modal .two{gap:12px}
+    .modal .char-count{font-weight:700}
+    .chip-select{display:flex;flex-wrap:wrap;gap:8px}
+    .chip-opt{border:1.5px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:800;transition:border-color .15s,background .15s,color .15s,transform .12s}
+    .chip-opt:hover{border-color:var(--accent);color:var(--text)}
+    .chip-opt:active{transform:scale(.96)}
+    .chip-opt.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 35%,transparent)}
+    .modal .swatches{gap:9px;margin-top:2px}
+    .modal .swatch{width:30px;height:30px;transition:transform .12s}
+    .modal .swatch:hover{transform:scale(1.12)}
+    .modal .swatch.active{transform:scale(1.18);box-shadow:0 0 0 3px var(--surface),0 0 0 5px currentColor}
+    .modal .repeat-picker{border-radius:16px;background:var(--card);padding:12px}
+    .modal .repeat-picker-day{border-radius:10px}
+    .modal .date-chip-add,.modal .date-chip-set{padding:9px 16px;font-size:13px}
+    .modal .date-suggestion{border-radius:14px}
+    .modal .editor-row input{min-height:42px}
+    .modal .btn{border-radius:14px;min-height:44px;padding:10px 18px}
+    .modal .row:last-child .btn.primary,.modal form > .row:last-child .btn.primary{flex:1;font-size:15px;font-weight:900;box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 35%,transparent)}
+    .modal form > .row:last-child{position:sticky;bottom:-24px;margin:20px -24px -24px!important;padding:14px 24px;background:linear-gradient(to top,var(--surface) 75%,transparent);gap:10px}
+    @media(max-width:820px){
+      .modal{border-radius:26px 26px 14px 14px;max-height:92dvh}
+      .modal .modal-head{padding:18px 18px 12px}
+      .modal #modalForm{padding:14px 18px 20px}
+      .modal form > .row:last-child{margin:18px -18px -20px!important;padding:12px 18px;bottom:-20px}
+    }
+
+    /* ── Settings: calmer colour section ── */
+    .theme-quick{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .theme-quick .swatch{width:34px;height:34px}
+    .theme-more{margin-top:6px;border:1px dashed var(--border);border-radius:14px;padding:4px 14px}
+    .theme-more > summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--muted);padding:10px 0;list-style:none}
+    .theme-more > summary::-webkit-details-marker{display:none}
+    .theme-more > summary::before{content:"＋ ";color:var(--accent2)}
+    .theme-more[open] > summary::before{content:"－ "}
+    .theme-more[open]{padding-bottom:14px}
   </style>
 </head>
 <body data-theme="sky">
@@ -1949,6 +2144,8 @@
           </div>
           <button id="addBtn" class="btn primary" type="button">+ חדש</button>
           <div id="topBarBtns">
+            <button id="quickMemoBtn" class="btn topbar-btn qbtn" type="button" title="מטלות קטנות" aria-label="מטלות קטנות"><span>📝</span><span class="qbadge"></span></button>
+            <button id="quickShopBtn" class="btn topbar-btn qbtn" type="button" title="רשימת קניות" aria-label="רשימת קניות"><span>🛒</span><span class="qbadge"></span></button>
             <button id="themeToggleBtn" class="btn topbar-btn" type="button" title="מצב תצוגה"></button>
             <button id="sharedPanelBtn" class="topbar-btn" type="button" title="רשימות משותפות">🔗 שיתופים</button>
             <button id="briefBtn" class="topbar-btn" type="button" title="תכנון שבועי">✨ תכנון</button>
@@ -2050,16 +2247,22 @@
     📝<span class="memo-dot"></span>
   </button>
   <div id="dailyMemoPanel" role="dialog" aria-modal="true" aria-label="מטלות קטנות">
+    <div class="memo-grab"></div>
     <div class="memo-head">
-      <div>
+      <div class="memo-head-text">
         <div class="memo-head-title">📝 מטלות קטנות</div>
-        <div class="memo-head-sub" id="dailyMemoSub">שורות קטנות מסונכרנות — לא משנות את המשימות המקוריות</div>
+        <div class="memo-head-sub" id="dailyMemoSub">דברים קטנים שלא שייכים לאף רשימה</div>
       </div>
+      <span class="memo-count hidden" id="dailyMemoCount"></span>
       <button id="dailyMemoClose" type="button" aria-label="סגור">×</button>
     </div>
+    <div class="memo-compose">
+      <input id="dailyMemoInput" type="text" placeholder="מה צריך לעשות?" autocomplete="off" enterkeyhint="done" />
+      <button id="dailyMemoAdd" class="memo-add-btn" type="button" aria-label="הוסף מטלה">+</button>
+    </div>
     <div id="dailyMemoLines" class="memo-lines"></div>
-    <button id="dailyMemoAdd" class="memo-add" type="button">+ הוסף שורה</button>
   </div>
+  <div id="dailyMemoBackdrop"></div>
 
   <button id="shopListTab" class="hidden" type="button" title="רשימת קניות" aria-label="רשימת קניות">
     <span class="shop-tab-emoji">🛒</span>
@@ -3273,6 +3476,7 @@
         const tiles = [];
         if (cat) tiles.push(["📝", "משימה לרשימה הזו", () => openTaskModal()]);
         else tiles.push(["📝", "משימה", () => openHomeTaskPicker()]);
+        tiles.push(["✏️", "מטלה קטנה", () => openDailyMemo(true)]);
         tiles.push(["📋", "רשימה חדשה", () => openCategoryModal()]);
         tiles.push(["👥", "רשימה משותפת", () => openCategoryModal(null, true)]);
         tiles.push(["🔗", "הצטרפות עם קוד", () => openJoinModal()]);
@@ -3346,11 +3550,10 @@
       $("pageTitle").textContent = "עוד";
       $("pageSub").textContent = "";
       const pendingShop = (state.shopList || []).filter(i => !i.done).length;
+      const pendingMemo = getDailyMemo().lines.filter(l => (l || "").trim()).length;
       const items = [
-        ["🔗","שרשרת משימות","סדר משימות עם חצים", () => { localStorage.setItem("taskflow_all_view","flow"); navigate("all"); }],
+        ["📝","מטלות קטנות", pendingMemo ? `${pendingMemo} פתוחות` : "דברים קטנים שלא קשורים לרשימות", () => setTimeout(openDailyMemo, 0)],
         ["🛒","רשימת קניות", pendingShop ? `${pendingShop} לקנות` : "ריקה", () => setTimeout(openShopList, 0)],
-        ["👥","ניהול משותפות","קודים, שיתוף והסרה", () => setTimeout(openSharedPanel, 0)],
-        ["➕","הצטרפות עם קוד","לרשימה משותפת", () => openJoinModal()],
         ["⚙️","הגדרות וגיבוי","עיצוב, ייצוא, חשבון", () => navigate("settings")]
       ];
       const grid = el("div","more-grid");
@@ -3385,6 +3588,26 @@
         back.type = "button";
         back.onclick = () => subscribePrivateList();
         wrap.append(back);
+      }
+
+      if (!inShared && !catSelectMode) {
+        const memoCount = getDailyMemo().lines.filter(l => (l || "").trim()).length;
+        const shopCount = (state.shopList || []).filter(i => !i.done).length;
+        const strip = el("div","quick-strip");
+        [
+          ["📝","מטלות קטנות", memoCount ? `${memoCount} פתוחות` : "הוסיפו מהר", () => openDailyMemo(true), "#f59e0b"],
+          ["🛒","רשימת קניות", shopCount ? `${shopCount} לקנות` : "ריקה", () => openShopList(), "#22c55e"]
+        ].forEach(([ico, title, sub, fn, color]) => {
+          const b = el("button","quick-chip");
+          b.type = "button";
+          b.style.setProperty("--c", color);
+          const txt = el("span","quick-chip-txt");
+          txt.append(el("strong","",title), el("small","",sub));
+          b.append(el("span","quick-chip-ico",ico), txt, el("span","quick-chip-plus","+"));
+          b.onclick = (e) => { e.stopPropagation(); fn(); };
+          strip.append(b);
+        });
+        wrap.append(strip);
       }
 
       const buildCard = (cat) => {
@@ -6342,9 +6565,8 @@
       const theme = el("section","card");
       theme.append(el("h3","", "ערכת נושא"));
       {
-        theme.append(el("p","meta","פלטות מוכנות — גוונים רכים וניגודיות מתונה (הצבע המוביל מתעדכן יחד איתן)"));
         const pg = el("div","");
-        pg.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:16px";
+        pg.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-bottom:4px";
         PALETTE_PRESETS.forEach(p => {
           const fam = familyOfTheme(p.dark);
           const active = (state.theme === p.dark || state.theme === p.light) && String(state.accent||"").toLowerCase() === p.accent.toLowerCase();
@@ -6377,7 +6599,12 @@
         };
         themeGrid.append(b);
       });
-      theme.append(themeGrid, el("h3","", "צבע מוביל"));
+      const themeMore = document.createElement("details");
+      themeMore.className = "theme-more";
+      themeMore.open = !!window.__themeMoreOpen;
+      themeMore.addEventListener("toggle", () => { window.__themeMoreOpen = themeMore.open; });
+      themeMore.append(el("summary","","אפשרויות מתקדמות"));
+      themeMore.append(el("div","meta","ערכת רקע"), themeGrid, el("div","meta","צבע מוביל"));
       const swatches = el("div","swatches");
       colors.forEach(color => {
         const b = el("button","swatch" + (state.accent === color ? " active" : ""));
@@ -6385,7 +6612,8 @@
         b.onclick = () => { state.accent = color; save(); render(); };
         swatches.append(b);
       });
-      theme.append(swatches);
+      themeMore.append(swatches);
+      theme.append(themeMore);
 
       const backup = el("section","card");
       backup.append(el("h3","", "גיבוי ואיפוס"));
@@ -7119,6 +7347,7 @@
       $("modalBack").style.removeProperty("--accent");
       $("modalBack").style.removeProperty("--accent2");
       build(form);
+      try { decorateModal(form); } catch (err) { console.warn("decorateModal", err); }
       form.onsubmit = (e) => e.preventDefault();
       $("modalBack").classList.remove("hidden");
       setTimeout(() => {
@@ -7128,6 +7357,38 @@
     }
 
     function closeModal(){ $("modalBack").classList.add("hidden"); }
+
+    // Fresher look for form modals: emoji on field labels, and short option
+    // lists (column / type / repeat) shown as tappable chips instead of a dropdown.
+    const FIELD_ICONS = {
+      "שם המשימה":"✏️","כותרת":"✏️","שם / כותרת":"✏️","שם הרשימה":"📋","תאריך סיום":"📅","תאריך":"📅",
+      "עמודה":"🗂️","עמודות":"🗂️","חזרתיות":"🔁","סוג":"🏷️","סוג ברשומות":"🏷️","נושא / סוג":"🏷️",
+      "שעת התחלה":"🕐","שעת סיום":"🕑","צבע":"🎨","תתי-משימות":"☑️","תגיות (מופרדות בפסיק)":"#️⃣",
+      "תזכורת":"🔔","קשר לרשימת משימות (לא חובה)":"🔗","מיקום (אופציונלי)":"📍","חזרות באותה שעה":"🔁","רשימה":"📋"
+    };
+    const CHIP_SELECT_IDS = ["evKind","taskCol","taskRepeat","meetKind","meetSubj","homeTaskCol","quickTaskCol"];
+    function decorateModal(form){
+      form.querySelectorAll("label").forEach(lb => {
+        if (lb.querySelector(".field-ico") || lb.querySelector("input,select")) return;
+        const ico = FIELD_ICONS[lb.textContent.trim()];
+        if (ico) lb.prepend(Object.assign(el("span","field-ico",ico)));
+      });
+      CHIP_SELECT_IDS.forEach(id => {
+        const sel = form.querySelector("#" + id);
+        if (!sel || sel.tagName !== "SELECT" || sel.options.length > 8) return;
+        const box = el("div","chip-select");
+        const sync = () => box.querySelectorAll(".chip-opt").forEach((c,i) => c.classList.toggle("active", sel.options[i]?.value === sel.value));
+        [...sel.options].forEach(opt => {
+          const chip = el("button","chip-opt",opt.textContent);
+          chip.type = "button";
+          chip.onclick = () => { sel.value = opt.value; sel.dispatchEvent(new Event("change",{bubbles:true})); sync(); };
+          box.append(chip);
+        });
+        sel.style.display = "none";
+        sel.after(box);
+        sync();
+      });
+    }
 
     function columnEditor(columns){
       const wrap = el("div","field");
@@ -9391,9 +9652,10 @@
       save();
     }
     function updateDailyMemoBadge(memo){
+      const activeCount = (memo || getDailyMemo()).lines.filter(l => (l || "").trim()).length;
+      setQuickBadge("quickMemoBtn", activeCount);
       const btn = $("dailyMemoBtn");
       if (!btn) return;
-      const activeCount = (memo || getDailyMemo()).lines.filter(l => (l || "").trim()).length;
       btn.classList.toggle("has-content", activeCount > 0);
       const dot = btn.querySelector(".memo-dot");
       if (dot) dot.textContent = activeCount > 0 ? String(activeCount) : "";
@@ -9404,78 +9666,98 @@
     function renderDailyMemo(){
       const wrap = $("dailyMemoLines");
       if (!wrap) return;
-      wrap.innerHTML = "";
-      dailyMemoState.lines.forEach((val, idx) => {
-        const row = el("div","memo-line");
-        const input = el("input");
-        input.type = "text";
-        input.placeholder = "מה בא לך לקדם היום...";
-        input.value = val;
-        input.addEventListener("input", () => {
-          dailyMemoState.lines[idx] = input.value;
-          saveDailyMemo(dailyMemoState);
-        });
-        input.addEventListener("keydown", (e) => {
-          if (e.key === "Enter"){ e.preventDefault(); addDailyMemoLine(); }
-        });
-        const check = el("button","memo-line-check","✓");
-        check.type = "button";
-        check.title = "השלם";
+      wrap.replaceChildren();
+      const items = [];
+      dailyMemoState.lines.forEach((text, i) => {
+        if ((text || "").trim()) items.push({ i, text, taskId: dailyMemoState.taskIds[i] || null });
+      });
+      items.reverse(); // החדש למעלה
+      const countEl = $("dailyMemoCount");
+      if (countEl) { countEl.textContent = items.length ? String(items.length) : ""; countEl.classList.toggle("hidden", !items.length); }
+      if (!items.length) {
+        const empty = el("div","memo-empty");
+        empty.append(el("div","memo-empty-ico","✨"), el("div","memo-empty-title","אין מטלות קטנות"), el("div","memo-empty-sub","להתקשר, לשלוח, לא לשכוח — כתבו כאן וזהו"));
+        wrap.append(empty);
+        return;
+      }
+      const indexOfLine = (i, text) => dailyMemoState.lines[i] === text ? i : dailyMemoState.lines.indexOf(text);
+      const removeLine = (idx) => {
+        undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines], taskIds: [...dailyMemoState.taskIds] });
+        dailyMemoState.lines.splice(idx, 1);
+        dailyMemoState.taskIds.splice(idx, 1);
+        if (!dailyMemoState.lines.length) { dailyMemoState.lines.push(""); dailyMemoState.taskIds.push(null); }
+        saveDailyMemo(dailyMemoState);
+        renderDailyMemo();
+      };
+      items.forEach(({ i, text, taskId }) => {
+        const row = el("div","memo-item");
+
+        const check = el("button","memo-check");
+        check.type = "button"; check.title = "סמן כבוצע"; check.setAttribute("aria-label","סמן כבוצע");
+        check.append(el("span","memo-check-mark","✓"));
         check.onclick = (e) => {
           e.stopPropagation();
-          const rowIdx = Array.prototype.indexOf.call(wrap.children, row);
-          const i = rowIdx >= 0 ? rowIdx : idx;
-          const lineText = (dailyMemoState.lines[i] || "").trim();
-          const linkedTaskId = dailyMemoState.taskIds[i] || null;
-          let linkedTask = linkedTaskId ? state.tasks.find(t => t.id === linkedTaskId) : null;
-          if (!linkedTask && lineText) {
-            const norm = s => (s || "").trim().toLowerCase();
-            linkedTask = state.tasks.find(t => !isDone(t) && norm(t.name) === norm(lineText.split(" - ")[0]));
-          }
-          if (lineText) {
-            undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines], taskIds: [...dailyMemoState.taskIds] });
-          }
-          dailyMemoState.lines.splice(i,1);
-          dailyMemoState.taskIds.splice(i,1);
-          if (!dailyMemoState.lines.length) { dailyMemoState.lines.push(""); dailyMemoState.taskIds.push(null); }
+          if (row.classList.contains("done")) return;
+          row.classList.add("done");
+          setTimeout(() => {
+            const idx = indexOfLine(i, text);
+            if (idx < 0) { renderDailyMemo(); return; }
+            const lineText = text.trim();
+            const linked = taskId ? state.tasks.find(t => t.id === taskId) : null;
+            removeLine(idx);
+            if (linked && !isDone(linked)) { toggleTask(linked.id); toastUndo(`"${lineText}" הושלמה גם במיקום שלה`); }
+            else toastUndo(`"${lineText}" הושלמה`);
+          }, 260);
+        };
+
+        const input = el("input","memo-item-text");
+        input.type = "text"; input.value = text; input.setAttribute("aria-label","מטלה");
+        input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); input.blur(); } });
+        input.addEventListener("change", () => {
+          const idx = indexOfLine(i, text);
+          if (idx < 0) return;
+          const v = input.value.trim();
+          if (!v) { removeLine(idx); return; }
+          dailyMemoState.lines[idx] = v;
           saveDailyMemo(dailyMemoState);
           renderDailyMemo();
-          if (linkedTask && !isDone(linkedTask)) {
-            toggleTask(linkedTask.id);
-            if (lineText) toastUndo(`"${lineText}" הושלמה גם במיקום שלה`);
-          } else if (lineText) {
-            toastUndo(`"${lineText}" הושלמה`);
-          }
-        };
-        const del = el("button","memo-line-del","×");
-        del.type = "button";
-        del.title = "מחק שורה";
+        });
+
+        const del = el("button","memo-del","×");
+        del.type = "button"; del.title = "מחק"; del.setAttribute("aria-label","מחק");
         del.onclick = (e) => {
           e.stopPropagation();
-          const removedText = (dailyMemoState.lines[idx] || "").trim();
-          if (removedText) {
-            undoStack.push({ type: "memoRemove", lines: [...dailyMemoState.lines], taskIds: [...dailyMemoState.taskIds] });
-          }
-          dailyMemoState.lines.splice(idx,1);
-          dailyMemoState.taskIds.splice(idx,1);
-          if (!dailyMemoState.lines.length) { dailyMemoState.lines.push(""); dailyMemoState.taskIds.push(null); }
-          saveDailyMemo(dailyMemoState);
-          renderDailyMemo();
-          if (removedText) toastUndo(`"${removedText}" נמחקה`);
+          const idx = indexOfLine(i, text);
+          if (idx < 0) return;
+          const t = text.trim();
+          removeLine(idx);
+          toastUndo(`"${t}" נמחקה`);
         };
-        row.append(input, check, del);
+
+        row.append(check, input);
+        if (taskId && state.tasks.some(t => t.id === taskId)) {
+          const link = el("span","memo-link","🔗"); link.title = "מקושרת למשימה — סימון יסמן גם אותה";
+          row.append(link);
+        }
+        row.append(del);
         wrap.append(row);
       });
     }
 
 
-    function addDailyMemoLine(){
-      dailyMemoState.lines.push("");
-      dailyMemoState.taskIds.push(null);
+    function addDailyMemoLine(text){
+      const input = $("dailyMemoInput");
+      const val = (typeof text === "string" ? text : (input ? input.value : "")).trim();
+      if (!val) { if (input) input.focus(); return; }
+      const memo = getDailyMemo();
+      const lines = [], taskIds = [];
+      memo.lines.forEach((l, i) => { if ((l || "").trim()) { lines.push(l); taskIds.push(memo.taskIds[i] || null); } });
+      lines.push(val); taskIds.push(null);
+      dailyMemoState = normalizeDailyMemo({ lines, taskIds });
       saveDailyMemo(dailyMemoState);
+      if (input) { input.value = ""; input.focus(); }
       renderDailyMemo();
-      const inputs = $("dailyMemoLines").querySelectorAll("input");
-      if (inputs.length) inputs[inputs.length-1].focus();
+      const wrap = $("dailyMemoLines"); if (wrap) wrap.scrollTop = 0;
     }
 
     function addTaskToDailyMemo(task){
@@ -9501,10 +9783,7 @@
       const btn = $("dailyMemoBtn"), panel = $("dailyMemoPanel");
       if (!btn || !panel) return;
       if (getComputedStyle(btn).display === "none") {
-        const pw = panel.offsetWidth || 300, ph = panel.offsetHeight || 360;
-        panel.style.right = "auto"; panel.style.bottom = "auto";
-        panel.style.left = Math.max(10, (window.innerWidth - pw) / 2) + "px";
-        panel.style.top = Math.max(10, (window.innerHeight - ph) / 2) + "px";
+        ["left","top","right","bottom"].forEach(k => { panel.style[k] = ""; }); // המיקום מגיע מה-CSS
         return;
       }
       const r = btn.getBoundingClientRect();
@@ -9521,13 +9800,15 @@
       panel.style.top = top + "px";
     }
 
-    function openDailyMemo(){
+    function openDailyMemo(focusInput){
       dailyMemoState = getDailyMemo();
       renderDailyMemo();
       $("dailyMemoPanel").classList.add("show");
       positionDailyMemoPanel();
-      const inputs = $("dailyMemoLines").querySelectorAll("input");
-      if (inputs.length) inputs[0].focus();
+      // במובייל לא קופצים עם מקלדת סתם; בדסקטופ או מכפתור "מטלה קטנה" כן
+      if (focusInput === true || window.matchMedia("(pointer:fine)").matches) {
+        setTimeout(() => { const i = $("dailyMemoInput"); if (i) i.focus(); }, 120);
+      }
     }
     function closeDailyMemo(){
       $("dailyMemoPanel").classList.remove("show");
@@ -9611,11 +9892,22 @@
       if (!$("dailyMemoBtn")) return;
       updateDailyMemoBadge();
       setupDailyMemoDrag();
+      if ($("quickMemoBtn")) $("quickMemoBtn").onclick = (e) => {
+        e.stopPropagation();
+        closeShopList();
+        $("dailyMemoPanel").classList.contains("show") ? closeDailyMemo() : openDailyMemo(true);
+      };
       $("dailyMemoBtn").onclick = () => {
         $("dailyMemoPanel").classList.contains("show") ? closeDailyMemo() : openDailyMemo();
       };
       $("dailyMemoClose").onclick = closeDailyMemo;
-      $("dailyMemoAdd").onclick = addDailyMemoLine;
+      $("dailyMemoAdd").onclick = () => addDailyMemoLine();
+      $("dailyMemoInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); addDailyMemoLine(); }
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && $("dailyMemoPanel").classList.contains("show")) closeDailyMemo();
+      });
       document.addEventListener("click", (e) => {
         const panel = $("dailyMemoPanel"), btn = $("dailyMemoBtn");
         if (!panel || !panel.classList.contains("show")) return;
@@ -9625,6 +9917,7 @@
         // click that started inside the panel never closes it.
         const path = e.composedPath ? e.composedPath() : [];
         if (path.includes(panel) || path.includes(btn) || panel.contains(e.target) || btn.contains(e.target)) return;
+        if (path.some(n => n.classList && n.classList.contains("toast"))) return; // כפתור "ביטול" בהודעה לא סוגר את החלון
         closeDailyMemo();
       });
     }
@@ -9657,7 +9950,14 @@
       save();
       updateShopBadge();
     }
+    function setQuickBadge(id, n){
+      const b = $(id)?.querySelector(".qbadge");
+      if (!b) return;
+      b.textContent = n > 99 ? "99+" : (n > 0 ? String(n) : "");
+      b.classList.toggle("show", n > 0);
+    }
     function updateShopBadge(){
+      setQuickBadge("quickShopBtn", (state.shopList || []).filter(it => !it.done).length);
       const tab = $("shopListTab");
       if (!tab) return;
       const pending = state.shopList.filter(it => !it.done).length;
@@ -9876,6 +10176,11 @@
       loadShopList();
       updateShopBadge();
       setupShopTabDrag();
+      if ($("quickShopBtn")) $("quickShopBtn").onclick = (e) => {
+        e.stopPropagation();
+        closeDailyMemo();
+        $("shopListPanel").classList.contains("show") ? closeShopList() : openShopList();
+      };
       $("shopListTab").onclick = () => {
         $("shopListPanel").classList.contains("show") ? closeShopList() : openShopList();
       };
