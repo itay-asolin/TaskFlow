@@ -477,7 +477,7 @@
     .cal-event{position:absolute;left:4px;right:4px;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:500;overflow:hidden;cursor:pointer;z-index:2;display:flex;flex-direction:column;gap:2px;line-height:1.3}
     .cal-event.is-meeting{border-radius:6px 6px 6px 0}
     .cal-event.is-meeting::before{content:"";display:none}
-    .cal-event.is-work,.mg-event.is-work{border-radius:4px!important;background:repeating-linear-gradient(135deg,var(--work-color,#16a34a),var(--work-color,#16a34a) 6px,#ffffff33 6px,#ffffff33 9px)!important;border-right:3px solid #14532d}
+    .cal-event.is-work,.mg-event.is-work{border-radius:6px!important;background:var(--work-color,var(--accent))!important;background-image:none!important;border-right:4px solid color-mix(in srgb,var(--work-color,var(--accent)) 70%,#000)!important}
     .cal-event.is-meeting,.mg-event.is-meeting{border-radius:14px 14px 14px 3px!important;border:1px solid #ffffff66}
     .cal-event.is-regular,.mg-event.is-regular{border-radius:5px!important;opacity:.82}
     .cal-event:hover{opacity:.85;z-index:3}
@@ -540,8 +540,8 @@
     .mg-hour-label{height:48px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 6px 0 0;font-size:7.5px;font-weight:400;color:var(--faint);border-bottom:1px solid var(--border)}
     .mg-day-col{position:relative;border-left:1px solid var(--border)}
     .mg-slot{position:relative;cursor:pointer;transition:background .15s}
-    .mg-slot-quarter{height:12px;border-bottom:1px solid rgba(42,43,61,.2)}
-    .mg-slot-quarter:nth-child(4n){border-bottom:1px solid rgba(42,43,61,.6)}
+    .mg-slot-quarter{height:12px;border-bottom:0}
+    .mg-slot-quarter:nth-child(4n){border-bottom:1px solid color-mix(in srgb,var(--border) 34%,transparent)}
     .mg-slot:hover{background:rgba(59,110,246,.1)}
     .mg-slot-hover-tip{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:5;pointer-events:none}
     .mg-slot:hover .mg-slot-hover-tip{display:flex}
@@ -2099,33 +2099,42 @@
       .rp-day{height:30px}
     }
   
-    /* ── מטלות קטנות + קניות: כרטיסים מוטמעים במסך הראשי ── */
-    .qcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
-    .qcard{display:flex;flex-direction:column;gap:6px;min-width:0;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
-    .qcard-head{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
-    .qcard-arrow{flex:0 0 auto;color:var(--faint);font-size:14px;transition:transform .15s}
-    .qcard.collapsed .qcard-arrow{transform:rotate(90deg)}
-    .qcard.collapsed .qcard-compose,.qcard.collapsed .qcard-list{display:none}
-    .qcard-title{flex:1;margin:0;font-size:13.5px;font-weight:800}
-    .qcard-head .memo-count{margin-top:0;min-width:22px;height:22px;font-size:11.5px;padding:0 7px}
-    .qcard-clear{flex:0 0 auto;width:28px;height:28px;border:0;border-radius:50%;background:transparent;color:var(--faint);font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}
-    .qcard-clear:hover{background:var(--card2);color:var(--danger)}
-    .qcard-compose{display:flex;gap:6px}
-    .qcard-compose .memo-add-btn{flex:0 0 34px;width:34px;height:34px;border-radius:10px;font-size:20px}
-    .qcard-compose input{flex:1;min-width:0;height:34px;padding:0 10px;border-radius:10px;font-size:13px;background:var(--surface)}
-    .qcard-list{display:grid;gap:4px;max-height:132px;overflow-y:auto;overscroll-behavior:contain}
-    .qcard .memo-item{background:var(--surface);padding:3px 8px;gap:8px;border-radius:10px}
-    .qcard input.memo-item-text,.qcard .shop-item-text{font-size:13px;padding:3px 2px}
-    .qcard .memo-check{width:20px;height:20px}
-    .qcard .memo-empty{padding:6px 8px}
-    .qcard .memo-empty-sub{display:none}
-    .qcard .memo-empty-ico{font-size:18px;margin-bottom:2px}
-    .qcard .shop-check{width:20px;height:20px;border:2px solid var(--faint);border-radius:50%;font-size:13px}
-    .qcard .shop-check:hover{border-color:var(--green)}
-    .qcard .shop-item-text{flex:1;min-width:0;padding:3px 2px;font-size:13px;font-weight:600;cursor:text}
-    .memo-item.shop-item.done{opacity:.6;transform:none}
-    .memo-item.shop-item.done .shop-item-text{color:var(--faint);text-decoration:line-through}
-
+    /* ── רשימות מהירות קומפקטיות בדף הבית ── */
+    .qcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
+    .qcard{display:flex;flex-direction:column;gap:5px;min-width:0;padding:8px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 3px 12px rgba(20,35,70,.035);cursor:pointer}
+    .qcard-head{display:flex;align-items:center;gap:5px;min-height:28px;user-select:none}
+    .qcard-title{flex:1;min-width:0;margin:0;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .qcard-head .memo-count{margin:0;min-width:20px;height:20px;font-size:10px;padding:0 5px}
+    .qcard-open{flex:0 0 auto;width:24px;height:24px;border:0;border-radius:50%;background:var(--card2);color:var(--muted);font-size:13px;display:grid;place-items:center;padding:0}
+    .qcard-open:hover{color:var(--accent2);background:color-mix(in srgb,var(--accent) 12%,var(--card2))}
+    .qcard-list{display:grid;gap:3px;min-height:54px;align-content:start}
+    .qcard-preview-item{display:flex;align-items:center;gap:5px;min-width:0;min-height:24px;padding:2px 4px;border-radius:7px;background:var(--surface);cursor:pointer}
+    .qcard-preview-text{min-width:0;flex:1;font-size:10.5px;line-height:1.2;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .qcard-preview-item.done .qcard-preview-text{color:var(--faint);text-decoration:line-through}
+    .qcard-preview-check{width:16px;height:16px;flex:0 0 16px;border:1.5px solid var(--faint);border-radius:50%;background:transparent;color:transparent;font-size:10px;font-weight:900;line-height:1;padding:0;display:grid;place-items:center}
+    .qcard-preview-check[aria-checked="true"]{background:var(--green);border-color:var(--green);color:#fff}
+    .qcard-preview-empty,.qcard-preview-more{font-size:9.5px;color:var(--faint);padding:2px 4px}
+    .qcard-preview-more{color:var(--accent2);font-weight:700}
+    .quick-list-screen-form{display:flex;flex-direction:column;gap:10px;min-height:0}
+    .quick-list-screen-tools{display:flex;gap:8px;align-items:center}
+    .quick-list-screen-tools input{flex:1;min-width:0;min-height:44px}
+    .quick-list-screen-tools .memo-add-btn{flex:0 0 44px;width:44px;height:44px}
+    .quick-list-screen-list{display:grid;gap:7px;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+    .quick-list-screen-list .memo-item{min-height:46px;padding:7px 10px}
+    .quick-list-screen-list .memo-item-text,.quick-list-screen-list .shop-item-text{font-size:14px}
+    #modalBack.quick-list-screen .modal{display:flex;flex-direction:column;width:min(620px,calc(100vw - 32px));max-height:min(88dvh,900px)}
+    #modalBack.quick-list-screen #modalForm{display:flex;flex:1 1 auto;flex-direction:column;min-height:0;overflow-y:auto}
+    @media(max-width:820px){
+      .qcards{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+      .qcard{padding:7px;border-radius:12px}
+      .qcard-title{font-size:11px}
+      .qcard-preview-item{min-height:23px}
+      .qcard-preview-text{font-size:9.5px}
+      #modalBack.quick-list-screen{padding:0;place-items:stretch}
+      #modalBack.quick-list-screen .modal{width:100%;height:100dvh;max-height:none;border:0;border-radius:0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+      #modalBack.quick-list-screen .modal-head{position:sticky;top:0;z-index:2;flex:0 0 auto}
+      #modalBack.quick-list-screen #modalForm{flex:1 1 auto;min-height:0;overflow-y:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+    }
     /* ── שלב 7: אזורי מגע ── */
     /* ביטול שיהוי 300ms ולחיצות כפולות-זום על כל הפקדים הלחיצים */
     button,.btn,.mini,.check,.swatch,.chip-opt,.lc-more,.memo-del,.memo-check,.shop-check,.flow-del,.bnav-btn,.bnav-add,.day-task,.mg-slot,.rp-day,[role="button"],select,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -2208,6 +2217,43 @@
       .modal-back.event-sheet .modal{border-radius:0}
     }
 
+    /* Final override for compact two-up quick lists on narrow screens */
+    .qcards{grid-template-columns:minmax(0,1fr) minmax(96px,.58fr)!important;gap:6px!important}
+    .qcard{padding:7px!important;border-radius:12px!important;gap:4px!important}
+    .qcard-shop{padding:6px!important}
+    .qcard-shop .qcard-title{font-size:10px!important}
+    .qcard-shop .qcard-list{min-height:48px!important}
+    .home-agenda{padding:12px 14px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 7%,var(--card)),var(--card));box-shadow:0 5px 18px rgba(25,40,70,.05)}
+    .home-agenda-head,.home-agenda-title{display:flex;align-items:center;gap:8px}
+    .home-agenda-head{justify-content:space-between}
+    .home-agenda-title h2{margin:0;font-size:15px;font-weight:900}
+    .home-agenda-icon{display:grid;place-items:center;width:27px;height:27px;border-radius:9px;background:color-mix(in srgb,var(--accent) 13%,var(--card));color:var(--accent);font-size:15px}
+    .home-agenda-link,.home-agenda-add,.home-agenda-more{border:0;background:transparent;color:var(--accent);font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+    .home-agenda-date{margin:4px 0 7px;color:var(--faint);font-size:11px;font-weight:700}
+    .home-agenda-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px}
+    .home-agenda-item{display:flex;align-items:center;gap:9px;min-width:0;padding:7px 9px;border:1px solid var(--border);border-inline-start:3px solid var(--agenda-color);border-radius:10px;background:var(--card);color:var(--text);text-align:right;cursor:pointer}
+    .home-agenda-time{flex:none;color:var(--agenda-color);font-size:10px;font-weight:900;white-space:nowrap}
+    .home-agenda-event-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:750}
+    .home-agenda-empty-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px;padding-inline:2px}
+    .home-agenda-empty{color:var(--faint);font-size:12px}
+    .home-agenda-more{justify-self:start;padding:3px}
+    @media(max-width:820px){.home-agenda{padding:10px 11px;border-radius:13px}.home-agenda-list{grid-template-columns:1fr 1fr;gap:5px}.home-agenda-item{padding:7px 6px;gap:6px}.home-agenda-time{font-size:9px}.home-agenda-event-title{font-size:11px}}
+    @media(max-width:380px){.home-agenda-list{grid-template-columns:1fr}}
+    .qcard-head{min-height:25px!important;gap:4px!important}
+    .qcard-title{font-size:11px!important}
+    .qcard-list{max-height:none!important;min-height:54px!important;gap:3px!important}
+    .qcard .qcard-preview-item{padding:2px 3px!important;min-height:23px!important}
+    .qcard .qcard-preview-text{font-size:9.5px!important}
+    .qcard .qcard-preview-check{width:16px!important;height:16px!important}
+    .mg-event.is-work,.cal-event.is-work{background-image:none!important}
+    .mg-slot-quarter{border-bottom:0!important}
+    .mg-slot-quarter:nth-child(4n){border-bottom:1px solid color-mix(in srgb,var(--border) 34%,transparent)!important}
+    @media(max-width:360px){
+      .qcards{gap:4px!important}
+      .qcard{padding:6px!important}
+      .qcard-title{font-size:10px!important}
+      .qcard .qcard-preview-text{font-size:9px!important}
+    }
   </style>
 </head>
 <body data-theme="sky">
@@ -3170,7 +3216,7 @@
       document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === _nk));
       document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === _nk));
       
-      const searchActiveView = ["all","kanban","calendar","meetings"].includes(state.currentView);
+      const searchActiveView = ["all","kanban"].includes(state.currentView);
       $("searchBox").classList.toggle("hidden", !searchActiveView);
       $("searchWrap").classList.toggle("hidden", !searchActiveView);
       $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
@@ -3764,6 +3810,11 @@
         return card;
       };
 
+      if (!inShared && !catSelectMode) {
+        wrap.append(buildHomeAgenda());
+        wrap.append(buildQuickCards());
+      }
+
       const grid = el("div","lgrid");
       state.cats.forEach(cat => grid.append(buildCard(cat)));
       if (!catSelectMode) {
@@ -3774,9 +3825,6 @@
         grid.append(addTile);
       }
       wrap.append(grid);
-
-      // מטלות קטנות + קניות: רק ברשימה הפרטית, לא בתוך רשימה משותפת
-      if (!inShared && !catSelectMode) wrap.append(buildQuickCards());
 
       // Shared groups: their own section, same card language as the private lists.
       if (!inShared && !catSelectMode) {
@@ -3856,78 +3904,124 @@
       navigate("home"); // מרשימה משותפת זה גם מחזיר לרשימה הפרטית
     }
 
+    let memoPreviewHost = null, shopPreviewHost = null;
+
+    function renderQuickListPreview(which){
+      const host = which === "memo" ? memoPreviewHost : shopPreviewHost;
+      if (!host?.isConnected) return;
+      host.replaceChildren();
+      const card = host.closest(".qcard");
+      const count = card?.querySelector(".qcard-count");
+      if (which === "memo") {
+        const memo = getDailyMemo();
+        const items = memo.lines.map((text,i)=>({text,i,taskId:memo.taskIds[i]||null})).filter(x=>(x.text||"").trim()).reverse();
+        if (count) { count.textContent = items.length ? String(items.length) : ""; count.classList.toggle("hidden",!items.length); }
+        if (!items.length) host.append(el("div","qcard-preview-empty","אין מטלות כרגע"));
+        items.slice(0,1).forEach(item=>{
+          const row=el("div","qcard-preview-item"); row.onclick=()=>openQuickListScreen("memo");
+          const check=el("button","qcard-preview-check"); check.type="button"; check.setAttribute("aria-checked","false"); check.setAttribute("aria-label","סמן כמטלה שהושלמה"); check.textContent="✓";
+          check.onclick=(e)=>{e.stopPropagation();const idx=dailyMemoState.lines[item.i]===item.text?item.i:dailyMemoState.lines.indexOf(item.text);if(idx<0)return;undoStack.push({type:"memoRemove",lines:[...dailyMemoState.lines],taskIds:[...dailyMemoState.taskIds]});dailyMemoState.lines.splice(idx,1);dailyMemoState.taskIds.splice(idx,1);if(!dailyMemoState.lines.length){dailyMemoState.lines.push("");dailyMemoState.taskIds.push(null)}saveDailyMemo(dailyMemoState);const linked=item.taskId?state.tasks.find(t=>t.id===item.taskId):null;renderDailyMemo();if(linked&&!isDone(linked))toggleTask(linked.id);renderQuickListPreview("memo")};
+          row.append(check,el("span","qcard-preview-text",item.text)); host.append(row);
+        });
+        if(items.length>1){const more=el("div","qcard-preview-more","ועוד "+(items.length-1)+" · פתחו את הרשימה");more.onclick=()=>openQuickListScreen("memo");host.append(more)}
+      } else {
+        const items=state.shopList||[], pending=items.filter(it=>!it.done).length;
+        if(count){count.textContent=pending?String(pending):"";count.classList.toggle("hidden",!pending)}
+        if(!items.length)host.append(el("div","qcard-preview-empty","אין פריטים כרגע"));
+        items.slice(0,1).forEach(item=>{
+          const row=el("div","qcard-preview-item"+(item.done?" done":""));row.onclick=()=>openQuickListScreen("shop");
+          const check=el("button","qcard-preview-check");check.type="button";check.setAttribute("aria-checked",item.done?"true":"false");check.setAttribute("aria-label",item.done?"סמן כלא נקנה":"סמן כנקנה");check.textContent="✓";
+          check.onclick=(e)=>{e.stopPropagation();item.done=!item.done;saveShopList(state.shopList);renderShopList();renderQuickListPreview("shop")};
+          row.append(check,el("span","qcard-preview-text",item.text));host.append(row);
+        });
+        if(items.length>1){const more=el("div","qcard-preview-more","ועוד "+(items.length-1)+" · פתחו את הרשימה");more.onclick=()=>openQuickListScreen("shop");host.append(more)}
+      }
+    }
+
+    function openQuickListScreen(which){
+      const isMemo=which==="memo";
+      const title=isMemo?"📝 מטלות קטנות":"🛒 רשימת קניות";
+      openModal(title,"",form=>{
+        form.className="quick-list-screen-form";
+        const tools=el("div","quick-list-screen-tools");
+        const input=document.createElement("input");input.type="text";input.autocomplete="off";input.enterKeyHint="done";input.placeholder=isMemo?"מה צריך לעשות?":"הוסיפו פריט...";input.setAttribute("aria-label",isMemo?"מטלה חדשה":"פריט חדש לקניות");
+        const add=el("button","memo-add-btn","+");add.type="button";add.setAttribute("aria-label",isMemo?"הוסף מטלה":"הוסף פריט");
+        const list=el("div","quick-list-screen-list");
+        const submit=()=>{const value=input.value.trim();if(!value){input.focus();return}if(isMemo)addDailyMemoLine(value);else addShopItem(value);input.value="";input.focus()};
+        add.onclick=submit;input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();submit()}});
+        tools.append(input,add);form.append(tools,list);
+        if(isMemo)renderDailyMemo(list);else renderShopList(list);
+      });
+      $("modalBack").classList.add("quick-list-screen");
+    }
+
     function buildQuickCards(){
-      const row = el("section","qcards");
-
-      const makeCard = (key, title, withClear) => {
-        const card = el("article","qcard");
-        card.dataset.quick = key;
-        const head = el("div","qcard-head");
-        head.append(el("h2","qcard-title",title), el("span","memo-count qcard-count hidden"));
-        head.onclick = (e) => {
-          if (e.target.closest("button")) return;
-          card.classList.toggle("collapsed");
-          try { localStorage.setItem("qcard_collapsed_" + key, card.classList.contains("collapsed") ? "1" : ""); } catch {}
-        };
-        try { if (localStorage.getItem("qcard_collapsed_" + key)) card.classList.add("collapsed"); } catch {}
-        let clearBtn = null;
-        if (withClear) {
-          clearBtn = el("button","qcard-clear","🗑️");
-          clearBtn.type = "button"; clearBtn.title = "מחק את כל הרשימה"; clearBtn.setAttribute("aria-label","מחק את כל הרשימה");
-          head.append(clearBtn);
-        }
-        head.append(el("span","qcard-arrow","▾"));
-        const compose = el("div","qcard-compose");
-        const input = document.createElement("input");
-        input.type = "text"; input.autocomplete = "off"; input.enterKeyHint = "done";
-        const add = el("button","memo-add-btn","+");
-        add.type = "button";
-        compose.append(input, add);
-        const list = el("div","qcard-list");
-        card.append(head, compose, list);
-        return { card, input, add, list, clearBtn };
+      const row=el("section","qcards");
+      const makeCard=(key,title)=>{
+        const card=el("article","qcard");card.dataset.quick=key;
+        const head=el("div","qcard-head");
+        head.append(el("h2","qcard-title",title),el("span","memo-count qcard-count hidden"));
+        const open=el("button","qcard-open","↗");open.type="button";open.title="פתח רשימה מלאה";open.setAttribute("aria-label","פתח רשימה מלאה");open.onclick=e=>{e.stopPropagation();openQuickListScreen(key)};
+        head.append(open);card.append(head);
+        const list=el("div","qcard-list");card.append(list);
+        card.onclick=()=>openQuickListScreen(key);
+        if(key==="memo")memoPreviewHost=list;else shopPreviewHost=list;
+        return {card,list};
       };
-
-      // ── מטלות קטנות ──
-      const m = makeCard("memo", "📝 מטלות קטנות", false);
-      m.input.placeholder = "מה צריך לעשות?";
-      m.input.setAttribute("aria-label", "מטלה קטנה חדשה");
-      m.add.setAttribute("aria-label", "הוסף מטלה");
-      m.input.value = memoDraft;
-      memoInputEl = m.input;
-      m.input.addEventListener("input", () => { memoDraft = m.input.value; });
-      m.input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addDailyMemoLine(); } });
-      m.add.onclick = () => addDailyMemoLine();
-      dailyMemoState = getDailyMemo();
-
-      // ── קניות ──
-      const sh = makeCard("shop", "🛒 רשימת קניות", true);
-      sh.input.placeholder = "הוסיפו פריט...";
-      sh.input.setAttribute("aria-label", "פריט חדש לקניות");
-      sh.add.setAttribute("aria-label", "הוסף פריט");
-      sh.input.value = shopDraft;
-      sh.input.addEventListener("input", () => { shopDraft = sh.input.value; });
-      const submitShop = () => {
-        if (!sh.input.value.trim()) { sh.input.focus(); return; }
-        addShopItem(sh.input.value);
-        sh.input.value = ""; shopDraft = "";
-        sh.input.focus();
-      };
-      sh.input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submitShop(); } });
-      sh.add.onclick = submitShop;
-      sh.clearBtn.onclick = () => {
-        if (!state.shopList.length) return;
-        if (!confirm("למחוק את כל רשימת הקניות?")) return;
-        state.shopList = [];
-        saveShopList(state.shopList);
-        renderShopList();
-      };
-      loadShopList();
-
-      row.append(m.card, sh.card);
-      renderDailyMemo(m.list);
-      renderShopList(sh.list);
+      const m=makeCard("memo","📝 מטלות קטנות");
+      const sh=makeCard("shop","🛒 קניות");sh.card.classList.add("qcard-shop");
+      dailyMemoState=getDailyMemo();loadShopList();
+      row.append(m.card,sh.card);
+      renderQuickListPreview("memo");renderQuickListPreview("shop");
       return row;
+    }
+
+    function buildHomeAgenda(){
+      const todayKey = toDateKey(new Date());
+      const day = parseDate(todayKey);
+      const section = el("section","home-agenda");
+      const head = el("div","home-agenda-head");
+      const title = el("div","home-agenda-title");
+      title.append(el("span","home-agenda-icon","▦"), el("h2","","היום ביומן"));
+      const openCalendar = el("button","home-agenda-link","לוח שנה ↗");
+      openCalendar.type = "button";
+      openCalendar.onclick = () => { state.calDate = todayKey; navigate("calendar"); };
+      head.append(title, openCalendar);
+      section.append(head);
+
+      const dateLabel = day.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
+      section.append(el("div","home-agenda-date",dateLabel));
+      const todayEvents = (state.events || [])
+        .filter(ev => ev.date === todayKey)
+        .sort((a,b) => (a.allDay ? "00:00" : a.time || "99:99").localeCompare(b.allDay ? "00:00" : b.time || "99:99"));
+      const list = el("div","home-agenda-list");
+      if (!todayEvents.length) {
+        const empty = el("div","home-agenda-empty","אין אירועים להיום");
+        const add = el("button","home-agenda-add","+ אירוע חדש");
+        add.type = "button";
+        add.onclick = () => openEventModal(null,todayKey);
+        const emptyRow = el("div","home-agenda-empty-row");
+        emptyRow.append(empty,add);
+        list.append(emptyRow);
+      } else {
+        todayEvents.slice(0,3).forEach(ev => {
+          const item = el("button","home-agenda-item");
+          item.type = "button";
+          item.style.setProperty("--agenda-color",ev.color || state.accent || "#3b6ef6");
+          item.onclick = () => openEventModal(ev,ev.date);
+          const time = ev.allDay ? "כל היום" : [ev.time,ev.endTime].filter(Boolean).join(" – ") || "ללא שעה";
+          item.append(el("span","home-agenda-time",time),el("span","home-agenda-event-title",ev.title || "אירוע ללא כותרת"));
+          list.append(item);
+        });
+        if (todayEvents.length > 3) {
+          const more = el("button","home-agenda-more",`ועוד ${todayEvents.length-3} אירועים · פתחו את היומן`);
+          more.type = "button";
+          more.onclick = () => { state.calDate = todayKey; navigate("calendar"); };
+          list.append(more);
+        }
+      }
+      section.append(list);
+      return section;
     }
 
     function renderKanban(){
@@ -6647,6 +6741,7 @@
           chip.style.left = `calc(${colIdx * pct}% + 2px)`;
           chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 2px)`;
           chip.style.width = "auto";
+          chip.style.setProperty("--work-color", ev.color || state.accent);
           chip.style.background = (ev.color || state.accent) + "cc";
           chip.style.color = "#fff";
           chip.style.display = "flex";
@@ -7684,6 +7779,7 @@
 
     function openModal(title, sub, build){
       const modalBack = $("modalBack");
+      modalBack.classList.remove("quick-list-screen");
       modalBack.classList.toggle("event-sheet", /אירוע|שעות/.test(title || ""));
       $("modalTitle").textContent = title;
       $("modalSub").textContent = sub || "";
@@ -7701,7 +7797,7 @@
       }, 20);
     }
 
-    function closeModal(){ $("modalBack").classList.add("hidden"); $("modalBack").classList.remove("event-sheet"); }
+    function closeModal(){ $("modalBack").classList.add("hidden"); $("modalBack").classList.remove("event-sheet","quick-list-screen"); }
 
     // Fresher look for form modals: emoji on field labels, and short option
     // lists (column / type / repeat) shown as tappable chips instead of a dropdown.
@@ -10083,6 +10179,7 @@
         const empty = el("div","memo-empty");
         empty.append(el("div","memo-empty-ico","✨"), el("div","memo-empty-title","אין מטלות קטנות"), el("div","memo-empty-sub","להתקשר, לשלוח, לא לשכוח — כתבו כאן וזהו"));
         wrap.append(empty);
+        renderQuickListPreview("memo");
         return;
       }
       const indexOfLine = (i, text) => dailyMemoState.lines[i] === text ? i : dailyMemoState.lines.indexOf(text);
@@ -10147,6 +10244,7 @@
         row.append(del);
         wrap.append(row);
       });
+      renderQuickListPreview("memo");
     }
 
 
@@ -10225,6 +10323,7 @@
         const emptyEl = el("div","memo-empty");
         emptyEl.append(el("div","memo-empty-ico","🛒"), el("div","memo-empty-title","הרשימה ריקה"), el("div","memo-empty-sub","הוסיפו פריט וזהו"));
         wrap.append(emptyEl);
+        renderQuickListPreview("shop");
         return;
       }
       state.shopList.forEach((item) => {
@@ -10276,6 +10375,7 @@
         row.append(check, text, del);
         wrap.append(row);
       });
+      renderQuickListPreview("shop");
     }
 
     function addShopItem(text){
