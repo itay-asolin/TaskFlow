@@ -2136,6 +2136,13 @@
     .rp-more{border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:12px;padding:8px;font-weight:800;font-size:12.5px}
     .rp-more:hover{border-color:var(--accent);color:var(--accent2)}
     .rp-summary{font-size:12.5px;font-weight:800;color:var(--accent2)}
+    .rp-box.rp-collapsed{padding:4px 12px}
+    .rp-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;background:transparent;border:0;padding:8px 0;font-size:13.5px;font-weight:800;color:var(--text);text-align:right}
+    .rp-toggle .rp-arrow{color:var(--faint);font-size:16px}
+    @media (max-width:820px){
+      .rp-cal{max-height:200px}
+      .rp-day{height:30px}
+    }
   </style>
 </head>
 <body data-theme="sky">
@@ -3552,7 +3559,7 @@
         tiles.push(["👥", "רשימה משותפת", () => openCategoryModal(null, true)]);
         tiles.push(["🔗", "הצטרפות עם קוד", () => openJoinModal()]);
         tiles.push(["📅", "אירוע", () => openEventModal(null, todayKey)]);
-        tiles.push(["🤝", "פגישה / שיעור", () => openMeetingModal(todayKey, Math.min(22, Math.max(7, new Date().getHours() + 1)), 0)]);
+        tiles.push(["⏱", "דיווח שעות", () => openMeetingModal(todayKey, Math.min(22, Math.max(7, new Date().getHours() + 1)), 0)]);
         tiles.forEach(([ico, label, fn]) => {
           const b = el("button","qs-tile");
           b.type = "button";
@@ -4503,7 +4510,7 @@
         viewBtns.append(b);
       });
 
-      const hoursBtn = el("button","btn","⏱ שעות"); hoursBtn.type = "button"; hoursBtn.title = "יומן שעות ופגישות"; hoursBtn.onclick = () => navigate("meetings"); viewBtns.append(hoursBtn);
+      const hoursBtn = el("button","btn","⏱ שעות"); hoursBtn.type = "button"; hoursBtn.title = "יומן שעות / דיווח"; hoursBtn.onclick = () => navigate("meetings"); viewBtns.append(hoursBtn);
       const nav = el("div","cal-nav");
       const prev = el("button","btn","‹"); prev.type = "button";
       const next = el("button","btn","›"); next.type = "button";
@@ -4775,7 +4782,6 @@
           time: ev.time || "",
           id: ev.id,
           isConflict: conflicts.includes(ev.id),
-          isMeeting: !!ev.isMeeting,
           kind: eventKind(ev)
         })),
         ...tasks.map(t => ({
@@ -4790,28 +4796,20 @@
 
       const maxShow = window.matchMedia("(max-width:820px)").matches ? 3 : 7;
       items.slice(0, maxShow).forEach(itemData => {
-        const item = el("div","day-task" + (itemData.type==="event" && itemData.kind==="meeting" ? " is-meeting" : itemData.type==="event" && itemData.kind==="work" ? " is-work" : ""));
+        const item = el("div","day-task" + (itemData.type==="event" && itemData.kind==="work" ? " is-work" : ""));
         if (itemData.type === "event") {
-          const isMtg = itemData.kind === "meeting", isWork = itemData.kind === "work";
+          const isWork = itemData.kind === "work";
           const titleSpan = el("span","");
           titleSpan.style.cssText = "overflow:hidden;flex:1;min-width:0;line-height:1.3";
-          titleSpan.textContent = (isMtg ? "🤝 " : isWork ? "⏱ " : "") + itemData.title;
-          if (!isMtg && !isWork) {
+          titleSpan.textContent = (isWork ? "⏱ " : "") + itemData.title;
+          if (!isWork) {
             const dot = el("span","");
             dot.style.cssText = `display:inline-block;width:6px;height:6px;border-radius:50%;background:${itemData.color};flex:0 0 auto;margin-left:4px;margin-top:4px`;
             item.append(dot);
           }
           item.append(titleSpan);
-          if (isMtg) {
-            item.style.background = `linear-gradient(135deg,${itemData.color}35,${itemData.color}20)`;
-            item.style.color = itemData.color;
-            item.style.borderRightColor = itemData.color;
-            item.style.borderBottomColor = itemData.color + "80";
-            item.style.boxShadow = `inset 0 0 0 1px ${itemData.color}25`;
-          } else {
-            item.style.background = itemData.color + "22";
-            item.style.color = itemData.color;
-          }
+          item.style.background = itemData.color + "22";
+          item.style.color = itemData.color;
           if (itemData.isConflict) item.style.outline = "1.5px solid var(--danger)";
           const evObj = events.find(e => e.id === itemData.id);
           if (evObj) {
@@ -4971,10 +4969,10 @@
           const { col: colIdx, totalCols, span: colSpan = 1 } = columns.get(ev.id) || { col: 0, totalCols: 1, span: 1 };
           const pct = 100 / totalCols;
           const kind=eventKind(ev);
-          const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (kind==="meeting" ? " is-meeting" : kind==="work" ? " is-work" : " is-regular"));
+          const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (kind==="work" ? " is-work" : " is-regular"));
           const titleStr = el("span","");
           titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:10px;line-height:1.25;flex:1;font-weight:500";
-          titleStr.textContent = (kind==="meeting" ? "🤝 " : kind==="work" ? "⏱ " : "📅 ") + ev.title;
+          titleStr.textContent = (kind==="work" ? "⏱ " : "📅 ") + ev.title;
           chip.append(titleStr);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
           chip.style.left = `calc(${colIdx * pct}% + 3px)`;
@@ -5101,11 +5099,11 @@
         const pct = 100 / totalCols;
         const isConflict = (typeof conflicts !== "undefined") && conflicts.includes(ev.id);
         const kind=eventKind(ev);
-        const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (kind==="meeting" ? " is-meeting" : kind==="work" ? " is-work" : " is-regular"));
+        const chip = el("div","cal-event" + (isConflict ? " conflict" : "") + (kind==="work" ? " is-work" : " is-regular"));
 
         const titleRow = el("span","");
         titleRow.style.cssText = "font-size:10px;font-weight:500;overflow:hidden;word-break:break-word;white-space:normal;line-height:1.25;flex:1";
-        titleRow.textContent = (kind==="meeting" ? "🤝 " : kind==="work" ? "⏱ " : "📅 ") + ev.title;
+        titleRow.textContent = (kind==="work" ? "⏱ " : "📅 ") + ev.title;
         chip.append(titleRow);
 
         chip.style.top = top+"px"; chip.style.height = height+"px";
@@ -5248,24 +5246,13 @@
         const curKind = eventKind(item);
         if (curKind !== "event") {
           const mtgEl = el("div","ev-popup-meta");
-          mtgEl.innerHTML = `<span>${curKind === "meeting" ? "🤝" : "⏱"}</span><span>${eventKindLabel(curKind)}</span>`;
+          mtgEl.innerHTML = `<span>⏱</span><span>${eventKindLabel(curKind)}</span>`;
           popup.append(mtgEl);
         }
         const actions = el("div","ev-popup-actions");
         const editBtn = el("button","btn primary","✎ ערוך");
         editBtn.type = "button";
         editBtn.onclick = () => { closeEvPopup(); openEventModal(item, dateKey); };
-        // כפתור מהיר להפוך אירוע לפגישה (או להחזיר אירוע שהוא פגישה לאירוע רגיל) - בלחיצה אחת, בלי לפתוח את חלון העריכה המלא.
-        // ברגע שהאירוע מסומן כפגישה הוא יופיע גם ביומן השעות/פגישות, עם אפשרות עריכה ומחיקה משם.
-        const toggleMeetingBtn = el("button","btn", curKind === "meeting" ? "↩ בטל סימון פגישה" : "🤝 הפוך לפגישה");
-        toggleMeetingBtn.type = "button";
-        toggleMeetingBtn.onclick = () => {
-          const ev = state.events.find(e => e.id === item.id);
-          if (!ev) return;
-          if (curKind === "meeting") { ev.kind = "event"; ev.isMeeting = false; toast("הסימון כפגישה הוסר"); }
-          else { ev.kind = "meeting"; ev.isMeeting = true; toast("האירוע הפך לפגישה ✓ — אפשר לראות אותו ביומן השעות"); }
-          closeEvPopup(); save(); render();
-        };
         const delBtn = el("button","btn danger","× מחק");
         delBtn.type = "button";
         delBtn.onclick = () => {
@@ -5273,7 +5260,7 @@
           state.events = state.events.filter(ev => ev.id !== item.id);
           closeEvPopup(); save(); render();
         };
-        actions.append(editBtn, toggleMeetingBtn, delBtn);
+        actions.append(editBtn, delBtn);
         popup.append(actions);
       } else {
         const cat = state.cats.find(c => c.id === item.catId);
@@ -5356,6 +5343,9 @@
       const extras = new Set(preselected.filter(Boolean));
       let extraMonths = 0;
       let baseKey = baseDateKey || toDateKey(new Date());
+      // במובייל הבורר מתחיל מכווץ (שורה אחת); בדסקטופ תמיד פתוח. תצוגה בלבד - הלוגיקה לא משתנה.
+      const isCompact = () => window.matchMedia("(max-width:820px)").matches;
+      let open = !isCompact();
 
       const wrap = el("div","field rp");
       wrap.append(el("label","","חזרות באותה שעה"));
@@ -5435,6 +5425,18 @@
         const prevScroll = box.querySelector(".rp-cal")?.scrollTop || 0;
         box.replaceChildren();
         if (!cfg.weekdays.size && !cfg.weekdaysTouched) cfg.weekdays = new Set([parseDate(baseKey).getDay()]);
+
+        const compact = isCompact();
+        box.classList.toggle("rp-collapsed", compact && !open);
+        if (compact && !open) {
+          const n = finalDates().length;
+          const tg = el("button","rp-toggle");
+          tg.type = "button";
+          tg.append(el("span","", "🔁 חזרה: " + (n ? `${n + 1} מופעים` : "ללא")), el("span","rp-arrow","›"));
+          tg.onclick = () => { open = true; draw(); };
+          box.append(tg);
+          return;
+        }
 
         // quick presets
         const pr = el("div","chip-select rp-presets");
@@ -5569,6 +5571,13 @@
           clear.onclick = () => { cfg.on = false; extras.clear(); excluded.clear(); draw(); };
           box.append(clear);
         }
+        if (compact) {
+          const close = el("button","rp-toggle");
+          close.type = "button";
+          close.append(el("span","","סגור"), el("span","rp-arrow","⌃"));
+          close.onclick = () => { open = false; draw(); };
+          box.append(close);
+        }
       }
 
       wrap.getSelectedDates = () => finalDates();
@@ -5595,8 +5604,6 @@
         }
 
         form.append(field("כותרת","evTitle","text", ev?.title || ""));
-        const kindWrap=el("div","field"),kindLabel=el("label","","סוג"),kindSelect=document.createElement("select");kindSelect.id="evKind";
-        [["event","📅 אירוע רגיל"],["meeting","🤝 פגישה / שיעור פרטי"],["work","⏱️ עבודה / שעות לדיווח"]].forEach(([v,t])=>{const o=el("option","",t);o.value=v;if(v===eventKind(ev))o.selected=true;kindSelect.append(o)});kindWrap.append(kindLabel,kindSelect);form.append(kindWrap);
         if (state.cats?.length) {
           const catWrap = el("div","field"), catLabel = el("label","","קשר לרשימת משימות (לא חובה)");
           const catSelect = document.createElement("select"); catSelect.id = "evCatId";
@@ -5647,14 +5654,12 @@
               const time = $("evTime").value || ev.time;
               const endTime = $("evEndTime").value || ev.endTime;
               const color = document.querySelector("[name=evColor]:checked")?.value || ev.color || state.accent;
-              const kind = $("evKind").value;
               state.events.forEach(e => {
                 if (e.seriesId === ev.seriesId) {
                   e.title = title;
                   e.time = time;
                   e.endTime = endTime;
                   e.color = color;
-                  e.kind = kind; e.isMeeting = kind === "meeting";
                 }
               });
               closeModal(); save(); render(); toast(`עודכנו כל מופעי הסדרה`);
@@ -5674,8 +5679,8 @@
             endTime: $("evEndTime").value,
             color: document.querySelector("[name=evColor]:checked")?.value || state.accent,
             source: "manual",
-            kind: $("evKind").value,
-            isMeeting: $("evKind").value === "meeting",
+            kind: ev ? eventKind(ev) : "event",
+            isMeeting: false,
             catId: $("evCatId")?.value || null
           };
           if (!data.date) return toast("צריך תאריך");
@@ -6318,7 +6323,7 @@
       const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
       const monthEnd = new Date(selected.getFullYear(), selected.getMonth()+1, 0);
       const monthEvents = (state.events||[]).filter(e => { const d=parseDate(e.date); return d>=monthStart && d<=monthEnd && e.time; }).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-      const workEvents = monthEvents.filter(e=>["work","meeting"].includes(eventKind(e)));
+      const workEvents = monthEvents.filter(e=>eventKind(e)==="work");
       const hours = workEvents.reduce((sum,e)=>sum+eventHours(e),0);
       const toolbar=el("div","meetings-toolbar");
       const prev=el("button","btn","‹ שבוע קודם"); prev.type="button"; prev.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()-7);state.meetingsDate=toDateKey(d);save();render();};
@@ -6348,8 +6353,8 @@
 
     function eventHours(ev){if(!ev?.time||!ev?.endTime)return 0;const [sh,sm]=ev.time.split(":").map(Number),[eh,em]=ev.endTime.split(":").map(Number);return Math.max(0,(eh*60+em-sh*60-sm)/60);}
     function formatHours(value){return `${Number(value||0).toLocaleString("he-IL",{maximumFractionDigits:2})} שעות`;}
-    function eventKind(ev){return ev?.kind || (ev?.isMeeting ? "meeting" : "event");}
-    function eventKindLabel(kind){return ({event:"אירוע",meeting:"פגישה",work:"עבודה / שעות"})[kind]||"אירוע";}
+    function eventKind(ev){const k=ev?.kind || (ev?.isMeeting ? "meeting" : "event"); return k==="meeting" ? "work" : k;} /* "פגישה" אוחדה ל"דיווח שעות" - אירועים ישנים ממופים בלי מיגרציה */
+    function eventKindLabel(kind){return ({event:"אירוע",work:"דיווח שעות"})[kind]||"אירוע";}
     function myDisplayName(){
       return state.profile?.name || (user?.displayName || "") || (user?.email || "").split("@")[0] || "משתמש";
     }
@@ -6490,7 +6495,7 @@
           const { col: colIdx, totalCols, span: colSpan = 1 } = mgColumns.get(ev.id) || { col: 0, totalCols: 1, span: 1 };
           const pct = 100 / totalCols;
           const kind=eventKind(ev);
-          const chip = el("div","mg-event " + (kind==="work"?"is-work":kind==="meeting"?"is-meeting":"is-regular"));
+          const chip = el("div","mg-event " + (kind==="work"?"is-work":"is-regular"));
           chip.style.top = (top + Math.max(1, rawHeight * .015)) + "px";
           chip.style.height = height + "px";
           chip.style.left = `calc(${colIdx * pct}% + 2px)`;
@@ -6507,7 +6512,7 @@
 
           const titleEl = document.createElement("span");
           titleEl.style.cssText = "font-size:10px;font-weight:500;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block";
-          titleEl.textContent = (kind==="work" ? "⏱ " : kind==="meeting" ? "🤝 " : "📅 ") + ev.title;
+          titleEl.textContent = (kind==="work" ? "⏱ " : "📅 ") + ev.title;
 
           const timeEl = document.createElement("span");
           timeEl.style.cssText = "font-size:9px;font-weight:400;opacity:.85;line-height:1.2;white-space:nowrap;display:block;direction:ltr";
@@ -6552,38 +6557,35 @@
 
       function fmtTime(h,m){ return String(h).padStart(2,"0")+":"+(m===0?"00":String(m)); }
 
-      openModal("🤝 פגישה / שיעור חדש", dateStr, (form) => {
+      openModal("⏱ דיווח שעות חדש", dateStr, (form) => {
         form.className = "event-form-modal";
 
-        form.append(field("שם / כותרת","meetName","text",""));
-        const kindWrap=el("div","field"),kindLabel=el("label","","סוג ברשומות"),kindSelect=document.createElement("select");kindSelect.id="meetKind";
-        [["meeting","🤝 פגישה / שיעור פרטי"],["work","⏱️ עבודה / שעות לדיווח"]].forEach(([v,t])=>{const o=el("option","",t);o.value=v;kindSelect.append(o)});kindWrap.append(kindLabel,kindSelect);form.append(kindWrap);
-        const subjWrap = el("div","field");
-        const subjLabel = el("label"); subjLabel.htmlFor = "meetSubj"; subjLabel.textContent = "נושא / סוג";
-        const subjSelect = el("select"); subjSelect.id = "meetSubj";
-        SUBJ_PRESETS.forEach(p => { const o = el("option","",p); o.value = p; subjSelect.append(o); });
-        subjWrap.append(subjLabel, subjSelect);
-        form.append(subjWrap);
-
-        form.append(field("מיקום (אופציונלי)","meetLocation","text",""));
-
+        form.append(field("כותרת","meetName","text",""));
         const lastEmail = localStorage.getItem("taskflow_last_reminder_email") || "";
 
         const reminderWrap = el("div","field");
         reminderWrap.style.cssText = "border:1px solid var(--border);border-radius:var(--rs);padding:12px;background:var(--card2);margin-bottom:4px";
         const reminderTitle = el("div","");
         reminderTitle.style.cssText = "font-size:12px;font-weight:900;color:var(--accent2);margin-bottom:8px;display:flex;align-items:center;gap:6px";
-        reminderTitle.innerHTML = `<span>🔔</span> תזכורות במייל`;
-        reminderWrap.append(reminderTitle);
+        reminderTitle.style.cursor = "pointer"; reminderTitle.style.marginBottom = "0"; reminderTitle.style.userSelect = "none";
+        const reminderBody = el("div",""); reminderBody.style.display = "none"; reminderBody.style.marginTop = "8px";
+        const setReminderTitle = () => { reminderTitle.innerHTML = `<span>🔔</span> תזכורות במייל <span style="margin-right:auto">${reminderBody.style.display === "none" ? "›" : "⌄"}</span>`; };
+        setReminderTitle();
+        reminderTitle.onclick = () => {
+          const opening = reminderBody.style.display === "none";
+          reminderBody.style.display = opening ? "" : "none";
+          if (opening && !$("meetEmail").value) $("meetEmail").value = lastEmail;
+          setReminderTitle();
+        };
+        reminderWrap.append(reminderTitle, reminderBody);
 
         const emailRow = el("div","field");
         const emailLabel = el("label"); emailLabel.textContent = "כתובת מייל לתזכורת (אופציונלי)";
         const emailInput = document.createElement("input");
         emailInput.type = "email"; emailInput.id = "meetEmail"; emailInput.placeholder = "השאר ריק לדילוג";
-        emailInput.value = lastEmail;
         emailInput.style.direction = "ltr"; emailInput.style.textAlign = "left";
         emailRow.append(emailLabel, emailInput);
-        reminderWrap.append(emailRow);
+        reminderBody.append(emailRow);
 
         const checkRow = el("div","row"); checkRow.style.cssText = "gap:10px;flex-wrap:wrap;margin-top:4px";
         const remOpts = [
@@ -6596,114 +6598,81 @@
           lbl.append(cb, document.createTextNode(opt.label));
           checkRow.append(lbl);
         });
-        reminderWrap.append(checkRow);
+        reminderBody.append(checkRow);
         form.append(reminderWrap);
 
-        let selStartH = startHour, selStartM = startMin;
-        let endTotalMin = startHour*60 + startMin + 60;
-        let selEndH = Math.floor(endTotalMin/60), selEndM = endTotalMin%60;
-        if (selEndH > MEETING_HOURS[MEETING_HOURS.length-1]) { selEndH = MEETING_HOURS[MEETING_HOURS.length-1]; selEndM = 45; }
+        const toMin = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ""); return m ? (+m[1])*60 + (+m[2]) : null; };
+        const fromMin = (n) => { n = Math.min(23*60+59, Math.max(0, n)); return String(Math.floor(n/60)).padStart(2,"0") + ":" + String(n%60).padStart(2,"0"); };
+        const DURATIONS = [[30,"30 ד׳"],[45,"45 ד׳"],[60,"שעה"],[90,"1.5 ש׳"],[120,"2 ש׳"]];
+        let dur = 60;
 
-        function buildDrumPicker(labelText, initH, initM, onChangeH, onChangeM){
-          const section = el("div","field");
-          section.append(el("label","",labelText));
-          const pickers = el("div","drum-pickers");
-          function makeDrum(items, initVal, onChange, drumLabel){
-            const col = el("div","drum-col");
-            col.append(el("div","drum-label",drumLabel));
-            const scroll = el("div","drum-scroll");
-            const highlight = el("div","drum-highlight");
-            scroll.append(highlight);
-            const pad = 2;
-            for(let p=0;p<pad;p++) scroll.append(Object.assign(el("div","drum-item"),{style:"visibility:hidden"}));
-            items.forEach(val => {
-              const item = el("div","drum-item",String(val).padStart(2,"0"));
-              item.dataset.val = val;
-              scroll.append(item);
-            });
-            for(let p=0;p<pad;p++) scroll.append(Object.assign(el("div","drum-item"),{style:"visibility:hidden"}));
-            let activeVal = initVal;
-            function scrollToVal(val, smooth){
-              const idx = items.indexOf(val);
-              if(idx<0) return;
-              const target = (idx+pad)*40 - 60;
-              scroll.scrollTo({top:Math.max(0,target), behavior: smooth?"smooth":"instant"});
-            }
-            function updateActive(){
-              const scrollTop = scroll.scrollTop;
-              const centerY = scrollTop + 80;
-              let best = null, bestDist = 9999;
-              scroll.querySelectorAll(".drum-item[data-val]").forEach(item => {
-                const itemCenter = item.offsetTop + 20;
-                const dist = Math.abs(itemCenter - centerY);
-                if(dist < bestDist){ bestDist=dist; best=item; }
-              });
-              scroll.querySelectorAll(".drum-item").forEach(i => i.classList.remove("active"));
-              if(best){
-                best.classList.add("active");
-                const newVal = parseInt(best.dataset.val);
-                if(newVal !== activeVal){ activeVal=newVal; onChange(newVal); }
-              }
-            }
-            scroll.addEventListener("scroll",()=>{ updateActive(); }, {passive:true});
-            scroll.querySelectorAll(".drum-item[data-val]").forEach(item => {
-              item.onclick = () => { scrollToVal(parseInt(item.dataset.val), true); };
-            });
-            col._initScroll = () => {
-              scrollToVal(initVal, false);
-              requestAnimationFrame(()=>requestAnimationFrame(()=>{ updateActive(); }));
-            };
-            col.append(scroll);
-            return col;
-          }
-          const hourDrum = makeDrum(MEETING_HOURS, initH, (v)=>{ onChangeH(v); }, "שעה");
-          const minDrum  = makeDrum([0,15,30,45],  initM, (v)=>{ onChangeM(v); }, "דקות");
-          pickers.append(hourDrum, el("div","drum-sep",":"), minDrum);
-          section.append(pickers);
-          section._initDrums = () => { hourDrum._initScroll(); minDrum._initScroll(); };
-          return section;
-        }
+        const startField = field("שעת התחלה","meetStart","time", fmtTime(startHour, startMin));
+        const endField   = field("שעת סיום","meetEnd","time", fromMin(startHour*60 + startMin + dur));
+        const startInput = startField.querySelector("input"), endInput = endField.querySelector("input");
+        startInput.step = 900; endInput.step = 900;
+        startInput.style.direction = endInput.style.direction = "ltr";
 
-        const startPicker = buildDrumPicker("שעת התחלה", selStartH, selStartM, (h)=>{ selStartH=h; }, (m)=>{ selStartM=m; });
-        const endPicker   = buildDrumPicker("שעת סיום",  selEndH,   selEndM,   (h)=>{ selEndH=h;   }, (m)=>{ selEndM=m;   });
-        form.append(startPicker, endPicker);
-        form._afterMount = () => { startPicker._initDrums(); endPicker._initDrums(); };
+        const durWrap = el("div","field");
+        durWrap.append(el("label","","משך"));
+        const durRow = el("div",""); durRow.style.cssText = "display:flex;flex-wrap:wrap;gap:6px";
+        const syncChips = () => durRow.querySelectorAll(".chip-opt").forEach(c => c.classList.toggle("active", +c.dataset.min === dur));
+        DURATIONS.forEach(([min,label]) => {
+          const b = el("button","chip-opt",label); b.type = "button"; b.dataset.min = min;
+          b.onclick = () => {
+            dur = min;
+            const st = toMin(startInput.value);
+            if (st !== null) endInput.value = fromMin(st + dur);
+            syncChips();
+          };
+          durRow.append(b);
+        });
+        durWrap.append(durRow);
+        syncChips();
+
+        // שינוי התחלה שומר על המשך הנוכחי; שינוי ידני של הסיום מעדכן את המשך
+        startInput.addEventListener("change", () => {
+          const st = toMin(startInput.value);
+          if (st !== null) endInput.value = fromMin(st + dur);
+        });
+        endInput.addEventListener("change", () => {
+          const st = toMin(startInput.value), en = toMin(endInput.value);
+          if (st !== null && en !== null && en > st) { dur = en - st; syncChips(); }
+        });
+
+        const timesRow = el("div","two");
+        timesRow.append(startField, endField);
+        form.append(timesRow, durWrap);
 
         form.append(colorPicker(state.accent, "meetColor"));
 
-        form.append(footer("🤝 צור פגישה", () => {
-          const subj = $("meetSubj").value;
-          const name = $("meetName").value.trim();
-          const location = $("meetLocation").value.trim();
-          const title = name ? name + " — " + subj : subj;
-          const startTotal = selStartH*60+selStartM;
-          const endTotal   = selEndH*60+selEndM;
+        form.append(footer("⏱ הוסף דיווח", () => {
+          const title = $("meetName").value.trim();
+          if (!title) return toast("צריך כותרת");
+          const timeStr = startInput.value, endTimeStr = endInput.value;
+          const startTotal = toMin(timeStr), endTotal = toMin(endTimeStr);
+          if (startTotal === null || endTotal === null) return toast("צריך שעת התחלה ושעת סיום");
           if (endTotal <= startTotal) return toast("שעת הסיום חייבת להיות אחרי שעת ההתחלה");
-          const timeStr    = fmtTime(selStartH, selStartM);
-          const endTimeStr = fmtTime(selEndH,   selEndM);
           const color = document.querySelector("[name=meetColor]:checked")?.value || state.accent;
-          const kind = $("meetKind").value;
           const email = $("meetEmail").value.trim();
           if (email) localStorage.setItem("taskflow_last_reminder_email", email);
 
           const newEvent = { 
             id: uid("ev"), title, date: dateKey, time: timeStr, endTime: endTimeStr, 
-            color, source: "meeting", location,
-            kind, isMeeting: kind === "meeting"
+            color, source: "meeting",
+            kind: "work", isMeeting: false
           };
           state.events.push(newEvent);
-          closeModal(); save(); render(); toast("הפגישה נוצרה ✓");
+          closeModal(); save(); render(); toast("הדיווח נוצר ✓");
 
           if (email) {
             const remDay  = document.getElementById("rem_day")?.checked;
             const remHour = document.getElementById("rem_hour")?.checked;
             const dateFormatted = dateObj.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-            const locationStr = location ? `\nמיקום: ${location}` : "";
-            const bodyText = `שלום,\n\nתזכורת לפגישה / שיעור:\n📌 ${title}\n📅 ${dateFormatted}\n⏰ ${timeStr}–${endTimeStr}${locationStr}\n\nנוצר ע\"י TaskFlow`;
+            const bodyText = `שלום,\n\nתזכורת:\n📌 ${title}\n📅 ${dateFormatted}\n⏰ ${timeStr}–${endTimeStr}\n\nנוצר ע\"י TaskFlow`;
 
             if (remDay) {
               const subject = encodeURIComponent(`תזכורת מחר: ${title}`);
-              const body = encodeURIComponent(`שלום,\n\nמחר יש לך:\n📌 ${title}\n📅 ${dateFormatted}\n⏰ ${timeStr}–${endTimeStr}${locationStr}\n\n— TaskFlow`);
+              const body = encodeURIComponent(`שלום,\n\nמחר יש לך:\n📌 ${title}\n📅 ${dateFormatted}\n⏰ ${timeStr}–${endTimeStr}\n\n— TaskFlow`);
               window.open(`mailto:${email}?subject=${subject}&body=${body}`, "_blank");
             }
             if (remHour) {
@@ -6782,7 +6751,7 @@
       profileCard.append(studentRow,semesterBtn,reportRow,saveProfile);
 
       const meetingsCard = el("section","card");
-      meetingsCard.append(el("h3","","📆 יומן שעות"));
+      meetingsCard.append(el("h3","","📆 יומן שעות / דיווח"));
       meetingsCard.append(el("p","meta","בחר אילו חלקים יוצגו בעמוד יומן השעות"));
       const showSummaryRow=el("label","row");const showSummaryCb=document.createElement("input");showSummaryCb.type="checkbox";showSummaryCb.style.width="auto";showSummaryCb.checked=state.meetingsSettings?.showSummary!==false;showSummaryRow.append(showSummaryCb,document.createTextNode("הצג סיכום שעות (סה\"כ שעות לחודש)"));
       showSummaryCb.onchange=()=>{state.meetingsSettings={...(state.meetingsSettings||{}),showSummary:showSummaryCb.checked};save();};
@@ -7594,7 +7563,7 @@
       "שעת התחלה":"🕐","שעת סיום":"🕑","צבע":"🎨","תתי-משימות":"☑️","תגיות (מופרדות בפסיק)":"#️⃣",
       "תזכורת":"🔔","קשר לרשימת משימות (לא חובה)":"🔗","מיקום (אופציונלי)":"📍","חזרות באותה שעה":"🔁","רשימה":"📋"
     };
-    const CHIP_SELECT_IDS = ["evKind","taskCol","taskRepeat","meetKind","meetSubj","homeTaskCol","quickTaskCol"];
+    const CHIP_SELECT_IDS = ["taskCol","taskRepeat","homeTaskCol","quickTaskCol"];
     function decorateModal(form){
       form.querySelectorAll("label").forEach(lb => {
         if (lb.querySelector(".field-ico") || lb.querySelector("input,select")) return;
@@ -8555,7 +8524,7 @@
       const todayStr = toDateKey(new Date());
       const urgentCount = (state.tasks||[]).filter(t => !isDone(t) && t.due && t.due <= todayStr).length;
       const todayEvents = (state.events||[]).filter(e => e.date === todayStr).length;
-      const todayMeet   = (state.events||[]).filter(e => e.date === todayStr && e.isMeeting).length;
+      const todayMeet   = (state.events||[]).filter(e => e.date === todayStr && eventKind(e)==="work").length;
       const b = (id, n) => {
         const el = document.getElementById(id);
         if (!el) return;
