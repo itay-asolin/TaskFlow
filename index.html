@@ -519,6 +519,8 @@
     kbd{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:11px;color:var(--text)}
     .meetings-dashboard{display:grid;gap:16px;margin-top:4px}
     .meetings-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--border);border-radius:var(--rs);background:var(--card)}
+    .meetings-toolbar .mt-row{display:contents}
+    .meetings-toolbar .mt-back{order:1}.meetings-toolbar .mt-today{order:2}.meetings-toolbar .mt-prev{order:3}.meetings-toolbar strong{order:4}.meetings-toolbar .mt-next{order:5}.meetings-toolbar input[type=month]{order:6}
     .meetings-month-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
     .meeting-stat{padding:13px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
     .meeting-stat strong{display:block;font-size:20px;color:var(--accent2);margin-top:4px}
@@ -1276,7 +1278,18 @@
       }
       .day{min-height:64px;border-radius:8px}
       .week-block{overflow-x:auto}
-      .meetings-grid{min-width:680px}
+      .meetings-grid{min-width:0;grid-template-columns:34px repeat(7,minmax(0,1fr))}
+      .week-block{overflow-x:hidden}
+      .mg-hour-label{font-size:8px;padding:2px 2px 0 0;justify-content:center}
+      .mg-day-head{padding:6px 0;font-size:10px}
+      .mg-day-head .day-date{font-size:15px}
+      .mg-event{padding:1px 2px!important;border-radius:4px}
+      .mg-event span{font-size:9px!important}
+      .meetings-toolbar{padding:8px 10px;gap:6px}
+      .meetings-toolbar .mt-row{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%}
+      .meetings-toolbar .mt-row .btn{padding:7px 10px;font-size:12.5px}
+      .meetings-toolbar .mt-row input[type=month]{flex:1;min-width:0;max-width:150px}
+      .meetings-toolbar .mt-row strong{font-size:12.5px;text-align:center;flex:1}
       .cal-week,.cal-week-head{
         min-width:0;
         width:100%;
@@ -2072,24 +2085,48 @@
     }
   
     /* ── מטלות קטנות + קניות: כרטיסים מוטמעים במסך הראשי ── */
-    .qcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
-    .qcard{display:flex;flex-direction:column;gap:10px;min-width:0;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
-    .qcard-head{display:flex;align-items:center;gap:8px}
-    .qcard-title{flex:1;margin:0;font-size:15px;font-weight:800}
-    .qcard-head .memo-count{margin-top:0}
-    .qcard-clear{flex:0 0 auto;width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:var(--faint);font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}
+    .qcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .qcard{display:flex;flex-direction:column;gap:6px;min-width:0;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+    .qcard-head{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+    .qcard-arrow{flex:0 0 auto;color:var(--faint);font-size:14px;transition:transform .15s}
+    .qcard.collapsed .qcard-arrow{transform:rotate(90deg)}
+    .qcard.collapsed .qcard-compose,.qcard.collapsed .qcard-list{display:none}
+    .qcard-title{flex:1;margin:0;font-size:13.5px;font-weight:800}
+    .qcard-head .memo-count{margin-top:0;min-width:22px;height:22px;font-size:11.5px;padding:0 7px}
+    .qcard-clear{flex:0 0 auto;width:28px;height:28px;border:0;border-radius:50%;background:transparent;color:var(--faint);font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}
     .qcard-clear:hover{background:var(--card2);color:var(--danger)}
-    .qcard-compose{display:flex;gap:8px}
-    .qcard-compose input{flex:1;min-width:0;height:44px;padding:0 14px;border-radius:12px;font-size:14px;background:var(--surface)}
-    .qcard-list{display:grid;gap:6px;max-height:260px;overflow-y:auto;overscroll-behavior:contain}
-    .qcard .memo-item{background:var(--surface)}
-    .qcard .memo-empty{padding:14px 10px}
-    .qcard .memo-empty-ico{font-size:24px;margin-bottom:4px}
-    .qcard .shop-check{width:24px;height:24px;border:2px solid var(--faint);border-radius:50%;font-size:13px}
+    .qcard-compose{display:flex;gap:6px}
+    .qcard-compose .memo-add-btn{flex:0 0 34px;width:34px;height:34px;border-radius:10px;font-size:20px}
+    .qcard-compose input{flex:1;min-width:0;height:34px;padding:0 10px;border-radius:10px;font-size:13px;background:var(--surface)}
+    .qcard-list{display:grid;gap:4px;max-height:132px;overflow-y:auto;overscroll-behavior:contain}
+    .qcard .memo-item{background:var(--surface);padding:3px 8px;gap:8px;border-radius:10px}
+    .qcard input.memo-item-text,.qcard .shop-item-text{font-size:13px;padding:3px 2px}
+    .qcard .memo-check{width:20px;height:20px}
+    .qcard .memo-empty{padding:6px 8px}
+    .qcard .memo-empty-sub{display:none}
+    .qcard .memo-empty-ico{font-size:18px;margin-bottom:2px}
+    .qcard .shop-check{width:20px;height:20px;border:2px solid var(--faint);border-radius:50%;font-size:13px}
     .qcard .shop-check:hover{border-color:var(--green)}
-    .qcard .shop-item-text{flex:1;min-width:0;padding:5px 2px;font-size:14px;font-weight:600;cursor:text}
+    .qcard .shop-item-text{flex:1;min-width:0;padding:3px 2px;font-size:13px;font-weight:600;cursor:text}
     .memo-item.shop-item.done{opacity:.6;transform:none}
     .memo-item.shop-item.done .shop-item-text{color:var(--faint);text-decoration:line-through}
+
+    /* ── שלב 7: אזורי מגע ── */
+    /* ביטול שיהוי 300ms ולחיצות כפולות-זום על כל הפקדים הלחיצים */
+    button,.btn,.mini,.check,.swatch,.chip-opt,.lc-more,.memo-del,.memo-check,.shop-check,.flow-del,.bnav-btn,.bnav-add,.day-task,.mg-slot,.rp-day,[role="button"],select,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    /* פוטר סטיקי במודאל: הרקע השקוף של הגרדיאנט לא בולע לחיצות על מה שמתחתיו */
+    .modal form > .row:last-child{pointer-events:none}
+    .modal form > .row:last-child > *{pointer-events:auto}
+    @media (max-width:820px),(pointer:coarse){
+      /* מגדילים את אזור הלחיצה ל-44×44 בלי לשנות את המראה */
+      .mini,.check,.swatch,.lc-more,.memo-del,.memo-check,.shop-check,.flow-del{position:relative}
+      .mini::after,.check::after,.swatch::after,.lc-more::after,.memo-del::after,.memo-check::after,.shop-check::after,.flow-del::after{content:"";position:absolute;top:50%;left:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%);border-radius:inherit}
+      .chip-opt{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+      .rp .chip-opt{min-height:40px}
+      .memo-del{opacity:.6}
+      /* צמצום חפיפה בין אזורי מגע סמוכים בשורת מטלה */
+      .memo-item{gap:6px}
+    }
   </style>
 </head>
 <body data-theme="sky">
@@ -3725,6 +3762,7 @@
         const which = pendingQuickFocus;
         pendingQuickFocus = null;
         const card = wrap.querySelector(`.qcard[data-quick="${which}"]`);
+        if (card) card.classList.remove("collapsed");
         if (card) setTimeout(() => {
           card.scrollIntoView({ block: "center", behavior: "smooth" });
           card.querySelector("input[type=text]")?.focus({ preventScroll: true });
@@ -3745,12 +3783,19 @@
         card.dataset.quick = key;
         const head = el("div","qcard-head");
         head.append(el("h2","qcard-title",title), el("span","memo-count qcard-count hidden"));
+        head.onclick = (e) => {
+          if (e.target.closest("button")) return;
+          card.classList.toggle("collapsed");
+          try { localStorage.setItem("qcard_collapsed_" + key, card.classList.contains("collapsed") ? "1" : ""); } catch {}
+        };
+        try { if (localStorage.getItem("qcard_collapsed_" + key)) card.classList.add("collapsed"); } catch {}
         let clearBtn = null;
         if (withClear) {
           clearBtn = el("button","qcard-clear","🗑️");
           clearBtn.type = "button"; clearBtn.title = "מחק את כל הרשימה"; clearBtn.setAttribute("aria-label","מחק את כל הרשימה");
           head.append(clearBtn);
         }
+        head.append(el("span","qcard-arrow","▾"));
         const compose = el("div","qcard-compose");
         const input = document.createElement("input");
         input.type = "text"; input.autocomplete = "off"; input.enterKeyHint = "done";
@@ -6308,8 +6353,14 @@
       const next=el("button","btn","שבוע הבא ›"); next.type="button"; next.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()+7);state.meetingsDate=toDateKey(d);save();render();};
       const month=document.createElement("input"); month.type="month"; month.value=`${selected.getFullYear()}-${String(selected.getMonth()+1).padStart(2,"0")}`; month.title="מעבר לחודש אחר"; month.onchange=()=>{if(month.value){state.meetingsDate=month.value+"-01";save();render();}};
       const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
-      toolbar.append(prev,el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`),next,month);
-      const backBtn=el("button","btn","📅 חזרה ללוח"); backBtn.type="button"; backBtn.onclick=()=>navigate("calendar"); toolbar.prepend(backBtn);
+      const rangeLabel=el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`);
+      const backBtn=el("button","btn mt-back","📅 חזרה ללוח"); backBtn.type="button"; backBtn.onclick=()=>navigate("calendar");
+      const todayBtn=el("button","btn mt-today","היום"); todayBtn.type="button"; todayBtn.onclick=()=>{state.meetingsDate=toDateKey(today);save();render();};
+      prev.classList.add("mt-prev"); next.classList.add("mt-next");
+      // במובייל: שורה 1 = ניווט שבוע; שורה 2 = חזרה, היום ובורר חודש (בדסקטופ השורות שקופות והסדר נשמר)
+      const navRow=el("div","mt-row"); navRow.append(prev,rangeLabel,next);
+      const toolRow=el("div","mt-row"); toolRow.append(backBtn,todayBtn,month);
+      toolbar.append(navRow,toolRow);
       const wrap=el("div","meetings-dashboard"); wrap.append(toolbar,buildWeekBlock(weekStart,today,"הלוח השבועי"));
       const period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
       const showSummary = state.meetingsSettings?.showSummary!==false;
@@ -6497,7 +6548,7 @@
           timeEl.textContent = ev.time + (ev.endTime ? "–"+ev.endTime : "");
 
           chip.append(titleEl);
-          if (height > 28) chip.append(timeEl);
+          if (height > (window.matchMedia('(max-width:820px)').matches ? 52 : 28)) chip.append(timeEl);
           chip.dataset.evid = ev.id;
           chip.onclick = (e) => { e.stopPropagation(); showCalItemPopup(e, ev, dk); };
           dayCol.append(chip);
@@ -9659,7 +9710,7 @@
       elem.addEventListener("touchend", (e) => {
         clearTimeout(timer);
         elem.classList.remove("dragging");
-        if (!triggered && !moved && onTap) onTap(e);
+        if (!triggered && !moved && onTap) { if (e.cancelable) e.preventDefault(); onTap(e); } // מונע click רפאים שסוגר את החלון שנפתח
       });
       elem.addEventListener("touchcancel", () => { clearTimeout(timer); elem.classList.remove("dragging"); });
     }
