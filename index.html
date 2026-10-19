@@ -1459,6 +1459,11 @@
         var(--card);
     }
     .calendar-view .hour-line{display:none}
+    .all-day-strip{display:grid;grid-template-columns:52px repeat(7,minmax(0,1fr));gap:4px;margin:0 0 6px;align-items:stretch}
+    .all-day-strip.single{grid-template-columns:52px minmax(0,1fr)}
+    .all-day-label{font-size:10px;color:var(--muted);font-weight:800;display:flex;align-items:center;justify-content:center}
+    .all-day-cell{min-height:28px;padding:3px;border-radius:7px;background:var(--card2);display:flex;flex-direction:column;gap:3px}
+    .all-day-chip{border:0;border-right:3px solid var(--event-color,var(--accent));border-radius:5px;background:color-mix(in srgb,var(--event-color,var(--accent)) 22%,var(--card));padding:2px 5px;text-align:right;font-size:10px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);cursor:pointer}
     .calendar-view .cal-week-day-head{
       position:sticky;
       top:0;
@@ -1479,10 +1484,13 @@
 
     @media(max-width:820px){
       .calendar-view{
-        --cal-hour-h:40px;
+        --cal-hour-h:54px;
         gap:6px;
         margin-inline:-2px;
       }
+      .calendar-view .all-day-strip{grid-template-columns:36px repeat(7,minmax(0,1fr));gap:2px}
+      .calendar-view .all-day-strip.single{grid-template-columns:36px minmax(0,1fr)}
+      .calendar-view .all-day-chip{font-size:9px}
       .calendar-view .cal-toolbar{
         top:calc(52px + env(safe-area-inset-top));
         grid-template-columns:minmax(0,1fr) minmax(0,1fr);
@@ -1567,10 +1575,15 @@
         padding:1px 2px 0;
       }
       .calendar-view .cal-event{
-        font-size:7.5px;
-        padding:1px 2px;
-        line-height:1.12;
+        font-size:10px;
+        padding:3px 5px;
+        line-height:1.2;
       }
+      .calendar-view .day-nav-strip{display:flex;gap:4px;overflow-x:auto;padding:2px 0 6px;margin:0 0 5px;scrollbar-width:thin}
+      .calendar-view .day-nav-btn{flex:1 0 38px;min-width:38px;min-height:38px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:9px;line-height:1.1}
+      .calendar-view .day-nav-btn strong{font-size:12px;color:var(--text)}
+      .calendar-view .day-nav-btn.active{background:color-mix(in srgb,var(--accent) 18%,var(--card));border-color:var(--accent);color:var(--accent2)}
+      .calendar-view .day-nav-btn.active strong{color:var(--accent2)}
     }
 
     /* ── Badges on bottom nav ── */
@@ -1884,11 +1897,13 @@
     .calendar-view .cal-week-day-head{background:var(--bg);border:0;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;color:var(--muted);font-weight:700}
     .calendar-view .cal-week-day-head.today{background:color-mix(in srgb,var(--accent) 10%,var(--bg));border-bottom:2px solid var(--accent);color:var(--accent2)}
     .calendar-view .cal-day-col,.calendar-view .day-col{
-      border-color:color-mix(in srgb,var(--border) 60%,transparent);border-radius:8px;
-      background:
-        repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--cal-hour-h) - 1px), rgba(127,127,127,.09) calc(var(--cal-hour-h) - 1px), rgba(127,127,127,.09) var(--cal-hour-h)),
-        var(--card);
+      border:0;border-radius:8px;
+      background:repeating-linear-gradient(to bottom, color-mix(in srgb,var(--card2) 32%,var(--card)) 0 var(--cal-hour-h), var(--card) var(--cal-hour-h) calc(2 * var(--cal-hour-h)));
     }
+    .calendar-view .cal-week{gap:3px}
+    .calendar-view .cal-time-col,.calendar-view .hour-label,.calendar-view .cal-hour{border:0!important}
+    .calendar-view .day-nav-strip{display:none}
+    @media(max-width:820px){.calendar-view .day-nav-strip{display:flex}}
     .calendar-view .cal-hour,.calendar-view .hour-label{color:var(--faint);font-weight:600}
     .calendar-view .cal-event{font-weight:600}
 
@@ -2127,6 +2142,72 @@
       /* צמצום חפיפה בין אזורי מגע סמוכים בשורת מטלה */
       .memo-item{gap:6px}
     }
+
+
+    /* TaskFlow visual refresh — desktop-first calendar, touch-friendly time fields */
+    @media (min-width: 821px){
+      .calendar-view{gap:12px}
+      .calendar-view .cal-toolbar{
+        grid-template-columns:auto minmax(220px,1fr) auto;
+        gap:10px;padding:10px 12px;border-radius:16px;
+        border-color:color-mix(in srgb,var(--accent) 15%,var(--border));
+        background:color-mix(in srgb,var(--card) 94%,transparent);
+        box-shadow:0 8px 24px rgba(22,34,66,.07);
+      }
+      .calendar-view .cal-toolbar .btn{min-height:38px;padding:7px 12px;border-radius:11px;font-weight:700}
+      .calendar-view .cal-title{font-size:17px;font-weight:800;letter-spacing:-.02em}
+      .calendar-view .cal-wrapper{padding:4px;border:1px solid var(--border);border-radius:18px;background:var(--card);box-shadow:0 8px 28px rgba(22,34,66,.045)}
+      .calendar-view .cal{gap:5px}
+      .calendar-view .day-name{padding:8px 4px;border-radius:9px;background:var(--surface);font-size:11px;font-weight:800}
+      .calendar-view .day{padding:6px;gap:4px;border:1px solid color-mix(in srgb,var(--border) 78%,transparent);border-radius:11px;background:var(--card);transition:border-color .15s,background .15s}
+      .calendar-view .day:hover{border-color:color-mix(in srgb,var(--accent) 38%,var(--border));background:color-mix(in srgb,var(--accent) 2.5%,var(--card))}
+      .calendar-view .day-num{border-radius:50%;font-weight:800}
+      .calendar-view .day-task{min-height:20px;padding:3px 7px;border-radius:6px;font-weight:650}
+      .calendar-view .day-more{font-weight:700;color:var(--accent2)}
+    }
+    .event-time-row{gap:12px}
+    .event-time-row .field{min-width:0;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:color-mix(in srgb,var(--card) 94%,var(--accent) 2%);transition:border-color .15s,box-shadow .15s,background .15s}
+    .event-time-row .field:focus-within{border-color:var(--accent);background:var(--card);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 13%,transparent)}
+    .event-time-row .field label{display:block;margin-bottom:7px;font-size:12px;font-weight:800;color:var(--muted)}
+    .event-time-row input[type="time"]{display:block;width:100%;min-height:38px;padding:5px 8px;border:1px solid color-mix(in srgb,var(--border) 70%,transparent);border-radius:9px;background:var(--card);color:var(--text);font:700 17px/1.2 inherit;font-variant-numeric:tabular-nums;direction:ltr;text-align:center;accent-color:var(--accent);color-scheme:light dark}
+    .event-time-row input[type="time"]:focus{outline:2px solid color-mix(in srgb,var(--accent) 28%,transparent);outline-offset:1px}
+    @media(max-width:820px){
+      .event-time-row{grid-template-columns:1fr 1fr!important;gap:8px}
+      .event-time-row .field{padding:9px;border-radius:12px}
+      .event-time-row .field label{font-size:11px;margin-bottom:5px}
+      .event-time-row input[type="time"]{min-height:44px;font-size:16px;padding:6px 3px}
+    }
+
+  
+    /* TaskFlow refinement v2: compact quick lists and small add-list action */
+    .qcards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+    .qcard{border-radius:16px;padding:10px 12px;box-shadow:0 3px 12px rgba(20,35,70,.035)}
+    .qcard-head{min-height:30px;gap:8px}
+    .qcard-title{font-size:14px}
+    .qcard-compose{padding-top:2px}
+    .qcard-compose input{border:1px solid var(--border);background:var(--surface);min-height:38px}
+    .qcard-compose .memo-add-btn{flex-basis:38px;width:38px;height:38px;border-radius:12px}
+    .qcard-list{max-height:150px;gap:5px}
+    .qcard .memo-item{padding:5px 8px;min-height:34px}
+    .lgrid>.lc-add{grid-column:1/-1;justify-self:start;display:inline-flex;flex-direction:row;align-items:center;gap:8px;width:auto;min-width:0;min-height:38px;height:auto;padding:7px 15px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:999px;background:color-mix(in srgb,var(--accent) 7%,var(--card));box-shadow:none;font-size:13px}
+    .lgrid>.lc-add .lc-plus{width:24px;height:24px;font-size:18px;background:var(--accent);color:#fff}
+    .lgrid>.lc-add:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(20,35,70,.08)}
+    .event-time-row .field{box-shadow:0 2px 8px rgba(20,35,70,.025)}
+    .event-time-row input[type="time"]{min-height:44px;border:1px solid var(--border);border-radius:11px;background:var(--surface);font-size:18px;font-weight:800;letter-spacing:.02em}
+    .modal-back.event-sheet .modal{display:flex;flex-direction:column;width:100%;max-width:none;height:100%;max-height:none;margin:0;border:0;border-radius:0;overflow:hidden;animation:eventSheetIn .22s ease-out}
+    .modal-back.event-sheet{padding:0;place-items:stretch}
+    .modal-back.event-sheet .modal-head{flex:0 0 auto;position:sticky;top:0;z-index:2;background:var(--surface);padding:14px 18px;border-bottom:1px solid var(--border)}
+    .modal-back.event-sheet #modalForm{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 18px calc(24px + env(safe-area-inset-bottom))}
+    .modal-back.event-sheet #modalForm>.row:last-child{position:sticky;bottom:calc(-24px - env(safe-area-inset-bottom));margin:20px -18px calc(-24px - env(safe-area-inset-bottom))!important;padding:14px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--surface) 82%,transparent)}
+    @keyframes eventSheetIn{from{transform:translateY(-18px);opacity:.7}to{transform:translateY(0);opacity:1}}
+    @media(max-width:820px){
+      .qcards{grid-template-columns:1fr;gap:9px}
+      .qcard{padding:10px 12px}
+      .qcard-list{max-height:124px}
+      .lgrid>.lc-add{min-height:36px}
+      .modal-back.event-sheet .modal{border-radius:0}
+    }
+
   </style>
 </head>
 <body data-theme="sky">
@@ -2371,7 +2452,7 @@
       currentView: "home",
       currentCatId: null,
       search: "",
-      calView: "month",
+      calView: window.matchMedia("(max-width:820px)").matches ? "day" : "week",
       calDate: null,
       events: [],
       icsImports: [],
@@ -4588,6 +4669,13 @@
       else wrap.append(renderDayGrid(anchor, conflicts));
 
       $("content").replaceChildren(wrap);
+      if (state.calView === "day" && window.matchMedia("(max-width:820px)").matches) {
+        requestAnimationFrame(() => {
+          const scroller = wrap.querySelector(".cal-wrapper");
+          const marker = wrap.querySelector(".day-col .mg-now-line");
+          if (scroller && marker) scroller.scrollTop = Math.max(0, marker.offsetTop - 100);
+        });
+      }
     }
 
     // סרגל סיכום עומס: כמה משימות פתוחות יש בשבוע הנוכחי (האמיתי, לא תלוי בניווט בלוח), מקובץ לפי תגית/קורס.
@@ -4966,6 +5054,9 @@
         head.append(label);
       });
       wrap.append(head);
+      const allDayStrip = el("div","all-day-strip"); allDayStrip.append(el("div","all-day-label","כל היום"));
+      days.forEach(d => { const dk = toDateKey(d); const cell = el("div","all-day-cell"); allCalItems(dk).events.filter(e => e.allDay || !e.time).forEach(ev => { const chip = el("button","all-day-chip",ev.title); chip.type = "button"; chip.style.setProperty("--event-color",ev.color || state.accent); chip.title = ev.title; chip.onclick = () => openEventModal(ev, dk); cell.append(chip); }); allDayStrip.append(cell); });
+      wrap.append(allDayStrip);
 
       const grid = el("div","cal-week");
       const timeCol = el("div","cal-time-col");
@@ -4997,6 +5088,7 @@
           titleStr.style.cssText = "overflow:hidden;word-break:break-word;white-space:normal;font-size:10px;line-height:1.25;flex:1;font-weight:500";
           titleStr.textContent = (kind==="work" ? "⏱ " : "📅 ") + ev.title;
           chip.append(titleStr);
+          const eventTime = el("span","",ev.time + (ev.endTime ? "–"+ev.endTime : "")); eventTime.style.cssText="font-size:9px;white-space:nowrap;opacity:.9;flex:0 0 auto"; chip.append(eventTime);
           chip.style.top = (top + 1)+"px"; chip.style.height = height+"px";
           chip.style.left = `calc(${colIdx * pct}% + 3px)`;
           chip.style.right = `calc(${(totalCols - colIdx - colSpan) * pct}% + 3px)`;
@@ -5102,6 +5194,13 @@
       const { tasks, events } = allCalItems(dk);
       const wrap = el("div");
 
+      const weekStartDate = weekStart(anchor);
+      const dayNavStrip = el("div","day-nav-strip");
+      for (let i=0;i<7;i++) { const d=new Date(weekStartDate); d.setDate(d.getDate()+i); const key=toDateKey(d); const b=el("button","day-nav-btn"+(key===dk?" active":"")); b.type="button"; b.append(el("span","",d.toLocaleDateString("he-IL",{weekday:"short"})),el("strong","",String(d.getDate()))); b.setAttribute("aria-label",d.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"})); b.onclick=()=>{state.calDate=key;render();}; dayNavStrip.append(b); }
+      wrap.append(dayNavStrip);
+      const allDayEvents = events.filter(e => e.allDay || !e.time);
+      const allDayStrip = el("div","all-day-strip single"); allDayStrip.append(el("div","all-day-label","כל היום"));
+      const allDayCell = el("div","all-day-cell"); allDayEvents.forEach(ev => { const chip = el("button","all-day-chip",ev.title); chip.type = "button"; chip.style.setProperty("--event-color",ev.color || state.accent); chip.onclick = () => openEventModal(ev, dk); allDayCell.append(chip); }); allDayStrip.append(allDayCell); wrap.append(allDayStrip);
       const dayGrid = el("div","day-view");
       const timeCol = el("div","cal-time-col");
       for (let h=0; h<24; h++) timeCol.append(el("div","hour-label", h===0?"":String(h)+":00"));
@@ -5109,7 +5208,7 @@
       for (let h=0; h<24; h++) {
         const line = el("div","hour-line"); line.style.top = (h*hourPx)+"px"; col.append(line);
       }
-      const timedEvs = events.filter(e => e.time);
+      const timedEvs = events.filter(e => e.time && !e.allDay);
       const dayColumns = layoutColumns(timedEvs);
       timedEvs.forEach(ev => {
         const [sh,sm] = ev.time.split(":").map(Number);
@@ -5128,6 +5227,7 @@
         titleRow.style.cssText = "font-size:10px;font-weight:500;overflow:hidden;word-break:break-word;white-space:normal;line-height:1.25;flex:1";
         titleRow.textContent = (kind==="work" ? "⏱ " : "📅 ") + ev.title;
         chip.append(titleRow);
+        const eventTime = el("span","",ev.time + (ev.endTime ? "–"+ev.endTime : "")); eventTime.style.cssText="font-size:10px;white-space:nowrap;opacity:.9;flex:0 0 auto"; chip.append(eventTime);
 
         chip.style.top = top+"px"; chip.style.height = height+"px";
         chip.style.left = `calc(${colIdx * pct}% + 3px)`;
@@ -5637,10 +5737,18 @@
           catWrap.append(catLabel, catSelect); form.append(catWrap);
         }
         form.append(field("תאריך","evDate","date", ev?.date || dateKey || ""));
-        const two2 = el("div","two");
+        const allDayWrap = el("label","all-day-toggle");
+        const allDayInput = document.createElement("input"); allDayInput.type = "checkbox"; allDayInput.id = "evAllDay"; allDayInput.checked = !!ev?.allDay;
+        allDayInput.style.cssText = "width:18px;height:18px;margin:0;accent-color:var(--accent)";
+        allDayWrap.style.cssText = "display:flex;align-items:center;gap:9px;margin:0 0 12px;color:var(--text);font-size:14px";
+        allDayWrap.append(allDayInput, document.createTextNode("כל היום")); form.append(allDayWrap);
+        const two2 = el("div","two event-time-row"); two2.id = "evTimedFields";
         two2.append(field("שעת התחלה","evTime","time", defTime));
-        two2.append(field("שעת סיום","evEndTime","time", defEndTime));
-        form.append(two2);
+        two2.append(field("שעת סיום","evEndTime","time", defEndTime)); form.append(two2);
+        const untilWrap = el("div","field hidden"); untilWrap.id = "evUntilWrap"; untilWrap.append(el("label","","עד תאריך"));
+        const untilInput = document.createElement("input"); untilInput.type = "date"; untilInput.id = "evUntilDate"; untilInput.value = ev?.allDay ? (ev.endDate || ev.date || dateKey || "") : (endDateKey || dateKey || ""); untilWrap.append(untilInput); form.append(untilWrap);
+        const syncAllDayFields = () => { const allDay = allDayInput.checked; two2.classList.toggle("hidden", allDay); untilWrap.classList.toggle("hidden", !allDay); };
+        allDayInput.addEventListener("change", syncAllDayFields); syncAllDayFields();
         let repeatPicker = null;
         if (!ev) {
           repeatPicker = repeatDatePicker(dateKey || toDateKey(new Date()), dateKeysBetween(dateKey, endDateKey));
@@ -5698,8 +5806,10 @@
             title,
             date: $("evDate").value,
             endDate: "",
-            time: $("evTime").value,
-            endTime: $("evEndTime").value,
+            allDay: $("evAllDay").checked,
+            time: $("evAllDay").checked ? "" : $("evTime").value,
+            endTime: $("evAllDay").checked ? "" : $("evEndTime").value,
+            endDate: $("evAllDay").checked ? ($("evUntilDate").value || $("evDate").value) : "",
             color: document.querySelector("[name=evColor]:checked")?.value || state.accent,
             source: "manual",
             kind: ev ? eventKind(ev) : "event",
@@ -5707,16 +5817,23 @@
             catId: $("evCatId")?.value || null
           };
           if (!data.date) return toast("צריך תאריך");
+          if (data.allDay && data.endDate < data.date) return toast("תאריך הסיום חייב להיות ביום ההתחלה או אחריו");
           if (ev) {
             Object.assign(ev, data);
             if (ev.seriesId) {
               ev.editedOccurrence = true;
             }
           } else {
-            const repeatDates = repeatPicker?.getSelectedDates?.() || [];
-            const seriesId = repeatDates.length ? uid("ser") : null;
-            state.events.push({ id: uid("ev"), ...(seriesId ? { seriesId } : {}), ...data });
-            repeatDates.forEach(date => state.events.push({ id: uid("ev"), seriesId, ...data, date }));
+            if (data.allDay) {
+              const dayDates = dateKeysBetween(data.date, data.endDate);
+              const seriesId = dayDates.length ? uid("ser") : null;
+              [data.date, ...dayDates].forEach(date => state.events.push({ id: uid("ev"), ...(seriesId ? { seriesId } : {}), ...data, date, endDate: data.endDate }));
+            } else {
+              const repeatDates = repeatPicker?.getSelectedDates?.() || [];
+              const seriesId = repeatDates.length ? uid("ser") : null;
+              state.events.push({ id: uid("ev"), ...(seriesId ? { seriesId } : {}), ...data });
+              repeatDates.forEach(date => state.events.push({ id: uid("ev"), seriesId, ...data, date }));
+            }
           }
           closeModal(); save(); render(); toast("נשמר");
         }));
@@ -7566,6 +7683,8 @@
     }
 
     function openModal(title, sub, build){
+      const modalBack = $("modalBack");
+      modalBack.classList.toggle("event-sheet", /אירוע|שעות/.test(title || ""));
       $("modalTitle").textContent = title;
       $("modalSub").textContent = sub || "";
       const form = $("modalForm");
@@ -7582,7 +7701,7 @@
       }, 20);
     }
 
-    function closeModal(){ $("modalBack").classList.add("hidden"); }
+    function closeModal(){ $("modalBack").classList.add("hidden"); $("modalBack").classList.remove("event-sheet"); }
 
     // Fresher look for form modals: emoji on field labels, and short option
     // lists (column / type / repeat) shown as tappable chips instead of a dropdown.
