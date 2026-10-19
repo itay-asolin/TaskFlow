@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "TaskFlow — משימות ויומן",
+  "short_name": "TaskFlow",
+  "description": "ניהול משימות, רשימות ואירועים",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "categories": [
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "./icons/taskflow-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/taskflow-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
