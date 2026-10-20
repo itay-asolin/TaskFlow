@@ -1376,12 +1376,81 @@
       #topBarBtns button{font-size:9px!important;padding-inline:6px!important}
     }
 
-    .auth-box{position:relative;overflow:hidden;border-radius:26px;padding:34px;box-shadow:0 24px 70px rgba(15,23,42,.12)}
-    .auth-box::before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 38%,#fff))}
-    .auth-box>.logo{font-size:34px;letter-spacing:-1px}
-    .auth-box .sub{line-height:1.6;margin:6px 0 24px}
-    .auth-box input{min-height:48px;border-radius:14px}
-    @media(max-width:820px){#bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}.auth-box{padding:28px 22px;border-radius:24px}}
+    .auth-box{position:relative;overflow:hidden;width:min(940px,100%);display:grid;grid-template-columns:1fr 1fr;padding:0;border-radius:30px;border-color:color-mix(in srgb,var(--accent) 20%,var(--border));box-shadow:0 32px 90px rgba(15,23,42,.2)}
+    .auth-visual{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;min-height:610px;padding:34px;color:#fff;overflow:hidden;background:radial-gradient(circle at 10% 0,rgba(255,255,255,.28),transparent 35%),radial-gradient(circle at 95% 80%,rgba(50,220,190,.22),transparent 32%),linear-gradient(145deg,color-mix(in srgb,var(--accent) 94%,#09183f),color-mix(in srgb,var(--accent) 52%,#351567))}
+    .auth-visual::before,.auth-visual::after{content:"";position:absolute;z-index:-1;border:1px solid rgba(255,255,255,.12);border-radius:50%;pointer-events:none}
+    .auth-visual::before{width:420px;height:420px;left:-170px;top:150px;box-shadow:0 0 0 34px rgba(255,255,255,.025),0 0 0 72px rgba(255,255,255,.02)}
+    .auth-visual::after{width:220px;height:220px;right:-100px;top:-80px;background:rgba(255,255,255,.04)}
+    .auth-brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:950;letter-spacing:-.5px}
+    .auth-brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:12px;background:#fff;color:var(--accent);font-weight:1000;box-shadow:0 5px 16px rgba(0,0,0,.16)}
+    .auth-visual-copy{margin-block:auto;padding:36px 0 28px}
+    .auth-kicker{display:inline-flex;padding:7px 11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(255,255,255,.1);font-size:11px;font-weight:850;letter-spacing:.03em}
+    .auth-visual-copy h1{margin:18px 0 12px;font-size:clamp(34px,4vw,48px);line-height:1.16;letter-spacing:-1.6px;font-weight:950}
+    .auth-visual-copy h1 strong{color:#b9f3e2}
+    .auth-visual-copy p{max-width:330px;margin:0;color:rgba(255,255,255,.78);font-size:14px;line-height:1.7}
+    .auth-preview{position:relative;padding:14px 16px;border:1px solid rgba(255,255,255,.22);border-radius:18px;background:rgba(255,255,255,.13);box-shadow:0 15px 40px rgba(10,15,40,.16);backdrop-filter:blur(14px)}
+    .auth-preview-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;margin-bottom:7px;border-bottom:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900}
+    .auth-preview-date{font-size:9px;letter-spacing:3px;opacity:.7}
+    .auth-preview-line{display:flex;align-items:center;gap:9px;min-height:35px;font-size:11px;font-weight:700}
+    .auth-preview-line i{width:15px;height:15px;border:1.5px solid rgba(255,255,255,.65);border-radius:5px;font-style:normal;font-size:10px;display:grid;place-items:center}
+    .auth-preview-line i.done{background:#b9f3e2;border-color:#b9f3e2;color:#173c4b}
+    .auth-preview-line span{flex:1}.auth-preview-line b{font-size:10px;opacity:.74;direction:ltr}
+    .auth-form{align-self:center;width:100%;max-width:470px;padding:46px clamp(28px,5vw,58px);margin-inline:auto}
+    .auth-form-heading{margin-bottom:25px}
+    .auth-form-heading h2{margin:0 0 7px;font-size:26px;line-height:1.2;font-weight:950;letter-spacing:-.5px}
+    .auth-form-heading .sub{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+    .auth-mobile-brand{display:none}
+    .auth-form .tabs{border-radius:14px;padding:4px;margin-bottom:22px}
+    .auth-form .tab{padding:10px;border-radius:10px}
+    .auth-form .field{margin-bottom:15px}
+    .auth-form label{font-size:12px;color:var(--muted);margin-bottom:7px}
+    .auth-form input{min-height:49px;border-radius:13px}
+    .auth-form #authBtn{min-height:48px;border-radius:13px;font-weight:900;box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 26%,transparent)}
+    .auth-divider{display:flex;align-items:center;gap:11px;margin:15px 0;color:var(--faint);font-size:11px;font-weight:800}
+    .auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}
+    .auth-form .google-btn{min-height:46px;border-radius:13px;margin-top:0!important}
+    .phrase-ticker{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:130px;max-width:390px;height:40px;padding:0 11px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--accent) 7%,var(--card));color:var(--text);text-align:right;overflow:hidden;cursor:pointer}
+    .ticker-label{flex:0 0 auto;padding:4px 8px;border-radius:8px;background:color-mix(in srgb,var(--accent) 15%,var(--surface));color:var(--accent2);font-size:10px;font-weight:950;white-space:nowrap}
+    .ticker-window{display:block;flex:1;min-width:0;overflow:hidden;direction:ltr;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+    .ticker-track{display:flex;width:max-content;align-items:center;direction:rtl;white-space:nowrap;animation:phraseTickerRun 24s linear infinite}
+    .ticker-copy{display:block;padding-inline:24px;color:var(--muted);font-size:12px;font-weight:750;white-space:nowrap}
+    .ticker-copy-clone{padding-inline-start:0}
+    .ticker-track.is-empty{width:100%;animation:none}
+    .ticker-track.is-empty .ticker-copy{padding:0;color:var(--faint);font-size:11px;font-weight:650}
+    .phrase-ticker:hover .ticker-track{animation-play-state:paused}
+    .ticker-edit{flex:0 0 auto;color:var(--faint);font-size:13px}
+    @keyframes phraseTickerRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .mobile-phrase-ticker{display:none}
+    .event-kind-switch{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border:1px solid var(--border);border-radius:15px;background:var(--card);margin:0 0 14px}
+    .event-kind-option{min-height:42px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--muted);font-size:13px;font-weight:850;transition:background .16s,color .16s,border-color .16s}
+    .event-kind-option.active{background:color-mix(in srgb,var(--accent) 14%,var(--surface));border-color:color-mix(in srgb,var(--accent) 32%,var(--border));color:var(--accent2)}
+    .clock-picker{display:flex;align-items:center;justify-content:center;gap:7px;direction:ltr;width:100%;padding:6px;border:1px solid var(--border);border-radius:14px;background:var(--surface);font-variant-numeric:tabular-nums}
+    .clock-picker select{width:auto;min-width:0;flex:1;border:0!important;border-radius:9px!important;background:var(--card)!important;padding:8px 7px!important;min-height:44px!important;color:var(--text);font-size:19px;font-weight:900;text-align:center;text-align-last:center;direction:ltr;appearance:none;-webkit-appearance:none}
+    .clock-colon{font-size:21px;font-weight:950;color:var(--accent2)}
+    .clock-field{min-width:0}
+    .event-time-row .clock-field{padding:8px;border:1px solid var(--border);border-radius:15px;background:var(--card)}
+    .event-time-row .clock-field label{text-align:center;justify-content:center}
+    @media(max-width:820px){
+      #bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
+      .mobile-phrase-ticker{display:flex;flex:1 1 100%;width:100%;max-width:none;min-height:38px;height:38px;margin:0 0 9px;border-radius:12px}
+      #topNav>.phrase-ticker{display:none}
+      .auth{min-height:100svh;padding:18px 14px;place-items:center}
+      .auth-box{width:min(480px,100%);grid-template-columns:1fr;border-radius:25px}
+      .auth-visual{min-height:0;padding:22px 22px 18px}
+      .auth-brand{display:none}.auth-visual-copy{margin:19px 0 14px;padding:0}
+      .auth-visual-copy h1{font-size:28px;margin:11px 0 6px;letter-spacing:-.7px}
+      .auth-visual-copy p{font-size:12px;line-height:1.5}
+      .auth-kicker{font-size:10px;padding:5px 9px}
+      .auth-preview{padding:8px 11px;border-radius:14px}
+      .auth-preview-head{padding-bottom:6px;margin-bottom:3px}.auth-preview-line{min-height:28px;font-size:10px}
+      .auth-form{padding:23px 22px 25px}
+      .auth-form-heading{margin-bottom:17px}.auth-form-heading h2{font-size:22px}
+      .auth-mobile-brand{display:flex;align-items:center;gap:8px;margin-bottom:15px;color:var(--text);font-size:14px;font-weight:950}
+      .auth-mobile-brand .auth-brand-mark{width:27px;height:27px;border:1px solid var(--border);box-shadow:none}
+      .event-kind-option{font-size:12px;min-height:40px}
+      .clock-picker select{min-height:46px!important;font-size:18px}
+    }
+    @media(prefers-reduced-motion:reduce){.ticker-track{animation:none!important}.ticker-copy-clone{display:none}}
 
     /* Dense calendar layout */
     .calendar-view{
@@ -2339,35 +2408,45 @@
 
   <section id="authView" class="auth">
     <div class="auth-box">
-      <div class="logo">Task<span>Flow</span></div>
-      <p id="authSub" class="sub">ניהול משימות פרטי עם סנכרון בין מכשירים</p>
-      <div class="tabs" role="tablist">
-        <button id="loginTab" class="tab active" type="button">התחברות</button>
-        <button id="registerTab" class="tab" type="button">הרשמה</button>
-      </div>
-      <div class="field"><label for="email">אימייל</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" /></div>
-      <div class="field">
-        <label for="password">סיסמה</label>
-        <div class="pass-wrap">
-          <input id="password" type="password" autocomplete="current-password" placeholder="לפחות 6 תווים" />
-          <button id="togglePassBtn" class="pass-eye" type="button" aria-label="הצג/הסתר סיסמה" title="הצג סיסמה">👁</button>
+      <aside class="auth-visual" aria-label="היכרות עם TaskFlow">
+        <div class="auth-brand"><span class="auth-brand-mark">✓</span><span>TaskFlow</span></div>
+        <div class="auth-visual-copy"><span class="auth-kicker">המרחב שלך לתכנון רגוע</span><h1>פחות לזכור.<br><strong>יותר לעשות.</strong></h1><p>כל הרשימות, המשימות והאירועים שלך — במקום אחד.</p></div>
+        <div class="auth-preview" aria-hidden="true">
+          <div class="auth-preview-head"><span>היום שלך</span><span class="auth-preview-date">●●●</span></div>
+          <div class="auth-preview-line"><i class="done">✓</i><span>לסיים את מה שחשוב</span><b>09:30</b></div>
+          <div class="auth-preview-line"><i></i><span>לעבור על המשימות</span><b>11:00</b></div>
+          <div class="auth-preview-line"><i></i><span>לפנות זמן לעצמך</span><b>16:00</b></div>
         </div>
+      </aside>
+      <div class="auth-form">
+        <div class="auth-form-heading"><div class="auth-mobile-brand"><span class="auth-brand-mark">✓</span> TaskFlow</div><h2 id="authTitle">טוב שחזרת</h2><p id="authSub" class="sub">התחבר כדי להמשיך בדיוק מהמקום שבו עצרת.</p></div>
+        <div class="tabs" role="tablist">
+          <button id="loginTab" class="tab active" type="button">התחברות</button>
+          <button id="registerTab" class="tab" type="button">הרשמה</button>
+        </div>
+        <div class="field"><label for="email">אימייל</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" /></div>
+        <div class="field">
+          <label for="password">סיסמה</label>
+          <div class="pass-wrap">
+            <input id="password" type="password" autocomplete="current-password" placeholder="לפחות 6 תווים" />
+            <button id="togglePassBtn" class="pass-eye" type="button" aria-label="הצג/הסתר סיסמה" title="הצג סיסמה">👁</button>
+          </div>
+        </div>
+        <button id="authBtn" class="btn primary" type="button" style="width:100%">התחבר</button>
+        <div class="auth-divider"><span>או</span></div>
+        <button id="googleAuthBtn" class="btn google-btn" type="button" style="width:100%">
+          <svg width="18" height="18" viewBox="0 0 18 18" style="flex:0 0 auto">
+            <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/>
+            <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.03l2.97-2.33z"/>
+            <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.97l2.97 2.33C4.66 5.17 6.65 3.58 9 3.58z"/>
+          </svg>
+          <span>המשך עם Google</span>
+        </button>
+        <div id="authMsg" class="auth-msg" aria-live="polite"></div>
+        <div id="localNote" class="mode-note hidden">Firebase עדיין לא מוגדר. אפשר לבדוק את האתר במצב מקומי, אבל סנכרון בין מכשירים יתחיל רק אחרי הדבקת ה-config והפעלת Firestore.</div>
+        <button id="localBtn" class="btn" type="button" style="width:100%;margin-top:10px">כניסה במצב מקומי</button>
       </div>
-      <button id="authBtn" class="btn primary" type="button" style="width:100%">התחבר</button>
-      <button id="googleAuthBtn" class="btn google-btn" type="button" style="width:100%;margin-top:10px">
-        <svg width="18" height="18" viewBox="0 0 18 18" style="flex:0 0 auto">
-          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/>
-          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/>
-          <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.03l2.97-2.33z"/>
-          <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.97l2.97 2.33C4.66 5.17 6.65 3.58 9 3.58z"/>
-        </svg>
-        <span>המשך עם Google</span>
-      </button>
-      <div id="authMsg" class="auth-msg" aria-live="polite"></div>
-      <div id="localNote" class="mode-note hidden">
-        Firebase עדיין לא מוגדר. אפשר לבדוק את האתר במצב מקומי, אבל סנכרון בין מכשירים יתחיל רק אחרי הדבקת ה-config והפעלת Firestore.
-      </div>
-      <button id="localBtn" class="btn" type="button" style="width:100%;margin-top:10px">כניסה במצב מקומי</button>
     </div>
   </section>
 
@@ -2378,6 +2457,9 @@
       <div class="logo">Task<span>Flow</span></div>
       <div id="userLabel" class="user" style="font-size:12px; color:var(--faint);"></div>
     </div>
+    <button class="phrase-ticker" type="button" aria-label="עריכת המשפטים האישיים">
+      <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span><span class="ticker-edit" aria-hidden="true">✎</span>
+    </button>
     <nav class="nav" aria-label="ניווט ראשי">
       <button data-view="today" type="button"><span>☀️ היום</span></button>
       <button data-view="home" class="active" type="button"><span>🗂️ רשימות</span></button>
@@ -2397,6 +2479,9 @@
   <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v4.1</div>
 
     <main>
+      <button class="phrase-ticker mobile-phrase-ticker" type="button" aria-label="עריכת המשפטים האישיים">
+        <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span><span class="ticker-edit" aria-hidden="true">✎</span>
+      </button>
       <div class="top">
         <div style="padding-right:8px">
           <div id="timeGreeting" style="font-size: 13px; font-weight: 800; color: var(--accent2); margin-bottom: 4px; letter-spacing: 0.01em; line-height:1.45; max-width:520px;"></div>
@@ -2563,7 +2648,7 @@
       calDate: null,
       events: [],
       icsImports: [],
-      profile: { name: "", student: null, onboarded: false },
+      profile: { name: "", student: null, onboarded: false, tickerPhrases: [] },
       workReport: { enabled: false },
       meetingsSettings: { showSummary: true, showList: true },
       semesters: [],
@@ -2721,6 +2806,8 @@
       $("loginTab").classList.toggle("active", mode === "login");
       $("registerTab").classList.toggle("active", mode === "register");
       $("authBtn").textContent = mode === "login" ? "התחבר" : "צור משתמש";
+      $("authTitle").textContent = mode === "login" ? "טוב שחזרת" : "מתחילים לתכנן";
+      $("authSub").textContent = mode === "login" ? "התחבר כדי להמשיך בדיוק מהמקום שבו עצרת." : "יוצרים חשבון ומרכזים את כל מה שחשוב לך.";
       $("authMsg").textContent = "";
       $("password").autocomplete = mode === "login" ? "current-password" : "new-password";
     }
@@ -3266,6 +3353,7 @@
     }, 5 * 60 * 1000);
     function render(){
       updateGreeting();
+      updateTicker();
       applyTheme();
       const _nk = navKey(state.currentView);
       document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === _nk));
@@ -5970,6 +6058,10 @@
         }
 
         form.append(field("כותרת","evTitle","text", ev?.title || ""));
+        const kindInput=document.createElement("input");kindInput.type="hidden";kindInput.id="evKind";kindInput.value=ev?eventKind(ev):"event";
+        const kindSwitch=el("div","event-kind-switch");kindSwitch.setAttribute("role","group");kindSwitch.setAttribute("aria-label","סוג הפריט ביומן");
+        [["event","📅 אירוע"],["work","⏱ דיווח שעות"]].forEach(([value,label])=>{const b=el("button","event-kind-option"+(kindInput.value===value?" active":""),label);b.type="button";b.setAttribute("aria-pressed",String(kindInput.value===value));b.onclick=()=>{kindInput.value=value;kindSwitch.querySelectorAll(".event-kind-option").forEach(x=>{const active=x===b;x.classList.toggle("active",active);x.setAttribute("aria-pressed",String(active));});};kindSwitch.append(b);});
+        form.append(kindSwitch,kindInput);
         if (state.cats?.length) {
           const catWrap = el("div","field"), catLabel = el("label","","קשר לרשימת משימות (לא חובה)");
           const catSelect = document.createElement("select"); catSelect.id = "evCatId";
@@ -5986,8 +6078,8 @@
         allDayWrap.style.cssText = "display:flex;align-items:center;gap:9px;margin:0 0 12px;color:var(--text);font-size:14px";
         allDayWrap.append(allDayInput, document.createTextNode("כל היום")); form.append(allDayWrap);
         const two2 = el("div","two event-time-row"); two2.id = "evTimedFields";
-        two2.append(field("שעת התחלה","evTime","time", defTime));
-        two2.append(field("שעת סיום","evEndTime","time", defEndTime)); form.append(two2);
+        two2.append(clockField("שעת התחלה","evTime", defTime));
+        two2.append(clockField("שעת סיום","evEndTime", defEndTime)); form.append(two2);
         const untilWrap = el("div","field hidden"); untilWrap.id = "evUntilWrap"; untilWrap.append(el("label","","עד תאריך"));
         const untilInput = document.createElement("input"); untilInput.type = "date"; untilInput.id = "evUntilDate"; untilInput.value = ev?.allDay ? (ev.endDate || ev.date || dateKey || "") : (endDateKey || dateKey || ""); untilWrap.append(untilInput); form.append(untilWrap);
         const syncAllDayFields = () => { const allDay = allDayInput.checked; two2.classList.toggle("hidden", allDay); untilWrap.classList.toggle("hidden", !allDay); };
@@ -6038,6 +6130,7 @@
                   e.time = time;
                   e.endTime = endTime;
                   e.color = color;
+                  e.kind = kindInput.value;
                 }
               });
               closeModal(); save(); render(); toast(`עודכנו כל מופעי הסדרה`);
@@ -6059,7 +6152,7 @@
             endDate: $("evAllDay").checked ? ($("evUntilDate").value || $("evDate").value) : "",
             color: document.querySelector("[name=evColor]:checked")?.value || state.accent,
             source: "manual",
-            kind: ev ? eventKind(ev) : "event",
+            kind: kindInput.value,
             isMeeting: false,
             catId: $("evCatId")?.value || null
           };
@@ -6952,7 +7045,7 @@
       const dateObj = parseDate(dateKey);
       const dateStr = dateObj.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
 
-      function fmtTime(h,m){ return String(h).padStart(2,"0")+":"+(m===0?"00":String(m)); }
+      function fmtTime(h,m){ return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }
 
       openModal("⏱ דיווח שעות חדש", dateStr, (form) => {
         form.className = "event-form-modal";
@@ -7002,16 +7095,14 @@
         const fromMin = (n) => { n = Math.min(23*60+59, Math.max(0, n)); return String(Math.floor(n/60)).padStart(2,"0") + ":" + String(n%60).padStart(2,"0"); };
         let dur = 60;
 
-        const startField = field("שעת התחלה","meetStart","time", fmtTime(startHour, startMin));
-        const endField   = field("שעת סיום","meetEnd","time", fromMin(startHour*60 + startMin + dur));
+        const startField = clockField("שעת התחלה","meetStart", fmtTime(startHour, startMin));
+        const endField   = clockField("שעת סיום","meetEnd", fromMin(startHour*60 + startMin + dur));
         const startInput = startField.querySelector("input"), endInput = endField.querySelector("input");
-        startInput.step = 900; endInput.step = 900;
-        startInput.style.direction = endInput.style.direction = "ltr";
 
         // שינוי התחלה שומר על המשך הנוכחי; שינוי ידני של הסיום מעדכן את המשך
         startInput.addEventListener("change", () => {
           const st = toMin(startInput.value);
-          if (st !== null) endInput.value = fromMin(st + dur);
+          if (st !== null) endInput.setClockValue(fromMin(st + dur));
         });
         endInput.addEventListener("change", () => {
           const st = toMin(startInput.value), en = toMin(endInput.value);
@@ -8046,6 +8137,25 @@
       return wrap;
     }
 
+    function clockField(labelText,id,value){
+      const wrap=el("div","field clock-field");wrap.append(el("label","",labelText));
+      const hidden=document.createElement("input");hidden.type="hidden";hidden.id=id;
+      const parts=/^(\d{1,2}):(\d{2})$/.exec(value||"");
+      const hour=document.createElement("select");hour.className="clock-hour";hour.setAttribute("aria-label",labelText+" — שעה");
+      const minute=document.createElement("select");minute.className="clock-minute";minute.setAttribute("aria-label",labelText+" — דקות");
+      const blankH=new Option("שעה",""),blankM=new Option("דק׳","");hour.add(blankH);minute.add(blankM);
+      for(let h=0;h<24;h++){const n=String(h).padStart(2,"0");hour.add(new Option(n,n));}
+      const wantedMinute=parts?String(Number(parts[2])).padStart(2,"0"):"";
+      const minuteValues=Array.from({length:60},(_,i)=>String(i).padStart(2,"0"));
+      minuteValues.forEach(m=>minute.add(new Option(m,m)));
+      if(parts){hour.value=String(Number(parts[1])).padStart(2,"0");minute.value=wantedMinute;}
+      const sync=()=>{hidden.value=hour.value&&minute.value?hour.value+":"+minute.value:"";hidden.dispatchEvent(new Event("change",{bubbles:true}));};
+      hidden.setClockValue=(next)=>{const m=/^(\d{1,2}):(\d{2})$/.exec(next||"");hour.value=m?String(Number(m[1])).padStart(2,"0"):"";minute.value=m?String(Number(m[2])).padStart(2,"0"):"";sync();};
+      hour.addEventListener("change",sync);minute.addEventListener("change",sync);
+      const picker=el("div","clock-picker");picker.append(hour,el("span","clock-colon",":"),minute);
+      wrap.append(picker,hidden);return wrap;
+    }
+
     function colorPicker(current, name){
       const wrap = el("div","field");
       wrap.append(el("label","", "צבע"));
@@ -9016,7 +9126,7 @@
         calDate: s.calDate || null,
         meetingsDate: s.meetingsDate || null,
         plannerWindowDate: s.plannerWindowDate || null,
-        profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded },
+        profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded, tickerPhrases: Array.isArray(s.profile?.tickerPhrases) ? s.profile.tickerPhrases : [] },
         workReport: { enabled: !!s.workReport?.enabled },
         meetingsSettings: { showSummary: s.meetingsSettings?.showSummary !== false, showList: s.meetingsSettings?.showList !== false },
         semesters: s.semesters || [],
@@ -9037,6 +9147,31 @@
         flow: s.flow || []
       };
       return stripUndefined(raw);
+    }
+
+    function updateTicker(){
+      const phrases=(Array.isArray(state.profile?.tickerPhrases)?state.profile.tickerPhrases:[]).map(x=>String(x||"").trim()).filter(Boolean);
+      document.querySelectorAll(".phrase-ticker").forEach(button=>{
+        const track=button.querySelector(".ticker-track");if(!track)return;
+        track.replaceChildren();
+        const phraseText=phrases.length?phrases.join("　✦　"):"לחצו כאן להוספת המשפטים שלכם";
+        const first=el("span","ticker-copy",phraseText);track.append(first);
+        if(phrases.length)track.append(el("span","ticker-copy ticker-copy-clone",phraseText));
+        track.classList.toggle("is-empty",!phrases.length);
+        button.onclick=openPhraseEditor;
+      });
+    }
+
+    function openPhraseEditor(){
+      openModal("המשפטים שלי","כל משפט בשורה נפרדת — הם ירוצו בפס העליון.",form=>{
+        const input=field("המשפטים שלך","tickerPhrasesInput","textarea",(state.profile?.tickerPhrases||[]).join("\n"));
+        input.querySelector("textarea").rows=7;
+        input.querySelector("textarea").placeholder="לדוגמה:\nצעד קטן בכל יום\nקודם חשוב, אחר כך דחוף";
+        form.append(input,footer("שמור משפטים",()=>{
+          const phrases=$("tickerPhrasesInput").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+          state.profile={...(state.profile||{}),tickerPhrases:phrases};save();updateTicker();closeModal();toast(phrases.length?"המשפטים נשמרו ✓":"הפס נוקה");
+        }));
+      });
     }
 
     function updateGreeting(){
