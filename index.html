@@ -1404,7 +1404,8 @@
     .auth-form .google-btn{min-height:46px;border-radius:13px;margin-top:0!important}
     .phrase-ticker{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,24px);flex:1 1 220px;min-width:130px;max-width:540px;height:40px;padding:0 11px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--accent) 7%,var(--card));overflow:hidden}
     .ticker-window{display:block;flex:1;min-width:0;overflow:hidden}
-    .ticker-track{display:flex;width:max-content;align-items:center;direction:rtl;white-space:nowrap;will-change:transform;animation:phraseTickerRun 96s linear infinite}
+    .ticker-track{display:flex;width:max-content;align-items:center;direction:rtl;white-space:nowrap;will-change:transform;animation:none}
+    .ticker-track.ticker-ready{animation:phraseTickerRun 54s linear infinite}
     .ticker-group{display:flex;align-items:center;gap:clamp(24px,4vw,48px);padding-inline:clamp(14px,3vw,32px)}
     .ticker-copy{display:block;flex:0 0 auto;max-width:none;overflow:visible;color:var(--ticker-color,var(--accent2));font-size:12px;font-weight:850;white-space:nowrap;animation:tickerGentleFade .7s ease both}
     .ticker-copy::before{content:"✦";margin-inline-end:7px;color:var(--ticker-color,var(--accent2));font-size:10px}
@@ -1459,7 +1460,7 @@
       .event-kind-option{font-size:12px;min-height:40px}
       .clock-picker select{min-height:46px!important;font-size:18px}
     }
-    @media(prefers-reduced-motion:reduce){.ticker-track{animation-duration:180s!important}}
+    @media(prefers-reduced-motion:reduce){.ticker-track.ticker-ready{animation-duration:54s!important}}
 
     /* Dense calendar layout */
     .calendar-view{
@@ -2395,6 +2396,11 @@
     .today-dashboard-section.today-widget{min-width:0;margin:0}
     .today-widget.wide{grid-column:1/-1}
     .today-widget-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}
+    .today-widget-title-wrap{display:flex;align-items:center;gap:7px;min-width:0}
+    .today-widget-grip{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;width:22px;height:26px;border-radius:7px;color:var(--faint);font-size:17px;cursor:grab;touch-action:none;user-select:none}
+    .today-widget-grip:active{color:var(--accent);cursor:grabbing}
+    .today-widget.is-dragging{position:relative;z-index:10;opacity:.78;pointer-events:none;box-shadow:0 16px 40px rgba(15,23,42,.22)}
+    .today-widget.drop-target{outline:2px dashed var(--accent);outline-offset:2px}
     .today-widget-heading h2{margin:0;min-width:0;font-size:15px}
     .today-widget-remove{flex:0 0 30px;width:30px;height:30px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--faint);font-size:18px;cursor:pointer}
     .today-widget-remove:hover{color:#d9465f;border-color:#d9465f}
@@ -2516,7 +2522,7 @@
       <div id="userLabel" class="user" style="font-size:12px; color:var(--faint);"></div>
     </div>
     <div class="phrase-ticker" role="marquee" aria-label="משפטים מובנים של TaskFlow">
-      <span class="ticker-window"><span class="ticker-track"></span></span>
+      <span class="ticker-window"><span class="ticker-track"><span class="ticker-group"><span class="ticker-copy">מתקדמים צעד קטן בכל פעם — TaskFlow כאן כדי לעזור.</span></span></span></span>
     </div>
     <nav class="nav" aria-label="ניווט ראשי">
       <button data-view="today" type="button"><span>☀️ היום</span></button>
@@ -2538,7 +2544,7 @@
 
     <main>
       <div class="phrase-ticker mobile-phrase-ticker" role="marquee" aria-label="משפטים מובנים של TaskFlow">
-        <span class="ticker-window"><span class="ticker-track"></span></span>
+        <span class="ticker-window"><span class="ticker-track"><span class="ticker-group"><span class="ticker-copy">מתקדמים צעד קטן בכל פעם — TaskFlow כאן כדי לעזור.</span></span></span></span>
       </div>
       <div class="top">
         <div style="padding-right:8px">
@@ -2756,7 +2762,8 @@
     let authMode = "login";
     let initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut;
     let getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp, deleteDoc, deleteField;
-    let auth = null, db = null, user = null, userDoc = null, activeDoc = null, unsub = null;
+    let auth = null, db = null, user = null, userDoc = null, todayWidgetPrefsDoc = null, activeDoc = null, unsub = null;
+    let unsubTodayWidgetPrefs = null;
     let activeListReady = true;
     let knownSharedDoc = null, unsubKnown = null, knownSharedCache = [];
     // מטמון לתוכן הנקודתי של כרטיסי הרשימות המשותפות בעמוד הבית, כדי שרינדור
@@ -2937,13 +2944,16 @@
     async function handleAuthState(nextUser){
       if (unsub) unsub();
       if (unsubKnown) unsubKnown();
+      if (unsubTodayWidgetPrefs) unsubTodayWidgetPrefs();
       user = nextUser;
       if (!user) {
+        todayWidgetPrefsDoc = null;
         showAuth();
         return;
       }
       cloudReady = true;
       userDoc = doc(db, "users", user.uid, "app", "state");
+      todayWidgetPrefsDoc = userDoc;
       knownSharedDoc = doc(db, "users", user.uid, "app", "knownShared");
       subscribeKnownShared();
 
@@ -2986,6 +2996,7 @@
       } else {
         subscribePrivateList();
       }
+      await loadTodayWidgetPrefsCloud();
       showApp(user.email);
     }
 
@@ -4368,20 +4379,103 @@
     ];
     let todayWidgetPickerOpen=false;
     let todayFavoritesPickerOpen=false;
+    let todayWidgetPointerTimer=null;
+    let todayWidgetDrag=null;
+    let suppressTodayWidgetClickUntil=0;
+    function normalizeTodayWidgetPrefs(value){
+      const saved=value&&typeof value==="object"?value:{};
+      return{
+        widgets:Array.isArray(saved.widgets)?[...new Set(saved.widgets.filter(id=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)))]:["calendar-day","tasks"],
+        favorites:Array.isArray(saved.favorites)?[...new Set(saved.favorites)]:[]
+      };
+    }
     function getTodayWidgetPrefs(){
       try{
-        const saved=JSON.parse(localStorage.getItem(TODAY_WIDGETS_KEY)||"null");
-        if(!saved)return{widgets:["calendar-day","tasks"],favorites:[]};
-        return{widgets:Array.isArray(saved.widgets)?saved.widgets.filter(id=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)):[],favorites:Array.isArray(saved.favorites)?saved.favorites:[]};
+        return normalizeTodayWidgetPrefs(state.todayWidgetPrefs||JSON.parse(localStorage.getItem(TODAY_WIDGETS_KEY)||"null"));
       }catch{return{widgets:["calendar-day","tasks"],favorites:[]}}
     }
-    function saveTodayWidgetPrefs(prefs){try{localStorage.setItem(TODAY_WIDGETS_KEY,JSON.stringify(prefs))}catch{}}
+    function saveTodayWidgetPrefs(prefs){
+      const normalized=normalizeTodayWidgetPrefs(prefs);
+      state.todayWidgetPrefs=normalized;try{localStorage.setItem(TODAY_WIDGETS_KEY,JSON.stringify(normalized))}catch{}
+      if(todayWidgetPrefsDoc&&cloudReady){
+        setDoc(todayWidgetPrefsDoc,{state:{todayWidgetPrefs:normalized},updatedAt:serverTimestamp()},{merge:true}).catch(()=>toast("העדפות הווידג׳טים נשמרו במכשיר, אך הסנכרון לענן נכשל זמנית."));
+      }
+    }
+    async function loadTodayWidgetPrefsCloud(){
+      if(!todayWidgetPrefsDoc||!cloudReady)return;
+      try{
+        const snap=await getDoc(todayWidgetPrefsDoc);
+        if(snap.exists()&&snap.data().state?.todayWidgetPrefs){
+          const incoming=normalizeTodayWidgetPrefs(snap.data().state.todayWidgetPrefs); state.todayWidgetPrefs=incoming;
+          localStorage.setItem(TODAY_WIDGETS_KEY,JSON.stringify(incoming));
+        }else{
+          const legacy=getTodayWidgetPrefs();state.todayWidgetPrefs=legacy;
+          await setDoc(todayWidgetPrefsDoc,{state:{todayWidgetPrefs:legacy},updatedAt:serverTimestamp()},{merge:true});
+        }
+        if(unsubTodayWidgetPrefs)unsubTodayWidgetPrefs();
+        unsubTodayWidgetPrefs=onSnapshot(todayWidgetPrefsDoc,docSnap=>{
+          if(!docSnap.exists())return;
+          const incoming=normalizeTodayWidgetPrefs(docSnap.data().state?.todayWidgetPrefs);state.todayWidgetPrefs=incoming;
+          let previous="";try{previous=localStorage.getItem(TODAY_WIDGETS_KEY)||""}catch{}
+          const next=JSON.stringify(incoming);
+          if(previous===next)return;
+          try{localStorage.setItem(TODAY_WIDGETS_KEY,next)}catch{}
+          if($("appView")&&!$("appView").classList.contains("hidden"))render();
+        });
+      }catch(error){console.warn("Widget preference sync unavailable",error);toast("הווידג׳טים נשמרו במכשיר הזה, אך כרגע לא הסתנכרנו לענן.")}
+    }
     function jumpFromWidget(date,view){state.calDate=toDateKey(date);state.calView=view;save();navigate("calendar")}
+    function attachTodayWidgetReorder(section,type){
+      section.addEventListener("pointerdown",event=>{
+        if(event.button!==undefined&&event.button!==0)return;
+        if(event.target.closest("button,input,select,textarea,a"))return;
+        clearTimeout(todayWidgetPointerTimer);
+        const pointerId=event.pointerId;
+        todayWidgetPointerTimer=setTimeout(()=>{
+          todayWidgetDrag={section,type,pointerId,startX:event.clientX,startY:event.clientY};
+          section.classList.add("is-dragging");
+          suppressTodayWidgetClickUntil=Date.now()+900;
+          try{section.setPointerCapture(pointerId)}catch{}
+        },500);
+      });
+      section.addEventListener("pointermove",event=>{
+        if(!todayWidgetDrag||todayWidgetDrag.section!==section||todayWidgetDrag.pointerId!==event.pointerId)return;
+        event.preventDefault();
+        section.style.transform=`translate(${event.clientX-todayWidgetDrag.startX}px,${event.clientY-todayWidgetDrag.startY}px) scale(.985)`;
+        document.querySelectorAll(".today-widget.drop-target").forEach(node=>node.classList.remove("drop-target"));
+        const target=document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget[data-widget-type]");
+        if(target&&target!==section)target.classList.add("drop-target");
+      });
+      section.addEventListener("pointerup",event=>finishTodayWidgetReorder(event,section));
+      section.addEventListener("pointercancel",event=>finishTodayWidgetReorder(event,section,true));
+      section.addEventListener("click",event=>{if(Date.now()<suppressTodayWidgetClickUntil){event.preventDefault();event.stopPropagation()}},true);
+    }
+    function finishTodayWidgetReorder(event,section,cancelled=false){
+      clearTimeout(todayWidgetPointerTimer);todayWidgetPointerTimer=null;
+      if(!todayWidgetDrag||todayWidgetDrag.section!==section)return;
+      const dragged=todayWidgetDrag;todayWidgetDrag=null;
+      const target=cancelled?null:document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget[data-widget-type]");
+      section.classList.remove("is-dragging");
+      section.style.transform="";
+      document.querySelectorAll(".today-widget.drop-target").forEach(node=>node.classList.remove("drop-target"));
+      if(cancelled)return;
+      if(!target||target===section)return;
+      const prefs=getTodayWidgetPrefs(),from=prefs.widgets.indexOf(dragged.type),targetType=target.dataset.widgetType,targetIndex=prefs.widgets.indexOf(targetType);
+      if(from<0||targetIndex<0)return;
+      const rect=target.getBoundingClientRect();
+      let insertAfter=event.clientY>rect.top+rect.height/2;
+      if(Math.abs(event.clientY-(rect.top+rect.height/2))<rect.height*.2)insertAfter=document.dir==="rtl"?event.clientX<rect.left+rect.width/2:event.clientX>rect.left+rect.width/2;
+      prefs.widgets.splice(from,1);
+      let destination=prefs.widgets.indexOf(targetType)+(insertAfter?1:0);
+      destination=Math.max(0,Math.min(prefs.widgets.length,destination));
+      prefs.widgets.splice(destination,0,dragged.type);
+      saveTodayWidgetPrefs(prefs);render();
+    }
     function todayWidgetShell(type,title,prefs){
       const section=el("section","today-dashboard-section today-widget"+(type.startsWith("calendar-")?" wide":""));section.dataset.widgetType=type;
-      const head=el("div","today-widget-heading");head.append(el("h2","",title));
+      const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap"),grip=el("span","today-widget-grip","⠿");grip.title="לחיצה ארוכה וגרירה לשינוי הסדר";grip.setAttribute("aria-hidden","true");titleWrap.append(grip,el("h2","",title));head.append(titleWrap);
       const remove=el("button","today-widget-remove","×");remove.type="button";remove.title="הסר ווידג'ט";remove.setAttribute("aria-label",`הסר את ווידג'ט ${title}`);
-      remove.onclick=()=>{prefs.widgets=prefs.widgets.filter(x=>x!==type);saveTodayWidgetPrefs(prefs);render()};head.append(remove);section.append(head);return section;
+      remove.onclick=()=>{prefs.widgets=prefs.widgets.filter(x=>x!==type);saveTodayWidgetPrefs(prefs);render()};head.append(remove);section.append(head);attachTodayWidgetReorder(section,type);return section;
     }
     function makeTodayListCard(cat){
       const all=state.tasks.filter(t=>t.catId===cat.id),open=all.filter(t=>!isDone(t)),pct=all.length?Math.round((all.length-open.length)/all.length*100):0;
@@ -9273,6 +9367,7 @@
         state.profile = data.profile || state.profile;
         state.workReport = data.workReport || state.workReport;
         state.meetingsSettings = { showSummary: data.meetingsSettings?.showSummary !== false, showList: data.meetingsSettings?.showList !== false };
+        if(data.todayWidgetPrefs){ state.todayWidgetPrefs=data.todayWidgetPrefs; try{localStorage.setItem("taskflow_today_widgets_v1",JSON.stringify(data.todayWidgetPrefs))}catch{} }
         state.semesters = Array.isArray(data.semesters) ? data.semesters : state.semesters;
         state.meetingsDate = data.meetingsDate || state.meetingsDate;
         state.plannerWindowDate = data.plannerWindowDate !== undefined ? data.plannerWindowDate : state.plannerWindowDate;
@@ -9342,6 +9437,7 @@
         profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded },
         workReport: { enabled: !!s.workReport?.enabled },
         meetingsSettings: { showSummary: s.meetingsSettings?.showSummary !== false, showList: s.meetingsSettings?.showList !== false },
+        todayWidgetPrefs: s.todayWidgetPrefs || null,
         semesters: s.semesters || [],
         filterTag: s.filterTag || null,
         sortAll: s.sortAll || null,
@@ -9364,7 +9460,11 @@
 
     let tickerRotationTimer = null;
     let lastTickerPhrases = [];
-    function updateTicker(){
+    let tickerInitialized = false;
+    function updateTicker(force = false){
+      if(tickerInitialized&&!force)return;
+      const tickers=[...document.querySelectorAll(".phrase-ticker")];
+      if(!tickers.length)return;
       const colors = ["#3b6ef6", "#e65a74", "#119b78", "#c1780c", "#8a54c7", "#0d91a7"];
       const sample = [];
       const pool = DEFAULT_TICKER_PHRASES.filter(x => !lastTickerPhrases.includes(x));
@@ -9374,7 +9474,7 @@
       }
       if (sample.length < 3) sample.push(...DEFAULT_TICKER_PHRASES.filter(x => !sample.includes(x)).slice(0, 3 - sample.length));
       lastTickerPhrases = sample;
-      document.querySelectorAll(".phrase-ticker").forEach(ticker=>{
+      tickers.forEach(ticker=>{
         const track=ticker.querySelector(".ticker-track");if(!track)return;
         track.replaceChildren();
         const group=el("span","ticker-group");
@@ -9384,10 +9484,11 @@
           group.append(item);
         });
         const clone=group.cloneNode(true);clone.setAttribute("aria-hidden","true");
-        track.append(group,clone);
+        track.append(group,clone);track.classList.add("ticker-ready");
       });
+      tickerInitialized=true;
       if (tickerRotationTimer) clearInterval(tickerRotationTimer);
-      tickerRotationTimer = setInterval(updateTicker, 120000);
+      tickerRotationTimer = setInterval(()=>updateTicker(true), 54000);
     }
 
     function updateGreeting(){
