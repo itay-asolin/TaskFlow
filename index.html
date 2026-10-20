@@ -1411,14 +1411,31 @@
     .auth-divider{display:flex;align-items:center;gap:11px;margin:15px 0;color:var(--faint);font-size:11px;font-weight:800}
     .auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}
     .auth-form .google-btn{min-height:46px;border-radius:13px;margin-top:0!important}
-    .phrase-ticker{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:130px;max-width:390px;height:40px;padding:0 11px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--accent) 7%,var(--card));color:var(--text);text-align:right;overflow:hidden}
-    .ticker-label{flex:0 0 auto;padding:4px 8px;border-radius:8px;background:color-mix(in srgb,var(--accent) 15%,var(--surface));color:var(--accent2);font-size:10px;font-weight:950;white-space:nowrap}
-    .ticker-window{display:block;flex:1;min-width:0;overflow:hidden;direction:ltr;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
-    .ticker-track{display:flex;width:max-content;align-items:center;direction:rtl;white-space:nowrap;animation:phraseTickerRun 24s linear infinite}
-    .ticker-copy{display:block;padding-inline:24px;color:var(--muted);font-size:12px;font-weight:750;white-space:nowrap}
-    .ticker-copy-clone{padding-inline-start:0}
-    .phrase-ticker:hover .ticker-track{animation-play-state:paused}
-    @keyframes phraseTickerRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .phrase-ticker{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,24px);flex:1 1 220px;min-width:130px;max-width:540px;height:40px;padding:0 11px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--accent) 7%,var(--card));overflow:hidden}
+    .ticker-window{display:block;flex:1;min-width:0;overflow:hidden}
+    .ticker-track{display:flex;width:100%;align-items:center;justify-content:center;gap:clamp(12px,2vw,24px);direction:rtl;white-space:nowrap}
+    .ticker-copy{display:block;max-width:32%;overflow:hidden;text-overflow:ellipsis;color:var(--ticker-color,var(--accent2));font-size:12px;font-weight:850;white-space:nowrap;animation:tickerGentleFade .7s ease both}
+    .ticker-copy::before{content:"✦";margin-inline-end:7px;color:var(--ticker-color,var(--accent2));font-size:10px}
+    @keyframes tickerGentleFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .home-widgets{margin:4px 0 18px;padding:15px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 7%,var(--card)),var(--card));}
+    .home-widgets-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
+    .home-widgets-title{margin:0;font-size:15px;font-weight:950;color:var(--text)}
+    .home-widgets-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .home-widgets select{min-height:34px;padding:5px 9px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font:inherit;font-size:11px;font-weight:800}
+    .home-widgets-config{margin:0 0 12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+    .home-widgets-config summary{cursor:pointer;color:var(--accent2);font-size:11px;font-weight:900}
+    .home-widgets-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:6px 10px;margin-top:10px}
+    .home-widget-check{display:flex;align-items:center;gap:7px;min-width:0;font-size:11px;color:var(--text);cursor:pointer}
+    .home-widget-check input{accent-color:var(--accent);margin:0}
+    .home-widgets-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:9px}
+    .home-widget-card{min-width:0;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface);cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s}
+    .home-widget-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));box-shadow:var(--shadow)}
+    .home-widget-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .home-widget-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:900;color:var(--text)}
+    .home-widget-count{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--accent) 13%,var(--surface));color:var(--accent2);font-size:10px;font-weight:950}
+    .home-widget-preview{display:grid;gap:5px;margin-top:9px;color:var(--muted);font-size:10px}
+    .home-widget-preview span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .home-widgets-empty{padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--faint);text-align:center;font-size:11px}
     .mobile-phrase-ticker{display:none}
     .event-kind-switch{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border:1px solid var(--border);border-radius:15px;background:var(--card);margin:0 0 14px}
     .event-kind-option{min-height:42px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--muted);font-size:13px;font-weight:850;transition:background .16s,color .16s,border-color .16s}
@@ -1432,6 +1449,8 @@
     @media(max-width:820px){
       #bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
       .mobile-phrase-ticker{display:flex;flex:1 1 100%;width:100%;max-width:none;min-height:38px;height:38px;margin:0 0 9px;border-radius:12px}
+      .mobile-phrase-ticker .ticker-track{gap:0}.mobile-phrase-ticker .ticker-copy{display:none;max-width:100%;font-size:11px}.mobile-phrase-ticker .ticker-copy:first-child{display:block}
+      .home-widgets{padding:11px;margin-bottom:14px}.home-widgets-head{align-items:flex-start;flex-direction:column}.home-widgets-tools{width:100%}.home-widgets-tools select{flex:1;min-width:0}.home-widgets-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.home-widget-card{padding:10px}.home-widget-name{font-size:11px}.home-widget-preview{font-size:9px}
       #topNav>.phrase-ticker{display:none}
       .auth{min-height:100svh;padding:18px 14px;place-items:center}
       .auth-box{width:min(520px,100%);grid-template-columns:1fr;border-radius:25px}
@@ -2458,7 +2477,7 @@
       <div id="userLabel" class="user" style="font-size:12px; color:var(--faint);"></div>
     </div>
     <div class="phrase-ticker" role="marquee" aria-label="משפטים מובנים של TaskFlow">
-      <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span>
+      <span class="ticker-window"><span class="ticker-track"></span></span>
     </div>
     <nav class="nav" aria-label="ניווט ראשי">
       <button data-view="today" type="button"><span>☀️ היום</span></button>
@@ -2480,7 +2499,7 @@
 
     <main>
       <div class="phrase-ticker mobile-phrase-ticker" role="marquee" aria-label="משפטים מובנים של TaskFlow">
-        <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span>
+        <span class="ticker-window"><span class="ticker-track"></span></span>
       </div>
       <div class="top">
         <div style="padding-right:8px">
@@ -3904,6 +3923,75 @@
       $("content").replaceChildren(grid);
     }
 
+    const HOME_WIDGETS_KEY = "taskflow_home_widgets_v1";
+    let homeWidgetPrefsOpen = false;
+    function getHomeWidgetPrefs(){
+      try {
+        const saved = JSON.parse(localStorage.getItem(HOME_WIDGETS_KEY) || "{}");
+        return { mode: ["selected","shared","top"].includes(saved.mode) ? saved.mode : "selected", ids: Array.isArray(saved.ids) ? saved.ids : [], limit: Number(saved.limit) === 4 ? 4 : 3 };
+      } catch { return { mode:"selected", ids:[], limit:3 }; }
+    }
+    function saveHomeWidgetPrefs(prefs){
+      try { localStorage.setItem(HOME_WIDGETS_KEY, JSON.stringify(prefs)); } catch {}
+    }
+    function renderHomeWidgets(){
+      const prefs = getHomeWidgetPrefs();
+      const section = el("section","home-widgets");
+      const head = el("div","home-widgets-head");
+      head.append(el("h2","home-widgets-title","הווידג'טים שלי"));
+      const tools = el("div","home-widgets-tools");
+      const mode = document.createElement("select"); mode.setAttribute("aria-label","בחירת סוג ווידג'טים");
+      [["selected","רשימות שאני בוחר"],["shared","רשימות משותפות בלבד"],["top","הרשימות עם הכי הרבה משימות"]].forEach(([value,label])=>{const o=document.createElement("option");o.value=value;o.textContent=label;mode.append(o)});
+      mode.value=prefs.mode;
+      mode.onchange=()=>{prefs.mode=mode.value;saveHomeWidgetPrefs(prefs);render()};
+      tools.append(mode);
+      if(prefs.mode==="top"){
+        const limit=document.createElement("select");limit.setAttribute("aria-label","מספר רשימות להצגה");
+        [3,4].forEach(n=>{const o=document.createElement("option");o.value=String(n);o.textContent=`הצג ${n}`;limit.append(o)});
+        limit.value=String(prefs.limit);limit.onchange=()=>{prefs.limit=Number(limit.value);saveHomeWidgetPrefs(prefs);render()};tools.append(limit);
+      }
+      head.append(tools);section.append(head);
+      if(prefs.mode==="selected"){
+        const config=document.createElement("details");config.className="home-widgets-config";config.open=homeWidgetPrefsOpen;
+        const summary=document.createElement("summary");summary.textContent="בחר אילו רשימות יופיעו כאן";config.append(summary);
+        config.ontoggle=()=>{homeWidgetPrefsOpen=config.open};
+        const checks=el("div","home-widgets-checks");
+        state.cats.forEach(cat=>{
+          const label=el("label","home-widget-check");const cb=document.createElement("input");cb.type="checkbox";cb.checked=prefs.ids.includes(cat.id);
+          cb.onchange=()=>{prefs.ids=cb.checked?[...new Set([...prefs.ids,cat.id])]:prefs.ids.filter(id=>id!==cat.id);homeWidgetPrefsOpen=true;saveHomeWidgetPrefs(prefs);render()};
+          label.append(cb,el("span","",cat.name));checks.append(label);
+        });
+        if(!state.cats.length)checks.append(el("span","home-widgets-empty","עדיין אין רשימות לבחירה"));
+        config.append(checks);section.append(config);
+      }
+      const grid=el("div","home-widgets-grid");
+      const addListWidget=(cat)=>{
+        const open=state.tasks.filter(t=>t.catId===cat.id&&!isDone(t));
+        const card=el("article","home-widget-card");card.style.setProperty("--c",cat.color||state.accent);
+        card.onclick=()=>openCat(cat.id);
+        const top=el("div","home-widget-top");top.append(el("span","home-widget-name",cat.name),el("span","home-widget-count",`${open.length} פתוחות`));card.append(top);
+        const preview=el("div","home-widget-preview");
+        open.slice().sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999")).slice(0,2).forEach(task=>preview.append(el("span","",`• ${task.name}`)));
+        if(!open.length)preview.append(el("span","","אין משימות פתוחות כרגע"));
+        card.append(preview);grid.append(card);
+      };
+      if(prefs.mode==="selected"){
+        const chosen=state.cats.filter(cat=>prefs.ids.includes(cat.id));
+        if(chosen.length)chosen.forEach(addListWidget);else grid.append(el("div","home-widgets-empty","בחר רשימה אחת או יותר כדי להציג אותן כאן."));
+      } else if(prefs.mode==="top"){
+        const ranked=state.cats.map((cat,index)=>({cat,index,count:state.tasks.filter(t=>t.catId===cat.id&&!isDone(t)).length})).sort((a,b)=>b.count-a.count||a.index-b.index).slice(0,prefs.limit);
+        if(ranked.length)ranked.forEach(({cat})=>addListWidget(cat));else grid.append(el("div","home-widgets-empty","צור רשימות כדי שיופיעו כאן."));
+      } else {
+        const shared=getKnownSharedLists();
+        if(shared.length)shared.forEach((list,i)=>{
+          const card=el("article","home-widget-card");card.style.setProperty("--c",SHARED_CARD_PALETTE[i%SHARED_CARD_PALETTE.length]);card.onclick=()=>subscribeSharedList(list.id);
+          const top=el("div","home-widget-top");top.append(el("span","home-widget-name",list.name||"רשימה משותפת"),el("span","home-widget-count","משותפת"));card.append(top);
+          card.append(el("div","home-widget-preview", "לחץ לפתיחת הרשימה"));grid.append(card);
+        });else grid.append(el("div","home-widgets-empty","עדיין אין רשימות משותפות."));
+      }
+      section.append(grid);return section;
+    }
+
     function renderHome(){
       const inShared = activeList.type === "shared";
       const openTotal = state.tasks.filter(t => !isDone(t)).length;
@@ -4016,6 +4104,7 @@
       if (!inShared && !catSelectMode) {
         wrap.append(buildHomeAgenda());
         wrap.append(buildQuickCards());
+        wrap.append(renderHomeWidgets());
       }
 
       const grid = el("div","lgrid");
@@ -9174,14 +9263,29 @@
       return stripUndefined(raw);
     }
 
+    let tickerRotationTimer = null;
+    let lastTickerPhrases = [];
     function updateTicker(){
-      const phraseText=DEFAULT_TICKER_PHRASES.join("　✦　");
+      const colors = ["#3b6ef6", "#e65a74", "#119b78", "#c1780c", "#8a54c7", "#0d91a7"];
+      const sample = [];
+      const pool = DEFAULT_TICKER_PHRASES.filter(x => !lastTickerPhrases.includes(x));
+      while (sample.length < 3 && pool.length) {
+        const index = Math.floor(Math.random() * pool.length);
+        sample.push(pool.splice(index, 1)[0]);
+      }
+      if (sample.length < 3) sample.push(...DEFAULT_TICKER_PHRASES.filter(x => !sample.includes(x)).slice(0, 3 - sample.length));
+      lastTickerPhrases = sample;
       document.querySelectorAll(".phrase-ticker").forEach(ticker=>{
         const track=ticker.querySelector(".ticker-track");if(!track)return;
         track.replaceChildren();
-        const first=el("span","ticker-copy",phraseText);track.append(first);
-        track.append(el("span","ticker-copy ticker-copy-clone",phraseText));
+        sample.forEach((phrase,i)=>{
+          const item=el("span","ticker-copy",phrase);
+          item.style.setProperty("--ticker-color",colors[(i + Math.floor(Date.now()/30000)) % colors.length]);
+          track.append(item);
+        });
       });
+      if (tickerRotationTimer) clearInterval(tickerRotationTimer);
+      tickerRotationTimer = setInterval(updateTicker, 30000);
     }
 
     function updateGreeting(){
