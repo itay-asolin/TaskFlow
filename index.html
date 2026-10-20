@@ -49,6 +49,12 @@
     .hidden{display:none!important}
     .auth{min-height:100vh;display:grid;place-items:center;padding:22px}
     .auth-box{width:min(440px,100%);background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:30px;box-shadow:var(--shadow)}
+    .auth{background:radial-gradient(ellipse at 50% 0,color-mix(in srgb,var(--accent) 15%,transparent),transparent 58%)}
+    .auth-box{position:relative;overflow:hidden;border-radius:26px;padding:34px;box-shadow:0 24px 70px rgba(15,23,42,.12)}
+    .auth-box::before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 38%,#fff))}
+    .auth-box>.logo{font-size:34px;letter-spacing:-1px}
+    .auth-box .sub{line-height:1.6;margin:6px 0 24px}
+    .auth-box input{min-height:48px;border-radius:14px}
     .logo{font-size:30px;font-weight:900;color:var(--text);letter-spacing:0}
     .logo span{color:var(--accent2)}
     .sub{color:var(--muted);font-size:13px;margin:4px 0 22px}
@@ -533,6 +539,13 @@
     .week-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
     .week-label{padding:10px 16px;font-weight:900;font-size:13px;color:var(--muted);background:var(--card);border-bottom:1px solid var(--border);letter-spacing:.03em}
     .meetings-grid{display:grid;grid-template-columns:54px repeat(7,1fr);gap:0}
+    .meetings-mobile-days{display:none}
+    .report-time-row{gap:12px}
+    .report-time-row .field{padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--card);margin:0;box-shadow:0 4px 14px rgba(20,35,70,.04)}
+    .report-time-row label{margin-bottom:7px}
+    .report-time-row input[type=time]{direction:ltr;text-align:center;font-size:21px;font-weight:900;font-variant-numeric:tabular-nums;min-height:54px;border-radius:13px;background:var(--surface);border:1px solid var(--border)}
+    .report-calendar-toggle{display:flex;align-items:center;gap:9px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--accent) 26%,var(--border));border-radius:14px;background:color-mix(in srgb,var(--accent) 6%,var(--card));font-size:13px;font-weight:800;color:var(--text);cursor:pointer}
+    .report-calendar-toggle input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
     .mg-corner{background:var(--card2);border-bottom:1px solid var(--border);border-left:1px solid var(--border)}
     .mg-day-head{padding:8px 4px;text-align:center;font-size:11px;font-weight:900;background:var(--card2);border-bottom:1px solid var(--border);border-left:1px solid var(--border);color:var(--muted)}
     .mg-day-head.today{background:rgba(59,110,246,.18);color:var(--accent2)}
@@ -787,6 +800,8 @@
     .cat-btn.shared .dot{background:transparent;border:2px solid currentColor;box-sizing:border-box}
     
     @media(max-width:820px){
+      .auth{min-height:100svh;padding:18px 14px;background:radial-gradient(ellipse at 50% 8%,color-mix(in srgb,var(--accent) 20%,transparent),transparent 60%)}
+      .auth-box{width:min(430px,100%);padding:28px 22px;border-radius:24px}
       html,body{width:100%;max-width:100%;overflow-x:hidden}
       #appView{width:100%;max-width:100%;overflow-x:hidden}
       #topNav{display:none!important}
@@ -1282,6 +1297,23 @@
       .week-block{overflow-x:auto}
       .meetings-grid{min-width:0;grid-template-columns:34px repeat(7,minmax(0,1fr))}
       .week-block{overflow-x:hidden}
+      .meetings-mobile-days{display:flex;gap:6px;overflow-x:auto;padding:8px 2px;scrollbar-width:none;overscroll-behavior-inline:contain}
+      .meetings-mobile-days::-webkit-scrollbar{display:none}
+      .meetings-mobile-day{flex:1 0 39px;min-width:39px;display:grid;gap:2px;place-items:center;padding:7px 3px;border:1px solid var(--border);border-radius:13px;background:var(--card);color:var(--muted);font-size:10px}
+      .meetings-mobile-day strong{font-size:14px;color:var(--text)}
+      .meetings-mobile-day.active{background:color-mix(in srgb,var(--accent) 14%,var(--surface));border-color:color-mix(in srgb,var(--accent) 45%,var(--border));color:var(--accent2)}
+      .meetings-mobile-day.active strong{color:var(--accent2)}
+      .meetings-grid{grid-template-columns:42px minmax(0,1fr)!important;min-height:780px;overflow-y:visible}
+      .meetings-grid .mobile-day-hidden{display:none!important}
+      .meetings-grid .mg-day-col{min-height:768px}
+      .mg-hour-label{height:48px;font-size:10px;justify-content:center;padding:2px 2px 0}
+      .mg-day-head{position:sticky;top:0;z-index:4;min-height:46px}
+      .mg-event{min-height:24px;padding:3px 5px!important;border-radius:8px}
+      .mg-event span:first-child{font-size:12px!important}
+      .mg-event span:nth-child(2){font-size:10px!important}
+      .report-time-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}
+      .report-time-row .field{padding:10px 8px}
+      .report-time-row input[type=time]{font-size:19px;min-height:48px;padding:8px}
       .mg-hour-label{font-size:8px;padding:2px 2px 0 0;justify-content:center}
       .mg-day-head{padding:6px 0;font-size:10px}
       .mg-day-head .day-date{font-size:15px}
@@ -1343,6 +1375,13 @@
       #topBarBtns{gap:3px}
       #topBarBtns button{font-size:9px!important;padding-inline:6px!important}
     }
+
+    .auth-box{position:relative;overflow:hidden;border-radius:26px;padding:34px;box-shadow:0 24px 70px rgba(15,23,42,.12)}
+    .auth-box::before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 38%,#fff))}
+    .auth-box>.logo{font-size:34px;letter-spacing:-1px}
+    .auth-box .sub{line-height:1.6;margin:6px 0 24px}
+    .auth-box input{min-height:48px;border-radius:14px}
+    @media(max-width:820px){#bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}.auth-box{padding:28px 22px;border-radius:24px}}
 
     /* Dense calendar layout */
     .calendar-view{
@@ -1786,7 +1825,7 @@
     @media(max-width:820px){
       .top{position:relative}
       .top #topBarBtns{position:absolute!important;top:2px!important;left:0!important;width:auto!important;display:flex!important;order:0!important;grid-template-columns:none!important}
-      #addBtn{display:none!important}
+      #addBtn:not(.hidden){display:inline-flex!important;grid-column:1/-1;width:100%}
     }
 
     /* ═════════ v5: glass floating nav, calmer UI, soft palettes ═════════ */
@@ -2393,7 +2432,6 @@
         <span class="bnav-icon">✅</span>
         <span>משימות</span>
       </button>
-      <button class="bnav-add" id="bnavAdd" type="button" aria-label="הוספה מהירה">+</button>
       <button class="bnav-btn" data-bnav="calendar" type="button">
         <span class="bnav-badge" id="bnavBadgeCal"></span>
         <span class="bnav-icon">📅</span>
@@ -2637,7 +2675,6 @@
       
       $("themeToggleBtn").onclick = toggleThemeMode;
       if ($("topAddBtn")) $("topAddBtn").onclick = openQuickSheet;
-      if ($("bnavAdd")) $("bnavAdd").onclick = () => { if (state.currentView === "kanban" && activeCat()) openTaskModal(); else openQuickSheet(); };
 
       $("modalClose").onclick = closeModal;
       $("modalBack").onclick = (e) => { if (e.target === $("modalBack")) closeModal(); };
@@ -4081,9 +4118,9 @@
       const todayKey = toDateKey(new Date());
       const today = parseDate(todayKey);
       const dateLabel = today.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-      const events = (state.events || []).filter(ev => ev.date === todayKey)
+      const events = (state.events || []).filter(ev => ev.date === todayKey && ev.showInCalendar !== false)
         .sort((a,b) => (a.allDay ? "00:00" : a.time || "99:99").localeCompare(b.allDay ? "00:00" : b.time || "99:99"));
-      const tasks = (state.tasks || []).filter(task => task.due && task.due <= todayKey && !isDone(task))
+      const tasks = (state.tasks || []).filter(task => (!task.due || task.due <= todayKey) && !isDone(task))
         .sort((a,b) => (a.due || "9999").localeCompare(b.due || "9999") || (a.name || "").localeCompare(b.name || "", "he"));
 
       $("pageTitle").textContent = "היום";
@@ -4125,7 +4162,7 @@
           const check=el("button","today-task-check", "✓"); check.type="button"; check.title="סמן כהושלמה"; check.setAttribute("aria-label",`סמן את ${task.name} כהושלמה`);
           check.onclick=()=>toggleTask(task.id);
           const details=el("button","today-task-details"); details.type="button";
-          details.append(el("strong","",task.name),el("span","",task.due && task.due < todayKey ? "באיחור" : (task.due===todayKey ? "להיום" : (taskContext(task)||"ללא תאריך יעד"))));
+          details.append(el("strong","",task.name),el("span","",!task.due ? "ללא תאריך · משימה פתוחה" : (task.due < todayKey ? "באיחור" : "להיום")));
           details.onclick=()=>task.catId?openCat(task.catId):toast("לא נמצאה רשימה עבור המשימה");
           row.append(check,details); list.append(row);
         });
@@ -4937,7 +4974,7 @@
       // מציג dropdown תוצאות לקפיצה לתאריך (renderCalendarSearchResults), ולא אמור
       // להסתיר משימות/אירועים מהלוח עצמו.
       const tasks = state.tasks.filter(t => t.due === dateKey && !isDone(t));
-      const events = (state.events || []).filter(e => e.date === dateKey);
+      const events = (state.events || []).filter(e => e.date === dateKey && e.showInCalendar !== false);
       return { tasks, events };
     }
 
@@ -6688,7 +6725,10 @@
       const navRow=el("div","mt-row"); navRow.append(prev,rangeLabel,next);
       const toolRow=el("div","mt-row"); toolRow.append(backBtn,todayBtn,month);
       toolbar.append(navRow,toolRow);
-      const wrap=el("div","meetings-dashboard"); wrap.append(toolbar,buildWeekBlock(weekStart,today,"הלוח השבועי"));
+      const wrap=el("div","meetings-dashboard"); wrap.append(toolbar);
+      const mobileDays=el("div","meetings-mobile-days");
+      Array.from({length:7},(_,i)=>{const d=new Date(weekStart);d.setDate(d.getDate()+i);const key=toDateKey(d);const b=el("button","meetings-mobile-day"+(key===toDateKey(selected)?" active":""));b.type="button";b.append(el("span","",DAY_NAMES_HE[d.getDay()].slice(0,2)),el("strong","",String(d.getDate())));b.onclick=()=>{state.meetingsDate=key;save();render();};mobileDays.append(b);});
+      wrap.append(mobileDays,buildWeekBlock(weekStart,today,"הלוח השבועי"));
       const period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
       const showSummary = state.meetingsSettings?.showSummary!==false;
       const showList = state.meetingsSettings?.showList!==false;
@@ -6798,6 +6838,8 @@
       days.forEach(d => {
         const isToday = d.getTime() === today.getTime();
         const head = el("div","mg-day-head" + (isToday ? " today" : ""));
+        head.dataset.date=toDateKey(d);
+        if(window.matchMedia("(max-width:820px)").matches && head.dataset.date!==(state.meetingsDate||toDateKey(today))) head.classList.add("mobile-day-hidden");
         const dateNum = el("div","day-date", String(d.getDate()));
         const dayName = el("div","", DAY_NAMES_HE[d.getDay()]);
         head.append(dateNum, dayName);
@@ -6815,6 +6857,7 @@
         const dk = toDateKey(d);
         const dayCol = el("div","mg-day-col");
         dayCol.dataset.date = dk;
+        if(window.matchMedia("(max-width:820px)").matches && dk!==(state.meetingsDate||toDateKey(today))) dayCol.classList.add("mobile-day-hidden");
 
         const dayEvents = (state.events||[]).filter(e => e.date === dk && e.time);
 
@@ -6909,9 +6952,6 @@
       const dateObj = parseDate(dateKey);
       const dateStr = dateObj.toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"});
 
-      const ALL_TIMES = [];
-      MEETING_HOURS.forEach(h => [0,15,30,45].forEach(m => ALL_TIMES.push({h,m})));
-
       function fmtTime(h,m){ return String(h).padStart(2,"0")+":"+(m===0?"00":String(m)); }
 
       openModal("⏱ דיווח שעות חדש", dateStr, (form) => {
@@ -6960,7 +7000,6 @@
 
         const toMin = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ""); return m ? (+m[1])*60 + (+m[2]) : null; };
         const fromMin = (n) => { n = Math.min(23*60+59, Math.max(0, n)); return String(Math.floor(n/60)).padStart(2,"0") + ":" + String(n%60).padStart(2,"0"); };
-        const DURATIONS = [[30,"30 ד׳"],[45,"45 ד׳"],[60,"שעה"],[90,"1.5 ש׳"],[120,"2 ש׳"]];
         let dur = 60;
 
         const startField = field("שעת התחלה","meetStart","time", fmtTime(startHour, startMin));
@@ -6969,23 +7008,6 @@
         startInput.step = 900; endInput.step = 900;
         startInput.style.direction = endInput.style.direction = "ltr";
 
-        const durWrap = el("div","field");
-        durWrap.append(el("label","","משך"));
-        const durRow = el("div",""); durRow.style.cssText = "display:flex;flex-wrap:wrap;gap:6px";
-        const syncChips = () => durRow.querySelectorAll(".chip-opt").forEach(c => c.classList.toggle("active", +c.dataset.min === dur));
-        DURATIONS.forEach(([min,label]) => {
-          const b = el("button","chip-opt",label); b.type = "button"; b.dataset.min = min;
-          b.onclick = () => {
-            dur = min;
-            const st = toMin(startInput.value);
-            if (st !== null) endInput.value = fromMin(st + dur);
-            syncChips();
-          };
-          durRow.append(b);
-        });
-        durWrap.append(durRow);
-        syncChips();
-
         // שינוי התחלה שומר על המשך הנוכחי; שינוי ידני של הסיום מעדכן את המשך
         startInput.addEventListener("change", () => {
           const st = toMin(startInput.value);
@@ -6993,12 +7015,16 @@
         });
         endInput.addEventListener("change", () => {
           const st = toMin(startInput.value), en = toMin(endInput.value);
-          if (st !== null && en !== null && en > st) { dur = en - st; syncChips(); }
+          if (st !== null && en !== null && en > st) dur = en - st;
         });
 
-        const timesRow = el("div","two");
+        const timesRow = el("div","two report-time-row");
         timesRow.append(startField, endField);
-        form.append(timesRow, durWrap);
+        form.append(timesRow);
+        const calendarRow = el("label","report-calendar-toggle");
+        const calendarCheck = document.createElement("input"); calendarCheck.type="checkbox"; calendarCheck.id="meetShowInCalendar"; calendarCheck.checked=true;
+        calendarRow.append(calendarCheck,el("span","","הצג גם ביומן"));
+        form.append(calendarRow);
 
         form.append(colorPicker(state.accent, "meetColor"));
 
@@ -7015,7 +7041,7 @@
 
           const newEvent = { 
             id: uid("ev"), title, date: dateKey, time: timeStr, endTime: endTimeStr, 
-            color, source: "meeting",
+            color, source: "meeting", showInCalendar: calendarCheck.checked,
             kind: "work", isMeeting: false
           };
           state.events.push(newEvent);
