@@ -1376,25 +1376,27 @@
       #topBarBtns button{font-size:9px!important;padding-inline:6px!important}
     }
 
-    .auth-box{position:relative;overflow:hidden;width:min(940px,100%);display:grid;grid-template-columns:1fr 1fr;padding:0;border-radius:30px;border-color:color-mix(in srgb,var(--accent) 20%,var(--border));box-shadow:0 32px 90px rgba(15,23,42,.2)}
-    .auth-visual{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;min-height:610px;padding:34px;color:#fff;overflow:hidden;background:radial-gradient(circle at 10% 0,rgba(255,255,255,.28),transparent 35%),radial-gradient(circle at 95% 80%,rgba(50,220,190,.22),transparent 32%),linear-gradient(145deg,color-mix(in srgb,var(--accent) 94%,#09183f),color-mix(in srgb,var(--accent) 52%,#351567))}
+    .auth-box{position:relative;overflow:hidden;width:min(1060px,100%);display:grid;grid-template-columns:1.12fr .88fr;padding:0;border-radius:32px;border-color:color-mix(in srgb,var(--accent) 20%,var(--border));box-shadow:0 40px 110px rgba(15,23,42,.28)}
+    .auth-visual{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;min-height:650px;padding:42px;color:#fff;overflow:hidden;background:radial-gradient(ellipse at 78% 14%,rgba(255,255,255,.23),transparent 27%),radial-gradient(ellipse at 12% 86%,rgba(34,211,178,.30),transparent 32%),linear-gradient(145deg,color-mix(in srgb,var(--accent) 96%,#07122f),#20245f 58%,#4b2174)}
     .auth-visual::before,.auth-visual::after{content:"";position:absolute;z-index:-1;border:1px solid rgba(255,255,255,.12);border-radius:50%;pointer-events:none}
     .auth-visual::before{width:420px;height:420px;left:-170px;top:150px;box-shadow:0 0 0 34px rgba(255,255,255,.025),0 0 0 72px rgba(255,255,255,.02)}
     .auth-visual::after{width:220px;height:220px;right:-100px;top:-80px;background:rgba(255,255,255,.04)}
     .auth-brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:950;letter-spacing:-.5px}
     .auth-brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:12px;background:#fff;color:var(--accent);font-weight:1000;box-shadow:0 5px 16px rgba(0,0,0,.16)}
-    .auth-visual-copy{margin-block:auto;padding:36px 0 28px}
+    .auth-visual-copy{margin-block:auto;padding:44px 0 30px;max-width:470px}
     .auth-kicker{display:inline-flex;padding:7px 11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(255,255,255,.1);font-size:11px;font-weight:850;letter-spacing:.03em}
-    .auth-visual-copy h1{margin:18px 0 12px;font-size:clamp(34px,4vw,48px);line-height:1.16;letter-spacing:-1.6px;font-weight:950}
+    .auth-visual-copy h1{margin:20px 0 14px;font-size:clamp(40px,5vw,60px);line-height:1.08;letter-spacing:-2px;font-weight:1000}
     .auth-visual-copy h1 strong{color:#b9f3e2}
     .auth-visual-copy p{max-width:330px;margin:0;color:rgba(255,255,255,.78);font-size:14px;line-height:1.7}
-    .auth-preview{position:relative;padding:14px 16px;border:1px solid rgba(255,255,255,.22);border-radius:18px;background:rgba(255,255,255,.13);box-shadow:0 15px 40px rgba(10,15,40,.16);backdrop-filter:blur(14px)}
-    .auth-preview-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;margin-bottom:7px;border-bottom:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900}
-    .auth-preview-date{font-size:9px;letter-spacing:3px;opacity:.7}
-    .auth-preview-line{display:flex;align-items:center;gap:9px;min-height:35px;font-size:11px;font-weight:700}
-    .auth-preview-line i{width:15px;height:15px;border:1.5px solid rgba(255,255,255,.65);border-radius:5px;font-style:normal;font-size:10px;display:grid;place-items:center}
-    .auth-preview-line i.done{background:#b9f3e2;border-color:#b9f3e2;color:#173c4b}
-    .auth-preview-line span{flex:1}.auth-preview-line b{font-size:10px;opacity:.74;direction:ltr}
+    .auth-preview{position:relative;padding:17px;border:1px solid rgba(255,255,255,.3);border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.09));box-shadow:0 24px 60px rgba(10,15,40,.28);backdrop-filter:blur(16px);transform:rotate(-1deg)}
+    .auth-preview-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.2);font-size:13px;font-weight:950}
+    .auth-preview-date{font-size:10px;letter-spacing:1px;opacity:.76}
+    .auth-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px}
+    .auth-week-day{min-width:0;min-height:46px;padding:5px 2px;border-radius:10px;background:rgba(255,255,255,.1);text-align:center;font-size:8px;color:rgba(255,255,255,.75)}
+    .auth-week-day b{display:block;margin-top:4px;color:#fff;font-size:12px}.auth-week-day.is-today{background:#c8f7e7;color:#174457}.auth-week-day.is-today b{color:#174457}
+    .auth-preview-line{position:relative;display:flex;align-items:center;gap:10px;min-height:39px;margin-top:7px;padding:6px 10px;border-radius:11px;background:rgba(8,15,48,.2);font-size:11px;font-weight:800}
+    .auth-preview-line::before{content:"";width:4px;align-self:stretch;border-radius:5px;background:#93f0ce}.auth-preview-line:nth-of-type(3)::before{background:#ffd37a}.auth-preview-line:nth-of-type(4)::before{background:#ff9bb4}
+    .auth-preview-line span{flex:1}.auth-preview-line b{font-size:10px;opacity:.8;direction:ltr}
     .auth-form{align-self:center;width:100%;max-width:470px;padding:46px clamp(28px,5vw,58px);margin-inline:auto}
     .auth-form-heading{margin-bottom:25px}
     .auth-form-heading h2{margin:0 0 7px;font-size:26px;line-height:1.2;font-weight:950;letter-spacing:-.5px}
@@ -1409,16 +1411,13 @@
     .auth-divider{display:flex;align-items:center;gap:11px;margin:15px 0;color:var(--faint);font-size:11px;font-weight:800}
     .auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}
     .auth-form .google-btn{min-height:46px;border-radius:13px;margin-top:0!important}
-    .phrase-ticker{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:130px;max-width:390px;height:40px;padding:0 11px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--accent) 7%,var(--card));color:var(--text);text-align:right;overflow:hidden;cursor:pointer}
+    .phrase-ticker{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:130px;max-width:390px;height:40px;padding:0 11px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--accent) 7%,var(--card));color:var(--text);text-align:right;overflow:hidden}
     .ticker-label{flex:0 0 auto;padding:4px 8px;border-radius:8px;background:color-mix(in srgb,var(--accent) 15%,var(--surface));color:var(--accent2);font-size:10px;font-weight:950;white-space:nowrap}
     .ticker-window{display:block;flex:1;min-width:0;overflow:hidden;direction:ltr;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
     .ticker-track{display:flex;width:max-content;align-items:center;direction:rtl;white-space:nowrap;animation:phraseTickerRun 24s linear infinite}
     .ticker-copy{display:block;padding-inline:24px;color:var(--muted);font-size:12px;font-weight:750;white-space:nowrap}
     .ticker-copy-clone{padding-inline-start:0}
-    .ticker-track.is-empty{width:100%;animation:none}
-    .ticker-track.is-empty .ticker-copy{padding:0;color:var(--faint);font-size:11px;font-weight:650}
     .phrase-ticker:hover .ticker-track{animation-play-state:paused}
-    .ticker-edit{flex:0 0 auto;color:var(--faint);font-size:13px}
     @keyframes phraseTickerRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     .mobile-phrase-ticker{display:none}
     .event-kind-switch{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border:1px solid var(--border);border-radius:15px;background:var(--card);margin:0 0 14px}
@@ -1435,14 +1434,14 @@
       .mobile-phrase-ticker{display:flex;flex:1 1 100%;width:100%;max-width:none;min-height:38px;height:38px;margin:0 0 9px;border-radius:12px}
       #topNav>.phrase-ticker{display:none}
       .auth{min-height:100svh;padding:18px 14px;place-items:center}
-      .auth-box{width:min(480px,100%);grid-template-columns:1fr;border-radius:25px}
+      .auth-box{width:min(520px,100%);grid-template-columns:1fr;border-radius:25px}
       .auth-visual{min-height:0;padding:22px 22px 18px}
       .auth-brand{display:none}.auth-visual-copy{margin:19px 0 14px;padding:0}
       .auth-visual-copy h1{font-size:28px;margin:11px 0 6px;letter-spacing:-.7px}
       .auth-visual-copy p{font-size:12px;line-height:1.5}
       .auth-kicker{font-size:10px;padding:5px 9px}
-      .auth-preview{padding:8px 11px;border-radius:14px}
-      .auth-preview-head{padding-bottom:6px;margin-bottom:3px}.auth-preview-line{min-height:28px;font-size:10px}
+      .auth-preview{padding:10px;border-radius:15px;transform:none}
+      .auth-preview-head{padding-bottom:7px;margin-bottom:7px}.auth-week{gap:3px;margin-bottom:7px}.auth-week-day{min-height:36px;padding:4px 1px;font-size:7px}.auth-week-day b{font-size:10px;margin-top:3px}.auth-preview-line{min-height:29px;margin-top:5px;padding:4px 7px;font-size:9px}
       .auth-form{padding:23px 22px 25px}
       .auth-form-heading{margin-bottom:17px}.auth-form-heading h2{font-size:22px}
       .auth-mobile-brand{display:flex;align-items:center;gap:8px;margin-bottom:15px;color:var(--text);font-size:14px;font-weight:950}
@@ -2410,12 +2409,13 @@
     <div class="auth-box">
       <aside class="auth-visual" aria-label="היכרות עם TaskFlow">
         <div class="auth-brand"><span class="auth-brand-mark">✓</span><span>TaskFlow</span></div>
-        <div class="auth-visual-copy"><span class="auth-kicker">המרחב שלך לתכנון רגוע</span><h1>פחות לזכור.<br><strong>יותר לעשות.</strong></h1><p>כל הרשימות, המשימות והאירועים שלך — במקום אחד.</p></div>
+        <div class="auth-visual-copy"><span class="auth-kicker">המרחב שלך לתכנון רגוע</span><h1>הראש שלך<br><strong>פנוי לדברים גדולים.</strong></h1><p>תוכנית ברורה ליום שלך, לרשימות שלך ולכל מה שחשוב — בלי להחזיק הכול בראש.</p></div>
         <div class="auth-preview" aria-hidden="true">
-          <div class="auth-preview-head"><span>היום שלך</span><span class="auth-preview-date">●●●</span></div>
-          <div class="auth-preview-line"><i class="done">✓</i><span>לסיים את מה שחשוב</span><b>09:30</b></div>
-          <div class="auth-preview-line"><i></i><span>לעבור על המשימות</span><b>11:00</b></div>
-          <div class="auth-preview-line"><i></i><span>לפנות זמן לעצמך</span><b>16:00</b></div>
+          <div class="auth-preview-head"><span>השבוע שלך, במבט אחד</span><span class="auth-preview-date">תכנון פשוט ✦</span></div>
+          <div class="auth-week"><span class="auth-week-day">א׳<b>18</b></span><span class="auth-week-day">ב׳<b>19</b></span><span class="auth-week-day is-today">ג׳<b>20</b></span><span class="auth-week-day">ד׳<b>21</b></span><span class="auth-week-day">ה׳<b>22</b></span><span class="auth-week-day">ו׳<b>23</b></span><span class="auth-week-day">ש׳<b>24</b></span></div>
+          <div class="auth-preview-line"><span>לסיים את מה שחשוב</span><b>09:30</b></div>
+          <div class="auth-preview-line"><span>לעבור על המשימות</span><b>11:00</b></div>
+          <div class="auth-preview-line"><span>לפנות זמן לעצמך</span><b>16:00</b></div>
         </div>
       </aside>
       <div class="auth-form">
@@ -2457,9 +2457,9 @@
       <div class="logo">Task<span>Flow</span></div>
       <div id="userLabel" class="user" style="font-size:12px; color:var(--faint);"></div>
     </div>
-    <button class="phrase-ticker" type="button" aria-label="עריכת המשפטים האישיים">
-      <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span><span class="ticker-edit" aria-hidden="true">✎</span>
-    </button>
+    <div class="phrase-ticker" role="marquee" aria-label="משפטים מובנים של TaskFlow">
+      <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span>
+    </div>
     <nav class="nav" aria-label="ניווט ראשי">
       <button data-view="today" type="button"><span>☀️ היום</span></button>
       <button data-view="home" class="active" type="button"><span>🗂️ רשימות</span></button>
@@ -2479,9 +2479,9 @@
   <div id="versionBadge" style="position:fixed;bottom:66px;left:8px;z-index:43;font-size:9px;font-weight:900;color:var(--faint);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;opacity:0.6;pointer-events:none;letter-spacing:.04em">v4.1</div>
 
     <main>
-      <button class="phrase-ticker mobile-phrase-ticker" type="button" aria-label="עריכת המשפטים האישיים">
-        <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span><span class="ticker-edit" aria-hidden="true">✎</span>
-      </button>
+      <div class="phrase-ticker mobile-phrase-ticker" role="marquee" aria-label="משפטים מובנים של TaskFlow">
+        <span class="ticker-label">המשפטים שלי</span><span class="ticker-window"><span class="ticker-track"></span></span>
+      </div>
       <div class="top">
         <div style="padding-right:8px">
           <div id="timeGreeting" style="font-size: 13px; font-weight: 800; color: var(--accent2); margin-bottom: 4px; letter-spacing: 0.01em; line-height:1.45; max-width:520px;"></div>
@@ -2637,6 +2637,31 @@
       { label:"קלאסי",   dark:"sky",    light:"light",   accent:"#3b6ef6", dbg:"#12171f", lbg:"#f4f6fa" },
     ];
     const colors = ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#166534", "#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1", "#3b6ef6", "#8b5cf6", "#d946ef", "#ec4899", "#64748b"];
+    const DEFAULT_TICKER_PHRASES = [
+      "שלוש משימות ב-10 שניות... מישהו פה שתה יותר מדי קפה היום. ☕",
+      "או שאתה ממש יעיל, או שפשוט סימנת V בלי לעשות באמת. אני שופט בשקט. 🤨",
+      "וואו, איזה קצב! תשאיר קצת עבודה גם למחר, כן? 🛑",
+      "שלוש ברצף! בקצב הזה תסיים את החיים לפני הזמן. ⏳",
+      "מכונת ביצועים! רק אל תשכח לנשום בין משימה למשימה. 😮‍💨",
+      "בום! בום! בום! חיסול ממוקד של משימות. 🎯",
+      "סיימת הכל כל כך מהר... עכשיו מגיע השלב שבו בוהים בקיר. 🧱",
+      "קצב מסחרר! משרד העבודה בדרך להעניק לך תעודת מצטיין. 🏆",
+      "אם היית מנקה את החדר באותו קצב, העולם היה מקום יפה יותר. 🧹",
+      "שלוש משימות נמחקו. התחושה של העליונות זמנית בלבד. 👑",
+      "בוקר טוב! המוח עוד בטעינה, אבל הכפתורים כבר עובדים. ☕",
+      "בוקר אור! היום מתחיל רשמית ברגע שסימנת משהו קטן ונראית עסוק.",
+      "בוקר טוב! בוא נעשה סדר לפני שהיום עושה לנו ספין על הראש.",
+      "צהריים! חצי יום עבר, וזה בדיוק הזמן להעמיד פנים שזה היה חלק מהתוכנית.",
+      "צהריים טובים! עוד כמה משימות ואתה יכול לקרוא לזה מומנטום בלי לצחוק.",
+      "אמצע היום: המקום שבו קפה, החלטות ואופטימיות מוגזמת נפגשים.",
+      "ערב טוב! זה השלב שבו היום מבקש סיכום, ואתה מגיש לו טיוטה.",
+      "השמש ירדה, אבל הרשימה עדיין עושה פרצוף של 'נו?'.",
+      "ערב טוב! זמן מצוין לסיים משהו קטן ולהתנהג כאילו זה היה כל התכנון.",
+      "לילה טוב! אם אתה עדיין כאן, לפחות נסדר את הכאוס עם תאורה נעימה.",
+      "השעה מאוחרת, הביטחון עצמי גבוה, והמשימות מנסות לנצל את זה.",
+      "זה הזמן שבו רעיונות מוזרים נראים הגיוניים. נשמור רק את הטובים."
+    ];
+
     const state = {
       theme: "sky",
       themeMode: "dark",
@@ -2648,7 +2673,7 @@
       calDate: null,
       events: [],
       icsImports: [],
-      profile: { name: "", student: null, onboarded: false, tickerPhrases: [] },
+      profile: { name: "", student: null, onboarded: false },
       workReport: { enabled: false },
       meetingsSettings: { showSummary: true, showList: true },
       semesters: [],
@@ -9126,7 +9151,7 @@
         calDate: s.calDate || null,
         meetingsDate: s.meetingsDate || null,
         plannerWindowDate: s.plannerWindowDate || null,
-        profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded, tickerPhrases: Array.isArray(s.profile?.tickerPhrases) ? s.profile.tickerPhrases : [] },
+        profile: { name: s.profile?.name || "", student: s.profile?.student ?? null, onboarded: !!s.profile?.onboarded },
         workReport: { enabled: !!s.workReport?.enabled },
         meetingsSettings: { showSummary: s.meetingsSettings?.showSummary !== false, showList: s.meetingsSettings?.showList !== false },
         semesters: s.semesters || [],
@@ -9150,27 +9175,12 @@
     }
 
     function updateTicker(){
-      const phrases=(Array.isArray(state.profile?.tickerPhrases)?state.profile.tickerPhrases:[]).map(x=>String(x||"").trim()).filter(Boolean);
-      document.querySelectorAll(".phrase-ticker").forEach(button=>{
-        const track=button.querySelector(".ticker-track");if(!track)return;
+      const phraseText=DEFAULT_TICKER_PHRASES.join("　✦　");
+      document.querySelectorAll(".phrase-ticker").forEach(ticker=>{
+        const track=ticker.querySelector(".ticker-track");if(!track)return;
         track.replaceChildren();
-        const phraseText=phrases.length?phrases.join("　✦　"):"לחצו כאן להוספת המשפטים שלכם";
         const first=el("span","ticker-copy",phraseText);track.append(first);
-        if(phrases.length)track.append(el("span","ticker-copy ticker-copy-clone",phraseText));
-        track.classList.toggle("is-empty",!phrases.length);
-        button.onclick=openPhraseEditor;
-      });
-    }
-
-    function openPhraseEditor(){
-      openModal("המשפטים שלי","כל משפט בשורה נפרדת — הם ירוצו בפס העליון.",form=>{
-        const input=field("המשפטים שלך","tickerPhrasesInput","textarea",(state.profile?.tickerPhrases||[]).join("\n"));
-        input.querySelector("textarea").rows=7;
-        input.querySelector("textarea").placeholder="לדוגמה:\nצעד קטן בכל יום\nקודם חשוב, אחר כך דחוף";
-        form.append(input,footer("שמור משפטים",()=>{
-          const phrases=$("tickerPhrasesInput").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-          state.profile={...(state.profile||{}),tickerPhrases:phrases};save();updateTicker();closeModal();toast(phrases.length?"המשפטים נשמרו ✓":"הפס נוקה");
-        }));
+        track.append(el("span","ticker-copy ticker-copy-clone",phraseText));
       });
     }
 
