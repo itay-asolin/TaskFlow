@@ -112,7 +112,13 @@
     .top-nav-left { display: flex; align-items: center; gap: 10px; min-width:0; }
     .top-nav-right { display: flex; align-items: center; gap: 16px; }
     #topNav .top-nav-left #userLabel{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    #logoutBtnTop{padding:7px 10px;font-size:11px}
+    .top-nav-account{position:relative;display:flex;align-items:center}
+    #userLabel.account-trigger{max-width:220px;min-width:0;padding:4px 9px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);font:inherit;cursor:pointer;transition:background .16s,border-color .16s}
+    #userLabel.account-trigger:hover,#userLabel.account-trigger[aria-expanded="true"]{background:var(--card);border-color:var(--border);color:var(--text)}
+    .account-menu{position:absolute;top:calc(100% + 9px);right:0;z-index:130;display:grid;gap:5px;width:min(250px,calc(100vw - 24px));padding:9px;border:1px solid var(--border);border-radius:15px;background:var(--surface);box-shadow:0 14px 38px rgba(0,0,0,.28)}
+    .account-menu[hidden]{display:none!important}.account-menu-email{padding:6px 8px 9px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .account-menu button{min-height:39px;padding:8px 10px;border:0;border-radius:10px;background:transparent;color:var(--text);font:inherit;font-size:12px;font-weight:800;text-align:right;cursor:pointer}
+    .account-menu button:hover{background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--accent2)}.account-menu button.account-menu-logout{color:var(--danger)}
     #topNav .logo { font-size: 24px; margin: 0; }
     #topNav .nav {
       margin: 0; display: flex; align-items: center; gap: 8px;
@@ -1404,7 +1410,7 @@
     .auth-divider{display:flex;align-items:center;gap:11px;margin:15px 0;color:var(--faint);font-size:11px;font-weight:800}
     .auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}
     .auth-form .google-btn{min-height:46px;border-radius:13px;margin-top:0!important}
-    .phrase-ticker{display:flex;align-items:center;flex:1 1 220px;min-width:130px;max-width:620px;height:40px;padding:0 10px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--accent) 7%,var(--card));overflow:hidden}
+    .phrase-ticker{display:flex;align-items:center;flex:1 1 220px;min-width:130px;max-width:620px;height:34px;padding:0 4px;border:0;border-radius:0;background:transparent;overflow:hidden;box-shadow:none}
     .ticker-window{display:block;flex:1;min-width:0;overflow:hidden}
     .ticker-track{display:flex;width:100%;min-width:0;align-items:center;justify-content:center;direction:rtl;white-space:nowrap;visibility:visible}
     .ticker-copy{display:block;max-width:100%;overflow:hidden;color:var(--ticker-color,var(--accent2));font-size:12px;font-weight:850;text-align:center;text-overflow:ellipsis;white-space:nowrap;animation:tickerGentleFade .55s ease both}
@@ -1454,7 +1460,7 @@
     .event-time-row .clock-field label{text-align:center;justify-content:center}
     @media(max-width:820px){
       #bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
-      .mobile-phrase-ticker{display:flex;flex:1 1 100%;width:100%;min-width:0;max-width:none;min-height:40px;height:40px;margin:0 0 9px;border-radius:12px}
+      .mobile-phrase-ticker{display:flex;flex:1 1 100%;width:100%;min-width:0;max-width:none;min-height:30px;height:30px;margin:0 0 7px;padding:0;border:0;border-radius:0;background:transparent}
       .mobile-phrase-ticker .ticker-track{justify-content:center}.mobile-phrase-ticker .ticker-copy{max-width:100%;font-size:11px}
       .home-widgets{padding:11px;margin-bottom:14px}.home-widgets-head{align-items:flex-start;flex-direction:column}.home-widgets-tools{width:100%}.home-widgets-tools select{flex:1;min-width:0}.home-widgets-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.home-widget-card{padding:10px}.home-widget-name{font-size:11px}.home-widget-preview{font-size:9px}
       #topNav>.phrase-ticker{display:none}
@@ -1941,12 +1947,8 @@
     .toast{backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);background:color-mix(in srgb,var(--text) 82%,transparent);box-shadow:0 8px 24px rgba(0,0,0,.2)}
 
     /* page-to-page flow */
-    @keyframes v5inL{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
-    @keyframes v5inR{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
-    @keyframes v5fade{from{opacity:0}to{opacity:1}}
-    #content.v5-from-l{animation:v5inL .24s ease-out}
-    #content.v5-from-r{animation:v5inR .24s ease-out}
-    #content.v5-fade{animation:v5fade .18s ease-out}
+    @keyframes v5fade{from{opacity:.82}to{opacity:1}}
+    #content.v5-from-l,#content.v5-from-r,#content.v5-fade{animation:v5fade .12s ease-out}
     @media(prefers-reduced-motion:reduce){#content.v5-from-l,#content.v5-from-r,#content.v5-fade{animation:none}}
 
     @media(max-width:820px){
@@ -2407,8 +2409,12 @@
     .today-widget-picker button{min-height:42px;padding:8px 10px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;font-weight:800;text-align:right;cursor:pointer}
     .today-widget-picker button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
     .today-widget-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;grid-auto-flow:row}
-    .today-dashboard-section.today-widget{min-width:0;margin:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .24s ease,opacity .2s ease}
+    .today-dashboard-section.today-widget{min-width:0;margin:0;touch-action:pan-y;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .24s ease,opacity .2s ease}
     .today-widget.wide{grid-column:1/-1}
+    .today-widget.compact{padding:10px 12px}
+    .today-widget.compact .today-widget-heading{margin-bottom:6px}
+    .today-widget.compact .today-weather-card{padding:8px 10px}
+    .today-widget.compact .today-widget-list-card{min-height:100px}
     .today-widget-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}
     .today-widget-title-wrap{display:flex;align-items:center;gap:7px;min-width:0}
     .today-widget-grip{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;width:22px;height:26px;border-radius:7px;color:var(--faint);font-size:17px;cursor:grab;touch-action:none;user-select:none}
@@ -2416,12 +2422,21 @@
     .today-widget.is-dragging{position:relative;z-index:10;opacity:.78;pointer-events:none;box-shadow:0 16px 40px rgba(15,23,42,.22)}
     .today-widget.drop-target{outline:2px dashed var(--accent);outline-offset:2px}
     .today-widget-heading h2{margin:0;min-width:0;font-size:15px}
-    .today-widget-remove,.today-widget-size{flex:0 0 30px;width:30px;height:30px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--faint);font-size:15px;cursor:pointer}
+    .today-widget-remove,.today-widget-size{display:none;flex:0 0 30px;width:30px;height:30px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--faint);font-size:15px;cursor:pointer}
     .today-widget-actions{display:flex;align-items:center;gap:5px}.today-widget-size:hover{color:var(--accent2);border-color:var(--accent)}
     .today-widget-remove:hover{color:#d9465f;border-color:#d9465f}
     .today-widget.is-dragging{z-index:10;opacity:.85;box-shadow:0 20px 45px rgba(0,0,0,.28);transition:none!important}
     .today-widget.drop-target{outline:2px solid color-mix(in srgb,var(--accent) 65%,transparent);outline-offset:2px;transform:scale(.985)}
     .today-widget-grip{cursor:grab;touch-action:none;user-select:none}.today-widget-grip:active{cursor:grabbing}
+    .today-widget-grid.arranging .today-widget-size,.today-widget-grid.arranging .today-widget-remove{display:inline-grid;place-items:center}
+    .today-widget-grid.arranging .today-widget{animation:none;outline:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));outline-offset:1px;touch-action:pan-y}
+    .today-widget-grid.arranging .today-widget.is-selected{outline:2px solid var(--accent);box-shadow:0 10px 24px rgba(20,35,70,.14);transform:scale(.99)}
+    .today-widget-grid.arranging .today-widget.is-dragging{animation:none;z-index:20}
+    .today-widget-grid.arranging .today-widget.is-moving{animation:none!important}
+    .today-widget-grid.arranging .today-widget-grip{color:var(--accent2)}
+    .today-widget-arrange-done{margin-inline-start:auto}
+    @keyframes widgetNudge{from{transform:rotate(-.25deg)}to{transform:rotate(.25deg)}}
+    @media(prefers-reduced-motion:reduce){.today-widget-grid.arranging .today-widget{animation:none!important}}
     .today-widget-daystrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
     .today-widget-day{display:grid;gap:4px;min-width:0;min-height:56px;padding:6px 2px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--muted);text-align:center;cursor:pointer}
     .today-widget-day strong{color:var(--text);font-size:12px}.today-widget-day small{font-size:9px}
@@ -2485,7 +2500,7 @@
     .rail-task-preview-row{display:flex;align-items:center;gap:8px;min-height:28px;font-size:12px}
     .rail-task-preview-row::before{content:"";width:7px;height:7px;flex:0 0 auto;border-radius:50%;background:var(--preview-color,var(--accent))}
     .rail-task-preview-empty{font-size:12px;color:var(--muted)}
-    @media(max-width:820px){.today-dashboard{gap:10px}.today-hero{border-radius:19px}.today-dashboard-section{padding:13px;border-radius:15px}.today-event-time{min-width:78px;font-size:11px}.today-widget-grid{grid-template-columns:1fr;gap:9px}.today-widget-day{min-height:50px}.today-widget-list-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.today-widget-list-card{min-height:120px;padding:11px 10px;border-radius:17px}.today-widget-list-card .lc-num strong{font-size:28px}.today-widget-list-card .lc-name{font-size:14px}.today-widget-list-card .lc-peek-item{font-size:10px}.today-widget-picker{grid-template-columns:1fr 1fr}.nav button{padding-inline:8px}.task-list-card.manual-reorder .task-tools{display:flex;grid-column:1/-1;justify-self:end}.task-list-card.manual-reorder .task-tools .mini{min-width:34px;min-height:34px;font-size:16px}}
+    @media(max-width:820px){.today-dashboard{gap:10px}.today-hero{border-radius:19px}.today-dashboard-section{padding:13px;border-radius:15px}.today-event-time{min-width:78px;font-size:11px}.today-widget-grid{grid-template-columns:1fr;gap:9px}.today-widget.wide{grid-column:auto}.today-widget.compact{padding:8px 10px}.today-widget.compact .today-widget-heading{margin-bottom:4px}.today-widget-day{min-height:50px}.today-widget-list-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.today-widget-list-card{min-height:120px;padding:11px 10px;border-radius:17px}.today-widget-list-card .lc-num strong{font-size:28px}.today-widget-list-card .lc-name{font-size:14px}.today-widget-list-card .lc-peek-item{font-size:10px}.today-widget-picker{grid-template-columns:1fr 1fr}.nav button{padding-inline:8px}.task-list-card.manual-reorder .task-tools{display:flex;grid-column:1/-1;justify-self:end}.task-list-card.manual-reorder .task-tools .mini{min-width:34px;min-height:34px;font-size:16px}}
     @media(max-width:820px){.today-widget-picker-screen{inset:0;padding:0;background:var(--bg);backdrop-filter:none;place-items:stretch}.today-widget-picker-content{width:100%;height:100dvh;max-height:none;border:0;border-radius:0;box-shadow:none}.today-widget-picker-head{padding:calc(13px + env(safe-area-inset-top)) 16px 13px}.today-widget-picker-head h2{font-size:18px}.today-widget-picker-body{padding:14px 14px calc(20px + env(safe-area-inset-bottom))}.today-widget-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.widget-option-card{padding:9px;border-radius:15px;gap:7px}.widget-option-preview{min-height:61px;padding:8px}.widget-option-sub{min-height:27px;font-size:9px}}
   
     /* Mobile Today view: compact header and keep the selected calendar widget first. */
@@ -2533,8 +2548,15 @@
   <header id="topNav" class="top-nav">
     <div class="top-nav-left">
       <div class="logo">Task<span>Flow</span></div>
-      <div id="userLabel" class="user" style="font-size:12px; color:var(--faint);"></div>
-      <button id="logoutBtnTop" class="btn danger" type="button">התנתק</button>
+      <div class="top-nav-account">
+        <button id="userLabel" class="user account-trigger" type="button" aria-haspopup="menu" aria-expanded="false"></button>
+        <div id="accountMenu" class="account-menu" role="menu" hidden>
+          <div id="accountMenuEmail" class="account-menu-email"></div>
+          <button id="accountRenameBtn" type="button" role="menuitem">✏️ שינוי השם שמוצג</button>
+          <button id="accountSwitchBtn" type="button" role="menuitem">🔄 התחברות לחשבון אחר</button>
+          <button id="logoutBtnTop" class="account-menu-logout" type="button" role="menuitem">↪ התנתקות</button>
+        </div>
+      </div>
     </div>
     <div class="phrase-ticker" aria-label="משפטי TaskFlow">
       <span class="ticker-window"><span class="ticker-track"><span class="ticker-copy">מתקדמים צעד קטן בכל פעם — TaskFlow כאן כדי לעזור.</span></span></span>
@@ -2859,8 +2881,12 @@
       };
       $("localBtn").onclick = () => enterLocal();
       
-      // Update logout functionality for the new top nav button
-      if($("logoutBtnTop")) $("logoutBtnTop").onclick = logout;
+      $("userLabel").onclick=toggleAccountMenu;
+      $("accountRenameBtn").onclick=openAccountNameDialog;
+      $("accountSwitchBtn").onclick=switchAccountFromMenu;
+      if($("logoutBtnTop")) $("logoutBtnTop").onclick=()=>{closeAccountMenu();logout()};
+      document.addEventListener("pointerdown",event=>{if(!event.target.closest(".top-nav-account"))closeAccountMenu()});
+      document.addEventListener("keydown",event=>{if(event.key==="Escape")closeAccountMenu()});
       
       $("themeToggleBtn").onclick = toggleThemeMode;
       if ($("topAddBtn")) $("topAddBtn").onclick = openQuickSheet;
@@ -4399,19 +4425,21 @@
     let todayFavoritesPickerOpen=false;
     let todayWidgetPointerTimer=null;
     let todayWidgetDrag=null;
+    let todayWidgetPress=null;
+    let todayWidgetArrangeMode=false;
     let suppressTodayWidgetClickUntil=0;
     function normalizeTodayWidgetPrefs(value){
       const saved=value&&typeof value==="object"?value:{};
       return{
         widgets:Array.isArray(saved.widgets)?[...new Set(saved.widgets.filter(id=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)))]:["calendar-day","tasks"],
         favorites:Array.isArray(saved.favorites)?[...new Set(saved.favorites)]:[],
-        sizes:saved.sizes&&typeof saved.sizes==="object"?Object.fromEntries(Object.entries(saved.sizes).filter(([id,size])=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)&&["normal","wide"].includes(size))):{}
+        sizes:saved.sizes&&typeof saved.sizes==="object"?Object.fromEntries(Object.entries(saved.sizes).filter(([id,size])=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)&&["compact","normal","wide"].includes(size))):{}
       };
     }
     function getTodayWidgetPrefs(){
       try{
         return normalizeTodayWidgetPrefs(state.todayWidgetPrefs||JSON.parse(localStorage.getItem(TODAY_WIDGETS_KEY)||"null"));
-      }catch{return{widgets:["calendar-day","tasks"],favorites:[]}}
+      }catch{return{widgets:["calendar-day","tasks"],favorites:[],sizes:{}}}
     }
     function saveTodayWidgetPrefs(prefs){
       const normalized=normalizeTodayWidgetPrefs(prefs);
@@ -4444,23 +4472,34 @@
       }catch(error){console.warn("Widget preference sync unavailable",error);toast("הווידג׳טים נשמרו במכשיר הזה, אך כרגע לא הסתנכרנו לענן.")}
     }
     function jumpFromWidget(date,view){state.calDate=toDateKey(date);state.calView=view;save();navigate("calendar")}
+    function setTodayWidgetArrangeMode(enabled){
+      todayWidgetArrangeMode=!!enabled;
+      document.querySelector(".today-widget-grid")?.classList.toggle("arranging",todayWidgetArrangeMode);
+      document.querySelector(".today-widget-arrange-done")?.classList.toggle("hidden",!todayWidgetArrangeMode);
+      document.querySelectorAll(".today-widget.is-selected").forEach(node=>node.classList.remove("is-selected"));
+    }
     function attachTodayWidgetReorder(section,type){
       section.addEventListener("pointerdown",event=>{
         if(event.button!==undefined&&event.button!==0)return;
-        if(!event.target.closest(".today-widget-grip"))return;
+        if(event.target.closest("button,input,select,textarea,a,summary"))return;
         clearTimeout(todayWidgetPointerTimer);
-        const pointerId=event.pointerId;
+        const pointerId=event.pointerId;todayWidgetPress={section,pointerId,startX:event.clientX,startY:event.clientY};
         todayWidgetPointerTimer=setTimeout(()=>{
-          todayWidgetDrag={section,type,pointerId,startX:event.clientX,startY:event.clientY};
-          section.classList.add("is-dragging");
-          suppressTodayWidgetClickUntil=Date.now()+900;
-          try{section.setPointerCapture(pointerId)}catch{}
-        },500);
+          if(!todayWidgetPress||todayWidgetPress.section!==section||todayWidgetPress.pointerId!==pointerId)return;
+          todayWidgetArrangeMode=true;suppressTodayWidgetClickUntil=Date.now()+1000;document.querySelector(".today-widget-grid")?.classList.add("arranging");document.querySelector(".today-widget-arrange-done")?.classList.remove("hidden");section.classList.add("is-selected");
+          todayWidgetDrag={section,type,pointerId,startX:event.clientX,startY:event.clientY,dragging:false};
+        },420);
       });
       section.addEventListener("pointermove",event=>{
-        if(!todayWidgetDrag||todayWidgetDrag.section!==section||todayWidgetDrag.pointerId!==event.pointerId)return;
+        if(!todayWidgetDrag||todayWidgetDrag.section!==section||todayWidgetDrag.pointerId!==event.pointerId){
+          if(todayWidgetPress?.section===section&&todayWidgetPress.pointerId===event.pointerId&&Math.hypot(event.clientX-todayWidgetPress.startX,event.clientY-todayWidgetPress.startY)>9){clearTimeout(todayWidgetPointerTimer);todayWidgetPointerTimer=null;todayWidgetPress=null}
+          return;
+        }
+        const dx=event.clientX-todayWidgetDrag.startX,dy=event.clientY-todayWidgetDrag.startY;
+        if(!todayWidgetDrag.dragging&&Math.hypot(dx,dy)<8)return;
+        if(!todayWidgetDrag.dragging){todayWidgetDrag.dragging=true;section.classList.add("is-dragging");suppressTodayWidgetClickUntil=Date.now()+1000;try{section.setPointerCapture(event.pointerId)}catch{}}
         event.preventDefault();
-        section.style.transform=`translate(${event.clientX-todayWidgetDrag.startX}px,${event.clientY-todayWidgetDrag.startY}px) scale(.985)`;
+        section.style.transform=`translate(${dx}px,${dy}px) scale(1.015)`;
         document.querySelectorAll(".today-widget.drop-target").forEach(node=>node.classList.remove("drop-target"));
         const target=document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget[data-widget-type]");
         if(target&&target!==section)target.classList.add("drop-target");
@@ -4471,13 +4510,14 @@
     }
     function finishTodayWidgetReorder(event,section,cancelled=false){
       clearTimeout(todayWidgetPointerTimer);todayWidgetPointerTimer=null;
+      if(todayWidgetPress?.section===section&&todayWidgetPress.pointerId===event.pointerId)todayWidgetPress=null;
       if(!todayWidgetDrag||todayWidgetDrag.section!==section)return;
       const dragged=todayWidgetDrag;todayWidgetDrag=null;
       const target=cancelled?null:document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget[data-widget-type]");
       section.classList.remove("is-dragging");
       section.style.transform="";
       document.querySelectorAll(".today-widget.drop-target").forEach(node=>node.classList.remove("drop-target"));
-      if(cancelled)return;
+      if(cancelled||!dragged.dragging)return;
       if(!target||target===section)return;
       const prefs=getTodayWidgetPrefs(),from=prefs.widgets.indexOf(dragged.type),targetType=target.dataset.widgetType,targetIndex=prefs.widgets.indexOf(targetType);
       if(from<0||targetIndex<0)return;
@@ -4501,17 +4541,17 @@
           const before=beforePositions?.get(node.dataset.widgetType);if(!before)return;
           const after=node.getBoundingClientRect(),dx=before.left-after.left,dy=before.top-after.top;
           if(Math.abs(dx)<1&&Math.abs(dy)<1)return;
-          node.style.transition="none";node.style.transform=`translate(${dx}px,${dy}px)`;moved.push(node);
+          node.classList.add("is-moving");node.style.transition="none";node.style.transform=`translate(${dx}px,${dy}px)`;moved.push(node);
         });
         if(!moved.length)return;
-        requestAnimationFrame(()=>moved.forEach(node=>{node.style.transition="transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease";node.style.transform="";setTimeout(()=>node.style.removeProperty("transition"),360)}));
+        requestAnimationFrame(()=>moved.forEach(node=>{node.style.transition="transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease";node.style.transform="";setTimeout(()=>{node.style.removeProperty("transition");node.classList.remove("is-moving")},360)}));
       });
     }
     function todayWidgetShell(type,title,prefs){
-      const defaultWide=type.startsWith("calendar-"),wide=prefs.sizes?.[type]?prefs.sizes[type]==="wide":defaultWide;
-      const section=el("section","today-dashboard-section today-widget"+(wide?" wide":""));section.dataset.widgetType=type;
+      const defaultWide=type.startsWith("calendar-"),sizeMode=prefs.sizes?.[type]||(defaultWide?"wide":"normal"),wide=sizeMode==="wide",compact=sizeMode==="compact";
+      const section=el("section","today-dashboard-section today-widget"+(wide?" wide":"")+(compact?" compact":""));section.dataset.widgetType=type;
       const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap"),grip=el("span","today-widget-grip","⠿");grip.title="לחיצה ארוכה וגרירה לשינוי הסדר";grip.setAttribute("aria-hidden","true");titleWrap.append(grip,el("h2","",title));head.append(titleWrap);
-      const actions=el("div","today-widget-actions"),size=el("button","today-widget-size",wide?"↔":"⇔");size.type="button";size.title=wide?"הצג ברוחב רגיל":"הרחב לרוחב מלא";size.setAttribute("aria-label",size.title);size.onclick=()=>{const before=captureTodayWidgetPositions();prefs.sizes={...(prefs.sizes||{}),[type]:wide?"normal":"wide"};saveTodayWidgetPrefs(prefs);renderTodayWidgetsWithMotion(before)};actions.append(size);
+      const actions=el("div","today-widget-actions"),size=el("button","today-widget-size",compact?"＋":wide?"↔":"－");size.type="button";const nextSize=compact?"normal":wide?"compact":"wide";size.title=compact?"הגדל לגודל רגיל":wide?"צמצם את הווידג׳ט":"הרחב לרוחב מלא";size.setAttribute("aria-label",size.title);size.onclick=()=>{const before=captureTodayWidgetPositions();prefs.sizes={...(prefs.sizes||{}),[type]:nextSize};saveTodayWidgetPrefs(prefs);renderTodayWidgetsWithMotion(before)};actions.append(size);
       const remove=el("button","today-widget-remove","×");remove.type="button";remove.title="הסר ווידג'ט";remove.setAttribute("aria-label",`הסר את ווידג'ט ${title}`);
       remove.onclick=()=>{prefs.widgets=prefs.widgets.filter(x=>x!==type);saveTodayWidgetPrefs(prefs);render()};actions.append(remove);head.append(actions);section.append(head);attachTodayWidgetReorder(section,type);return section;
     }
@@ -4621,9 +4661,9 @@
       const wrap=el("div","today-dashboard"),hero=el("section","today-hero");hero.append(el("div","today-hero-eyebrow","☀️ TaskFlow · התכנון שלך להיום"),el("div","today-hero-date",dateLabel));
       const stats=el("div","today-hero-stats");[["אירועים",events.length],["משימות פתוחות",tasks.length]].forEach(([label,value])=>{const stat=el("div","today-hero-stat");stat.append(el("strong","",String(value)),el("span","",label));stats.append(stat)});
       const actions=el("div","today-dashboard-actions"),calendarBtn=el("button","btn","📅 פתח ביומן"),addEvent=el("button","btn primary","+ אירוע");calendarBtn.type=addEvent.type="button";calendarBtn.onclick=()=>{state.calDate=todayKey;navigate("calendar")};addEvent.onclick=()=>openEventModal(null,todayKey);actions.append(calendarBtn,addEvent);hero.append(stats,actions);wrap.append(hero);
-      const prefs=getTodayWidgetPrefs(),toolbar=el("div","today-widget-toolbar"),addWidget=el("button","btn primary","＋ הוסף ווידג'ט");addWidget.type="button";addWidget.onclick=()=>{todayWidgetPickerOpen=!todayWidgetPickerOpen;render()};toolbar.append(addWidget);wrap.append(toolbar);
+      const prefs=getTodayWidgetPrefs(),toolbar=el("div","today-widget-toolbar"),addWidget=el("button","btn primary","＋ הוסף ווידג'ט"),doneArrange=el("button","btn today-widget-arrange-done"+(!todayWidgetArrangeMode?" hidden":""),"✓ סיום סידור");addWidget.type=doneArrange.type="button";addWidget.onclick=()=>{setTodayWidgetArrangeMode(false);todayWidgetPickerOpen=!todayWidgetPickerOpen;render()};doneArrange.onclick=()=>{setTodayWidgetArrangeMode(false);render()};toolbar.append(addWidget,doneArrange);wrap.append(toolbar);
       if(todayWidgetPickerOpen){$("content").replaceChildren(renderTodayWidgetPicker(prefs));return}
-      const grid=el("div","today-widget-grid");prefs.widgets.forEach(type=>{const widget=renderTodayWidget(type,todayKey,tasks,events,prefs);if(widget)grid.append(widget)});if(grid.childElementCount)wrap.append(grid);else if(!todayWidgetPickerOpen){const empty=el("div","today-dashboard-section today-dashboard-empty","אין ווידג'טים במסך היום. לחצו על ＋ הוסף ווידג'ט כדי לבחור.");wrap.append(empty)}
+      const grid=el("div","today-widget-grid"+(todayWidgetArrangeMode?" arranging":""));prefs.widgets.forEach(type=>{const widget=renderTodayWidget(type,todayKey,tasks,events,prefs);if(widget)grid.append(widget)});if(grid.childElementCount)wrap.append(grid);else if(!todayWidgetPickerOpen){const empty=el("div","today-dashboard-section today-dashboard-empty","אין ווידג'טים במסך היום. לחצו על ＋ הוסף ווידג'ט כדי לבחור.");wrap.append(empty)}
       $("content").replaceChildren(wrap);
     }
 
@@ -7218,7 +7258,7 @@
     function updateUserLabel(fallback){
       const name=state.profile?.name || (user?.displayName||"") || (user?.email||"").split("@")[0] || fallback || "";
       const target=$("userLabel"); if(!target)return;
-      target.replaceChildren(); target.style.display="flex";target.style.alignItems="center";target.style.gap="6px";
+      target.replaceChildren(); target.style.display="flex";target.style.alignItems="center";target.style.gap="6px";target.setAttribute("aria-label",`חשבון משתמש ${name}. פתיחת אפשרויות חשבון`);
       function makeInitialsAvatar(){const avatar=el("span","",(name||"?").trim().charAt(0).toUpperCase());avatar.style.cssText="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:900;font-size:12px;flex:0 0 auto";return avatar;}
       if(user?.photoURL){
         const img=document.createElement("img");
@@ -7232,6 +7272,23 @@
         target.append(img);
       }else if(name){target.append(makeInitialsAvatar());}
       target.append(document.createTextNode(name?`שלום, ${name}`:""));
+      const email=$("accountMenuEmail");if(email)email.textContent=user?.email||"חשבון מקומי";
+    }
+
+    function closeAccountMenu(){const menu=$("accountMenu"),trigger=$("userLabel");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false")}
+    function toggleAccountMenu(){const menu=$("accountMenu"),trigger=$("userLabel");if(!menu||!trigger)return;menu.hidden=!menu.hidden;trigger.setAttribute("aria-expanded",String(!menu.hidden))}
+    function openAccountNameDialog(){
+      closeAccountMenu();
+      openModal("השם שלך ב־TaskFlow","זה השם שיוצג ליד תמונת המשתמש",form=>{
+        const input=document.createElement("input");input.type="text";input.maxLength=50;input.value=state.profile?.name||user?.displayName||"";input.placeholder="איך לפנות אליך?";input.setAttribute("aria-label","שם לתצוגה");form.append(input);
+        form.append(footer("שמור שם",()=>{const name=input.value.trim();if(!name){toast("יש להקליד שם");return}state.profile={...(state.profile||{}),name,onboarded:true};save();updateUserLabel();closeModal();toast("השם עודכן ✓")}));
+        requestAnimationFrame(()=>input.focus());
+      });
+    }
+    async function switchAccountFromMenu(){
+      closeAccountMenu();
+      const googleUser=(user?.providerData||[]).some(item=>item.providerId==="google.com");
+      if(googleUser)await switchGoogleAccount();else await logout();
     }
 
     function openOnboarding(){
