@@ -119,6 +119,10 @@
     .account-menu[hidden]{display:none!important}.account-menu-email{padding:6px 8px 9px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .account-menu button{min-height:39px;padding:8px 10px;border:0;border-radius:10px;background:transparent;color:var(--text);font:inherit;font-size:12px;font-weight:800;text-align:right;cursor:pointer}
     .account-menu button:hover{background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--accent2)}.account-menu button.account-menu-logout{color:var(--danger)}
+    .mobile-account-wrap{display:none;position:relative;z-index:60}
+    .mobile-account-trigger{display:inline-flex;align-items:center;gap:7px;min-height:35px;padding:4px 10px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);font:inherit;font-size:11px;font-weight:850;cursor:pointer}
+    .mobile-account-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:140;display:grid;gap:4px;width:min(245px,calc(100vw - 28px));padding:8px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 12px 32px rgba(0,0,0,.22)}
+    .mobile-account-menu[hidden]{display:none!important}.mobile-account-menu button{min-height:40px;padding:8px 10px;border:0;border-radius:9px;background:transparent;color:var(--text);font:inherit;font-size:12px;font-weight:800;text-align:right}
     #topNav .logo { font-size: 24px; margin: 0; }
     #topNav .nav {
       margin: 0; display: flex; align-items: center; gap: 8px;
@@ -1461,6 +1465,7 @@
     @media(max-width:820px){
       #bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
       .mobile-phrase-ticker{display:flex;flex:1 1 100%;width:100%;min-width:0;max-width:none;min-height:30px;height:30px;margin:0 0 7px;padding:0;border:0;border-radius:0;background:transparent}
+      .mobile-account-wrap{display:block;order:0;align-self:flex-start}
       .mobile-phrase-ticker .ticker-track{justify-content:center}.mobile-phrase-ticker .ticker-copy{max-width:100%;font-size:11px}
       .home-widgets{padding:11px;margin-bottom:14px}.home-widgets-head{align-items:flex-start;flex-direction:column}.home-widgets-tools{width:100%}.home-widgets-tools select{flex:1;min-width:0}.home-widgets-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.home-widget-card{padding:10px}.home-widget-name{font-size:11px}.home-widget-preview{font-size:9px}
       #topNav>.phrase-ticker{display:none}
@@ -2408,8 +2413,8 @@
     .today-widget-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:7px;padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--card)}
     .today-widget-picker button{min-height:42px;padding:8px 10px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;font-weight:800;text-align:right;cursor:pointer}
     .today-widget-picker button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
-    .today-widget-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;grid-auto-flow:row}
-    .today-dashboard-section.today-widget{min-width:0;margin:0;touch-action:pan-y;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .24s ease,opacity .2s ease}
+    .today-widget-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;justify-items:center;grid-auto-flow:row}
+    .today-dashboard-section.today-widget{position:relative;min-width:0;margin:0;touch-action:pan-y;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease,opacity .18s ease}
     .today-widget.wide{grid-column:1/-1}
     .today-widget.compact{padding:10px 12px}
     .today-widget.compact .today-widget-heading{margin-bottom:6px}
@@ -2433,8 +2438,11 @@
     .today-widget-grid.is-dragging .today-widget{outline:1px solid color-mix(in srgb,var(--accent) 22%,var(--border));outline-offset:1px;touch-action:pan-y}
     .today-widget-grid.is-dragging .today-widget.is-dragging{z-index:30;outline:2px solid var(--accent);box-shadow:0 18px 38px rgba(20,35,70,.23);transition:none!important}
     .today-widget-grid.is-dragging .today-widget.is-moving{transition:transform .22s cubic-bezier(.2,.8,.2,1)}
-    .today-widget-resize-hint{position:fixed;z-index:9999;pointer-events:none;padding:6px 10px;border:1px solid color-mix(in srgb,var(--accent) 32%,var(--border));border-radius:999px;background:var(--surface);color:var(--accent2);font-size:11px;font-weight:900;box-shadow:0 7px 20px rgba(0,0,0,.16);opacity:0;transform:translate(-50%,-150%) scale(.94);transition:opacity .12s,transform .12s}
-    .today-widget-resize-hint.visible{opacity:1;transform:translate(-50%,-150%) scale(1)}
+    .today-widget.is-placeholder{visibility:hidden!important;pointer-events:none!important}
+    .today-widget-drag-ghost{position:fixed!important;z-index:9998!important;margin:0!important;pointer-events:none!important;opacity:.96;transform:scale(1.015);box-shadow:0 20px 48px rgba(15,23,42,.25)!important;border:1px solid color-mix(in srgb,var(--accent) 70%,var(--border))!important;border-radius:inherit;overflow:hidden}
+    .today-widget-resize-handle{position:absolute;left:7px;bottom:7px;z-index:2;display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid var(--border);border-radius:11px;background:color-mix(in srgb,var(--surface) 92%,transparent);color:var(--muted);font-size:19px;line-height:1;cursor:nwse-resize;touch-action:none;user-select:none;box-shadow:0 3px 10px rgba(15,23,42,.1)}
+    .today-widget-resize-handle:hover,.today-widget-resize-handle:active{border-color:var(--accent);background:var(--surface);color:var(--accent2)}
+    .today-widget.is-resizing{z-index:5;outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px;transition:none!important}
     @keyframes widgetNudge{from{transform:rotate(-.25deg)}to{transform:rotate(.25deg)}}
     @media(prefers-reduced-motion:reduce){.today-widget-grid.is-dragging .today-widget{transition:none!important}}
     .today-widget-daystrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
@@ -2587,6 +2595,14 @@
           <div id="timeGreeting" style="font-size: 13px; font-weight: 800; color: var(--accent2); margin-bottom: 4px; letter-spacing: 0.01em; line-height:1.45; max-width:520px;"></div>
           <h1 id="pageTitle">רשימות</h1>
           <p id="pageSub"></p>
+        </div>
+        <div class="mobile-account-wrap">
+          <button id="mobileAccountBtn" class="mobile-account-trigger" type="button" aria-haspopup="menu" aria-expanded="false">👤 חשבון</button>
+          <div id="mobileAccountMenu" class="mobile-account-menu" role="menu" hidden>
+            <button id="mobileAccountRename" type="button" role="menuitem">✏️ שינוי השם שמוצג</button>
+            <button id="mobileAccountSwitch" type="button" role="menuitem">🔄 התחברות לחשבון אחר</button>
+            <button id="mobileAccountLogout" type="button" role="menuitem" style="color:var(--danger)">↪ התנתקות</button>
+          </div>
         </div>
         <div class="actions">
           <div id="searchWrap" class="search-wrap">
@@ -2886,6 +2902,11 @@
       $("accountSwitchBtn").onclick=switchAccountFromMenu;
       if($("logoutBtnTop")) $("logoutBtnTop").onclick=()=>{closeAccountMenu();logout()};
       document.addEventListener("pointerdown",event=>{if(!event.target.closest(".top-nav-account"))closeAccountMenu()});
+      $("mobileAccountBtn").onclick=()=>{const menu=$("mobileAccountMenu"),trigger=$("mobileAccountBtn");menu.hidden=!menu.hidden;trigger.setAttribute("aria-expanded",String(!menu.hidden))};
+      $("mobileAccountRename").onclick=openAccountNameDialog;
+      $("mobileAccountSwitch").onclick=switchAccountFromMenu;
+      $("mobileAccountLogout").onclick=logout;
+      document.addEventListener("pointerdown",event=>{if(!event.target.closest(".mobile-account-wrap")){const menu=$("mobileAccountMenu"),trigger=$("mobileAccountBtn");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false")}});
       document.addEventListener("keydown",event=>{if(event.key==="Escape")closeAccountMenu()});
       
       $("themeToggleBtn").onclick = toggleThemeMode;
@@ -4428,19 +4449,21 @@
     let todayWidgetPress=null;
     let todayWidgetArrangeMode=false;
     let suppressTodayWidgetClickUntil=0;
+    let todayWidgetResize=null;
     function normalizeTodayWidgetPrefs(value){
       const saved=value&&typeof value==="object"?value:{};
       return{
         widgets:Array.isArray(saved.widgets)?[...new Set(saved.widgets.filter(id=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)))]:["calendar-day","tasks"],
         favorites:Array.isArray(saved.favorites)?[...new Set(saved.favorites)]:[],
         sizes:saved.sizes&&typeof saved.sizes==="object"?Object.fromEntries(Object.entries(saved.sizes).filter(([id,size])=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)&&["compact","normal","wide"].includes(size))):{},
-        heights:saved.heights&&typeof saved.heights==="object"?Object.fromEntries(Object.entries(saved.heights).filter(([id,size])=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)&&["compact","normal","tall"].includes(size))):{}
+        heights:saved.heights&&typeof saved.heights==="object"?Object.fromEntries(Object.entries(saved.heights).filter(([id,size])=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)&&["compact","normal","tall"].includes(size))):{},
+        dimensions:saved.dimensions&&typeof saved.dimensions==="object"?Object.fromEntries(Object.entries(saved.dimensions).filter(([id,d])=>TODAY_WIDGET_CATALOG.some(x=>x[0]===id)&&d&&Number.isFinite(Number(d.w))&&Number.isFinite(Number(d.h))).map(([id,d])=>[id,{w:Math.max(62,Math.min(100,Number(d.w))),h:Math.max(150,Math.min(760,Number(d.h)))}])):{}
       };
     }
     function getTodayWidgetPrefs(){
       try{
         return normalizeTodayWidgetPrefs(state.todayWidgetPrefs||JSON.parse(localStorage.getItem(TODAY_WIDGETS_KEY)||"null"));
-      }catch{return{widgets:["calendar-day","tasks"],favorites:[],sizes:{},heights:{}}}
+      }catch{return{widgets:["calendar-day","tasks"],favorites:[],sizes:{},heights:{},dimensions:{}}}
     }
     function saveTodayWidgetPrefs(prefs){
       const normalized=normalizeTodayWidgetPrefs(prefs);
@@ -4475,16 +4498,16 @@
     function jumpFromWidget(date,view){state.calDate=toDateKey(date);state.calView=view;save();navigate("calendar")}
     function attachTodayWidgetReorder(section,type){
       section.addEventListener("pointerdown",event=>{
+        if(!event.target.closest(".today-widget-grip"))return;
         if(event.button!==undefined&&event.button!==0)return;
-        if(event.target.closest("button,input,select,textarea,a,summary"))return;
         clearTimeout(todayWidgetPointerTimer);
         const pointerId=event.pointerId,rect=section.getBoundingClientRect();todayWidgetPress={section,pointerId,startX:event.clientX,startY:event.clientY};
         todayWidgetPointerTimer=setTimeout(()=>{
           if(!todayWidgetPress||todayWidgetPress.section!==section||todayWidgetPress.pointerId!==pointerId)return;
           const grid=section.closest(".today-widget-grid");if(!grid)return;
-          const hint=document.createElement("div");hint.className="today-widget-resize-hint";hint.setAttribute("aria-live","polite");document.body.append(hint);
-          const prefs=getTodayWidgetPrefs();todayWidgetDrag={section,type,pointerId,grid,startX:event.clientX,startY:event.clientY,anchorX:event.clientX-rect.left,anchorY:event.clientY-rect.top,changed:false,hint,lastResize:"",baseHeight:prefs.heights?.[type]||"normal",heightMode:prefs.heights?.[type]||"normal",baseWidth:prefs.sizes?.[type]||(type.startsWith("calendar-")?"wide":"normal"),sizeMode:prefs.sizes?.[type]||(type.startsWith("calendar-")?"wide":"normal")};
-          suppressTodayWidgetClickUntil=Date.now()+1200;grid.classList.add("is-dragging");section.classList.add("is-dragging");
+          const ghost=section.cloneNode(true);ghost.classList.remove("is-dragging","is-resizing");ghost.classList.add("today-widget-drag-ghost");ghost.style.width=`${rect.width}px`;ghost.style.height=`${rect.height}px`;ghost.style.left=`${rect.left}px`;ghost.style.top=`${rect.top}px`;document.body.append(ghost);
+          todayWidgetDrag={section,type,pointerId,grid,ghost,anchorX:event.clientX-rect.left,anchorY:event.clientY-rect.top,changed:false};
+          suppressTodayWidgetClickUntil=Date.now()+1200;grid.classList.add("is-dragging");section.classList.add("is-placeholder");
           try{section.setPointerCapture(pointerId)}catch{}
         },420);
       });
@@ -4493,22 +4516,16 @@
           if(todayWidgetPress?.section===section&&todayWidgetPress.pointerId===event.pointerId&&Math.hypot(event.clientX-todayWidgetPress.startX,event.clientY-todayWidgetPress.startY)>9){clearTimeout(todayWidgetPointerTimer);todayWidgetPointerTimer=null;todayWidgetPress=null}
           return;
         }
-        const drag=todayWidgetDrag,gridRect=drag.grid.getBoundingClientRect();
+        const drag=todayWidgetDrag;
         event.preventDefault();
-        const nearSide=event.clientX-gridRect.left<28||gridRect.right-event.clientX<28,centerX=gridRect.left+gridRect.width/2;
-        const sizeMode=nearSide?"wide":Math.abs(event.clientX-centerX)<24?"normal":drag.baseWidth;
-        const heightMode=event.clientY-gridRect.top<28?"compact":event.clientY>gridRect.bottom-28?"tall":drag.baseHeight;drag.sizeMode=sizeMode;drag.heightMode=heightMode;
-        const resizeKey=`${sizeMode}:${heightMode}`;
-        if(resizeKey!==drag.lastResize){drag.lastResize=resizeKey;drag.hint.textContent=`רוחב ${sizeMode==="wide"?"מלא":"רגיל"} · גובה ${heightMode==="compact"?"קומפקטי":heightMode==="tall"?"מוגדל":"רגיל"}`;drag.hint.classList.add("visible");const prefs=getTodayWidgetPrefs();prefs.sizes={...(prefs.sizes||{}),[type]:sizeMode};prefs.heights={...(prefs.heights||{}),[type]:heightMode};drag.section.classList.toggle("wide",sizeMode==="wide");drag.section.classList.toggle("compact",heightMode==="compact");drag.section.classList.toggle("tall",heightMode==="tall");}
-        drag.hint.style.left=`${event.clientX}px`;drag.hint.style.top=`${event.clientY}px`;
+        drag.ghost.style.left=`${event.clientX-drag.anchorX}px`;drag.ghost.style.top=`${event.clientY-drag.anchorY}px`;
         const target=document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget[data-widget-type]");
         if(target&&target!==section){
-          const targetRect=target.getBoundingClientRect(),sameRow=Math.abs(targetRect.top-section.getBoundingClientRect().top)<targetRect.height*.6;
+          const targetRect=target.getBoundingClientRect(),sectionRect=section.getBoundingClientRect(),sameRow=Math.abs(targetRect.top-sectionRect.top)<targetRect.height*.6;
           const after=sameRow?(document.dir==="rtl"?event.clientX<targetRect.left+targetRect.width/2:event.clientX>targetRect.left+targetRect.width/2):event.clientY>targetRect.top+targetRect.height/2;
           const ref=after?target.nextElementSibling:target;
-          if(ref!==section&&section!==ref?.previousElementSibling){const oldPositions=new Map([...drag.grid.querySelectorAll(".today-widget[data-widget-type]")].filter(node=>node!==section).map(node=>[node,node.getBoundingClientRect()]));drag.grid.insertBefore(section,ref);drag.changed=true;requestAnimationFrame(()=>oldPositions.forEach((oldRect,node)=>{const rect=node.getBoundingClientRect(),dx=oldRect.left-rect.left,dy=oldRect.top-rect.top;if(Math.abs(dx)>1||Math.abs(dy)>1)node.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:"translate(0,0)"}],{duration:190,easing:"cubic-bezier(.2,.8,.2,1)"})}))}
+          if(ref!==section&&section!==ref?.previousElementSibling){const oldPositions=new Map([...drag.grid.querySelectorAll(".today-widget[data-widget-type]")].filter(node=>node!==section).map(node=>[node,node.getBoundingClientRect()]));drag.grid.insertBefore(section,ref);drag.changed=true;requestAnimationFrame(()=>oldPositions.forEach((oldRect,node)=>{const rect=node.getBoundingClientRect(),dx=oldRect.left-rect.left,dy=oldRect.top-rect.top;if(Math.abs(dx)>1||Math.abs(dy)>1)node.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:"translate(0,0)"}],{duration:200,easing:"cubic-bezier(.2,.8,.2,1)"})}))}
         }
-        const currentRect=section.getBoundingClientRect();section.style.transform=`translate(${event.clientX-currentRect.left-drag.anchorX}px,${event.clientY-currentRect.top-drag.anchorY}px) scale(1.015)`;
       });
       section.addEventListener("pointerup",event=>finishTodayWidgetReorder(event,section));
       section.addEventListener("pointercancel",event=>finishTodayWidgetReorder(event,section,true));
@@ -4518,10 +4535,14 @@
       clearTimeout(todayWidgetPointerTimer);todayWidgetPointerTimer=null;
       if(todayWidgetPress?.section===section&&todayWidgetPress.pointerId===event.pointerId)todayWidgetPress=null;
       if(!todayWidgetDrag||todayWidgetDrag.section!==section)return;
-      const dragged=todayWidgetDrag;todayWidgetDrag=null;dragged.hint.remove();dragged.grid.classList.remove("is-dragging");section.classList.remove("is-dragging");
-      section.style.transform="";
-      if(cancelled)return;
-      const prefs=getTodayWidgetPrefs();prefs.widgets=[...dragged.grid.querySelectorAll(".today-widget[data-widget-type]")].map(node=>node.dataset.widgetType);prefs.sizes={...(prefs.sizes||{}),[dragged.type]:dragged.sizeMode};prefs.heights={...(prefs.heights||{}),[dragged.type]:dragged.heightMode};saveTodayWidgetPrefs(prefs);
+      const dragged=todayWidgetDrag;todayWidgetDrag=null;dragged.ghost.remove();dragged.grid.classList.remove("is-dragging");section.classList.remove("is-placeholder");
+      const prefs=getTodayWidgetPrefs();prefs.widgets=[...dragged.grid.querySelectorAll(".today-widget[data-widget-type]")].map(node=>node.dataset.widgetType);saveTodayWidgetPrefs(prefs);
+    }
+    function attachTodayWidgetResize(section,type,handle){
+      handle.addEventListener("pointerdown",event=>{event.preventDefault();event.stopPropagation();const rect=section.getBoundingClientRect(),prefs=getTodayWidgetPrefs(),saved=prefs.dimensions?.[type];todayWidgetResize={section,type,handle,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,width:saved?.w||100,height:saved?.h||Math.round(rect.height)};section.classList.add("is-resizing");try{handle.setPointerCapture(event.pointerId)}catch{}});
+      handle.addEventListener("pointermove",event=>{const resize=todayWidgetResize;if(!resize||resize.handle!==handle||resize.pointerId!==event.pointerId)return;event.preventDefault();const dx=event.clientX-resize.startX,dy=event.clientY-resize.startY,w=Math.max(62,Math.min(100,resize.width-dx/Math.max(1,resize.section.parentElement.clientWidth)*100)),h=Math.max(150,Math.min(760,resize.height+dy));resize.section.style.width=`${w}%`;resize.section.style.height=`${h}px`;resize.section.style.minHeight="0";resize.section.style.justifySelf="center";resize.current={w:Math.round(w),h:Math.round(h)}});
+      const finish=event=>{const resize=todayWidgetResize;if(!resize||resize.handle!==handle||resize.pointerId!==event.pointerId)return;todayWidgetResize=null;resize.section.classList.remove("is-resizing");if(resize.current){const prefs=getTodayWidgetPrefs();prefs.dimensions={...(prefs.dimensions||{}),[type]:resize.current};saveTodayWidgetPrefs(prefs)}};
+      handle.addEventListener("pointerup",finish);handle.addEventListener("pointercancel",finish);
     }
     function captureTodayWidgetPositions(){
       return new Map([...document.querySelectorAll(".today-widget[data-widget-type]")].map(node=>[node.dataset.widgetType,node.getBoundingClientRect()]));
@@ -4541,12 +4562,10 @@
       });
     }
     function todayWidgetShell(type,title,prefs){
-      const defaultWide=type.startsWith("calendar-"),sizeMode=prefs.sizes?.[type]||(defaultWide?"wide":"normal"),heightMode=prefs.heights?.[type]||"normal",wide=sizeMode==="wide",compact=heightMode==="compact",tall=heightMode==="tall";
-      const section=el("section","today-dashboard-section today-widget"+(wide?" wide":"")+(compact?" compact":"")+(tall?" tall":""));section.dataset.widgetType=type;
+      const defaultWide=type.startsWith("calendar-"),sizeMode=prefs.sizes?.[type]||(defaultWide?"wide":"normal"),heightMode=prefs.heights?.[type]||"normal",wide=sizeMode==="wide",compact=heightMode==="compact",tall=heightMode==="tall",dimensions=prefs.dimensions?.[type];
+      const section=el("section","today-dashboard-section today-widget"+(wide?" wide":"")+(compact?" compact":"")+(tall?" tall":""));section.dataset.widgetType=type;section.style.width=`${dimensions?.w||100}%`;section.style.justifySelf="center";if(dimensions?.h){section.style.height=`${dimensions.h}px`;section.style.minHeight="0";section.style.overflow="auto"}
       const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap"),grip=el("span","today-widget-grip","⠿");grip.title="לחיצה ארוכה וגרירה לשינוי הסדר";grip.setAttribute("aria-hidden","true");titleWrap.append(grip,el("h2","",title));head.append(titleWrap);
-      const actions=el("div","today-widget-actions"),size=el("button","today-widget-size",compact?"＋":wide?"↔":"－");size.type="button";const nextSize=compact?"normal":wide?"compact":"wide";size.title=compact?"הגדל לגודל רגיל":wide?"צמצם את הווידג׳ט":"הרחב לרוחב מלא";size.setAttribute("aria-label",size.title);size.onclick=()=>{const before=captureTodayWidgetPositions();prefs.sizes={...(prefs.sizes||{}),[type]:nextSize};saveTodayWidgetPrefs(prefs);renderTodayWidgetsWithMotion(before)};actions.append(size);
-      const remove=el("button","today-widget-remove","×");remove.type="button";remove.title="הסר ווידג'ט";remove.setAttribute("aria-label",`הסר את ווידג'ט ${title}`);
-      remove.onclick=()=>{prefs.widgets=prefs.widgets.filter(x=>x!==type);saveTodayWidgetPrefs(prefs);render()};actions.append(remove);head.append(actions);section.append(head);attachTodayWidgetReorder(section,type);return section;
+      section.append(head);const resizeHandle=el("button","today-widget-resize-handle","⠿");resizeHandle.type="button";resizeHandle.title="גררו את הנקודות כדי לשנות רוחב וגובה";resizeHandle.setAttribute("aria-label",`שינוי גודל ווידג׳ט ${title}`);section.append(resizeHandle);attachTodayWidgetResize(section,type,resizeHandle);attachTodayWidgetReorder(section,type);return section;
     }
     function makeTodayListCard(cat){
       const all=state.tasks.filter(t=>t.catId===cat.id),open=all.filter(t=>!isDone(t)),pct=all.length?Math.round((all.length-open.length)/all.length*100):0;
@@ -7266,9 +7285,10 @@
       }else if(name){target.append(makeInitialsAvatar());}
       target.append(document.createTextNode(name?`שלום, ${name}`:""));
       const email=$("accountMenuEmail");if(email)email.textContent=user?.email||"חשבון מקומי";
+      const mobileButton=$("mobileAccountBtn");if(mobileButton)mobileButton.textContent=`👤 ${name||"חשבון"}`;
     }
 
-    function closeAccountMenu(){const menu=$("accountMenu"),trigger=$("userLabel");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false")}
+    function closeAccountMenu(){const menu=$("accountMenu"),trigger=$("userLabel"),mobileMenu=$("mobileAccountMenu"),mobileTrigger=$("mobileAccountBtn");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false");if(mobileMenu)mobileMenu.hidden=true;if(mobileTrigger)mobileTrigger.setAttribute("aria-expanded","false")}
     function toggleAccountMenu(){const menu=$("accountMenu"),trigger=$("userLabel");if(!menu||!trigger)return;menu.hidden=!menu.hidden;trigger.setAttribute("aria-expanded",String(!menu.hidden))}
     function openAccountNameDialog(){
       closeAccountMenu();
