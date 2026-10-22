@@ -2457,10 +2457,12 @@
     .today-widget.is-floating{position:fixed!important;z-index:9998!important;margin:0!important;pointer-events:none!important;opacity:.98;transform:scale(1.012);box-shadow:0 20px 48px rgba(15,23,42,.25)!important;border:1px solid color-mix(in srgb,var(--accent) 70%,var(--border))!important;border-radius:inherit;overflow:hidden;transition:none!important}
     .today-widget-resize-points{position:absolute;inset:0;pointer-events:none;display:none;z-index:4}
     .today-widget.is-selected .today-widget-resize-points{display:block}
-    .today-widget-resize-point{position:absolute;width:15px;height:15px;padding:0;border:2px solid var(--surface);border-radius:50%;background:var(--accent);box-shadow:0 1px 5px rgba(0,0,0,.25);pointer-events:auto;touch-action:none;opacity:.9}
-    .today-widget-resize-point[data-edge="top"]{top:-7px;left:50%;transform:translateX(-50%);cursor:ns-resize}.today-widget-resize-point[data-edge="bottom"]{bottom:-7px;left:50%;transform:translateX(-50%);cursor:ns-resize}
-    .today-widget-resize-point[data-edge="left"]{left:-7px;top:50%;transform:translateY(-50%);cursor:ew-resize}.today-widget-resize-point[data-edge="right"]{right:-7px;top:50%;transform:translateY(-50%);cursor:ew-resize}
-    .today-widget-grip{opacity:.52;transition:opacity .15s}.today-widget:hover .today-widget-grip,.today-widget.is-selected .today-widget-grip{opacity:1}
+    .today-widget-resize-point{position:absolute;display:flex;align-items:center;justify-content:center;width:48px;height:24px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;pointer-events:auto;touch-action:none;opacity:1;z-index:2}
+    .today-widget-resize-point::after{content:"";display:block;width:34px;height:4px;border-radius:99px;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
+    .today-widget-resize-point[data-edge="top"]{top:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}.today-widget-resize-point[data-edge="bottom"]{bottom:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+    .today-widget-resize-point[data-edge="left"]{left:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}.today-widget-resize-point[data-edge="right"]{right:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+    .today-widget.is-selected{outline:1px solid color-mix(in srgb,var(--accent) 72%,transparent);outline-offset:4px}
+    html.widget-manipulating,html.widget-manipulating body{overflow:hidden!important;overscroll-behavior:none!important}
     .today-widget.is-floating .today-widget-resize-points{display:none}
     .today-widget.is-resizing{z-index:5;outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px;transition:none!important}
     @keyframes widgetNudge{from{transform:rotate(-.25deg)}to{transform:rotate(.25deg)}}
@@ -2925,9 +2927,10 @@
       document.addEventListener("pointerdown",event=>{if(!event.target.closest(".mobile-account-wrap")){const menu=$("mobileAccountMenu"),trigger=$("mobileAccountBtn");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false")}});
       document.addEventListener("pointerup",event=>{if(todayWidgetResize)finishTodayWidgetResize(event);else if(todayWidgetDrag)finishTodayWidgetReorder(event,todayWidgetDrag.section);else if(todayWidgetPress)finishTodayWidgetReorder(event,todayWidgetPress.section)},true);
       document.addEventListener("pointercancel",event=>{if(todayWidgetResize)finishTodayWidgetResize(event);else if(todayWidgetDrag)finishTodayWidgetReorder(event,todayWidgetDrag.section,true);else if(todayWidgetPress)finishTodayWidgetReorder(event,todayWidgetPress.section,true)},true);
-      document.addEventListener("touchmove",event=>{if(todayWidgetPress?.armed||todayWidgetDrag)event.preventDefault()},{passive:false});
+      document.addEventListener("touchmove",event=>{if(document.documentElement.classList.contains("widget-manipulating"))event.preventDefault()},{passive:false});
+      document.addEventListener("wheel",event=>{if(document.documentElement.classList.contains("widget-manipulating"))event.preventDefault()},{passive:false});
       document.addEventListener("contextmenu",event=>{if(todayWidgetPress?.armed||todayWidgetDrag)event.preventDefault()});
-      document.addEventListener("pointerdown",event=>{const current=event.target.closest(".today-widget");document.querySelectorAll(".today-widget.is-selected").forEach(node=>{if(node!==current)node.classList.remove("is-selected")})});
+      document.addEventListener("pointerdown",event=>{const current=event.target.closest(".today-widget");document.querySelectorAll(".today-widget.is-selected").forEach(node=>{if(node!==current)node.classList.remove("is-selected")});syncTodayWidgetInteractionLock()});
       document.addEventListener("keydown",event=>{if(event.key==="Escape")closeAccountMenu()});
       
       $("themeToggleBtn").onclick = toggleThemeMode;
@@ -4459,6 +4462,10 @@
     let todayWidgetArrangeMode=false;
     let suppressTodayWidgetClickUntil=0;
     let todayWidgetResize=null;
+    function syncTodayWidgetInteractionLock(){
+      const locked=!!todayWidgetPress?.armed||!!todayWidgetDrag||!!todayWidgetResize||!!document.querySelector(".today-widget.is-selected");
+      document.documentElement.classList.toggle("widget-manipulating",locked);
+    }
     function normalizeTodayWidgetPrefs(value){
       const saved=value&&typeof value==="object"?value:{};
       return{
@@ -4514,7 +4521,7 @@
         const pointerId=event.pointerId,rect=section.getBoundingClientRect();todayWidgetPress={section,pointerId,startX:event.clientX,startY:event.clientY};
         todayWidgetPointerTimer=setTimeout(()=>{
           if(!todayWidgetPress||todayWidgetPress.section!==section||todayWidgetPress.pointerId!==pointerId)return;
-          todayWidgetPress.armed=true;section.classList.add("is-selected");suppressTodayWidgetClickUntil=Date.now()+1200;
+          todayWidgetPress.armed=true;section.classList.add("is-selected");syncTodayWidgetInteractionLock();suppressTodayWidgetClickUntil=Date.now()+1200;
         },420);
       });
       section.addEventListener("pointermove",event=>{
@@ -4544,23 +4551,24 @@
       const rect=section.getBoundingClientRect(),placeholder=document.createElement("div");placeholder.className="today-widget-placeholder";placeholder.style.flex=`0 0 ${rect.width}px`;placeholder.style.width=`${rect.width}px`;placeholder.style.height=`${rect.height}px`;placeholder.style.maxWidth="100%";grid.insertBefore(placeholder,section);
       const originalStyle=section.getAttribute("style"),trash=el("div","today-widget-trash","🗑️ גררו לכאן כדי להסיר");trash.setAttribute("aria-live","polite");document.body.append(trash);requestAnimationFrame(()=>trash.classList.add("visible"));todayWidgetPress=null;todayWidgetDrag={section,type,pointerId:event.pointerId,grid,placeholder,trash,anchorX:event.clientX-rect.left,anchorY:event.clientY-rect.top,originalStyle,changed:false};
       section.classList.add("is-floating");section.style.width=`${rect.width}px`;section.style.height=`${rect.height}px`;section.style.left=`${event.clientX-(event.clientX-rect.left)}px`;section.style.top=`${event.clientY-(event.clientY-rect.top)}px`;section.style.justifySelf="auto";document.body.append(section);
-      grid.classList.add("is-dragging");suppressTodayWidgetClickUntil=Date.now()+1200;try{section.setPointerCapture(event.pointerId)}catch{}
+      grid.classList.add("is-dragging");syncTodayWidgetInteractionLock();suppressTodayWidgetClickUntil=Date.now()+1200;try{section.setPointerCapture(event.pointerId)}catch{}
     }
     function finishTodayWidgetReorder(event,section,cancelled=false){
       clearTimeout(todayWidgetPointerTimer);todayWidgetPointerTimer=null;
-      if(todayWidgetPress?.section===section&&todayWidgetPress.pointerId===event.pointerId){const press=todayWidgetPress;todayWidgetPress=null;if(press.armed)section.classList.add("is-selected");return}
+      if(todayWidgetPress?.section===section&&todayWidgetPress.pointerId===event.pointerId){const press=todayWidgetPress;todayWidgetPress=null;if(press.armed)section.classList.add("is-selected");syncTodayWidgetInteractionLock();return}
       if(!todayWidgetDrag||todayWidgetDrag.section!==section)return;
       const dragged=todayWidgetDrag,trashRect=dragged.trash.getBoundingClientRect(),deleteWidget=!cancelled&&event.clientX>=trashRect.left&&event.clientX<=trashRect.right&&event.clientY>=trashRect.top&&event.clientY<=trashRect.bottom;todayWidgetDrag=null;dragged.trash.remove();dragged.grid.insertBefore(section,dragged.placeholder);dragged.placeholder.remove();dragged.grid.classList.remove("is-dragging");section.classList.remove("is-floating");if(dragged.originalStyle===null)section.removeAttribute("style");else section.setAttribute("style",dragged.originalStyle);
-      if(deleteWidget){const prefs=getTodayWidgetPrefs();prefs.widgets=(prefs.widgets||[]).filter(widget=>widget!==dragged.type);saveTodayWidgetPrefs(prefs);section.remove();render();toast("הווידג׳ט הוסר מהמסך");return}
+      if(deleteWidget){const prefs=getTodayWidgetPrefs();prefs.widgets=(prefs.widgets||[]).filter(widget=>widget!==dragged.type);saveTodayWidgetPrefs(prefs);section.remove();syncTodayWidgetInteractionLock();render();toast("הווידג׳ט הוסר מהמסך");return}
       section.classList.add("is-selected");
+      syncTodayWidgetInteractionLock();
       const prefs=getTodayWidgetPrefs();prefs.widgets=[...dragged.grid.querySelectorAll(".today-widget[data-widget-type]")].map(node=>node.dataset.widgetType);saveTodayWidgetPrefs(prefs);
     }
     function attachTodayWidgetResize(section,type,handle){
-      handle.addEventListener("pointerdown",event=>{event.preventDefault();event.stopPropagation();const rect=section.getBoundingClientRect(),prefs=getTodayWidgetPrefs(),saved=prefs.dimensions?.[type],edge=handle.dataset.edge;todayWidgetResize={section,type,handle,edge,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,width:saved?.w||Math.round(rect.width/Math.max(1,section.parentElement.clientWidth)*100),height:saved?.h||Math.round(rect.height)};section.classList.add("is-resizing");try{handle.setPointerCapture(event.pointerId)}catch{}});
+      handle.addEventListener("pointerdown",event=>{event.preventDefault();event.stopPropagation();const rect=section.getBoundingClientRect(),prefs=getTodayWidgetPrefs(),saved=prefs.dimensions?.[type],edge=handle.dataset.edge;todayWidgetResize={section,type,handle,edge,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,width:saved?.w||Math.round(rect.width/Math.max(1,section.parentElement.clientWidth)*100),height:saved?.h||Math.round(rect.height)};section.classList.add("is-resizing");syncTodayWidgetInteractionLock();try{handle.setPointerCapture(event.pointerId)}catch{}});
       handle.addEventListener("pointermove",event=>{const resize=todayWidgetResize;if(!resize||resize.handle!==handle||resize.pointerId!==event.pointerId)return;event.preventDefault();const dx=event.clientX-resize.startX,dy=event.clientY-resize.startY,horizontal=resize.edge==="left"||resize.edge==="right",grows=resize.edge==="left"?-dx:resize.edge==="right"?dx:resize.edge==="top"?-dy:dy,w=horizontal?Math.max(22,Math.min(100,resize.width+grows/Math.max(1,resize.section.parentElement.clientWidth)*100)):resize.width,h=horizontal?resize.height:Math.max(150,Math.min(760,resize.height+grows));resize.section.classList.add("custom-sized");resize.section.style.setProperty("--widget-width",`${w}%`);resize.section.style.width=`${w}%`;resize.section.style.flexBasis=`${w}%`;resize.section.style.height=`${h}px`;resize.section.style.minHeight="0";resize.section.style.justifySelf="center";resize.current={w:Math.round(w),h:Math.round(h)}});
       handle.addEventListener("pointerup",finishTodayWidgetResize);handle.addEventListener("pointercancel",finishTodayWidgetResize);
     }
-    function finishTodayWidgetResize(event){const resize=todayWidgetResize;if(!resize||resize.pointerId!==event.pointerId)return;todayWidgetResize=null;resize.section.classList.remove("is-resizing");if(resize.current){const prefs=getTodayWidgetPrefs();prefs.dimensions={...(prefs.dimensions||{}),[resize.type]:resize.current};saveTodayWidgetPrefs(prefs)}}
+    function finishTodayWidgetResize(event){const resize=todayWidgetResize;if(!resize||resize.pointerId!==event.pointerId)return;todayWidgetResize=null;resize.section.classList.remove("is-resizing");if(resize.current){const prefs=getTodayWidgetPrefs();prefs.dimensions={...(prefs.dimensions||{}),[resize.type]:resize.current};saveTodayWidgetPrefs(prefs)}syncTodayWidgetInteractionLock()}
     function captureTodayWidgetPositions(){
       return new Map([...document.querySelectorAll(".today-widget[data-widget-type]")].map(node=>[node.dataset.widgetType,node.getBoundingClientRect()]));
     }
@@ -4581,7 +4589,7 @@
     function todayWidgetShell(type,title,prefs){
       const defaultWide=type.startsWith("calendar-"),sizeMode=prefs.sizes?.[type]||(defaultWide?"wide":"normal"),heightMode=prefs.heights?.[type]||"normal",wide=sizeMode==="wide",compact=heightMode==="compact",tall=heightMode==="tall",dimensions=prefs.dimensions?.[type];
       const section=el("section","today-dashboard-section today-widget"+(wide?" wide":"")+(compact?" compact":"")+(tall?" tall":"")+(dimensions?" custom-sized":""));section.dataset.widgetType=type;section.style.justifySelf="center";if(dimensions){section.style.setProperty("--widget-width",`${dimensions.w}%`);section.style.width=`${dimensions.w}%`;section.style.flexBasis=`${dimensions.w}%`;section.style.height=`${dimensions.h}px`;section.style.minHeight="0";section.style.overflow="auto"}
-      const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap"),grip=el("span","today-widget-grip","⠿");grip.title="לחיצה ארוכה וגרירה לשינוי הסדר";grip.setAttribute("aria-hidden","true");titleWrap.append(grip,el("h2","",title));head.append(titleWrap);
+      const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap");titleWrap.append(el("h2","",title));head.append(titleWrap);
       section.append(head);const resizePoints=el("div","today-widget-resize-points");["top","right","bottom","left"].forEach(edge=>{const point=el("span","today-widget-resize-point");point.dataset.edge=edge;point.title="גררו את הצלע לשינוי גודל";point.setAttribute("aria-hidden","true");resizePoints.append(point);attachTodayWidgetResize(section,type,point)});section.append(resizePoints);attachTodayWidgetReorder(section,type);return section;
     }
     function makeTodayListCard(cat){
