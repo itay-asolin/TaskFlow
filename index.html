@@ -8054,25 +8054,6 @@
     }
 
 
-    function sharedCodeBox(){
-      const box = el("div","field");
-      box.style.cssText = "border:1px dashed var(--accent);background:rgba(59,110,246,.1);border-radius:var(--rs);padding:10px;margin-bottom:12px";
-      box.append(el("label","", "קוד שיתוף למשימה"));
-      const row = el("div","row");
-      row.style.alignItems = "stretch";
-      const code = document.createElement("input");
-      code.type = "text";
-      code.readOnly = true;
-      code.value = activeList.id || "";
-      code.style.cssText = "direction:ltr;text-align:left;font-weight:800";
-      const copy = el("button","btn","העתק");
-      copy.type = "button";
-      copy.onclick = copyShareCode;
-      row.append(code, copy);
-      box.append(row, el("div","meta","שלח את הקוד הזה למי שצריך לעבוד רק על המשימה הזו."));
-      return box;
-    }
-
     function sharedToggle(id, label, hint){
       const wrap = el("label","row");
       wrap.style.cssText = "align-items:flex-start;margin:2px 0 12px;color:var(--muted);font-size:12px;font-weight:800";
