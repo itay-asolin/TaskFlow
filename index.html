@@ -2446,9 +2446,11 @@
     .today-widget-grid.is-dragging .today-widget.is-dragging{z-index:30;outline:2px solid var(--accent);box-shadow:0 18px 38px rgba(20,35,70,.23);transition:none!important}
     .today-widget-grid.is-dragging .today-widget.is-moving{transition:transform .22s cubic-bezier(.2,.8,.2,1)}
     .today-widget-placeholder{min-width:0;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:18px;background:color-mix(in srgb,var(--accent) 4%,var(--surface));pointer-events:none}
-    .today-widget-trash{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:10000;display:flex;align-items:center;gap:8px;padding:11px 18px;border:1px solid #e26a78;border-radius:999px;background:color-mix(in srgb,#fff 94%,#ffe3e7);color:#a52235;font-size:13px;font-weight:850;box-shadow:0 8px 28px rgba(120,24,42,.2);opacity:0;transform:translate(-50%,14px) scale(.94);pointer-events:none;transition:opacity .18s ease,transform .18s ease,background .18s ease,color .18s ease,border-color .18s ease}
-    .today-widget-trash.visible{opacity:1;transform:translate(-50%,0) scale(1)}
-    .today-widget-trash.active{background:#c93249;border-color:#c93249;color:#fff;transform:translate(-50%,0) scale(1.06)}
+    .today-widget-trash{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:10000;display:flex;align-items:center;justify-content:center;gap:10px;min-width:196px;min-height:58px;padding:12px 22px;border:1px solid #d95b6c;border-radius:999px;background:#fff1f2;color:#a52235;font-size:14px;font-weight:850;box-shadow:0 10px 32px rgba(120,24,42,.24);opacity:0;transform:translate(-50%,18px) scale(.92);pointer-events:none;transition:opacity .18s ease,transform .18s ease,background .18s ease,color .18s ease,border-color .18s ease;touch-action:none}
+    .today-widget-trash.visible{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto}
+    .today-widget-trash::before{content:"";width:19px;height:19px;flex:0 0 19px;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v7m6-7v7'/%3E%3C/svg%3E") center/contain no-repeat}
+    .today-widget-trash.active{background:#c93249;border-color:#c93249;color:#fff;transform:translate(-50%,0) scale(1.07);box-shadow:0 12px 34px rgba(160,20,42,.4)}
+    @media(max-width:820px){.today-widget-trash{bottom:calc(18px + env(safe-area-inset-bottom));min-width:220px;min-height:64px;font-size:15px}}
     .today-widget.is-floating{position:fixed!important;z-index:9998!important;margin:0!important;pointer-events:none!important;opacity:.98;transform:scale(1.012);box-shadow:0 20px 48px rgba(15,23,42,.25)!important;border:1px solid color-mix(in srgb,var(--accent) 70%,var(--border))!important;border-radius:inherit;overflow:hidden;transition:none!important}
     .today-widget-resize-points{position:absolute;inset:0;pointer-events:none;display:none;z-index:4}
     .today-widget.is-selected .today-widget-resize-points{display:block}
@@ -4534,7 +4536,7 @@
         const drag=todayWidgetDrag;
         event.preventDefault();
         section.style.left=`${event.clientX-drag.anchorX}px`;section.style.top=`${event.clientY-drag.anchorY}px`;
-        const overTrash=document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget-trash");drag.trash.classList.toggle("active",!!overTrash);drag.trash.textContent=overTrash?"🗑️ שחררו להסרה":"🗑️ גררו לכאן כדי להסיר";
+        const trashRect=drag.trash.getBoundingClientRect(),overTrash=event.clientX>=trashRect.left&&event.clientX<=trashRect.right&&event.clientY>=trashRect.top&&event.clientY<=trashRect.bottom;drag.trash.classList.toggle("active",overTrash);drag.trash.textContent=overTrash?"שחררו כדי להסיר ווידג׳ט":"גררו לכאן כדי להסיר";
         const target=document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget[data-widget-type]");
         if(target&&target!==section){
           const targetRect=target.getBoundingClientRect(),sectionRect=section.getBoundingClientRect(),sameRow=Math.abs(targetRect.top-sectionRect.top)<targetRect.height*.6;
@@ -4558,7 +4560,7 @@
       clearTimeout(todayWidgetPointerTimer);todayWidgetPointerTimer=null;
       if(todayWidgetPress?.section===section&&todayWidgetPress.pointerId===event.pointerId){const press=todayWidgetPress;todayWidgetPress=null;if(press.armed)section.classList.add("is-selected");return}
       if(!todayWidgetDrag||todayWidgetDrag.section!==section)return;
-      const dragged=todayWidgetDrag,deleteWidget=!cancelled&&document.elementFromPoint(event.clientX,event.clientY)?.closest(".today-widget-trash")===dragged.trash;todayWidgetDrag=null;dragged.trash.remove();dragged.grid.insertBefore(section,dragged.placeholder);dragged.placeholder.remove();dragged.grid.classList.remove("is-dragging");section.classList.remove("is-floating");if(dragged.originalStyle===null)section.removeAttribute("style");else section.setAttribute("style",dragged.originalStyle);
+      const trashRect=dragged.trash.getBoundingClientRect(),deleteWidget=!cancelled&&event.clientX>=trashRect.left&&event.clientX<=trashRect.right&&event.clientY>=trashRect.top&&event.clientY<=trashRect.bottom;todayWidgetDrag=null;dragged.trash.remove();dragged.grid.insertBefore(section,dragged.placeholder);dragged.placeholder.remove();dragged.grid.classList.remove("is-dragging");section.classList.remove("is-floating");if(dragged.originalStyle===null)section.removeAttribute("style");else section.setAttribute("style",dragged.originalStyle);
       if(deleteWidget){const prefs=getTodayWidgetPrefs();prefs.widgets=(prefs.widgets||[]).filter(widget=>widget!==dragged.type);saveTodayWidgetPrefs(prefs);section.remove();render();toast("הווידג׳ט הוסר מהמסך");return}
       section.classList.add("is-selected");
       const prefs=getTodayWidgetPrefs();prefs.widgets=[...dragged.grid.querySelectorAll(".today-widget[data-widget-type]")].map(node=>node.dataset.widgetType);saveTodayWidgetPrefs(prefs);
