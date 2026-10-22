@@ -431,6 +431,9 @@
     .bar{height:5px;background:var(--card2);border-radius:999px;overflow:hidden;margin-top:9px}
     .bar span{display:block;height:100%;background:var(--accent);border-radius:999px}
     .list{display:grid;gap:10px}
+    .task-list-quickadd{width:100%;min-height:46px;padding:10px 14px;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:11px;background:color-mix(in srgb,var(--accent) 4%,var(--surface));color:var(--accent2);font:inherit;font-size:14px;font-weight:800;text-align:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease,transform .12s ease}
+    .task-list-quickadd:active{background:color-mix(in srgb,var(--accent) 12%,var(--surface));transform:scale(.99)}
+    @media(max-width:820px){.task-swipe-wrap,.task-row{touch-action:pan-y;-webkit-tap-highlight-color:transparent}.task-list-quickadd{min-height:50px}}
     .task-row{display:block}
     .task-list-card{width:100%}
     
@@ -2622,10 +2625,6 @@
           <p id="pageSub"></p>
         </div>
         <div class="actions">
-          <div id="searchWrap" class="search-wrap">
-            <input id="searchBox" class="search" type="search" placeholder="חיפוש משימות..." autocomplete="off" />
-            <div id="searchResults" class="search-results hidden"></div>
-          </div>
           <button id="addBtn" class="btn primary" type="button">+ חדש</button>
           <div id="topBarBtns">
             <button id="themeToggleBtn" class="btn topbar-btn" type="button" title="מצב תצוגה"></button>
@@ -2926,6 +2925,8 @@
       document.addEventListener("pointerdown",event=>{if(!event.target.closest(".mobile-account-wrap")){const menu=$("mobileAccountMenu"),trigger=$("mobileAccountBtn");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false")}});
       document.addEventListener("pointerup",event=>{if(todayWidgetResize)finishTodayWidgetResize(event);else if(todayWidgetDrag)finishTodayWidgetReorder(event,todayWidgetDrag.section);else if(todayWidgetPress)finishTodayWidgetReorder(event,todayWidgetPress.section)},true);
       document.addEventListener("pointercancel",event=>{if(todayWidgetResize)finishTodayWidgetResize(event);else if(todayWidgetDrag)finishTodayWidgetReorder(event,todayWidgetDrag.section,true);else if(todayWidgetPress)finishTodayWidgetReorder(event,todayWidgetPress.section,true)},true);
+      document.addEventListener("touchmove",event=>{if(todayWidgetPress?.armed||todayWidgetDrag)event.preventDefault()},{passive:false});
+      document.addEventListener("contextmenu",event=>{if(todayWidgetPress?.armed||todayWidgetDrag)event.preventDefault()});
       document.addEventListener("pointerdown",event=>{const current=event.target.closest(".today-widget");document.querySelectorAll(".today-widget.is-selected").forEach(node=>{if(node!==current)node.classList.remove("is-selected")})});
       document.addEventListener("keydown",event=>{if(event.key==="Escape")closeAccountMenu()});
       
@@ -2938,15 +2939,6 @@
         if (state.currentView === "home") openCategoryModal();
         else if (state.currentView === "kanban") openTaskModal();
       };
-      $("searchBox").oninput = (e) => {
-        state.search = e.target.value.trim();
-        render();
-        renderCalendarSearchResults();
-      };
-      $("searchBox").addEventListener("focus", renderCalendarSearchResults);
-      document.addEventListener("click", (e) => {
-        if (!e.target.closest("#searchWrap")) hideCalendarSearchResults();
-      });
 
       document.querySelectorAll(".nav button[data-view]").forEach(btn => btn.onclick = () => navigate(btn.dataset.view));
       document.querySelectorAll(".bnav-btn").forEach(btn => {
@@ -3534,9 +3526,6 @@
       document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === _nk));
       document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === _nk));
       
-      const searchActiveView = ["all","kanban"].includes(state.currentView);
-      $("searchBox").classList.toggle("hidden", !searchActiveView);
-      $("searchWrap").classList.toggle("hidden", !searchActiveView);
       $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
       // one "add" button per screen: inside a list the dedicated "new task" button replaces the generic one
       $("topAddBtn")?.classList.toggle("hidden", state.currentView === "kanban");
@@ -4518,8 +4507,9 @@
     function jumpFromWidget(date,view){state.calDate=toDateKey(date);state.calView=view;save();navigate("calendar")}
     function attachTodayWidgetReorder(section,type){
       section.addEventListener("pointerdown",event=>{
-        if(!event.target.closest(".today-widget-grip"))return;
+        if(event.target.closest("button,input,textarea,select,a,[data-no-widget-drag],.today-widget-resize-point"))return;
         if(event.button!==undefined&&event.button!==0)return;
+        if(event.isPrimary===false)return;
         clearTimeout(todayWidgetPointerTimer);
         const pointerId=event.pointerId,rect=section.getBoundingClientRect();todayWidgetPress={section,pointerId,startX:event.clientX,startY:event.clientY};
         todayWidgetPointerTimer=setTimeout(()=>{
@@ -5057,6 +5047,11 @@
       const list = el("div","list");
       openTasks.forEach((t, i) => list.append(taskRow(t, { manualReorder: manualMode, number: numberingOn ? i + 1 : null })));
       if (!openTasks.length) list.append(emptyFun());
+      const quickAdd = el("button","task-list-quickadd","＋ הוספת משימה");
+      quickAdd.type = "button";
+      quickAdd.onclick = () => openTaskModal();
+      list.append(quickAdd);
+      sec.addEventListener("click",event=>{if(event.target===sec||event.target===list||event.target.closest(".empty-fun"))openTaskModal()});
       sec.append(list);
       wrap.append(sec);
 
@@ -5179,10 +5174,7 @@
 
     function filteredAllTasks(){
       const source = allTasksAgg ? allTasksAgg.tasks : state.tasks;
-      const q = state.search.toLowerCase();
-      let tasks = q
-        ? source.filter(t => [t.name, ...(t.subs || []).map(s => s.text)].join(" ").toLowerCase().includes(q))
-        : [...source];
+      let tasks = [...source];
       if (state.filterTag) tasks = tasks.filter(t => (t.tags || []).includes(state.filterTag));
       if (allTasksHideShared()) tasks = tasks.filter(t => t.__listType !== "shared");
       return tasks;
@@ -7862,7 +7854,7 @@
       if (activeList.type === "shared") {
         card.style.backgroundColor = state.accent + "12"; 
       }
-      card.draggable = draggable;
+      card.draggable = draggable && window.matchMedia("(pointer:fine) and (hover:hover)").matches && !("ontouchstart" in window && navigator.maxTouchPoints > 0);
       if (task.id === draggedTaskId) card.classList.add("dragging");
       card.ondragstart = (e) => {
           e.stopPropagation();
@@ -8175,7 +8167,6 @@
         };
         counter.textContent = (task?.name||"").length + " / 80";
         nameWrap.append(nameInput, counter);
-        if (task && activeList.type === "shared" && activeList.id) nameWrap.append(sharedCodeBox());
         form.append(nameWrap);
 
         const two = el("div","two");
@@ -9371,9 +9362,7 @@
     }
 
     function filteredTasks(){
-      const q = state.search.toLowerCase();
-      if (!q) return [...state.tasks];
-      return state.tasks.filter(t => [t.name, ...(t.subs || []).map(s => s.text)].join(" ").toLowerCase().includes(q));
+      return [...state.tasks];
     }
 
     function taskDueBucket(t){
