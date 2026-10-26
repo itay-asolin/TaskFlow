@@ -1468,7 +1468,7 @@
     .event-time-row .clock-field label{text-align:center;justify-content:center}
     @media(max-width:820px){
       #bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
-      .mobile-phrase-ticker{display:flex;align-items:center;gap:9px;flex:1 1 100%;width:100%;min-width:0;max-width:none;min-height:36px;height:36px;margin:0 0 7px;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
+      .mobile-phrase-ticker{display:flex;align-items:center;gap:6px;flex:1 1 100%;width:100%;min-width:0;max-width:none;min-height:28px;height:28px;margin:0 0 2px;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
       .mobile-account-wrap{display:block;position:relative;z-index:60;flex:0 0 auto}
       .mobile-account-trigger{min-height:30px;padding:2px 5px;border:0;background:transparent;font-size:10px;gap:5px;max-width:120px}
       .mobile-account-trigger .mobile-account-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:78px}
@@ -1843,7 +1843,7 @@
     ::-webkit-scrollbar{width:8px;height:8px}
     ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
     @media(max-width:820px){
-      main{padding:calc(58px + env(safe-area-inset-top)) 14px calc(92px + env(safe-area-inset-bottom))!important}
+      main{padding:calc(50px + env(safe-area-inset-top)) 14px calc(92px + env(safe-area-inset-bottom))!important}
       .card,.task,.col,.week-block{box-shadow:none}
       .cat-card{padding:10px 12px;min-height:0}
       .grid{gap:10px}
@@ -2459,10 +2459,16 @@
     .today-widget.is-selected .today-widget-resize-points{display:block}
     .today-widget-resize-point{position:absolute;display:flex;align-items:center;justify-content:center;width:48px;height:24px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;pointer-events:auto;touch-action:none;opacity:1;z-index:2}
     .today-widget-resize-point::after{content:"";display:block;width:34px;height:4px;border-radius:99px;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
+    .today-widget-resize-point[data-edge="left"]::after,.today-widget-resize-point[data-edge="right"]::after{width:4px;height:34px}
     .today-widget-resize-point[data-edge="top"]{top:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}.today-widget-resize-point[data-edge="bottom"]{bottom:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}
     .today-widget-resize-point[data-edge="left"]{left:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}.today-widget-resize-point[data-edge="right"]{right:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}
-    .today-widget.is-selected{outline:1px solid color-mix(in srgb,var(--accent) 72%,transparent);outline-offset:4px}
-    html.widget-manipulating,html.widget-manipulating body{overflow:hidden!important;overscroll-behavior:none!important}
+    .today-widget.is-selected{outline:1px solid color-mix(in srgb,var(--accent) 72%,transparent);outline-offset:4px;overflow:hidden!important;scrollbar-width:none!important}
+    .today-widget.is-selected::-webkit-scrollbar{display:none!important}
+    html.widget-manipulating,html.widget-manipulating body{overflow:hidden!important;overscroll-behavior:none!important;scrollbar-width:none!important}
+    html.widget-manipulating::-webkit-scrollbar,html.widget-manipulating body::-webkit-scrollbar{display:none!important}
+    .today-empty-add{display:inline-flex;align-items:center;justify-content:center;min-height:30px;margin:4px 0 0;padding:5px 10px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--border));border-radius:9px;background:color-mix(in srgb,var(--accent) 7%,var(--surface));color:var(--accent2);font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+    .toast{padding:8px 13px!important;border-radius:10px!important;background:color-mix(in srgb,var(--text) 76%,transparent)!important;color:var(--bg)!important;font-size:12px!important;font-weight:550!important;box-shadow:0 4px 14px rgba(0,0,0,.13)!important;backdrop-filter:blur(10px)!important}
+    .toast.show{opacity:.92!important}
     .today-widget.is-floating .today-widget-resize-points{display:none}
     .today-widget.is-resizing{z-index:5;outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px;transition:none!important}
     @keyframes widgetNudge{from{transform:rotate(-.25deg)}to{transform:rotate(.25deg)}}
@@ -4511,7 +4517,7 @@
         });
       }catch(error){console.warn("Widget preference sync unavailable",error);toast("הווידג׳טים נשמרו במכשיר הזה, אך כרגע לא הסתנכרנו לענן.")}
     }
-    function jumpFromWidget(date,view){state.calDate=toDateKey(date);state.calView=view;save();navigate("calendar")}
+    function jumpFromWidget(date,view){state.calDate=toDateKey(date);state.calView=view;save();navigate("calendar",true)}
     function attachTodayWidgetReorder(section,type){
       section.addEventListener("pointerdown",event=>{
         if(event.target.closest("button,input,textarea,select,a,[data-no-widget-drag],.today-widget-resize-point"))return;
@@ -4605,7 +4611,11 @@
       const box=todayWidgetShell(type,`${info[1]} ${info[2]}`,prefs);
       const today=parseDate(todayKey),empty=(host,msg)=>host.append(el("div","today-dashboard-empty",msg));
       const eventList=(host,list)=>{
-        if(!list.length){empty(host,"אין אירועים ביום הזה.");return}
+        if(!list.length){
+          const message=el("div","today-dashboard-empty","אין אירועים היום");
+          const add=el("button","today-empty-add","＋ הוספת אירוע");add.type="button";add.onclick=()=>openEventModal(null,todayKey);
+          host.append(message,add);return;
+        }
         const rows=el("div","today-dashboard-list");list.slice(0,6).forEach(ev=>{
           const row=el("button","today-event-row");row.type="button";row.style.setProperty("--agenda-color",ev.color||state.accent||"#3b6ef6");
           row.append(el("span","today-event-time",ev.allDay?"כל היום":([ev.time,ev.endTime].filter(Boolean).join(" – ")||"ללא שעה")),el("span","today-event-title",ev.title||"אירוע ללא כותרת"));
@@ -5328,7 +5338,7 @@
     function jumpToCalDate(dateKey){
       state.calDate = dateKey;
       state.calView = "day";
-      navigate("calendar");
+      navigate("calendar",true);
     }
 
     function renderCalendarSearchResults(){
@@ -8654,7 +8664,10 @@
       }
     }
     
-    function navigate(view){
+    function navigate(view,preserveSelectedDate=false){
+      const enteringView=view!==state.currentView;
+      if(enteringView&&!preserveSelectedDate&&view==="calendar")state.calDate=toDateKey(new Date());
+      if(enteringView&&view==="meetings")state.meetingsDate=toDateKey(new Date());
       const cameFromShared = (view === "home" || view === "today") && activeList.type === "shared";
       // Force a fresh cross-list fetch whenever the "all tasks" page is
       // (re-)entered, so it doesn't keep showing whatever shared-list data
@@ -11201,11 +11214,13 @@
       return d;
     }
     function empty(text){ return el("div","empty",text); }
+    let toastTimer=null,lastToastText="",lastToastAt=0;
     function toast(msg){
-      if(!$("toast")) return;
-      $("toast").textContent = msg;
-      $("toast").classList.add("show");
-      setTimeout(() => $("toast").classList.remove("show"), 2200);
+      const node=$("toast");if(!node)return;
+      const now=Date.now();if(msg===lastToastText&&now-lastToastAt<850)return;
+      lastToastText=msg;lastToastAt=now;clearTimeout(toastTimer);
+      node.textContent=msg;node.classList.add("show");
+      toastTimer=setTimeout(()=>node.classList.remove("show"),1750);
     }
     function showAuthError(msg){ if($("authMsg")) $("authMsg").textContent = msg; }
     function authError(err){
