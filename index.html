@@ -2555,16 +2555,20 @@
     /* Mobile Today view: compact header and keep the selected calendar widget first. */
     @media(max-width:820px){.today-hero{padding:15px 16px;gap:9px;border-radius:18px}.today-hero-eyebrow{font-size:10px}.today-hero-date{font-size:clamp(21px,5vw,26px)}.today-hero-stat{padding:6px 10px}.today-hero-stat strong{font-size:17px}.today-hero-stat span{font-size:11px}.today-widget[data-widget-type^="calendar-"]{order:-1}}
 /* Compact lists-first homepage cards, with the next task and an in-context add action. */
-    .home-list-card{min-height:0;padding:12px 14px 10px;gap:5px;border-radius:16px;background:var(--card);border-color:var(--border);box-shadow:none}
-    .home-list-card::before{content:"";position:absolute;inset:0 0 0 auto;width:3px;background:var(--c,var(--accent));pointer-events:none}
-    .home-list-card::after{display:none}
+    .home-list-card{min-height:150px;padding:12px 13px 10px;gap:5px;border-radius:18px;background:color-mix(in srgb,var(--c,var(--accent)) 12%,var(--card));border-color:color-mix(in srgb,var(--c,var(--accent)) 28%,var(--border));box-shadow:none}
+    .home-list-card::before{display:none}
+    .home-list-card::after{content:"";position:absolute;inset-inline-end:-34px;bottom:-34px;width:104px;height:104px;border-radius:50%;background:color-mix(in srgb,var(--c,var(--accent)) 18%,transparent);pointer-events:none}
     .home-list-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c,var(--accent)) 42%,var(--border));box-shadow:0 7px 18px rgba(0,0,0,.14)}
     .home-list-card .lc-top{align-items:center}
     .home-list-card .lc-num{display:flex;align-items:baseline;gap:6px}
     .home-list-card .lc-num strong{font-size:20px;line-height:1}
     .home-list-card .lc-num span{margin:0;font-size:10px}
     .home-list-card .lc-more{width:27px;height:27px;font-size:15px}
-    .home-list-card .lc-name{margin:0;font-size:16px;line-height:1.25}
+    .home-list-card .lc-name{margin:0;font-size:15px;line-height:1.25}
+    .home-list-card .lc-peek{display:grid;gap:2px;min-width:0}
+    .home-list-card .lc-peek-item{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .home-list-card .lc-peek-item::before{content:"• ";color:var(--c,var(--accent))}
+    .home-list-card .lc-peek-empty{font-size:10px;color:var(--faint)}
     .home-list-card .lc-bar{height:3px;margin-top:1px}
     .home-list-card.selected::before{background:var(--danger)}
     .list-empty-state{display:grid;justify-items:center;gap:6px;padding:17px 10px 14px;border:1px dashed var(--border);border-radius:12px;text-align:center}
@@ -2579,7 +2583,7 @@
       .home-list-card{padding:11px 13px 9px}
       .today-hero{gap:7px;padding:12px 14px;border-radius:16px}
     }
-    @media(max-width:520px){.lgrid{grid-template-columns:1fr}.home-list-card{min-height:0}}
+    @media(max-width:520px){.lgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.home-list-card{min-height:142px;padding:10px 9px 9px;border-radius:15px}.home-list-card .lc-num strong{font-size:19px}.home-list-card .lc-num span{font-size:9px}.home-list-card .lc-name{font-size:13px}.home-list-card .lc-peek-item,.home-list-card .lc-peek-empty{font-size:9px}}
   </style>
 </head>
 <body data-theme="sky">
@@ -4210,7 +4214,13 @@
         }
         card.append(top, el("h3","lc-name",cat.name));
 
-const bar = el("div","lc-bar");
+        const peek = el("div","lc-peek");
+        const previewTasks = open.slice(0,2);
+        if (previewTasks.length) previewTasks.forEach(task => peek.append(el("div","lc-peek-item",task.name || "משימה ללא שם")));
+        else peek.append(el("div","lc-peek-empty",all.length ? "כל המטלות הושלמו" : "אין מטלות עדיין"));
+        card.append(peek);
+
+        const bar = el("div","lc-bar");
         const fill = document.createElement("i");
         fill.style.width = pct + "%";
         bar.append(fill);
