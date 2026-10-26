@@ -2487,6 +2487,10 @@
     .today-widget-month-day.today{background:color-mix(in srgb,var(--accent) 17%,var(--surface));color:var(--accent2);font-weight:950}
     .today-widget-month-day.has-events::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;border-radius:50%;background:var(--accent);transform:translateX(-50%)}
     .today-widget-mini-list{display:grid;gap:6px}
+    .today-widget[data-widget-type="calendar-week"]:not(.compact){padding:12px}
+    .today-widget[data-widget-type="calendar-week"] .today-widget-heading{margin-bottom:7px}
+    .today-widget[data-widget-type="calendar-week"] .today-widget-day{min-height:50px}
+    .today-widget[data-widget-type="calendar-week"] .today-widget-daystrip + .today-widget-mini-list{margin-top:5px}
     .today-widget-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,205px),1fr));gap:10px}
     .today-widget-list-card{min-height:132px;padding:13px 14px;border-radius:19px;gap:4px}
     .today-widget-list-card .lc-num strong{font-size:31px}.today-widget-list-card .lc-name{font-size:15px;margin-top:2px}.today-widget-list-card .lc-peek-item{font-size:11.5px}
@@ -2542,8 +2546,45 @@
     @media(max-width:820px){.today-dashboard{gap:10px}.today-hero{border-radius:19px}.today-dashboard-section{padding:13px;border-radius:15px}.today-event-time{min-width:78px;font-size:11px}.today-widget-grid{gap:9px}.today-widget:not(.wide):not(.custom-sized){flex-basis:100%;width:100%;max-width:100%}.today-widget.wide{grid-column:auto}.today-widget.compact{padding:8px 10px}.today-widget.compact .today-widget-heading{margin-bottom:4px}.today-widget-day{min-height:50px}.today-widget-list-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.today-widget-list-card{min-height:120px;padding:11px 10px;border-radius:17px}.today-widget-list-card .lc-num strong{font-size:28px}.today-widget-list-card .lc-name{font-size:14px}.today-widget-list-card .lc-peek-item{font-size:10px}.today-widget-picker{grid-template-columns:1fr 1fr}.nav button{padding-inline:8px}.task-list-card.manual-reorder .task-tools{display:flex;grid-column:1/-1;justify-self:end}.task-list-card.manual-reorder .task-tools .mini{min-width:34px;min-height:34px;font-size:16px}}
     @media(max-width:820px){.today-widget-picker-screen{inset:0;padding:0;background:var(--bg);backdrop-filter:none;place-items:stretch}.today-widget-picker-content{width:100%;height:100dvh;max-height:none;border:0;border-radius:0;box-shadow:none}.today-widget-picker-head{padding:calc(13px + env(safe-area-inset-top)) 16px 13px}.today-widget-picker-head h2{font-size:18px}.today-widget-picker-body{padding:14px 14px calc(20px + env(safe-area-inset-bottom))}.today-widget-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.widget-option-card{padding:9px;border-radius:15px;gap:7px}.widget-option-preview{min-height:61px;padding:8px}.widget-option-sub{min-height:27px;font-size:9px}}
   
+    @media(max-width:820px){
+      .today-widget[data-widget-type="calendar-week"]:not(.compact){padding:10px}
+      .today-widget[data-widget-type="calendar-week"].compact{padding:8px 10px}
+      .today-widget[data-widget-type="calendar-week"] .today-widget-heading{margin-bottom:5px}
+      .today-widget[data-widget-type="calendar-week"] .today-widget-day{min-height:46px}
+    }
     /* Mobile Today view: compact header and keep the selected calendar widget first. */
     @media(max-width:820px){.today-hero{padding:15px 16px;gap:9px;border-radius:18px}.today-hero-eyebrow{font-size:10px}.today-hero-date{font-size:clamp(21px,5vw,26px)}.today-hero-stat{padding:6px 10px}.today-hero-stat strong{font-size:17px}.today-hero-stat span{font-size:11px}.today-widget[data-widget-type^="calendar-"]{order:-1}}
+/* Compact lists-first homepage cards, with the next task and an in-context add action. */
+    .home-list-card{min-height:0;padding:12px 14px 10px;gap:5px;border-radius:16px;background:var(--card);border-color:var(--border);box-shadow:none}
+    .home-list-card::before{content:"";position:absolute;inset:0 0 0 auto;width:3px;background:var(--c,var(--accent));pointer-events:none}
+    .home-list-card::after{display:none}
+    .home-list-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c,var(--accent)) 42%,var(--border));box-shadow:0 7px 18px rgba(0,0,0,.14)}
+    .home-list-card .lc-top{align-items:center}
+    .home-list-card .lc-num{display:flex;align-items:baseline;gap:6px}
+    .home-list-card .lc-num strong{font-size:20px;line-height:1}
+    .home-list-card .lc-num span{margin:0;font-size:10px}
+    .home-list-card .lc-more{width:27px;height:27px;font-size:15px}
+    .home-list-card .lc-name{margin:0;font-size:16px;line-height:1.25}
+    .home-list-card .lc-next-task{display:flex;align-items:center;gap:7px;min-width:0;color:var(--muted);font-size:11px}
+    .home-list-card .lc-next-task span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .home-list-card .lc-next-date{flex:0 0 auto;color:var(--faint);font-size:10px;white-space:nowrap}
+    .home-list-card .lc-bar{height:3px;margin-top:1px}
+    .home-list-card .home-list-quickadd{align-self:flex-start;border:0;padding:2px 0;background:transparent;color:var(--accent2);font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+    .home-list-card .home-list-quickadd:hover{text-decoration:underline}
+    .home-list-card.selected::before{background:var(--danger)}
+    .list-empty-state{display:grid;justify-items:center;gap:6px;padding:17px 10px 14px;border:1px dashed var(--border);border-radius:12px;text-align:center}
+    .list-empty-mark{display:grid;width:32px;height:32px;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--accent) 14%,var(--card));color:var(--accent2);font-weight:900}
+    .list-empty-state strong{font-size:13px}
+    .list-empty-state span:not(.list-empty-mark){color:var(--muted);font-size:11px}
+    .list-empty-state small{color:var(--faint);font-size:10px}
+    .today-hero{gap:8px;padding:16px 20px;border-radius:18px;background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 78%,#12224c),color-mix(in srgb,var(--accent) 58%,var(--card)));box-shadow:0 10px 25px color-mix(in srgb,var(--accent) 17%,transparent)}
+    .today-widget[data-widget-type="calendar-week"] .today-widget-mini-item{border-inline-start:3px solid var(--agenda-color,var(--accent));padding-inline-start:7px}
+    @media(max-width:820px){
+      .mobile-phrase-ticker .ticker-window{display:none!important}
+      .home-list-card{padding:11px 13px 9px}
+      .today-hero{gap:7px;padding:12px 14px;border-radius:16px}
+    }
+    @media(max-width:520px){.lgrid{grid-template-columns:1fr}.home-list-card{min-height:0}}
   </style>
 </head>
 <body data-theme="sky">
@@ -4150,7 +4191,7 @@
         const open = all.filter(t => !isDone(t));
         const pct = all.length ? Math.round((all.length - open.length) / all.length * 100) : 0;
         const color = cat.color || state.accent;
-        const card = el("article","lc" + (catSelectMode ? " select-mode" : "") + (selectedCatIds.has(cat.id) ? " selected" : ""));
+        const card = el("article","lc home-list-card" + (catSelectMode ? " select-mode" : "") + (selectedCatIds.has(cat.id) ? " selected" : ""));
         card.style.setProperty("--c", color);
 
         const top = el("div","lc-top");
@@ -4174,17 +4215,25 @@
         }
         card.append(top, el("h3","lc-name",cat.name));
 
-        const peek = el("div","lc-peek");
-        const next = open.slice().sort((a,b) => (a.due || "9999").localeCompare(b.due || "9999")).slice(0, 2);
-        if (next.length) next.forEach(t => peek.append(el("div","lc-peek-item",t.name)));
-        else peek.append(el("div","lc-peek-empty", all.length ? "הכל הושלם ✨" : "רשימה ריקה"));
-        card.append(peek);
+        const nextTask = open.slice().sort((a,b) => (a.due || "9999").localeCompare(b.due || "9999"))[0];
+        const nextLine = el("div","lc-next-task");
+        if (nextTask) nextLine.append(el("span","",nextTask.name || "משימה ללא שם"), el("small","lc-next-date",nextTask.due ? formatDateShort(nextTask.due) : "ללא תאריך"));
+        else nextLine.append(el("span","",all.length ? "כל המשימות הושלמו" : "הרשימה עדיין ריקה"));
+        card.append(nextLine);
 
         const bar = el("div","lc-bar");
         const fill = document.createElement("i");
         fill.style.width = pct + "%";
         bar.append(fill);
         card.append(bar);
+        if (!catSelectMode) {
+          const quickTask = el("button","home-list-quickadd","＋ משימה");
+          quickTask.type = "button";
+          quickTask.title = `הוספת משימה לרשימת ${cat.name}`;
+          quickTask.setAttribute("aria-label", `הוספת משימה לרשימת ${cat.name}`);
+          quickTask.onclick = (e) => { e.stopPropagation(); openTaskModal(null,cat); };
+          card.append(quickTask);
+        }
 
         let longPressFired = false;
         card.onclick = (e) => {
@@ -4657,7 +4706,7 @@
         for(let i=0;i<7;i++){const day=new Date(start);day.setDate(day.getDate()+i);const key=toDateKey(day),count=(state.events||[]).filter(e=>e.date===key&&e.showInCalendar!==false).length;
           const b=el("button","today-widget-day"+(key===todayKey?" active":""));b.type="button";b.append(el("small","",DAY_NAMES_HE[day.getDay()].slice(0,2)),el("strong","",String(day.getDate())),el("small","",count?`${count} אירועים`:" "));b.onclick=()=>jumpFromWidget(day,"week");strip.append(b)}
         box.append(strip);const weekEvents=(state.events||[]).filter(e=>{const d=parseDate(e.date);const end=new Date(start);end.setDate(end.getDate()+7);return d>=start&&d<end&&e.showInCalendar!==false}).sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||"")));
-        if(weekEvents.length){const line=el("div","today-widget-mini-list");weekEvents.slice(0,3).forEach(ev=>{const b=el("button","today-widget-mini-item");b.type="button";b.append(el("small","",parseDate(ev.date).toLocaleDateString("he-IL",{weekday:"short",day:"numeric"})),el("span","",ev.title||"אירוע"));b.onclick=()=>openEventModal(ev,ev.date);line.append(b)});box.append(line)}
+        if(weekEvents.length){const line=el("div","today-widget-mini-list");weekEvents.slice(0,3).forEach(ev=>{const b=el("button","today-widget-mini-item");b.type="button";const dayLabel=parseDate(ev.date).toLocaleDateString("he-IL",{weekday:"short",day:"numeric"}),timeLabel=ev.allDay?"כל היום":(ev.time||"ללא שעה");b.style.setProperty("--agenda-color",ev.color||state.accent||"#3b6ef6");b.title=`${dayLabel} · ${timeLabel} · ${ev.title||"אירוע"}`;b.append(el("small","",`${dayLabel} · ${timeLabel}`),el("span","",ev.title||"אירוע"));b.onclick=()=>openEventModal(ev,ev.date);line.append(b)});box.append(line)}
       }else if(type==="calendar-month"){
         const monthHead=el("div","today-dashboard-actions");const monthTitle=el("strong","",today.toLocaleDateString("he-IL",{month:"long",year:"numeric"}));const open=el("button","home-agenda-link","פתח חודש ↗");open.type="button";open.onclick=()=>jumpFromWidget(today,"month");monthHead.append(monthTitle,open);box.append(monthHead);
         const grid=el("div","today-widget-month");["א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ש׳"].forEach(x=>grid.append(el("span","today-widget-month-label",x)));
@@ -5070,7 +5119,11 @@
       const sec = el("div","card");
       const list = el("div","list");
       openTasks.forEach((t, i) => list.append(taskRow(t, { manualReorder: manualMode, number: numberingOn ? i + 1 : null })));
-      if (!openTasks.length) list.append(emptyFun());
+      if (!openTasks.length) {
+        const empty = el("div","list-empty-state");
+        empty.append(el("span","list-empty-mark","✓"), el("strong","","מתחילים כאן"), el("span","","הוסיפו את המשימה הראשונה לרשימת " + cat.name + "."), el("small","","לדוגמה: לסכם את פרק 3"));
+        list.append(empty);
+      }
       const quickAdd = el("button","task-list-quickadd","＋ הוספת משימה");
       quickAdd.type = "button";
       quickAdd.onclick = () => openTaskModal();
@@ -8104,8 +8157,8 @@
       });
     }
 
-    function openTaskModal(task){
-      const cat = task ? state.cats.find(c => c.id === task.catId) : activeCat();
+    function openTaskModal(task,targetCat){
+      const cat = task ? state.cats.find(c => c.id === task.catId) : (targetCat || activeCat());
       if (!cat) return toast("בחר קטגוריה קודם");
       openModal(task ? "עריכת משימה" : "משימה חדשה", cat.name, (form) => {
         const nameWrap = el("div","field");
