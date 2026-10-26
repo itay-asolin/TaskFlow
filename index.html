@@ -431,9 +431,9 @@
     .bar{height:5px;background:var(--card2);border-radius:999px;overflow:hidden;margin-top:9px}
     .bar span{display:block;height:100%;background:var(--accent);border-radius:999px}
     .list{display:grid;gap:10px}
-    .task-list-quickadd{width:100%;min-height:46px;padding:10px 14px;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:11px;background:color-mix(in srgb,var(--accent) 4%,var(--surface));color:var(--accent2);font:inherit;font-size:14px;font-weight:800;text-align:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease,transform .12s ease}
+    .task-list-quickadd{width:100%;min-height:34px;padding:6px 10px;border:1px dashed color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:9px;background:color-mix(in srgb,var(--accent) 3%,var(--surface));color:var(--accent2);font:inherit;font-size:12px;font-weight:750;text-align:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease,transform .12s ease}
     .task-list-quickadd:active{background:color-mix(in srgb,var(--accent) 12%,var(--surface));transform:scale(.99)}
-    @media(max-width:820px){.task-swipe-wrap,.task-row{touch-action:pan-y;-webkit-tap-highlight-color:transparent}.task-list-quickadd{min-height:50px}}
+    @media(max-width:820px){.task-swipe-wrap,.task-row{touch-action:pan-y;-webkit-tap-highlight-color:transparent}.task-list-quickadd{min-height:38px;font-size:12px}}
     .task-row{display:block}
     .task-list-card{width:100%}
     
@@ -1468,7 +1468,7 @@
     .event-time-row .clock-field label{text-align:center;justify-content:center}
     @media(max-width:820px){
       #bottomNav .bnav-add{display:none!important}main{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
-      .mobile-phrase-ticker{display:flex;align-items:center;gap:6px;flex:1 1 100%;width:100%;min-width:0;max-width:none;min-height:28px;height:28px;margin:0 0 2px;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
+      .mobile-phrase-ticker{display:flex;align-items:center;gap:6px;flex:1 1 100%;width:100%;min-width:0;max-width:none;min-height:24px;height:24px;margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
       .mobile-account-wrap{display:block;position:relative;z-index:60;flex:0 0 auto}
       .mobile-account-trigger{min-height:30px;padding:2px 5px;border:0;background:transparent;font-size:10px;gap:5px;max-width:120px}
       .mobile-account-trigger .mobile-account-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:78px}
@@ -1843,7 +1843,7 @@
     ::-webkit-scrollbar{width:8px;height:8px}
     ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
     @media(max-width:820px){
-      main{padding:calc(50px + env(safe-area-inset-top)) 14px calc(92px + env(safe-area-inset-bottom))!important}
+      main{padding:calc(44px + env(safe-area-inset-top)) 14px calc(92px + env(safe-area-inset-bottom))!important}
       .card,.task,.col,.week-block{box-shadow:none}
       .cat-card{padding:10px 12px;min-height:0}
       .grid{gap:10px}
@@ -2459,7 +2459,7 @@
     .today-widget.is-selected .today-widget-resize-points{display:block}
     .today-widget-resize-point{position:absolute;display:flex;align-items:center;justify-content:center;width:48px;height:24px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;pointer-events:auto;touch-action:none;opacity:1;z-index:2}
     .today-widget-resize-point::after{content:"";display:block;width:34px;height:4px;border-radius:99px;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
-    .today-widget-resize-point[data-edge="left"]::after,.today-widget-resize-point[data-edge="right"]::after{width:4px;height:34px}
+    .today-widget-resize-point[data-edge="left"]::after,.today-widget-resize-point[data-edge="right"]::after{width:4px;height:34px}\r\n    .widget-expand-btn{display:none;align-items:center;justify-content:center;min-height:30px;padding:4px 9px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:9px;background:var(--surface);color:var(--accent2);font:inherit;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer}\r\n    .today-widget.is-selected .widget-expand-btn{display:inline-flex}
     .today-widget-resize-point[data-edge="top"]{top:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}.today-widget-resize-point[data-edge="bottom"]{bottom:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}
     .today-widget-resize-point[data-edge="left"]{left:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}.today-widget-resize-point[data-edge="right"]{right:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}
     .today-widget.is-selected{outline:1px solid color-mix(in srgb,var(--accent) 72%,transparent);outline-offset:4px;overflow:hidden!important;scrollbar-width:none!important}
@@ -3535,7 +3535,7 @@
       document.querySelectorAll(".nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === _nk));
       document.querySelectorAll(".bnav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.bnav === _nk));
       
-      $("addBtn").classList.toggle("hidden", state.currentView !== "kanban");
+      $("addBtn").classList.add("hidden");
       // one "add" button per screen: inside a list the dedicated "new task" button replaces the generic one
       $("topAddBtn")?.classList.toggle("hidden", state.currentView === "kanban");
       $("themeToggleBtn")?.classList.remove("hidden");
@@ -4595,7 +4595,10 @@
     function todayWidgetShell(type,title,prefs){
       const defaultWide=type.startsWith("calendar-"),sizeMode=prefs.sizes?.[type]||(defaultWide?"wide":"normal"),heightMode=prefs.heights?.[type]||"normal",wide=sizeMode==="wide",compact=heightMode==="compact",tall=heightMode==="tall",dimensions=prefs.dimensions?.[type];
       const section=el("section","today-dashboard-section today-widget"+(wide?" wide":"")+(compact?" compact":"")+(tall?" tall":"")+(dimensions?" custom-sized":""));section.dataset.widgetType=type;section.style.justifySelf="center";if(dimensions){section.style.setProperty("--widget-width",`${dimensions.w}%`);section.style.width=`${dimensions.w}%`;section.style.flexBasis=`${dimensions.w}%`;section.style.height=`${dimensions.h}px`;section.style.minHeight="0";section.style.overflow="auto"}
-      const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap");titleWrap.append(el("h2","",title));head.append(titleWrap);
+      const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap");titleWrap.append(el("h2","",title));
+      const expand=el("button","widget-expand-btn","↔ רוחב מלא");expand.type="button";expand.title="הרחבת הווידג׳ט לרוחב החלון";
+      expand.onclick=event=>{event.stopPropagation();const height=Math.round(section.getBoundingClientRect().height);section.classList.add("custom-sized");section.style.setProperty("--widget-width","100%");section.style.width="100%";section.style.maxWidth="100%";section.style.flexBasis="100%";section.style.height=Math.max(150,height)+"px";section.style.minHeight="0";section.style.justifySelf="stretch";const saved=getTodayWidgetPrefs();saved.dimensions={...(saved.dimensions||{}),[type]:{w:100,h:Math.max(150,height)}};saveTodayWidgetPrefs(saved)};
+      head.append(titleWrap,expand);
       section.append(head);const resizePoints=el("div","today-widget-resize-points");["top","right","bottom","left"].forEach(edge=>{const point=el("span","today-widget-resize-point");point.dataset.edge=edge;point.title="גררו את הצלע לשינוי גודל";point.setAttribute("aria-hidden","true");resizePoints.append(point);attachTodayWidgetResize(section,type,point)});section.append(resizePoints);attachTodayWidgetReorder(section,type);return section;
     }
     function makeTodayListCard(cat){
@@ -7991,78 +7994,28 @@
     }
 
     function taskRow(task, opts = {}){
-      const row = taskCard(task, opts.draggable === false ? false : true, opts);
-      row.classList.add("task-row", "task-list-card");
-      if (opts.manualReorder) row.classList.add("manual-reorder");
-
-      // Swipe-to-action on mobile only
-      if (window.matchMedia("(max-width:820px)").matches) {
-        const wrap = document.createElement("div");
-        wrap.className = "task-swipe-wrap";
-
-        const actions = document.createElement("div");
-        actions.className = "task-swipe-actions";
-
-        const memoBtn = document.createElement("button");
-        memoBtn.className = "swipe-btn swipe-btn-memo";
-        memoBtn.type = "button";
-        memoBtn.innerHTML = `<span class="swipe-icon">🗑</span><span>מחק</span>`;
-        memoBtn.onclick = (e) => {
-          e.stopPropagation();
-          wrap.classList.remove("swiped");
-          deleteTask(task.id);
-        };
-
-        actions.append(memoBtn);
-
-        const completeActions = document.createElement("div");
-        completeActions.className = "task-swipe-complete-actions";
-
-        const focusBtn = document.createElement("button");
-        focusBtn.className = "swipe-btn swipe-btn-focus";
-        focusBtn.type = "button";
-        focusBtn.innerHTML = `<span class="swipe-icon">✓</span><span>בוצע</span>`;
-        focusBtn.onclick = (e) => {
-          e.stopPropagation();
-          wrap.classList.remove("swiped-complete");
-          toggleTask(task.id);
-        };
-        completeActions.append(focusBtn);
-
-        const inner = document.createElement("div");
-        inner.className = "task-swipe-inner";
-        inner.append(row);
-
-        wrap.append(actions, completeActions, inner);
-
-        let startX = 0, startY = 0, moved = false;
-        inner.addEventListener("touchstart", e => {
-          startX = e.touches[0].clientX;
-          startY = e.touches[0].clientY;
-          moved = false;
-        }, { passive: true });
-        inner.addEventListener("touchmove", e => {
-          const dx = e.touches[0].clientX - startX;
-          const dy = e.touches[0].clientY - startY;
-          if (!moved && Math.abs(dy) > Math.abs(dx) + 5) return; // vertical scroll wins
-          moved = true;
-          const isSwiped = wrap.classList.contains("swiped");
-          const isSwipedComplete = wrap.classList.contains("swiped-complete");
-          if (dx > 30 && (isSwiped || isSwipedComplete)) {
-            wrap.classList.remove("swiped", "swiped-complete");
-          } else if (dx < -40 && !isSwiped && !isSwipedComplete) {
-            document.querySelectorAll(".task-swipe-wrap.swiped, .task-swipe-wrap.swiped-complete").forEach(w => w !== wrap && w.classList.remove("swiped", "swiped-complete"));
-            wrap.classList.add("swiped");
-          } else if (dx > 40 && !isSwiped && !isSwipedComplete) {
-            document.querySelectorAll(".task-swipe-wrap.swiped, .task-swipe-wrap.swiped-complete").forEach(w => w !== wrap && w.classList.remove("swiped", "swiped-complete"));
-            wrap.classList.add("swiped-complete");
-          }
-        }, { passive: true });
-
-        return wrap;
-      }
-
-      return row;
+      const row=taskCard(task,opts.draggable===false?false:true,opts);
+      row.classList.add("task-row","task-list-card");
+      if(opts.manualReorder)row.classList.add("manual-reorder");
+      if(!window.matchMedia("(max-width:820px)").matches)return row;
+      const wrap=document.createElement("div");wrap.className="task-swipe-wrap";
+      const actions=document.createElement("div");actions.className="task-swipe-actions";
+      const remove=document.createElement("button");remove.className="swipe-btn swipe-btn-memo";remove.type="button";remove.textContent="🗑 מחק";
+      remove.onclick=e=>{e.stopPropagation();wrap.classList.remove("swiped");deleteTask(task.id)};
+      actions.append(remove);
+      const inner=document.createElement("div");inner.className="task-swipe-inner";inner.append(row);wrap.append(actions,inner);
+      let startX=0,startY=0;
+      inner.addEventListener("touchstart",e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY},{passive:true});
+      inner.addEventListener("touchmove",e=>{
+        const dx=e.touches[0].clientX-startX,dy=e.touches[0].clientY-startY;
+        if(Math.abs(dy)>Math.abs(dx)+5)return;
+        if(dx>30&&wrap.classList.contains("swiped"))wrap.classList.remove("swiped");
+        else if(dx< -40&&!wrap.classList.contains("swiped")){
+          document.querySelectorAll(".task-swipe-wrap.swiped").forEach(w=>{if(w!==wrap)w.classList.remove("swiped")});
+          wrap.classList.add("swiped");
+        }
+      },{passive:true});
+      return wrap;
     }
 
     function dueChip(due){
