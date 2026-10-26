@@ -1132,7 +1132,7 @@
       body{min-height:100dvh;-webkit-tap-highlight-color:transparent}
       .app{min-height:100dvh}
       main{
-        padding:calc(58px + env(safe-area-inset-top)) 12px calc(92px + env(safe-area-inset-bottom))!important;
+        padding:calc(12px + env(safe-area-inset-top)) 12px calc(92px + env(safe-area-inset-bottom))!important;
       }
       .top{
         gap:6px;
@@ -2459,7 +2459,10 @@
     .today-widget.is-selected .today-widget-resize-points{display:block}
     .today-widget-resize-point{position:absolute;display:flex;align-items:center;justify-content:center;width:48px;height:24px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;pointer-events:auto;touch-action:none;opacity:1;z-index:2}
     .today-widget-resize-point::after{content:"";display:block;width:34px;height:4px;border-radius:99px;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
-    .today-widget-resize-point[data-edge="left"]::after,.today-widget-resize-point[data-edge="right"]::after{width:4px;height:34px}\r\n    .widget-expand-btn{display:none;align-items:center;justify-content:center;min-height:30px;padding:4px 9px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:9px;background:var(--surface);color:var(--accent2);font:inherit;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer}\r\n    .today-widget.is-selected .widget-expand-btn{display:inline-flex}
+    .today-widget-resize-point[data-edge="left"]::after,.today-widget-resize-point[data-edge="right"]::after{width:4px;height:34px}
+    .widget-expand-btn{display:none;align-items:center;justify-content:center;flex:0 0 30px;width:30px;height:30px;min-height:30px;padding:0;border:1px solid transparent;border-radius:50%;background:transparent;color:var(--muted);font:inherit;font-size:18px;font-weight:700;line-height:1;opacity:.58;cursor:pointer;transition:background .16s,border-color .16s,color .16s,opacity .16s}
+    .widget-expand-btn:hover,.widget-expand-btn:focus-visible{border-color:color-mix(in srgb,var(--muted) 35%,transparent);background:color-mix(in srgb,var(--muted) 12%,transparent);color:var(--text);opacity:1;outline:none}
+    .today-widget.is-selected .widget-expand-btn{display:inline-flex}
     .today-widget-resize-point[data-edge="top"]{top:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}.today-widget-resize-point[data-edge="bottom"]{bottom:-12px;left:50%;transform:translateX(-50%);cursor:ns-resize}
     .today-widget-resize-point[data-edge="left"]{left:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}.today-widget-resize-point[data-edge="right"]{right:-22px;top:50%;transform:translateY(-50%);cursor:ew-resize}
     .today-widget.is-selected{outline:1px solid color-mix(in srgb,var(--accent) 72%,transparent);outline-offset:4px;overflow:hidden!important;scrollbar-width:none!important}
@@ -4596,7 +4599,7 @@
       const defaultWide=type.startsWith("calendar-"),sizeMode=prefs.sizes?.[type]||(defaultWide?"wide":"normal"),heightMode=prefs.heights?.[type]||"normal",wide=sizeMode==="wide",compact=heightMode==="compact",tall=heightMode==="tall",dimensions=prefs.dimensions?.[type];
       const section=el("section","today-dashboard-section today-widget"+(wide?" wide":"")+(compact?" compact":"")+(tall?" tall":"")+(dimensions?" custom-sized":""));section.dataset.widgetType=type;section.style.justifySelf="center";if(dimensions){section.style.setProperty("--widget-width",`${dimensions.w}%`);section.style.width=`${dimensions.w}%`;section.style.flexBasis=`${dimensions.w}%`;section.style.height=`${dimensions.h}px`;section.style.minHeight="0";section.style.overflow="auto"}
       const head=el("div","today-widget-heading"),titleWrap=el("div","today-widget-title-wrap");titleWrap.append(el("h2","",title));
-      const expand=el("button","widget-expand-btn","↔ רוחב מלא");expand.type="button";expand.title="הרחבת הווידג׳ט לרוחב החלון";
+      const expand=el("button","widget-expand-btn","↔");expand.type="button";expand.title="הרחבת הווידג׳ט לרוחב החלון";expand.setAttribute("aria-label","הרחבת הווידג׳ט לרוחב מלא");
       expand.onclick=event=>{event.stopPropagation();const height=Math.round(section.getBoundingClientRect().height);section.classList.add("custom-sized");section.style.setProperty("--widget-width","100%");section.style.width="100%";section.style.maxWidth="100%";section.style.flexBasis="100%";section.style.height=Math.max(150,height)+"px";section.style.minHeight="0";section.style.justifySelf="stretch";const saved=getTodayWidgetPrefs();saved.dimensions={...(saved.dimensions||{}),[type]:{w:100,h:Math.max(150,height)}};saveTodayWidgetPrefs(saved)};
       head.append(titleWrap,expand);
       section.append(head);const resizePoints=el("div","today-widget-resize-points");["top","right","bottom","left"].forEach(edge=>{const point=el("span","today-widget-resize-point");point.dataset.edge=edge;point.title="גררו את הצלע לשינוי גודל";point.setAttribute("aria-hidden","true");resizePoints.append(point);attachTodayWidgetResize(section,type,point)});section.append(resizePoints);attachTodayWidgetReorder(section,type);return section;
