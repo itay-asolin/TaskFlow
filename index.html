@@ -1430,8 +1430,6 @@
     .today-weather-info{display:flex;flex-direction:column;gap:3px;min-width:0}.today-weather-condition{font-size:12px;font-weight:850;color:var(--text)}.today-weather-city{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .weather-location-button{border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--accent2);padding:7px 9px;font:inherit;font-size:10px;font-weight:850;white-space:nowrap;cursor:pointer}.weather-location-button[aria-busy="true"]{opacity:.65}
     .today-weather-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}.today-weather-credit{font-size:9px;color:var(--faint);text-decoration:none}.today-weather-credit:hover{text-decoration:underline;color:var(--accent2)}
-    .today-weather-tomorrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:9px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
-    .today-weather-tomorrow-label{font-size:11px;font-weight:900;color:var(--muted)}.today-weather-tomorrow-forecast{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:850;color:var(--text)}.today-weather-tomorrow-range{color:var(--accent2);font-weight:950}
     .today-progress{display:grid;gap:9px}.today-progress-summary{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.today-progress-summary strong{font-size:24px;color:var(--accent2)}.today-progress-summary span{font-size:11px;color:var(--muted);font-weight:800}.today-progress-track{height:10px;border-radius:99px;background:var(--card2);overflow:hidden}.today-progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,#32b879,var(--accent));transition:width .35s ease}
     .today-next-card{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:13px;background:var(--surface);color:var(--text);text-align:right;font:inherit;cursor:pointer}.today-next-card:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface))}.today-next-card-icon{font-size:22px}.today-next-card-info{display:grid;gap:4px;min-width:0;flex:1}.today-next-card-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.today-next-card-info span{font-size:10px;color:var(--muted)}
     .auth-box.auth-box-simple{display:block;width:min(520px,100%);padding:0;border-radius:25px}
@@ -4500,7 +4498,7 @@ let longPressFired = false;
       ["shopping","🛒","רשימת קניות","פריטים שעדיין צריך לקנות"],
       ["mini-tasks","📝","מטלות קטנות","המטלות הקטנות שלך"],
       ["work-hours","⏱️","שעות עבודה","סיכום החודש הנוכחי"],
-      ["weather","🌤️","מזג אוויר","עכשיו ותחזית למחר לפי המיקום שלך"],
+      ["weather","🌤️","מזג אוויר","הטמפרטורה ומצב מזג האוויר עכשיו"],
       ["next-task","🎯","המשימה הבאה","המשימה הפתוחה הקרובה"],
       ["day-progress","📈","התקדמות יומית","כמה משימות כבר הושלמו היום"],
       ["next-event","🕒","האירוע הבא","האירוע הקרוב ביומן"]
@@ -4675,8 +4673,7 @@ let longPressFired = false;
         const condition=el("span","today-weather-condition","מזג האוויר המקומי"),city=el("span","today-weather-city ticker-weather-city",weatherLocation.name);
         info.append(condition,city);main.append(icon,temp,info);
         const update=el("button","weather-location-button","📍 מיקום");update.type="button";update.title="עדכון לפי המיקום הנוכחי או בחירת עיר";update.setAttribute("aria-label","עדכון מזג האוויר לפי המיקום או בחירת עיר");card.append(main,update);box.append(card);
-        const forecast=el("div","today-weather-tomorrow"),forecastLabel=el("span","today-weather-tomorrow-label","מחר"),forecastData=el("span","today-weather-tomorrow-forecast");forecastData.append(el("span","today-weather-tomorrow-icon","⏳"),el("span","today-weather-tomorrow-range","טוען תחזית"));forecast.append(forecastLabel,forecastData);box.append(forecast);
-        const footer=el("div","today-weather-footer"),note=el("span","today-weather-credit","מיקום לא נשמר בענן; נתוני התחזית נשמרים לשעה.");const credit=document.createElement("a");credit.className="today-weather-credit";credit.href="https://open-meteo.com/";credit.target="_blank";credit.rel="noopener noreferrer";credit.textContent="מקור: Open-Meteo";footer.append(note,credit);box.append(footer);
+        const footer=el("div","today-weather-footer"),note=el("span","today-weather-credit","הטמפרטורה מתעדכנת מדי שעה.");const credit=document.createElement("a");credit.className="today-weather-credit";credit.href="https://open-meteo.com/";credit.target="_blank";credit.rel="noopener noreferrer";credit.textContent="מקור: Open-Meteo";footer.append(note,credit);box.append(footer);
         initWeatherControls();
       }else if(type==="next-task"){
         const next=tasks.slice().sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999")||(a.name||"").localeCompare(b.name||"","he"))[0];
@@ -9649,11 +9646,6 @@ let longPressFired = false;
         if(data?.current){const [symbol,label]=weatherPresentation(+data.current.weather_code,+data.current.is_day);icon.textContent=symbol;temp.textContent=`${Math.round(+data.current.temperature_2m)}°`;temp.title=label;if(condition)condition.textContent=label;button.title=`${label} · לחצו לשימוש במיקום או לבחירת עיר`;button.setAttribute("aria-label",`${label}, ${temp.textContent} ב${location.name}. לחצו לשימוש במיקום או לבחירת עיר`);}
         else {icon.textContent="🌤️";temp.textContent="—°";if(condition)condition.textContent="לא הצלחנו לטעון מזג אוויר";button.title="מזג האוויר לא זמין כרגע. לחצו לבחירת מיקום או עיר";}
         city.textContent=location.name;city.title=location.name;
-        const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);const tomorrowKey=toDateKey(tomorrow),dayIndex=data?.daily?.time?.indexOf(tomorrowKey)??-1;
-        const forecast=widget.querySelector(".today-weather-tomorrow");if(forecast){const forecastIcon=forecast.querySelector(".today-weather-tomorrow-icon"),range=forecast.querySelector(".today-weather-tomorrow-range");
-          if(dayIndex>=0){const [forecastSymbol,forecastLabel]=weatherPresentation(+data.daily.weather_code[dayIndex],1),high=Math.round(+data.daily.temperature_2m_max[dayIndex]),low=Math.round(+data.daily.temperature_2m_min[dayIndex]);forecastIcon.textContent=forecastSymbol;range.textContent=`${high}° / ${low}°`;range.title=`${forecastLabel} · מקסימום ${high}°, מינימום ${low}°`;}
-          else{forecastIcon.textContent="🌤️";range.textContent="אין תחזית זמינה";}
-        }
       });
     }
     async function loadWeather(force=false){
@@ -9662,7 +9654,7 @@ let longPressFired = false;
       if(!force&&sameLocation&&Date.now()-cached.savedAt<60*60*1000){paintWeather(cached.data,weatherLocation);return;}
       document.querySelectorAll(".weather-location-button").forEach(button=>button.setAttribute("aria-busy","true"));
       try{
-        const params=new URLSearchParams({latitude:weatherLocation.latitude,longitude:weatherLocation.longitude,current:"temperature_2m,weather_code,is_day",daily:"weather_code,temperature_2m_max,temperature_2m_min",forecast_days:"2",timezone:"auto"});
+        const params=new URLSearchParams({latitude:weatherLocation.latitude,longitude:weatherLocation.longitude,current:"temperature_2m,weather_code,is_day",timezone:"auto"});
         const response=await fetch(`https://api.open-meteo.com/v1/forecast?${params}`,{cache:"no-store"});if(!response.ok)throw new Error("weather unavailable");
         const data=await response.json();localStorage.setItem(WEATHER_CACHE_KEY,JSON.stringify({latitude:weatherLocation.latitude,longitude:weatherLocation.longitude,savedAt:Date.now(),data}));paintWeather(data,weatherLocation);
       }catch{if(sameLocation)paintWeather(cached.data,weatherLocation);else paintWeather(null,weatherLocation);}
