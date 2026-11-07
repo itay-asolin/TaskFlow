@@ -1,0 +1,16 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    { "type": "TextBlock", "text": "${title}", "weight": "Bolder", "size": "Medium", "wrap": true },
+    { "type": "TextBlock", "text": "${subtitle}", "isSubtle": true, "spacing": "None", "wrap": true },
+    { "type": "Container", "$data": "${items}", "spacing": "Medium", "items": [
+      { "type": "TextBlock", "text": "• ${text}", "wrap": true, "maxLines": 2, "spacing": "Small" }
+    ] },
+    { "type": "TextBlock", "text": "${footer}", "isSubtle": true, "size": "Small", "wrap": true, "spacing": "Medium" }
+  ],
+  "actions": [
+    { "type": "Action.OpenUrl", "title": "פתח ב־TaskFlow", "url": "https://itay-asolin.github.io/TaskFlow/" }
+  ]
+}
