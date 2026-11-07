@@ -3571,6 +3571,16 @@
       const resolved = resolveThemeForMode("auto", familyOfTheme(state.theme));
       if (resolved !== state.theme) { state.theme = resolved; save(); render(); }
     }, 5 * 60 * 1000);
+    function syncWindowsWidgetSnapshot(){
+      if(!("serviceWorker" in navigator))return;
+      try{
+        let weather=null;try{weather=JSON.parse(localStorage.getItem("taskflow_weather_cache_v2")||"null")}catch{}
+        const snapshot={state:cleanState(state),todayPrefs:getTodayWidgetPrefs(),shared:getKnownSharedLists(),weather,updatedAt:Date.now()};
+        const send=worker=>{try{worker?.postMessage({type:"TASKFLOW_WIDGET_STATE",snapshot})}catch{}};
+        if(navigator.serviceWorker.controller)send(navigator.serviceWorker.controller);
+        else navigator.serviceWorker.ready.then(registration=>send(registration.active)).catch(()=>{});
+      }catch{}
+    }
     function render(){
       updateGreeting();
       updateTicker();
@@ -3595,6 +3605,7 @@
       if (state.currentView === "meetings") renderMeetings();
       if (state.currentView === "settings") renderSettings();
       if (state.currentView === "more") renderMore();
+      syncWindowsWidgetSnapshot();
       checkTaskReminders(false);
       
       // רענן את תוכן פאנל התכנון אם הוא פתוח

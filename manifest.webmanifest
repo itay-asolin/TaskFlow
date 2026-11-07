@@ -26,5 +26,407 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "widgets": [
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "אירועי ומשימות היום",
+      "short_name": "יומן יומי",
+      "template": "taskflow-calendar-day",
+      "screenshots": [
+        {
+          "label": "יומן יומי",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-calendar-day",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "יומן יומי"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "תצוגת אירועים לשבוע הקרוב",
+      "short_name": "יומן שבועי",
+      "template": "taskflow-calendar-week",
+      "screenshots": [
+        {
+          "label": "יומן שבועי",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-calendar-week",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "יומן שבועי"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "תאריכים ואירועים החודש",
+      "short_name": "יומן חודשי",
+      "template": "taskflow-calendar-month",
+      "screenshots": [
+        {
+          "label": "יומן חודשי",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-calendar-month",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "יומן חודשי"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "משימות פתוחות להיום וללא תאריך",
+      "short_name": "משימות להיום",
+      "template": "taskflow-tasks",
+      "screenshots": [
+        {
+          "label": "משימות להיום",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-tasks",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "משימות להיום"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "הרשימות עם מספר המטלות הפתוחות הגבוה ביותר",
+      "short_name": "2 הרשימות הפעילות",
+      "template": "taskflow-lists-top-2",
+      "screenshots": [
+        {
+          "label": "2 הרשימות הפעילות",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-lists-top-2",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "2 הרשימות הפעילות"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "הרשימות עם מספר המטלות הפתוחות הגבוה ביותר",
+      "short_name": "3 הרשימות הפעילות",
+      "template": "taskflow-lists-top-3",
+      "screenshots": [
+        {
+          "label": "3 הרשימות הפעילות",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-lists-top-3",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "3 הרשימות הפעילות"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "הרשימות עם מספר המטלות הפתוחות הגבוה ביותר",
+      "short_name": "4 הרשימות הפעילות",
+      "template": "taskflow-lists-top-4",
+      "screenshots": [
+        {
+          "label": "4 הרשימות הפעילות",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-lists-top-4",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "4 הרשימות הפעילות"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "הרשימות שבחרת כמועדפות",
+      "short_name": "רשימות מועדפות",
+      "template": "taskflow-lists-favorites",
+      "screenshots": [
+        {
+          "label": "רשימות מועדפות",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-lists-favorites",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "רשימות מועדפות"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "קיצורים לרשימות המשותפות שלך",
+      "short_name": "רשימות משותפות",
+      "template": "taskflow-shared",
+      "screenshots": [
+        {
+          "label": "רשימות משותפות",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-shared",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "רשימות משותפות"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "פריטים שעדיין צריך לקנות",
+      "short_name": "רשימת קניות",
+      "template": "taskflow-shopping",
+      "screenshots": [
+        {
+          "label": "רשימת קניות",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-shopping",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "רשימת קניות"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "המטלות הקטנות שלך",
+      "short_name": "מטלות קטנות",
+      "template": "taskflow-mini-tasks",
+      "screenshots": [
+        {
+          "label": "מטלות קטנות",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-mini-tasks",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "מטלות קטנות"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "סיכום דיווחי העבודה החודש",
+      "short_name": "שעות עבודה",
+      "template": "taskflow-work-hours",
+      "screenshots": [
+        {
+          "label": "שעות עבודה",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-work-hours",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "שעות עבודה"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "הטמפרטורה ומצב מזג האוויר עכשיו",
+      "short_name": "מזג אוויר",
+      "template": "taskflow-weather",
+      "screenshots": [
+        {
+          "label": "מזג אוויר",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-weather",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "מזג אוויר"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "המטלה הפתוחה הבאה",
+      "short_name": "המשימה הבאה",
+      "template": "taskflow-next-task",
+      "screenshots": [
+        {
+          "label": "המשימה הבאה",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-next-task",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "המשימה הבאה"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "סיכום התקדמות המטלות",
+      "short_name": "התקדמות יומית",
+      "template": "taskflow-day-progress",
+      "screenshots": [
+        {
+          "label": "התקדמות יומית",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-day-progress",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "התקדמות יומית"
+    },
+    {
+      "multiple": true,
+      "auth": false,
+      "ms_ac_template": "./widgets/taskflow-card.json",
+      "description": "האירוע הקרוב ביומן",
+      "short_name": "האירוע הבא",
+      "template": "taskflow-next-event",
+      "screenshots": [
+        {
+          "label": "האירוע הבא",
+          "src": "./widgets/taskflow-preview.png",
+          "sizes": "600x400"
+        }
+      ],
+      "tag": "taskflow-next-event",
+      "update": 3600,
+      "icons": [
+        {
+          "type": "image/png",
+          "src": "./icons/taskflow-192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "name": "האירוע הבא"
+    }
   ]
 }
