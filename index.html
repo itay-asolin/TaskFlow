@@ -708,6 +708,11 @@
     .flow-subs{flex:0 0 100%;display:grid;gap:0;padding-inline-start:30px;margin-top:-2px}
     .flow-node .flow-subs .subtask{font-size:11.5px;padding:1px 4px;min-height:0;height:auto;line-height:1.3;gap:6px}
     .flow-node .flow-subs .subtask input[type=checkbox]{width:13px;height:13px;min-height:0;padding:0;margin:0}
+    .flow-handle{flex:0 0 auto;cursor:grab;color:var(--faint);font-size:16px;line-height:1;padding:2px 0;touch-action:none;user-select:none}
+    .flow-handle:hover{color:var(--accent2)}
+    .flow-node{user-select:none;-webkit-user-select:none}
+    .flow-node.lifting,.flow-node.lifting .flow-handle{cursor:grabbing}
+    .flow-node .flow-del{margin-inline-start:auto}
     .flow-node.mini{background:var(--card2);border-style:dashed}
     .flow-node.done{opacity:.6}
     .flow-node.done .flow-title{text-decoration:line-through;color:var(--faint)}
@@ -715,7 +720,7 @@
     .flow-node.drop-target::before{content:"";position:absolute;left:10px;right:10px;top:-9px;height:4px;border-radius:4px;background:var(--accent)}
     .flow-check{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:var(--faint);transition:.15s}
     .flow-node.done .flow-check{background:var(--green);border-color:var(--green);color:#fff}
-    .flow-title{flex:1;min-width:0;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .flow-title{flex:0 1 auto;min-width:0;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .flow-tag{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--accent2);background:color-mix(in srgb,var(--accent) 14%,transparent);border-radius:999px;padding:2px 8px}
     .flow-del{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--faint);font-size:12px;display:flex;align-items:center;justify-content:center}
     .flow-del:hover{color:var(--danger);border-color:rgba(239,68,68,.4)}
@@ -729,6 +734,24 @@
     .flow-addmini-btn:hover{color:var(--accent2);border-color:var(--accent)}
     .flow-mini-input{display:flex;gap:6px;padding:6px 0 10px 34px;margin-right:14px}
     .flow-mini-input input{flex:1;padding:7px 10px;font-size:12px}
+    @media(min-width:821px){
+      .flow-wrap{max-width:900px}
+      .flow-pool-label{font-size:14px}
+      .flow-wrap .cp-pool{padding:20px 18px 16px;gap:14px 10px}
+      .cp-bubble{font-size:13.5px;padding:8px 16px}
+      .cp-bubble-list{font-size:11px}
+      .flow-node{padding:11px 18px;gap:14px;border-radius:14px}
+      .flow-check{width:28px;height:28px;font-size:14px}
+      .flow-title{font-size:16px;font-weight:800}
+      .flow-tag.flow-list-tag{font-size:11.5px;padding:3px 12px}
+      .flow-del{width:26px;height:26px}
+      .flow-subs{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;padding-inline-start:46px;margin-top:0}
+      .flow-node .flow-subs .subtask{font-size:13.5px;padding:3px 4px}
+      .flow-node .flow-subs .subtask input[type=checkbox]{width:15px;height:15px}
+      .flow-connector{padding:4px 0 4px 40px;margin-right:22px}
+      .flow-addmini-row{padding:3px 0 3px 40px;margin-right:22px}
+      .flow-swap-btn,.flow-addmini-btn{font-size:11.5px}
+    }
     .flow-hint{font-size:11px;color:var(--faint);text-align:center;margin-top:14px}
     .cp-task-chip.dragging{opacity:.55;cursor:grabbing}
     .cp-today-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -10083,73 +10106,71 @@ let longPressFired = false;
 
     // לחיצה ארוכה על כרטיס בשרשרת -> מצב גרירה, כדי להזיז אותו למקום אחר בשרשרת
     function attachFlowLongPress(nodeEl, nodeId, containerEl){
-      const LONG_PRESS_MS = 480, MOVE_CANCEL_PX = 10;
-      let pressTimer = null, dragging = false, startY = 0;
+      const LONG_PRESS_MS = 420, START_PX = 5, CANCEL_PX = 10;
+      let pressTimer = null, dragging = false, startY = 0, dropIdx = null, indicator = null, immediate = false;
 
-      function siblingNodes(){ return [...containerEl.querySelectorAll(".flow-node")]; }
-      function clearDropIndicators(){ siblingNodes().forEach(n => n.classList.remove("drop-target")); }
-      function findTarget(clientY){
-        return siblingNodes().find(n => {
-          if (n === nodeEl) return false;
-          const r = n.getBoundingClientRect();
-          return clientY >= r.top && clientY <= r.bottom;
-        });
+      function others(){ return [...containerEl.querySelectorAll(".flow-node")].filter(n => n !== nodeEl); }
+      function calcIndex(y){
+        const ns = others();
+        for (let i = 0; i < ns.length; i++) {
+          const r = ns[i].getBoundingClientRect();
+          if (y < r.top + r.height / 2) return i;
+        }
+        return ns.length;
+      }
+      function clearIndicator(){ if (indicator) { indicator.remove(); indicator = null; } dropIdx = null; }
+      function showIndicator(i){
+        clearIndicator();
+        const items = [...containerEl.querySelectorAll(".flow-item")].filter(it => !it.contains(nodeEl));
+        indicator = el("div","flow-drop-indicator");
+        if (!items.length) return;
+        if (i >= items.length) items[items.length - 1].after(indicator);
+        else containerEl.insertBefore(indicator, items[i]);
+        dropIdx = i;
       }
       function cancelPressTimer(){ if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } }
+      function startDrag(){ dragging = true; cancelPressTimer(); nodeEl.classList.add("lifting"); }
 
       function onMove(e){
-        if (!dragging) return;
-        e.preventDefault();
         const dy = e.clientY - startY;
+        if (!dragging) {
+          if (immediate && Math.abs(dy) > START_PX) startDrag();
+          else if (!immediate && Math.abs(dy) > CANCEL_PX) { stop(); return; }
+          if (!dragging) return;
+        }
+        e.preventDefault();
         nodeEl.style.transform = `translateY(${dy}px)`;
-        clearDropIndicators();
-        const target = findTarget(e.clientY);
-        if (target) target.classList.add("drop-target");
+        showIndicator(calcIndex(e.clientY));
       }
-      function endDrag(commit, e){
+      function stop(){
         document.removeEventListener("pointermove", onMove);
         document.removeEventListener("pointerup", onUp);
         document.removeEventListener("pointercancel", onCancel);
         cancelPressTimer();
-        if (dragging) {
-          nodeEl.classList.remove("lifting");
-          nodeEl.style.transform = "";
-          if (commit && e) {
-            const target = findTarget(e.clientY);
-            if (target) {
-              const targetIdx = state.flow.findIndex(n => n.id === target.dataset.flowId);
-              if (targetIdx !== -1) flowMoveNodeTo(nodeId, targetIdx);
-            }
-          }
-          clearDropIndicators();
-        }
-        dragging = false;
       }
-      const onUp = (e) => endDrag(true, e);
-      const onCancel = () => endDrag(false, null);
+      function finish(commit){
+        const idx = dropIdx, wasDragging = dragging;
+        stop();
+        nodeEl.classList.remove("lifting");
+        nodeEl.style.transform = "";
+        clearIndicator();
+        dragging = false;
+        if (wasDragging && commit && idx !== null) flowMoveNodeTo(nodeId, idx);
+      }
+      const onUp = () => finish(true);
+      const onCancel = () => finish(false);
 
       nodeEl.addEventListener("pointerdown", (e) => {
-        if (e.target.closest("button")) return;
-        startY = e.clientY;
-        const onPreMove = (ev) => {
-          if (!dragging && Math.abs(ev.clientY - startY) > MOVE_CANCEL_PX) {
-            cancelPressTimer();
-            document.removeEventListener("pointermove", onPreMove);
-          }
-        };
-        document.addEventListener("pointermove", onPreMove);
-        document.addEventListener("pointerup", () => document.removeEventListener("pointermove", onPreMove), { once: true });
-        pressTimer = setTimeout(() => {
-          dragging = true;
-          nodeEl.classList.add("lifting");
-          try { nodeEl.setPointerCapture(e.pointerId); } catch {}
-          document.addEventListener("pointermove", onMove, { passive: false });
-          document.addEventListener("pointerup", onUp);
-          document.addEventListener("pointercancel", onCancel);
-        }, LONG_PRESS_MS);
+        if (e.button > 0) return;
+        const onHandle = !!e.target.closest(".flow-handle");
+        if (!onHandle && e.target.closest("button, input, label")) return;
+        startY = e.clientY; dragging = false;
+        immediate = onHandle || e.pointerType === "mouse";
+        document.addEventListener("pointermove", onMove, { passive: false });
+        document.addEventListener("pointerup", onUp);
+        document.addEventListener("pointercancel", onCancel);
+        if (!immediate) pressTimer = setTimeout(startDrag, LONG_PRESS_MS);
       });
-      nodeEl.addEventListener("pointerup", cancelPressTimer);
-      nodeEl.addEventListener("pointercancel", cancelPressTimer);
     }
 
     // גרירת "בועה" ממאגר המשימות הזמינות לתוך השרשרת, עם קו מיקום שמראה איפה היא תיפול
@@ -10274,7 +10295,8 @@ let longPressFired = false;
           del.title = "הסר מהשרשרת";
           del.onclick = (e) => { e.stopPropagation(); flowRemoveNode(node.id); };
 
-          nodeEl.append(check, title);
+          const handle = el("span","flow-handle","⠿"); handle.title = "גרור כדי לשנות מיקום";
+          nodeEl.append(handle, check, title);
           const li = flowListInfo(node);
           if (li) {
             nodeEl.classList.add("has-lc"); nodeEl.style.setProperty("--lc", li.color);
