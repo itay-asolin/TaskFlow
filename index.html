@@ -4724,7 +4724,7 @@ let longPressFired = false;
         for(let i=0;i<42;i++){const d=new Date(start);d.setDate(d.getDate()+i);const key=toDateKey(d),b=el("button","today-widget-month-day"+(d.getMonth()!==today.getMonth()?" outside":"")+(key===todayKey?" today":""));b.type="button";b.textContent=String(d.getDate());if((state.events||[]).some(e=>e.date===key&&e.showInCalendar!==false))b.classList.add("has-events");b.onclick=()=>jumpFromWidget(d,"day");grid.append(b)}box.append(grid);
       }else if(type==="tasks"){
         if(!tasks.length)empty(box,"אין משימות פתוחות להיום. כל הכבוד!");
-        const list=el("div","today-dashboard-list");tasks.slice(0,8).forEach(task=>{const row=el("div","today-task-row"),check=el("button","today-task-check","✓");check.type="button";check.title="סמן כהושלמה";check.onclick=()=>toggleTask(task.id);const details=el("button","today-task-details");details.type="button";details.append(el("strong","",task.name),el("span","",!task.due?"ללא תאריך · משימה פתוחה":task.due<todayKey?"באיחור":"להיום"));details.onclick=()=>task.catId?openCat(task.catId):toast("לא נמצאה רשימה עבור המשימה");row.append(check,details);list.append(row)});if(tasks.length)box.append(list);
+        const list=el("div","today-dashboard-list");tasks.slice(0,8).forEach(task=>{const row=el("div","today-task-row"),check=el("button","today-task-check","✓");check.type="button";check.title="סמן כהושלמה";check.onclick=()=>toggleTask(task.id);const details=el("button","today-task-details");details.type="button";details.append(el("strong","",task.name),el("span","",(taskListName(task)?taskListName(task)+" · ":"")+(!task.due?"ללא תאריך · משימה פתוחה":task.due<todayKey?"באיחור":"להיום")));details.onclick=()=>task.catId?openCat(task.catId):toast("לא נמצאה רשימה עבור המשימה");row.append(check,details);list.append(row)});if(tasks.length)box.append(list);
       }else if(type==="flow"){
         flowCleanupOrphans();
         const nodes=state.flow||[],doneCount=nodes.filter(flowIsDone).length;
@@ -5791,6 +5791,7 @@ let longPressFired = false;
         ...tasks.map(t => ({
           type:"task",
           title: t.name,
+          listName: taskListName(t),
           color: t.color || state.accent,
           time: "99:99",
           id: t.id,
@@ -5842,7 +5843,7 @@ let longPressFired = false;
           dot.style.cssText = `display:inline-block;width:7px;height:7px;border-radius:2px;background:${itemData.color};flex:0 0 auto;margin-left:4px;opacity:.75`;
           const titleSpan = el("span","");
           titleSpan.style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0";
-          titleSpan.textContent = itemData.title;
+          titleSpan.textContent = itemData.title + (itemData.listName ? " · " + itemData.listName : "");
           item.append(dot, titleSpan);
           item.style.background = itemData.color + "18";
           item.style.color = itemData.color;
@@ -6007,7 +6008,7 @@ let longPressFired = false;
         });
         tasks.slice(0,4).forEach((t,i) => {
           const chip = el("div","cal-event");
-          chip.textContent = "✓ " + t.name;
+          chip.textContent = "✓ " + t.name + (taskListName(t) ? " · " + taskListName(t) : "");
           chip.style.top = (i*20+4)+"px"; chip.style.height = "18px";
           chip.style.background = (t.color || state.accent) + "44";
           chip.style.color = (t.color || state.accent);
@@ -6183,7 +6184,7 @@ let longPressFired = false;
         const cb = el("span","");
         cb.style.cssText = "width:10px;height:10px;border-radius:3px;border:1.5px solid currentColor;flex:0 0 auto;display:inline-block;margin-left:5px";
         const txt = el("span","");
-        txt.textContent = t.name;
+        txt.textContent = t.name + (taskListName(t) ? " · " + taskListName(t) : "");
         txt.style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
         chip.append(cb, txt);
         chip.style.top = (i*26+6)+"px"; chip.style.height = "23px";
@@ -8117,6 +8118,10 @@ let longPressFired = false;
         }
       },{passive:true});
       return wrap;
+    }
+
+    function taskListName(t){
+      return state.cats.find(c => c.id === t.catId)?.name || "";
     }
 
     function dueChip(due){
