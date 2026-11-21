@@ -703,25 +703,25 @@
     .flow-additem select,.flow-additem input{flex:1}
     .flow-empty{font-size:13px;font-weight:700;color:var(--faint);text-align:center;padding:26px 10px;border:1px dashed var(--border);border-radius:14px}
     .flow-item{display:flex;flex-direction:column;align-items:stretch}
-    .flow-node{position:relative;display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:0 4px 14px rgba(0,0,0,.10);transition:transform .15s,box-shadow .15s,border-color .15s,opacity .15s;touch-action:pan-y}
+    .flow-node{position:relative;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:6px 10px;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:transform .15s,box-shadow .15s,border-color .15s,opacity .15s;touch-action:pan-y}
     .flow-node.mini{background:var(--card2);border-style:dashed}
     .flow-node.done{opacity:.6}
     .flow-node.done .flow-title{text-decoration:line-through;color:var(--faint)}
     .flow-node.lifting{box-shadow:0 14px 30px rgba(0,0,0,.28);border-color:var(--accent);z-index:20;cursor:grabbing}
     .flow-node.drop-target::before{content:"";position:absolute;left:10px;right:10px;top:-9px;height:4px;border-radius:4px;background:var(--accent)}
-    .flow-check{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:var(--faint);transition:.15s}
+    .flow-check{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:var(--faint);transition:.15s}
     .flow-node.done .flow-check{background:var(--green);border-color:var(--green);color:#fff}
-    .flow-title{flex:1;min-width:0;font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .flow-title{flex:1;min-width:0;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .flow-tag{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--accent2);background:color-mix(in srgb,var(--accent) 14%,transparent);border-radius:999px;padding:2px 8px}
-    .flow-del{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--faint);font-size:12px;display:flex;align-items:center;justify-content:center}
+    .flow-del{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--faint);font-size:12px;display:flex;align-items:center;justify-content:center}
     .flow-del:hover{color:var(--danger);border-color:rgba(239,68,68,.4)}
-    .flow-connector{display:flex;align-items:center;gap:8px;padding:6px 0 6px 34px;margin-right:14px;border-right:2px dashed var(--border)}
-    .flow-arrow{font-size:16px;color:var(--accent2);line-height:1}
-    .flow-swap-btn{border:1px solid var(--border);background:var(--card2);color:var(--muted);border-radius:999px;font-size:11px;font-weight:800;padding:4px 10px;display:flex;align-items:center;gap:4px}
+    .flow-connector{display:flex;align-items:center;gap:8px;padding:1px 0 1px 26px;margin-right:11px;border-right:2px dashed var(--border)}
+    .flow-arrow{font-size:12px;color:var(--accent2);line-height:1}
+    .flow-swap-btn{border:1px solid var(--border);background:var(--card2);color:var(--muted);border-radius:999px;font-size:10px;font-weight:700;padding:1px 8px;display:flex;align-items:center;gap:4px}
     .flow-swap-btn:hover{border-color:var(--accent);color:var(--accent2)}
-    .flow-addmini-row{display:flex;justify-content:flex-start;padding:4px 0 4px 34px;margin-right:14px}
+    .flow-addmini-row{display:flex;justify-content:flex-start;padding:2px 0 2px 26px;margin-right:11px}
     .flow-addmini-row.last{border-right:none}
-    .flow-addmini-btn{font-size:11px;font-weight:800;color:var(--faint);background:transparent;border:1px dashed var(--border);border-radius:999px;padding:3px 10px}
+    .flow-addmini-btn{font-size:10px;font-weight:700;color:var(--faint);background:transparent;border:1px dashed var(--border);border-radius:999px;padding:1px 8px}
     .flow-addmini-btn:hover{color:var(--accent2);border-color:var(--accent)}
     .flow-mini-input{display:flex;gap:6px;padding:6px 0 10px 34px;margin-right:14px}
     .flow-mini-input input{flex:1;padding:7px 10px;font-size:12px}
@@ -10022,8 +10022,12 @@ let longPressFired = false;
     function flowToggleNode(nodeId){
       const node = state.flow.find(n => n.id === nodeId);
       if (!node) return;
-      if (node.taskId) { toggleTask(node.taskId); return; }
-      node.done = !node.done;
+      const idx = state.flow.findIndex(n => n.id === nodeId);
+      if (idx !== -1) state.flow.splice(idx, 1);
+      if (node.taskId) {
+        const t = state.tasks.find(x => x.id === node.taskId);
+        if (t && !isDone(t)) { toggleTask(node.taskId); return; }
+      }
       save(); render();
     }
 
