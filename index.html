@@ -689,6 +689,12 @@
     .cp-bubble.dragging{opacity:.35}
     .cp-bubble.overdue{border-color:color-mix(in srgb,#ef4444 55%,var(--border))}
     .cp-bubble-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+    .cp-bubble[data-lc]:not(.selected){border-color:color-mix(in srgb,var(--lc) 55%,var(--border));background:color-mix(in srgb,var(--lc) 12%,var(--card))}
+    .cp-bubble-list{font-size:10px;font-weight:700;opacity:.75}
+    .flow-node.lc:not(.lifting){border-color:color-mix(in srgb,var(--lc) 55%,var(--border));border-right:5px solid var(--lc);background:color-mix(in srgb,var(--lc) 12%,var(--card))}
+    .flow-tag.flow-list-tag{color:var(--lc);background:color-mix(in srgb,var(--lc) 18%,transparent)}
+    .today-flow-item.lc{border-inline-start:4px solid var(--lc);background:color-mix(in srgb,var(--lc) 12%,var(--card))}
+    .today-flow-list-name{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--lc)}
 
     /* ── Flow Chart (שרשרת משימות) ── */
     .flow-wrap{display:flex;flex-direction:column;gap:0;max-width:560px;margin:0 auto}
@@ -4737,7 +4743,7 @@ let longPressFired = false;
           nodes.slice(0,6).forEach((node,index)=>{
             const row=el("div","today-widget-mini-item today-flow-item"+(flowIsDone(node)?" done":""));
             const check=el("button","today-flow-check",flowIsDone(node)?"✓":"");check.type="button";check.title=flowIsDone(node)?"סמן כלא הושלם":"סמן כהושלם";check.setAttribute("aria-label",`${check.title}: ${flowTitle(node)}`);check.onclick=()=>flowToggleNode(node.id);
-            row.append(check,el("span","today-flow-name",flowTitle(node)));
+            row.append(check,el("span","today-flow-name",flowTitle(node)));const li=flowListInfo(node);if(li){row.classList.add("lc");row.style.setProperty("--lc",li.color);if(li.name)row.append(el("span","today-flow-list-name",li.name))}
             if(index<nodes.length-1&&index<5)row.append(el("span","today-flow-arrow","↓"));
             list.append(row);
           });
@@ -9990,6 +9996,13 @@ let longPressFired = false;
       state.flow = (state.flow || []).filter(n => !n.taskId || state.tasks.some(t => t.id === n.taskId));
     }
 
+    function flowListInfo(node){
+      const t = node.taskId ? state.tasks.find(x => x.id === node.taskId) : null;
+      if (!t) return null;
+      const cat = state.cats.find(c => c.id === t.catId);
+      return { name: cat?.name || "", color: cat?.color || t.color || state.accent };
+    }
+
     function flowTitle(node){
       if (node.taskId) {
         const t = state.tasks.find(x => x.id === node.taskId);
@@ -10211,9 +10224,12 @@ let longPressFired = false;
       } else {
         availableTasks.forEach(task => {
           const bubble = el("div","cp-bubble");
-          const dot = el("span","cp-bubble-dot"); dot.style.background = task.color || state.accent;
+          const poolCat = state.cats.find(c => c.id === task.catId), poolColor = poolCat?.color || task.color || state.accent;
+          bubble.dataset.lc = "1"; bubble.style.setProperty("--lc", poolColor);
+          const dot = el("span","cp-bubble-dot"); dot.style.background = poolColor;
           bubble.append(dot);
           bubble.append(document.createTextNode(task.name));
+          if (poolCat?.name) bubble.append(el("span","cp-bubble-list","· " + poolCat.name));
           pool.append(bubble);
           attachFlowBubbleDrag(bubble, task, wrap);
         });
@@ -10251,6 +10267,11 @@ let longPressFired = false;
           del.onclick = (e) => { e.stopPropagation(); flowRemoveNode(node.id); };
 
           nodeEl.append(check, title);
+          const li = flowListInfo(node);
+          if (li) {
+            nodeEl.classList.add("lc"); nodeEl.style.setProperty("--lc", li.color);
+            if (li.name) nodeEl.append(el("span","flow-tag flow-list-tag",li.name));
+          }
           if (!node.taskId) nodeEl.append(el("span","flow-tag","מיני"));
           nodeEl.append(del);
           item.append(nodeEl);
