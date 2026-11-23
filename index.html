@@ -546,7 +546,34 @@
     .meetings-dashboard{display:grid;gap:16px;margin-top:4px}
     .meetings-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--border);border-radius:var(--rs);background:var(--card)}
     .meetings-toolbar .mt-row{display:contents}
-    .meetings-toolbar .mt-back{order:1}.meetings-toolbar .mt-today{order:2}.meetings-toolbar .mt-prev{order:3}.meetings-toolbar strong{order:4}.meetings-toolbar .mt-next{order:5}.meetings-toolbar input[type=month]{order:6}
+    .meetings-toolbar .mt-back{order:1}.meetings-toolbar .mt-today{order:2}.meetings-toolbar .mt-prev{order:3}.meetings-toolbar strong{order:4}.meetings-toolbar .mt-next{order:5}.meetings-toolbar .mt-view{order:6}
+    .meetings-toolbar .mt-view{display:none;gap:2px;padding:3px;border:1px solid var(--border);border-radius:999px;background:var(--surface)}
+    .meetings-toolbar .mt-view button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:800;padding:5px 13px;border-radius:999px;cursor:pointer}
+    .meetings-toolbar .mt-view button.active{background:var(--accent);color:#fff}
+    .meetings-toolbar .btn.mt-arrow,.meetings-toolbar .mt-row .btn.mt-arrow{width:30px;height:30px;min-height:30px;padding:0;display:inline-grid;place-items:center;border-radius:50%;font-size:19px;line-height:1;flex:0 0 auto}
+    .mg-day-head .day-abbr{display:none}
+    /* בורר שעות בצורת שעון */
+    .clock-trigger{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;padding:6px 10px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--text);font:inherit;font-size:21px;font-weight:900;direction:ltr;font-variant-numeric:tabular-nums;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+    .clock-trigger:hover,.clock-trigger:focus-visible{border-color:var(--accent);outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+    .clock-trigger .ct-ico{font-size:16px;opacity:.7}
+    .clock-trigger .ct-empty{color:var(--faint);font-size:15px;font-weight:700}
+    .clock-pop-back{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:16px;background:rgba(8,10,16,.55);backdrop-filter:blur(4px)}
+    .clock-pop{width:min(300px,100%);padding:16px;border:1px solid var(--border);border-radius:22px;background:var(--surface);box-shadow:0 24px 60px rgba(0,0,0,.35);direction:ltr}
+    .clock-pop-head{display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:12px;font-variant-numeric:tabular-nums}
+    .clock-pop-head button{border:0;border-radius:12px;background:var(--card);color:var(--muted);font:inherit;font-size:38px;font-weight:900;line-height:1;padding:8px 12px;min-width:76px;cursor:pointer}
+    .clock-pop-head button.active{background:color-mix(in srgb,var(--accent) 18%,var(--card));color:var(--accent2)}
+    .clock-pop-head span{font-size:34px;font-weight:900;color:var(--muted)}
+    .clock-face{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+    .clock-face .cf-bg{fill:var(--card)}
+    .clock-face .cf-num{fill:var(--text);font-size:15px;font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+    .clock-face .cf-num.inner{font-size:12px;fill:var(--muted)}
+    .clock-face .cf-hand{stroke:var(--accent);stroke-width:2}
+    .clock-face .cf-dot{fill:var(--accent)}
+    .clock-face .cf-knob{fill:var(--accent)}
+    .clock-face .cf-num.sel{fill:#fff;font-weight:900}
+    .clock-pop-foot{display:flex;justify-content:space-between;gap:8px;margin-top:12px;direction:rtl}
+    .clock-pop-foot button{flex:1;min-height:42px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit;font-weight:800;cursor:pointer}
+    .clock-pop-foot button.ok{background:var(--accent);border-color:var(--accent);color:#fff}
     .meetings-month-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
     .meeting-stat{padding:13px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
     .meeting-stat strong{display:block;font-size:20px;color:var(--accent2);margin-top:4px}
@@ -1375,6 +1402,12 @@
       .meetings-toolbar .mt-row .btn{padding:7px 10px;font-size:12.5px}
       .meetings-toolbar .mt-row input[type=month]{flex:1;min-width:0;max-width:150px}
       .meetings-toolbar .mt-row strong{font-size:12.5px;text-align:center;flex:1}
+      .meetings-toolbar .mt-view{display:inline-flex}
+      .meetings-dashboard.mv-week .meetings-mobile-days{display:none}
+      .meetings-dashboard.mv-week .meetings-grid{grid-template-columns:34px repeat(7,minmax(0,1fr))!important}
+      .meetings-dashboard.mv-week .mg-day-head .day-full{display:none}
+      .meetings-dashboard.mv-week .mg-day-head .day-abbr{display:block}
+      .meetings-dashboard.mv-week .mg-day-head .day-date{font-size:13px}
       .cal-week,.cal-week-head{
         min-width:0;
         width:100%;
@@ -7380,6 +7413,29 @@ let longPressFired = false;
     const HOUR_HEIGHT = SLOT_HEIGHT * 4; 
     const DAY_NAMES_HE = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
     const SUBJ_PRESETS = ["שיעור פרטי","פגישת עבודה","ייעוץ","קורס","ספורט","אחר"];
+    const DAY_ABBR_HE = ["א'","ב'","ג'","ד'","ה'","ו'","ש'"];
+    function meetingsView(){try{return localStorage.getItem("taskflow_meetings_view")==="week"?"week":"day"}catch(e){return "day"}}
+    function meetingsDayMode(){return window.matchMedia("(max-width:820px)").matches && meetingsView()==="day"}
+    let meetingsWheelLock=0;
+    /* dir: +1 = קדימה, -1 = אחורה. בתצוגת שבוע זז שבוע, בתצוגת יום זז יום; החודש בסיכום מתעדכן מעצמו */
+    function shiftMeetingsPeriod(dir){
+      const base=state.meetingsDate?parseDate(state.meetingsDate):new Date();
+      const dayMode=meetingsDayMode();
+      const d=dayMode?new Date(base):meetingWeekStart(base);
+      d.setDate(d.getDate()+dir*(dayMode?1:7));
+      state.meetingsDate=toDateKey(d);save();render();
+    }
+    function attachMeetingsSwipe(block){
+      let sx=0,sy=0;
+      block.addEventListener("touchstart",e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;},{passive:true});
+      block.addEventListener("touchend",e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6)shiftMeetingsPeriod(dx>0?1:-1);},{passive:true});
+      block.addEventListener("wheel",e=>{
+        if(Math.abs(e.deltaX)<25||Math.abs(e.deltaX)<Math.abs(e.deltaY))return;
+        e.preventDefault();
+        const now=Date.now();if(now<meetingsWheelLock)return;meetingsWheelLock=now+450;
+        shiftMeetingsPeriod(e.deltaX>0?-1:1);
+      },{passive:false});
+    }
 
     function meetingWeekStart(date){
       const d = new Date(date);
@@ -7400,21 +7456,22 @@ let longPressFired = false;
       const workEvents = monthEvents.filter(e=>eventKind(e)==="work");
       const hours = workEvents.reduce((sum,e)=>sum+eventHours(e),0);
       const toolbar=el("div","meetings-toolbar");
-      const prev=el("button","btn","‹ שבוע קודם"); prev.type="button"; prev.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()-7);state.meetingsDate=toDateKey(d);save();render();};
-      const next=el("button","btn","שבוע הבא ›"); next.type="button"; next.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()+7);state.meetingsDate=toDateKey(d);save();render();};
-      const month=document.createElement("input"); month.type="month"; month.value=`${selected.getFullYear()}-${String(selected.getMonth()+1).padStart(2,"0")}`; month.title="מעבר לחודש אחר"; month.onchange=()=>{if(month.value){state.meetingsDate=month.value+"-01";save();render();}};
+      const prev=el("button","btn mt-arrow","›"); prev.type="button"; prev.setAttribute("aria-label","שבוע קודם"); prev.title="שבוע קודם"; prev.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()-7);state.meetingsDate=toDateKey(d);save();render();};
+      const next=el("button","btn mt-arrow","‹"); next.type="button"; next.setAttribute("aria-label","שבוע הבא"); next.title="שבוע הבא"; next.onclick=()=>{const d=new Date(weekStart);d.setDate(d.getDate()+7);state.meetingsDate=toDateKey(d);save();render();};
       const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
       const rangeLabel=el("strong","",`${weekStart.toLocaleDateString("he-IL",{day:"numeric",month:"long"})} – ${weekEnd.toLocaleDateString("he-IL",{day:"numeric",month:"long",year:"numeric"})}`);
       const backBtn=el("button","btn mt-back","📅 חזרה ללוח"); backBtn.type="button"; backBtn.onclick=()=>navigate("calendar");
       const todayBtn=el("button","btn mt-today","היום"); todayBtn.type="button"; todayBtn.onclick=()=>{state.meetingsDate=toDateKey(today);save();render();};
       prev.classList.add("mt-prev"); next.classList.add("mt-next");
+      const viewToggle=el("div","mt-view");
+      [["day","יום"],["week","שבוע"]].forEach(([v,t])=>{const b=el("button",meetingsView()===v?"active":"",t);b.type="button";b.onclick=()=>{try{localStorage.setItem("taskflow_meetings_view",v)}catch(e){}render();};viewToggle.append(b);});
       // במובייל: שורה 1 = ניווט שבוע; שורה 2 = חזרה, היום ובורר חודש (בדסקטופ השורות שקופות והסדר נשמר)
       const navRow=el("div","mt-row"); navRow.append(prev,rangeLabel,next);
-      const toolRow=el("div","mt-row"); toolRow.append(backBtn,todayBtn,month);
+      const toolRow=el("div","mt-row"); toolRow.append(backBtn,todayBtn,viewToggle);
       toolbar.append(navRow,toolRow);
-      const wrap=el("div","meetings-dashboard"); wrap.append(toolbar);
+      const wrap=el("div","meetings-dashboard "+(meetingsDayMode()?"mv-day":"mv-week")); wrap.append(toolbar);
       const mobileDays=el("div","meetings-mobile-days");
-      Array.from({length:7},(_,i)=>{const d=new Date(weekStart);d.setDate(d.getDate()+i);const key=toDateKey(d);const b=el("button","meetings-mobile-day"+(key===toDateKey(selected)?" active":""));b.type="button";b.append(el("span","",DAY_NAMES_HE[d.getDay()].slice(0,2)),el("strong","",String(d.getDate())));b.onclick=()=>{state.meetingsDate=key;save();render();};mobileDays.append(b);});
+      Array.from({length:7},(_,i)=>{const d=new Date(weekStart);d.setDate(d.getDate()+i);const key=toDateKey(d);const b=el("button","meetings-mobile-day"+(key===toDateKey(selected)?" active":""));b.type="button";b.append(el("span","",DAY_ABBR_HE[d.getDay()]),el("strong","",String(d.getDate())));b.onclick=()=>{state.meetingsDate=key;save();render();};mobileDays.append(b);});
       wrap.append(mobileDays,buildWeekBlock(weekStart,today,"הלוח השבועי"));
       const period=monthStart.toLocaleDateString("he-IL",{month:"long",year:"numeric"});
       const showSummary = state.meetingsSettings?.showSummary!==false;
@@ -7544,9 +7601,9 @@ let longPressFired = false;
         const isToday = d.getTime() === today.getTime();
         const head = el("div","mg-day-head" + (isToday ? " today" : ""));
         head.dataset.date=toDateKey(d);
-        if(window.matchMedia("(max-width:820px)").matches && head.dataset.date!==(state.meetingsDate||toDateKey(today))) head.classList.add("mobile-day-hidden");
+        if(meetingsDayMode() && head.dataset.date!==(state.meetingsDate||toDateKey(today))) head.classList.add("mobile-day-hidden");
         const dateNum = el("div","day-date", String(d.getDate()));
-        const dayName = el("div","", DAY_NAMES_HE[d.getDay()]);
+        const dayName = el("div",""); dayName.append(el("span","day-full",DAY_NAMES_HE[d.getDay()]),el("span","day-abbr",DAY_ABBR_HE[d.getDay()]));
         head.append(dateNum, dayName);
         grid.append(head);
       });
@@ -7562,7 +7619,7 @@ let longPressFired = false;
         const dk = toDateKey(d);
         const dayCol = el("div","mg-day-col");
         dayCol.dataset.date = dk;
-        if(window.matchMedia("(max-width:820px)").matches && dk!==(state.meetingsDate||toDateKey(today))) dayCol.classList.add("mobile-day-hidden");
+        if(meetingsDayMode() && dk!==(state.meetingsDate||toDateKey(today))) dayCol.classList.add("mobile-day-hidden");
 
         const dayEvents = (state.events||[]).filter(e => e.date === dk && e.time);
 
@@ -7634,6 +7691,7 @@ let longPressFired = false;
       });
 
       block.append(grid);
+      attachMeetingsSwipe(block);
       return block;
     }
 
@@ -8686,20 +8744,68 @@ let longPressFired = false;
     function clockField(labelText,id,value){
       const wrap=el("div","field clock-field");wrap.append(el("label","",labelText));
       const hidden=document.createElement("input");hidden.type="hidden";hidden.id=id;
-      const parts=/^(\d{1,2}):(\d{2})$/.exec(value||"");
-      const hour=document.createElement("select");hour.className="clock-hour";hour.setAttribute("aria-label",labelText+" — שעה");
-      const minute=document.createElement("select");minute.className="clock-minute";minute.setAttribute("aria-label",labelText+" — דקות");
-      const blankH=new Option("שעה",""),blankM=new Option("דק׳","");hour.add(blankH);minute.add(blankM);
-      for(let h=0;h<24;h++){const n=String(h).padStart(2,"0");hour.add(new Option(n,n));}
-      const wantedMinute=parts?String(Number(parts[2])).padStart(2,"0"):"";
-      const minuteValues=Array.from({length:60},(_,i)=>String(i).padStart(2,"0"));
-      minuteValues.forEach(m=>minute.add(new Option(m,m)));
-      if(parts){hour.value=String(Number(parts[1])).padStart(2,"0");minute.value=wantedMinute;}
-      const sync=()=>{hidden.value=hour.value&&minute.value?hour.value+":"+minute.value:"";hidden.dispatchEvent(new Event("change",{bubbles:true}));};
-      hidden.setClockValue=(next)=>{const m=/^(\d{1,2}):(\d{2})$/.exec(next||"");hour.value=m?String(Number(m[1])).padStart(2,"0"):"";minute.value=m?String(Number(m[2])).padStart(2,"0"):"";sync();};
-      hour.addEventListener("change",sync);minute.addEventListener("change",sync);
-      const picker=el("div","clock-picker");picker.append(hour,el("span","clock-colon",":"),minute);
-      wrap.append(picker,hidden);return wrap;
+      const trigger=el("button","clock-trigger");trigger.type="button";trigger.setAttribute("aria-label",labelText);
+      const parse=v=>{const m=/^(\d{1,2}):(\d{2})$/.exec(v||"");return m?{h:Math.min(23,+m[1]),m:Math.min(59,+m[2])}:null;};
+      const fmt=t=>String(t.h).padStart(2,"0")+":"+String(t.m).padStart(2,"0");
+      const paint=()=>{trigger.replaceChildren();if(hidden.value){trigger.append(el("span","ct-ico","🕐"),el("span","",hidden.value));}else{trigger.append(el("span","ct-empty","בחר שעה"));}};
+      const commit=(t,fire)=>{hidden.value=t?fmt(t):"";paint();if(fire)hidden.dispatchEvent(new Event("change",{bubbles:true}));};
+      hidden.setClockValue=next=>commit(parse(next),true);
+      if(parse(value))hidden.value=fmt(parse(value));paint();
+      trigger.onclick=()=>openClockPopup(labelText,parse(hidden.value)||{h:new Date().getHours(),m:0},t=>commit(t,true));
+      wrap.append(trigger,hidden);return wrap;
+    }
+
+    /* שעון אנלוגי: טבעת חיצונית 12,1..11 וטבעת פנימית 00,13..23. גוררים/לוחצים לבחירה; אחרי השעה עוברים אוטומטית לדקות */
+    function openClockPopup(title,initial,onPick){
+      const NS="http://www.w3.org/2000/svg",C=100,R_OUT=80,R_IN=52;
+      let h=initial.h,m=initial.m,mode="h";
+      const back=el("div","clock-pop-back"),pop=el("div","clock-pop");
+      pop.setAttribute("role","dialog");pop.setAttribute("aria-label",title);
+      const head=el("div","clock-pop-head"),hBtn=el("button","","");hBtn.type="button";const mBtn=el("button","","");mBtn.type="button";head.append(hBtn,el("span","",":"),mBtn);
+      const svg=document.createElementNS(NS,"svg");svg.setAttribute("viewBox","0 0 200 200");svg.setAttribute("class","clock-face");
+      const mk=(tag,attrs)=>{const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));return n;};
+      const foot=el("div","clock-pop-foot"),cancel=el("button","","ביטול"),ok=el("button","ok","אישור");cancel.type="button";ok.type="button";foot.append(cancel,ok);
+      pop.append(head,svg,foot);back.append(pop);
+      const pos=(val,total,r)=>{const a=val/total*2*Math.PI-Math.PI/2;return [C+r*Math.cos(a),C+r*Math.sin(a)];};
+      const hourPos=hh=>{const inner=hh===0||hh>12;const slot=hh%12;return pos(slot,12,inner?R_IN:R_OUT);};
+      const draw=()=>{
+        svg.replaceChildren();
+        svg.append(mk("circle",{cx:C,cy:C,r:96,class:"cf-bg"}));
+        const [hx,hy]=mode==="h"?hourPos(h):pos(m,60,R_OUT);
+        svg.append(mk("line",{x1:C,y1:C,x2:hx,y2:hy,class:"cf-hand"}),mk("circle",{cx:C,cy:C,r:3.5,class:"cf-dot"}));
+        const knob=mk("circle",{cx:hx,cy:hy,r:mode==="h"&&(h===0||h>12)?14:16,class:"cf-knob"});svg.append(knob);
+        if(mode==="m"&&m%5!==0)svg.append(mk("circle",{cx:hx,cy:hy,r:2.5,fill:"#fff"}));
+        const label=(txt,x,y,cls,sel)=>{const t=mk("text",{x,y,class:"cf-num"+(cls?" "+cls:"")+(sel?" sel":"")});t.textContent=txt;svg.append(t);};
+        if(mode==="h"){
+          for(let i=0;i<12;i++){const [x,y]=pos(i,12,R_OUT);label(String(i===0?12:i),x,y,"",h===(i===0?12:i));}
+          for(let i=0;i<12;i++){const v=i===0?0:i+12;const [x,y]=pos(i,12,R_IN);label(String(v).padStart(2,"0"),x,y,"inner",h===v);}
+        }else{
+          for(let i=0;i<12;i++){const v=i*5;const [x,y]=pos(v,60,R_OUT);label(String(v).padStart(2,"0"),x,y,"",m===v);}
+        }
+        hBtn.textContent=String(h).padStart(2,"0");mBtn.textContent=String(m).padStart(2,"0");
+        hBtn.classList.toggle("active",mode==="h");mBtn.classList.toggle("active",mode==="m");
+      };
+      const fromEvent=e=>{
+        const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*200-C,y=(e.clientY-r.top)/r.height*200-C;
+        let ang=Math.atan2(y,x)+Math.PI/2;if(ang<0)ang+=2*Math.PI;
+        if(mode==="h"){
+          const slot=Math.round(ang/(2*Math.PI)*12)%12,inner=Math.hypot(x,y)<(R_IN+R_OUT)/2;
+          h=inner?(slot===0?0:slot+12):(slot===0?12:slot);
+        }else{m=Math.round(ang/(2*Math.PI)*60)%60;}
+        draw();
+      };
+      let dragging=false;
+      svg.addEventListener("pointerdown",e=>{dragging=true;try{svg.setPointerCapture(e.pointerId)}catch(_){}fromEvent(e);});
+      svg.addEventListener("pointermove",e=>{if(dragging)fromEvent(e);});
+      const release=()=>{if(!dragging)return;dragging=false;if(mode==="h"){mode="m";draw();}};
+      svg.addEventListener("pointerup",release);svg.addEventListener("pointercancel",()=>{dragging=false;});
+      hBtn.onclick=()=>{mode="h";draw();};mBtn.onclick=()=>{mode="m";draw();};
+      const close=()=>{document.removeEventListener("keydown",onKey,true);back.remove();};
+      const onKey=e=>{if(e.key==="Escape"){e.stopPropagation();close();}else if(e.key==="Enter"){e.preventDefault();e.stopPropagation();onPick({h,m});close();}};
+      document.addEventListener("keydown",onKey,true);
+      cancel.onclick=close;ok.onclick=()=>{onPick({h,m});close();};
+      back.addEventListener("pointerdown",e=>{if(e.target===back)close();});
+      document.body.append(back);draw();
     }
 
     function colorPicker(current, name){
